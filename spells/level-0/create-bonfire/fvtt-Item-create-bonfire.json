@@ -40,7 +40,7 @@
       "amount": null
     },
     "ability": "",
-    "actionType": "save",
+    "actionType": "other",
     "attackBonus": 0,
     "chatFlavor": "",
     "critical": {
@@ -48,17 +48,12 @@
       "damage": ""
     },
     "damage": {
-      "parts": [
-        [
-          "1d8[fire]",
-          "fire"
-        ]
-      ],
+      "parts": [],
       "versatile": ""
     },
     "formula": "",
     "save": {
-      "ability": "dex",
+      "ability": "",
       "dc": null,
       "scaling": "spell"
     },
@@ -83,9 +78,10 @@
       "prepared": false
     },
     "scaling": {
-      "mode": "cantrip",
-      "formula": "1d8"
-    }
+      "mode": "none",
+      "formula": ""
+    },
+    "attunement": null
   },
   "effects": [
     {
@@ -202,8 +198,8 @@
       "sourceId": "Compendium.world.ddb-spells-2.odj172H63OVnuToJ"
     },
     "scene-packer": {
-      "hash": "9c8c3a3117552621a25a546885087ff55e47b952",
-      "sourceId": "Item.n1DU8y6GpYMtp2fI"
+      "hash": "d9ce51c7a9b5674a76f742cb749fc77ddafea443",
+      "sourceId": "Item.kFwFV5h2LhIMMD1k"
     },
     "rest-recovery": {
       "data": {
@@ -224,10 +220,16 @@
       "toggleEffect": false
     },
     "exportSource": {
-      "world": "Curse of Strahd",
+      "world": "dnd5e",
       "system": "dnd5e",
       "coreVersion": "9.280",
       "systemVersion": "1.6.3"
+    },
+    "enhanced-terrain-layer": {
+      "multiple": null,
+      "elevation": null,
+      "depth": null,
+      "environment": ""
     }
   }
 }
