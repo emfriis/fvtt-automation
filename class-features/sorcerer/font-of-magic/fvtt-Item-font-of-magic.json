@@ -1,0 +1,212 @@
+{
+  "name": "Font of Magic",
+  "type": "feat",
+  "img": "icons/magic/symbols/circle-ouroboros.webp",
+  "data": {
+    "description": {
+      "value": "<p>At 2nd level, you tap into a deep wellspring of magic within yourself. This wellspring is represented by sorcery points, which allow you to create a variety of magical effects.</p>\n<h3>Sorcery Points</h3>\n<p>You have 2 sorcery points, and you gain more as you reach higher levels. Your sorcerer level equals the number of sorcery points you have, so a 4th level sorcerer has 4 sorcery points, a 16th level sorcerer has 16. You can never have more sorcery points than your level dictates.&nbsp; You regain all spent sorcery points when you finish a long rest.</p>\n<h3>Flexible Casting</h3>\n<p>You can use your sorcery points to gain additional spell slots, or sacrifice spell slots to gain additional sorcery points. You learn other ways to use your sorcery points as you reach higher levels.</p>\n<p><em><strong>Creating Spell Slots</strong>.</em>You can transform unexpended sorcery points into one spell slot as a bonus action on your turn. The Creating Spell Slots table shows the cost of creating a spell slot of a given level. You can create spell slots no higher in level than 5th.</p>\n<p>Any spell slot you create with this feature vanishes when you finish a long rest.</p>\n<table border=\"1\"><caption>Creating Spell Slots</caption>\n<thead>\n<tr>\n<td><strong>Spell Slot Level</strong></td>\n<td><strong>Sorcery Point Cost</strong></td>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1st</td>\n<td>2</td>\n</tr>\n<tr>\n<td>2nd</td>\n<td>3</td>\n</tr>\n<tr>\n<td>3rd</td>\n<td>5</td>\n</tr>\n<tr>\n<td>4th</td>\n<td>6</td>\n</tr>\n<tr>\n<td>5th</td>\n<td>7</td>\n</tr>\n</tbody>\n</table>\n<p><em><strong>Converting a Spell Slot to Sorcery Points</strong>.</em>As a bonus action on your turn, you can expend one spell slot and gain a number of sorcery points equal to the slot's level.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "PHB pg. 101",
+    "activation": {
+      "type": "bonus",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": ""
+    },
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": "self"
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": ""
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": "",
+      "type": "lr"
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "util",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": null
+    },
+    "damage": {
+      "parts": [],
+      "versatile": "",
+      "value": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell",
+      "value": ""
+    },
+    "requirements": "Sorcerer 2",
+    "recharge": {
+      "value": null,
+      "charged": false
+    },
+    "attunement": 0
+  },
+  "effects": [
+    {
+      "_id": "gCFY4nj0mBX0ZB3L",
+      "changes": [
+        {
+          "key": "data.resources.primary.label",
+          "mode": 5,
+          "value": "Sorcery Points",
+          "priority": "20"
+        },
+        {
+          "key": "data.resources.primary.lr",
+          "mode": 5,
+          "value": "1",
+          "priority": "20"
+        },
+        {
+          "key": "data.resources.primary.max",
+          "mode": 5,
+          "value": "@classes.sorcerer.levels",
+          "priority": "20"
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null
+      },
+      "icon": "icons/magic/symbols/circle-ouroboros.webp",
+      "label": "Font of Magic",
+      "origin": "Item.0QhSae5xmxV5qeA3",
+      "transfer": true,
+      "flags": {
+        "dae": {
+          "selfTarget": false,
+          "stackable": "none",
+          "durationExpression": "",
+          "macroRepeat": "none",
+          "specialDuration": [],
+          "transfer": true
+        },
+        "core": {
+          "statusId": ""
+        },
+        "dnd5e-helpers": {
+          "rest-effect": "Ignore"
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "aura": "None",
+          "radius": null,
+          "alignment": "",
+          "type": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "displayTemp": false,
+          "hostile": false,
+          "onlyOnce": false
+        }
+      },
+      "tint": null,
+      "selectedKey": [
+        "data.resources.primary.label",
+        "data.resources.primary.lr",
+        "data.resources.primary.max"
+      ]
+    }
+  ],
+  "flags": {
+    "itemacro": {
+      "macro": {
+        "data": {
+          "_id": null,
+          "name": "Font of Magic",
+          "type": "script",
+          "author": "otqBqyqMuTGDffTr",
+          "img": "icons/svg/dice-target.svg",
+          "scope": "global",
+          "command": "// font of magic\n// requires MIDI-QOL\n\nconst lastArg = args[args.length - 1];\nconst tokenD = canvas.tokens.get(lastArg.tokenId);\nconst actorD = tokenD.actor;\nconst itemD = lastArg.item;\nlet inputText = \"\";\nconst resourceList = [{ name: \"primary\" }, { name: \"secondary\" }, { name: \"tertiary\" }];\nconst resourceValues = Object.values(actorD.data.data.resources);\nconst resourceTable = mergeObject(resourceList, resourceValues);\nconst abilityName = \"Sorcery Points\";\nconst findResourceSlot = resourceTable.find(i => i.label.toLowerCase() === abilityName.toLowerCase());\nif(!findResourceSlot) return ui.notifications.error(`<strong>REQUIRED</strong>: Please add \"<strong>${abilityName}</strong>\" as one of your <strong>Resources</strong>.`);\nconst resourceSlot = findResourceSlot.name;\nconst resourceConversion = { spell1: 2, spell2: 3, spell3: 5, spell4: 6, spell5: 7 };\nconst sorcSpend = { 1: 2, 2: 3, 3: 5, 4: 6, 5: 7 };\nconst currentResource = parseInt(actorD.data.data.resources[resourceSlot].value || 0);\nconst currentResourceMax = actorD.data.data.resources[resourceSlot].max;\nconst params = [{\n    filterType: \"glow\",\n    filterId: \"abilityG\",\n    outerStrength: 2,\n    innerStrength: 0,\n    color: 0x800080,\n    quality: 1,\n    padding: 10,\n    autoDestroy: true,\n    animated:\n    {\n        color: \n        {\n           active: true,\n           loops: 1, \n           loopDuration: 700, \n           animType: \"colorOscillation\", \n           val1:0xFAA0A0, \n           val2:0xFF3131\n        }\n    }\n}];\n\n\n// Checking for totals\nconst keys = Object.keys(actorD.data.data.spells);\nconst spellTotal = keys.reduce((acc, values, i) => {\n    let x = 0;\n    if ((i >= 0 && i < 6) && (values != (\"pact\"))) {\n        x = parseInt(Object.values(actorD.data.data.spells)[i].value || 0);\n    }\n    return acc + x;\n}, 0);\n\nconst spellTotalMax = keys.reduce((acc, values, i) => {\n    let spellMax = values;\n    if (spellMax != \"spell0\" && spellMax != \"pact\") {\n        acc.push(Object.values(actorD.data.data.spells)[i].max);\n    }\n    return acc;\n}, []);\n\nlet buttonList = {};\nlet spellslot = \"spellslot\";\nlet sorcslot = \"sorcslot\";\n\nif ((currentResource <= 1) && (spellTotal === 0)) return ui.notifications.error(`You do not have enough Spells Slots or Sorcery Points to do anything`);\n\nif (currentResource > 1) buttonList[sorcslot] = {\n    icon: '<i class=\"fas fa-bolt\"></i>',\n    label: \"Spell Slot\",\n    callback: () => createSpellSlot()\n};\nif (spellTotal > 0 && currentResource != currentResourceMax) buttonList[spellslot] = {    \n    icon: '<i class=\"fas fa-brain\"></i>',\n    label:  \"Sorcery Point(s)\",\n    callback: () => createSorcPoint()\n};\n\nnew Dialog({\n    title: itemD.name,\n    content: `Convert to the following`,\n    buttons: buttonList\n}).render(true);\n\n// Return Spell slots\nfunction createSpellSlot() {\n    // Get options for available slots\n    for (let i = 1; i <= 9; i++) {\n        let chosenSpellSlots = getSpellSlots(actorD, i);\n        let minSlots = chosenSpellSlots?.value;\n        let maxSlots = chosenSpellSlots?.max;\n        if (maxSlots != (NaN || undefined || \"\" || 0) && sorcSpend[i] <= currentResource) {\n            inputText += `<div class=\"form-group\"><label for=\"spell${i}\">Spell Slot Level ${i} [${minSlots}/${maxSlots}]</label><input id=\"spell${i}\" name=\"spellSlot\" value=\"${i}\" type=\"radio\"></div>`;\n        }\n    }\n\n    new Dialog({\n        title: itemD.name,\n        content: `<form><p>Choose 1 spell slot to create.</p><hr>${inputText}</form>`,\n        buttons: {\n            recover: {\n                icon: '<i class=\"fas fa-bolt\"></i>',\n                label: \"Convert\",\n                callback: async (html) => {\n                    let selected_slot = html.find('input[name=\"spellSlot\"]:checked');\n                    let slot = \"\";\n                    let num = \"\";\n                    for (let i = 0; i < selected_slot.length; i++) {\n                        slot = selected_slot[i].id;\n                        num = selected_slot[i].value;\n                    }\n                    if (slot === \"\") return ui.notifications.warn(`The ability fails, no spell slot was selected`);\n                    spell_refund(actorD, slot);\n                    let roll_results = `<div><i>Converted ${sorcSpend[num]} Sorcery points. Level ${num} spell slot restored.</i></div>`;\n                    const chatMessage = game.messages.get(lastArg.itemCardId);\n                    let content = duplicate(chatMessage.data.content);\n                    const searchString = /<div class=\"midi-qol-saves-display\">[\\s\\S]*<div class=\"end-midi-qol-saves-display\">/g;\n                    const replaceString = `<div class=\"midi-qol-saves-display\"><div class=\"end-midi-qol-saves-display\">${roll_results}`;\n                    content = content.replace(searchString, replaceString);\n                    chatMessage.update({ content: content });\n                    if ((game.modules.get(\"tokenmagic\")?.active)) await TokenMagic.addUpdateFilters(tokenD, params);\n                    if (!(game.modules.get(\"jb2a_patreon\")?.active) && !(game.modules.get(\"sequencer\")?.active)) return {};                    \n                    new Sequence()\n                        .effect()\n                        .file(\"jb2a.toll_the_dead.blue.shockwave\")\n                        .atLocation(tokenD)\n                        .belowTokens()\n                        .fadeIn(300)\n                        .fadeOut(300)\n                        .scaleToObject(2.5)\n                        .waitUntilFinished(-500)\n                        .play()\n                }\n            }\n        }\n    }).render(true);\n\n    async function spell_refund(actorD, slot) {\n        let actor_data = duplicate(actorD.data._source);\n        actor_data.data.spells[`${slot}`].value = actor_data.data.spells[`${slot}`].value + 1;\n        actor_data.data.resources[resourceSlot].value = Math.max(0, currentResource - resourceConversion[slot]);\n        await actorD.update(actor_data);\n    }\n\n    function getSpellSlots(actorD, level) {\n        return actorD.data.data.spells[`spell${level}`];\n    }\n}\n\n// Returns Sorc Points\nfunction createSorcPoint() {\n    // Get options for available slots\n    for (let i = 1; i <= spellTotalMax.length; i++) {\n        let chosenSpellSlots = getSpellSlots(actorD, i);\n        let minSlots = chosenSpellSlots.value;\n        let maxSlots = chosenSpellSlots.max;\n        if (minSlots != 0) {\n            inputText += `<div class=\"form-group\"><label for=\"spell${i}\">Spell Slot Level ${i} [${minSlots}/${maxSlots}]</label><input id=\"spell${i}\" name=\"spellSlot\" value=\"${i}\" type=\"radio\"></div>`;\n        }\n    }\n    new Dialog({\n        title: itemD.name,\n        content: `<form><p>Choose 1 spell slot to convert.</p><hr>${inputText}</form>`,\n        buttons: {\n            recover: {\n                icon: '<i class=\"fas fa-brain\"></i>',\n                label: \"Convert\",\n                callback: async (html) => {\n                    let selected_slot = html.find('input[name=\"spellSlot\"]:checked');\n                    let slot = \"\";\n                    let num = \"\";\n                    for (let i = 0; i < selected_slot.length; i++) {\n                        slot = selected_slot[i].id;\n                        num = selected_slot[i].value;\n                    }\n                    if (slot === \"\") return ui.notifications.warn(`The ability fails, no spell slot was selected`);\n                    sorc_point_refund(actorD, slot, num);\n                    let roll_results = `<div><i>Converted a Level ${num} spell slot. ${num} Sorcery points restored.</i></div>`;\n                    const chatMessage = game.messages.get(lastArg.itemCardId);\n                    let content = duplicate(chatMessage.data.content);\n                    const searchString = /<div class=\"midi-qol-saves-display\">[\\s\\S]*<div class=\"end-midi-qol-saves-display\">/g;\n                    const replaceString = `<div class=\"midi-qol-saves-display\"><div class=\"end-midi-qol-saves-display\">${roll_results}`;\n                    content = content.replace(searchString, replaceString);\n                    chatMessage.update({ content: content });\n                    if ((game.modules.get(\"tokenmagic\")?.active)) await TokenMagic.addUpdateFilters(tokenD, params);\n                    if (!(game.modules.get(\"jb2a_patreon\")?.active) && !(game.modules.get(\"sequencer\")?.active)) return {};                    \n                    new Sequence()\n                        .effect()\n                        .file(\"jb2a.toll_the_dead.green.shockwave\")\n                        .atLocation(tokenD)\n                        .belowTokens()\n                        .fadeIn(300)\n                        .fadeOut(300)\n                        .scaleToObject(2.5)\n                        .waitUntilFinished(-500)\n                        .play()\n                }\n            }\n        }\n    }).render(true);\n\n    async function sorc_point_refund(actorD, slot, num) {\n        let actor_data = duplicate(actorD.data._source);\n        actor_data.data.spells[`${slot}`].value = actor_data.data.spells[`${slot}`].value - 1;\n\t\tlet actorData = actorD.getRollData();\n        let resourceMax = actorData.classes.sorcerer.levels;  \n        actor_data.data.resources[resourceSlot].value = Math.min(resourceMax, actor_data.data.resources[resourceSlot].value + parseInt(num));\n        await actorD.update(actor_data);\n    }\n\n    function getSpellSlots(actorD, level) {\n        return actorD.data.data.spells[`spell${level}`];\n    }\n}",
+          "folder": null,
+          "sort": 0,
+          "permission": {
+            "default": 0
+          },
+          "flags": {}
+        }
+      }
+    },
+    "magicitems": {
+      "enabled": false,
+      "equipped": false,
+      "attuned": false,
+      "charges": "0",
+      "chargeType": "c1",
+      "destroy": false,
+      "destroyFlavorText": "reaches 0 charges: it crumbles into ashes and is destroyed.",
+      "rechargeable": false,
+      "recharge": "0",
+      "rechargeType": "t1",
+      "rechargeUnit": "r1",
+      "sorting": "l"
+    },
+    "midi-qol": {
+      "onUseMacroName": "[postActiveEffects]ItemMacro",
+      "forceCEOn": false,
+      "effectActivation": false
+    },
+    "favtab": {
+      "isFavorite": true,
+      "isFavourite": true
+    },
+    "exportSource": {
+      "world": "Curse of Strahd",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    },
+    "core": {
+      "sourceId": "Item.US91o4ItI0ma5PmH"
+    },
+    "midiProperties": {
+      "nodam": false,
+      "halfdam": false,
+      "fulldam": false,
+      "critOther": false,
+      "concentration": false,
+      "rollOther": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "toggleEffect": false
+    },
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "scene-packer": {
+      "sourceId": "Item.0QhSae5xmxV5qeA3"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "HexSupport",
+  "type": "script",
+  "author": "ckiTPzlaPztdkjV6",
+  "img": "icons/magic/unholy/hand-claw-fog-green.webp",
+  "scope": "global",
+  "command": "async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\nconst lastArg = args[args.length - 1];\nlet tactor;\nif (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;\nelse tactor = game.actors.get(lastArg.actorId);\nconst target = canvas.tokens.get(lastArg.tokenId);\nconst itemD = lastArg.efData.flags.dae.itemData;\nconst tokenD = canvas.tokens.get(lastArg.efData.flags.dae.tokenId);\n\nif (args[0] === \"on\") {\n    let itemName = `${getProperty(tactor.data.flags, \"midi-qol.hexEffect\")} Life Monitor`;\n    let primaryEffect = await tactor.effects.find(i => i.id === lastArg.effectId);    \n    let effect = await tactor.effects.find(i => i.data.label === itemName);\n    let effectData = [{\n        origin: \"\",\n        changes: [\n            { key: \"macro.execute\", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: \"HexSupport\", priority: 20 },\n            { key: \"flags.midi-qol.hexEffect\", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: getProperty(tactor.data.flags, \"midi-qol.hexEffect\"), priority: 20 },\n            { key: `flags.dae.deleteUuid`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: primaryEffect.uuid, priority: 20 }\n        ],\n        flags: { dae: { tokenId: tokenD.id, itemData: itemD, specialDuration: [\"zeroHP\"] } },\n        disabled: false,\n        icon: itemD.img,\n        label: itemName\n    }];\n    if (!effect) await MidiQOL.socket().executeAsGM(\"createEffects\", { actorUuid: tactor.uuid, effects: effectData });\n}\n\nif ((lastArg[\"expiry-reason\"] === \"midi-qol:zeroHP\") && (getProperty(tactor.data.flags, \"midi-qol.hexEffect\") === \"Hexblade\")) {\n    console.log(\"Hexblade Zero HP run\");\n    let healType = \"healing\";\n    let damageRoll = await new Roll(`@classes.warlock.levels[${healType}] + max(1, @abilities.cha.mod)`, tokenD.actor.getRollData()).evaluate({ async: true });\n    await new MidiQOL.DamageOnlyWorkflow(tactor, target, damageRoll.total, healType, [tokenD], damageRoll, { flavor: `(${CONFIG.DND5E.healingTypes[healType]})`, itemData: itemD, itemCardId: \"new\" });\n    let effect = tactor.effects.find(i => i.data.label === \"Hexblade Life Tap\");\n    if (effect) await MidiQOL.socket().executeAsGM(\"removeEffects\", { actorUuid: tactor.uuid, effects: [effect.id] });\n    if ((!(game.modules.get(\"jb2a_patreon\")?.active)) && (!(game.modules.get(\"sequencer\")?.active))) return {};\n    new Sequence()\n        .effect()\n        .file(\"jb2a.healing_generic.200px.purple\")\n        .atLocation(tokenD)\n        .scaleToObject(tokenD.data.width * 2)\n        .waitUntilFinished(-500)\n    .play()\n}\n\nif ((lastArg[\"expiry-reason\"] === \"midi-qol:zeroHP\") && (getProperty(tactor.data.flags, \"midi-qol.hexEffect\") === \"Hexcurse\")) {\n    console.log(\"Hex Zero HP run\");\n    let effect = tactor.effects.find(i => i.data.label === \"Hex Curse\");\n    if (effect) await MidiQOL.socket().executeAsGM(\"removeEffects\", { actorUuid: tactor.uuid, effects: [effect.id] });\n}\n\nif (args[0] === \"off\") {\n    let itemName = `${getProperty(tactor.data.flags, \"midi-qol.hexEffect\")} Life Monitor`;\n    let effect = tactor.effects.find(i=> i.data.label === itemName);\n    if(effect) await MidiQOL.socket().executeAsGM(\"removeEffects\", { actorUuid: tactor.uuid, effects: [effect.id] });\n}",
+  "flags": {
+    "scene-packer": {
+      "hash": "69d85fe87b8f927b2a1a0862f7f9003cdee0e0ae",
+      "sourceId": "Macro.5iunsAryzsVRc5tL"
+    },
+    "advanced-macros": {
+      "runAsGM": false
+    },
+    "exportSource": {
+      "world": "dnd5e",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    }
+  }
+}

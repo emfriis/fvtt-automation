@@ -1,0 +1,253 @@
+{
+  "name": "Armor of Agathys",
+  "type": "spell",
+  "img": "icons/magic/water/ice-crystal-white.webp",
+  "data": {
+    "description": {
+      "value": "<p>A protective magical force surrounds you, manifesting as a spectral frost that covers you and your gear. You gain 5 temporary hit points for the duration. If a creature hits you with a melee attack while you have these hit points, the creature takes 5 cold damage.</p>\n<p><strong>At Higher Levels.</strong> When you cast this spell using a spell slot of 2nd level or higher, both the temporary hit points and the cold damage increase by 5 for each slot.</p>\n<p> </p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "Player's Handbook pg 215",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "hour"
+    },
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": "self"
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": "self"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "other",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [
+        [
+          "5",
+          "temphp"
+        ]
+      ],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "level": 1,
+    "school": "abj",
+    "components": {
+      "value": "a cup of water",
+      "vocal": true,
+      "somatic": true,
+      "material": true,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": "a cup of water",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "level",
+      "formula": "(@item.level - 1) * 5"
+    },
+    "attunement": 0
+  },
+  "effects": [
+    {
+      "_id": "Sqcq4t3PMrs7lZBZ",
+      "changes": [
+        {
+          "key": "macro.itemMacro.GM",
+          "mode": 0,
+          "value": "@spellLevel",
+          "priority": "20"
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null
+      },
+      "icon": "icons/magic/water/ice-crystal-white.webp",
+      "label": "Armor of Agathys",
+      "origin": "Item.MHY7FF0PtRPnaC3y",
+      "transfer": false,
+      "flags": {
+        "dae": {
+          "selfTarget": false,
+          "stackable": "none",
+          "durationExpression": "",
+          "macroRepeat": "none",
+          "specialDuration": [],
+          "transfer": false
+        },
+        "core": {
+          "statusId": ""
+        },
+        "dnd5e-helpers": {
+          "rest-effect": "Ignore"
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "aura": "None",
+          "radius": null,
+          "alignment": "",
+          "type": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "displayTemp": false,
+          "hostile": false,
+          "onlyOnce": false
+        }
+      },
+      "tint": null,
+      "selectedKey": "macro.itemMacro"
+    }
+  ],
+  "flags": {
+    "ddbimporter": {
+      "id": 136066,
+      "definitionId": 2310,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Armor of Agathys",
+      "sources": [
+        {
+          "sourceId": 2,
+          "pageNumber": 215,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Damage",
+        "Buff",
+        "Warding"
+      ],
+      "version": "2.9.59",
+      "effectsApplied": true
+    },
+    "betterRolls5e": {
+      "quickVersatile": {
+        "altValue": true
+      },
+      "quickCharges": {
+        "value": {
+          "use": true,
+          "resource": true
+        },
+        "altValue": {
+          "use": true,
+          "resource": true
+        }
+      }
+    },
+    "midi-qol": {
+      "effectActivation": false,
+      "onUseMacroName": ""
+    },
+    "midiProperties": {
+      "nodam": false,
+      "fulldam": false,
+      "halfdam": false,
+      "rollOther": false,
+      "critOther": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "concentration": false,
+      "toggleEffect": false
+    },
+    "core": {
+      "sourceId": "Compendium.world.ddb-spells.27MEEIl1AKJbypAf"
+    },
+    "itemacro": {
+      "macro": {
+        "data": {
+          "_id": null,
+          "name": "Armor of Agathys",
+          "type": "script",
+          "author": "otqBqyqMuTGDffTr",
+          "img": "icons/svg/dice-target.svg",
+          "scope": "global",
+          "command": "// armor of agathys\n\nconst lastArg = args[args.length - 1];\nconst token = await fromUuid(lastArg.tokenUuid);\nconst targetToken = canvas.tokens.get(lastArg.tokenId);\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst tactor = tokenOrActor.actor ?? tokenOrActor;\nconst tempDmg = args[1] * 5;\n\nasync function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\n\nasync function cleanUp(removeTemp, removeEf) {\n\tconst flag1 = await DAE.getFlag(tactor, \"aoaHook\");\n\tif (flag1) {\n\t\tHooks.off(\"midi-qol.preDamageRoll\", flag1);\n\t\tawait DAE.unsetFlag(tactor, \"aoaHook\");\n\t}\n\tconst flag2 = await DAE.getFlag(tactor, \"tempHook\");\n\tif (flag2) {\n\t\tHooks.off(\"midi-qol.RollComplete\", flag2);\n\t\tawait DAE.unsetFlag(tactor, \"tempHook\");\n\t}\n\tif (removeTemp) {\n\t\tawait tactor.update({ \"data.attributes.hp.temp\": 0 });\n\t}\n\tif (removeEf) {\n\t\tlet aoa = tactor.effects.find(i => i.data.label === \"Armor of Agathys\");\n\t\tif (aoa) await tactor.deleteEmbeddedDocuments(\"ActiveEffect\", [aoa.id]);\n\t}\n}\n\nasync function applyDamage(target) {\n  const item = await fromUuid(lastArg.efData.origin);\n\n  const caster = item.parent;\n  const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);\n  const damageRoll = await new Roll(`${tempDmg}[cold]`).evaluate({ async: true });\n  const workflowItemData = duplicate(item.data);\n  workflowItemData.data.components.concentration = false;\n  workflowItemData.data.duration = { value: null, units: \"inst\" };\n  workflowItemData.data.target = { value: null, width: null, units: \"\", type: \"creature\" };\n\n  setProperty(workflowItemData, \"flags.itemacro\", {});\n  setProperty(workflowItemData, \"flags.midi-qol\", {});\n  setProperty(workflowItemData, \"flags.dae\", {});\n  setProperty(workflowItemData, \"effects\", []);\n  delete workflowItemData._id;\n  workflowItemData.name = `${workflowItemData.name}`;\n\n  await new MidiQOL.DamageOnlyWorkflow(\n    caster,\n    casterToken.data,\n    damageRoll.total,\n    \"cold\",\n    [target],\n    damageRoll,\n    {\n      flavor: `(${CONFIG.DND5E.damageTypes[\"cold\"]})`,\n      itemCardId: \"new\",\n      itemData: workflowItemData,\n      isCritical: false,\n    }\n  );\n}\n\nasync function hitCheck(workflow) {\n    await wait(500);\n\tif (lastArg.tokenUuid != workflow.tokenUuid) {\n\t\tlet attacker = await fromUuid(workflow.tokenUuid);\n\t\tlet attackerToken = canvas.tokens.get(workflow.tokenId);\n\t\tif ((lastArg.tokenUuid) in (workflow.hitDisplayData) && workflow.hitDisplayData[`${lastArg.tokenUuid}`].hitString == \"hits\" && [\"mwak\", \"msak\"].includes(workflow.item.data.data.actionType)) {\n\t\t\tapplyDamage(attacker);\n\t\t}\n\t}\n}\n\nasync function damageCheck(workflow) {\n    await wait(500);\n\tif (workflow.damageList?.length > 0) {\n\t\tlet attackWorkflow = workflow.damageList.map((i) => ({ tokenUuid: i?.tokenUuid, oldTempHP: i?.oldTempHP, newTempHP: i?.newTempHP })).filter(i => i.tokenUuid === lastArg.tokenUuid);\n\t\tlet lastDmg = attackWorkflow[attackWorkflow.length - 1];\n\t\tif (lastDmg.newTempHP < 1) {\n\t\t\tcleanUp(false, true);\n\t\t} else if (lastDmg.newTempHP > lastDmg.oldTempHP && lastDmg.oldTempHP != 0) {\n\t\t\tif (workflow.item.data.name == \"Armor of Agathys\") {\n\t\t\t\tcleanUp(false, false);\n\t\t\t} else {\n\t\t\t\tcleanUp(false, true);\n\t\t\t}\n\t\t}\n\t}\n}\n\nif (args[0] == \"on\") {\n\tif (tactor.data.data.attributes.hp.temp == 0) {\n\t\tawait tactor.update({ \"data.attributes.hp.temp\": tempDmg });\n\t}\n\tlet hookId1 = Hooks.on(\"midi-qol.preDamageRoll\", hitCheck);\n    DAE.setFlag(tactor, \"aoaHook\", hookId1);\n\tlet hookId2 = Hooks.on(\"midi-qol.RollComplete\", damageCheck);\n    DAE.setFlag(tactor, \"tempHook\", hookId2);\n}\n\nif (args[0] == \"off\") {\n\tconst flag = await DAE.getFlag(tactor, \"aoaHook\");\n\tif (flag) {\n\t\tawait cleanUp(true, false);\n\t}\n}",
+          "folder": null,
+          "sort": 0,
+          "permission": {
+            "default": 0
+          },
+          "flags": {}
+        },
+        "_id": null,
+        "name": "Armor of Agathys",
+        "type": "script",
+        "author": "ckiTPzlaPztdkjV6",
+        "img": "icons/svg/dice-target.svg",
+        "scope": "global",
+        "command": "// armor of agathys\n// requires MIDI-QOL, DAE\n// will not remove effect if damage is dealt without a midi-qol workflow\n\nconst lastArg = args[args.length - 1];\nconst token = await fromUuid(lastArg.tokenUuid);\nconst targetToken = canvas.tokens.get(lastArg.tokenId);\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst tactor = tokenOrActor.actor ?? tokenOrActor;\nconst tempDmg = args[1] * 5;\n\nasync function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\n\nasync function cleanUp(removeTemp, removeEf) {\n\tconst flag1 = await DAE.getFlag(tactor, \"aoaHook\");\n\tif (flag1) {\n\t\tHooks.off(\"midi-qol.preDamageRoll\", flag1);\n\t\tawait DAE.unsetFlag(tactor, \"aoaHook\");\n\t}\n\tconst flag2 = await DAE.getFlag(tactor, \"tempHook\");\n\tif (flag2) {\n\t\tHooks.off(\"midi-qol.RollComplete\", flag2);\n\t\tawait DAE.unsetFlag(tactor, \"tempHook\");\n\t}\n\tif (removeTemp) {\n\t\tawait tactor.update({ \"data.attributes.hp.temp\": 0 });\n\t}\n\tif (removeEf) {\n\t\tlet aoa = tactor.effects.find(i => i.data.label === \"Armor of Agathys\");\n\t\tif (aoa) await tactor.deleteEmbeddedDocuments(\"ActiveEffect\", [aoa.id]);\n\t}\n}\n\nasync function applyDamage(target) {\n  const item = await fromUuid(lastArg.efData.origin);\n\n  const caster = item.parent;\n  const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);\n  const damageRoll = await new Roll(`${tempDmg}[cold]`).evaluate({ async: true });\n  const workflowItemData = duplicate(item.data);\n  workflowItemData.data.components.concentration = false;\n  workflowItemData.data.duration = { value: null, units: \"inst\" };\n  workflowItemData.data.target = { value: null, width: null, units: \"\", type: \"creature\" };\n\n  setProperty(workflowItemData, \"flags.itemacro\", {});\n  setProperty(workflowItemData, \"flags.midi-qol\", {});\n  setProperty(workflowItemData, \"flags.dae\", {});\n  setProperty(workflowItemData, \"effects\", []);\n  delete workflowItemData._id;\n  workflowItemData.name = `${workflowItemData.name}`;\n\n  await new MidiQOL.DamageOnlyWorkflow(\n    caster,\n    casterToken.data,\n    damageRoll.total,\n    \"cold\",\n    [target],\n    damageRoll,\n    {\n      flavor: `(${CONFIG.DND5E.damageTypes[\"cold\"]})`,\n      itemCardId: \"new\",\n      itemData: workflowItemData,\n      isCritical: false,\n    }\n  );\n}\n\nasync function hitCheck(workflow) {\n    await wait(500);\n\tif (lastArg.tokenUuid != workflow.tokenUuid) {\n\t\tlet attacker = await fromUuid(workflow.tokenUuid);\n\t\tlet attackerToken = canvas.tokens.get(workflow.tokenId);\n\t\tif ((lastArg.tokenUuid) in (workflow.hitDisplayData) && workflow.hitDisplayData[`${lastArg.tokenUuid}`].hitString == \"hits\" && [\"mwak\", \"msak\"].includes(workflow.item.data.data.actionType)) {\n\t\t\tapplyDamage(attacker);\n\t\t}\n\t}\n}\n\nasync function damageCheck(workflow) {\n    await wait(500);\n\tif (workflow.damageList?.length > 0) {\n\t\tlet attackWorkflow = workflow.damageList.map((i) => ({ tokenUuid: i?.tokenUuid, oldTempHP: i?.oldTempHP, newTempHP: i?.newTempHP })).filter(i => i.tokenUuid === lastArg.tokenUuid);\n\t\tlet lastDmg = attackWorkflow[attackWorkflow.length - 1];\n\t\tif (lastDmg.newTempHP < 1) {\n\t\t\tcleanUp(false, true);\n\t\t} else if (lastDmg.newTempHP > lastDmg.oldTempHP && lastDmg.oldTempHP != 0) {\n\t\t\tif (workflow.item.data.name == \"Armor of Agathys\") {\n\t\t\t\tcleanUp(false, false);\n\t\t\t} else {\n\t\t\t\tcleanUp(false, true);\n\t\t\t}\n\t\t}\n\t}\n}\n\nif (args[0] == \"on\") {\n\tif (tactor.data.data.attributes.hp.temp == 0) {\n\t\tawait tactor.update({ \"data.attributes.hp.temp\": tempDmg });\n\t}\n\tlet hookId1 = Hooks.on(\"midi-qol.preDamageRoll\", hitCheck);\n    DAE.setFlag(tactor, \"aoaHook\", hookId1);\n\tlet hookId2 = Hooks.on(\"midi-qol.RollComplete\", damageCheck);\n    DAE.setFlag(tactor, \"tempHook\", hookId2);\n}\n\nif (args[0] == \"off\") {\n\tconst flag = await DAE.getFlag(tactor, \"aoaHook\");\n\tif (flag) {\n\t\tawait cleanUp(true, false);\n\t}\n}",
+        "folder": null,
+        "sort": 0,
+        "permission": {
+          "default": 0
+        },
+        "flags": {}
+      }
+    },
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "scene-packer": {
+      "sourceId": "Item.KREWqzXJmNwOizva",
+      "hash": "bc5124d47bc1b19c7832dc756893323d84e2389b"
+    },
+    "exportSource": {
+      "world": "dnd5e",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    }
+  }
+}

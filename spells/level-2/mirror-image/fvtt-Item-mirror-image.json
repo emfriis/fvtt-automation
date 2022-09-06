@@ -1,0 +1,234 @@
+{
+  "name": "Mirror Image",
+  "type": "spell",
+  "img": "icons/magic/defensive/illusion-evasion-echo-purple.webp",
+  "data": {
+    "description": {
+      "value": "<p>Three illusory duplicates of yourself appear in your space. Until the spell ends, the duplicates move with you and mimic your actions, shifting position so it's impossible to track which image is real. You can use your action to dismiss the illusory duplicates.</p>\n<p>Each time a creature targets you with an attack during the spell's duration, roll a [[/r 1d20 # Mirror Image Check]] to determine whether the attack instead targets one of your duplicates.</p>\n<p>If you have three duplicates, you must roll a 6 or higher to change the attack's target to a duplicate. With two duplicates, you must roll an 8 or higher. With one duplicate, you must roll an 11 or higher.</p>\n<p>A duplicate's AC equals 10 + your Dexterity modifier. If an attack hits a duplicate, the duplicate is destroyed. A duplicate can be destroyed only by an attack that hits it. It ignores all other damage and effects. The spell ends when all three duplicates are destroyed.</p>\n<p>A creature is unaffected by this spell if it can't see, if it relies on senses other than sight, such as blindsight, or if it can perceive illusions as false, as with truesight.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "PHB pg. 260",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "minute"
+    },
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": "self"
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": ""
+    },
+    "uses": {
+      "value": 0,
+      "max": "0",
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": "",
+      "value": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell",
+      "value": ""
+    },
+    "level": 2,
+    "school": "ill",
+    "components": {
+      "value": "",
+      "vocal": true,
+      "somatic": true,
+      "material": false,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    },
+    "attunement": 0
+  },
+  "effects": [
+    {
+      "_id": "RaWaQD7qL1hIlkAr",
+      "changes": [
+        {
+          "key": "macro.itemMacro",
+          "mode": 0,
+          "value": "",
+          "priority": "20"
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "seconds": 60,
+        "turns": 10
+      },
+      "icon": "icons/magic/defensive/illusion-evasion-echo-purple.webp",
+      "label": "Mirror Image",
+      "origin": "Item.Ury66MOdyfQPXdYE",
+      "transfer": false,
+      "flags": {
+        "dae": {
+          "selfTarget": false,
+          "stackable": "noneName",
+          "durationExpression": "",
+          "macroRepeat": "none",
+          "specialDuration": [],
+          "transfer": false
+        },
+        "core": {
+          "statusId": ""
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "aura": "None",
+          "radius": null,
+          "alignment": "",
+          "type": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "displayTemp": false,
+          "hostile": false,
+          "onlyOnce": false
+        },
+        "dnd5e-helpers": {
+          "rest-effect": "Ignore"
+        }
+      },
+      "tint": null,
+      "selectedKey": "macro.itemMacro"
+    }
+  ],
+  "flags": {
+    "core": {
+      "sourceId": "Compendium.dnd5e.spells.X4c8xCkmF8U9HUMz"
+    },
+    "betterRolls5e": {
+      "quickOther": {
+        "context": "",
+        "value": true,
+        "altValue": true
+      },
+      "quickDesc": {
+        "value": true,
+        "altValue": true
+      },
+      "quickProperties": {
+        "value": true,
+        "altValue": true
+      },
+      "quickVersatile": {
+        "value": false,
+        "altValue": false
+      },
+      "quickFlavor": {
+        "value": true,
+        "altValue": true
+      }
+    },
+    "midi-qol": {
+      "effectActivation": false,
+      "forceCEOff": false
+    },
+    "midiProperties": {
+      "nodam": false,
+      "fulldam": false,
+      "halfdam": false,
+      "rollOther": false,
+      "critOther": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "concentration": false,
+      "toggleEffect": false
+    },
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "scene-packer": {
+      "hash": "143dc53eeec512619074048ba313240235198e22",
+      "sourceId": "Item.LMGNOdGY143tz7pl"
+    },
+    "itemacro": {
+      "macro": {
+        "data": {
+          "_id": null,
+          "name": "Mirror Image",
+          "type": "script",
+          "author": "ckiTPzlaPztdkjV6",
+          "img": "icons/svg/dice-target.svg",
+          "scope": "global",
+          "command": "// mirror image\n\nconst lastArg = args[args.length - 1];\nconst token = await fromUuid(lastArg.tokenUuid);\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst tactor = tokenOrActor.actor ?? tokenOrActor;\n\nasync function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\n\nasync function cleanUp(removeEf) {\n\tconst flag1 = await DAE.getFlag(tactor, \"miHook\");\n\tif (flag1) {\n\t\tHooks.off(\"midi-qol.preCheckHits\", flag1);\n\t\tawait DAE.unsetFlag(tactor, \"miHook\");\n\t}\n\tconst flag2 = await DAE.getFlag(tactor, \"miLeft\");\n\tif (flag2) {\n\t\tawait DAE.unsetFlag(tactor, \"miLeft\");\n\t}\n\tif (removeEf) {\n\t\tlet mi = tactor.effects.find(i => i.data.label === \"Mirror Image\");\n\t\tif (mi) await tactor.deleteEmbeddedDocuments(\"ActiveEffect\", [mi.id]);\n\t}\n}\n\nasync function miCheck(workflow) {\n\tlet target = Array.from(workflow.targets)[0];\n    if (!target) return;\n\tlet targetId = target.id ?? target._id;\n\tconst attackRoll = workflow.attackRoll;\n\tif (!attackRoll || attackRoll.total == 9999) return;\n\t\n\tlet attacker = canvas.tokens.get(workflow.tokenId);\n\tconst senses = workflow.actor.data.data.attributes.senses;\n\tlet trueSight = workflow.actor.effects.find(i => i.data.label === \"Blinded\") ? 0 : senses.truesight;\n\tconst aVisRange = token.getFlag('perfect-vision', 'sightLimit') ? token.getFlag('perfect-vision', 'sightLimit') : 9999;\n\tconst aVision = Math.min(aVisRange, Math.max(senses.blindsight, senses.tremorsense, trueSight, 0));\n\tconst aDist = MidiQOL.getDistance(token, attacker, false);\n\tlet miIgnore = aVision >= aDist;\n\t\n\tlet miLeft = await DAE.getFlag(tactor, \"miLeft\");\n\tlet miDC = miLeft == 3 ? 6 : miLeft == 2 ? 8 : miLeft == 1 ? 11 : null;\n\tlet miAC = 10 + tactor.data.data.abilities.dex.mod;\n\tif ([\"mwak\", \"msak\", \"rwak\", \"rsak\"].includes(workflow.item.data.data.actionType) && lastArg.tokenId == targetId && !miIgnore) {\n\t\tconst roll = new Roll(`1d20`).evaluate({ async: false });\n\t\tif (game.dice3d) game.dice3d.showForRoll(roll);\n\t\tif (roll.total >= miDC) {\n\t\t\tworkflow.noAutoDamage = true;\n\t\t\tmiLeft -= 1;\n\t\t\tif (attackRoll.total >= miAC) {\n\t\t\t\tawait updateChatCard(workflow.itemCardId, target, roll.total, true, miLeft);\n\t\t\t\tif (miLeft < 1) {\n\t\t\t\t\tcleanUp(true);\n\t\t\t\t}\n\t\t\t\tDAE.setFlag(tactor, \"miLeft\", miLeft);\n\t\t\t} else if (attackRoll.total < miAC) {\n\t\t\t\tawait updateChatCard(workflow.itemCardId, target, roll.total, false, miLeft);\n\t\t\t}\n\t\t} else if (roll.total < miDC) {\n\t\t\tawait updateChatCardFailed(workflow.itemCardId, target, roll.total);\n\t\t}\n\t}\n}\n\nasync function updateChatCardFailed(itemCardId, target, attackRoll) {\n\tconst chatMessage = await game.messages.get(itemCardId, target);\n\tlet chatMessageContent = $(await duplicate(chatMessage.data.content));\n\tchatMessageContent.find(\".midi-qol-hits-display\").append(`<div class=\"midi-qol-flex-container\">\n\t\t\t\t<div>\n\t\t\t\t\tMirror Image Roll: <b>${attackRoll}</b>\n\t\t\t\t</div>\n\t\t\t</div>`);\n\tawait chatMessage.update({ content: chatMessageContent.prop('outerHTML') });\n}\n\nasync function updateChatCard(itemCardId, target, attackRoll, hit, remaining) {\n\tconst chatMessage = await game.messages.get(itemCardId, target);\n\t// console.log(chatMessage);\n\tlet chatMessageContent = $(await duplicate(chatMessage.data.content));\n\t// console.log(chatMessageContent);\n\tchatMessageContent.find(\".midi-qol-hits-display\").empty();\n\tchatMessageContent.find(\".midi-qol-hits-display\").append(`<div class=\"midi-qol-flex-container\">\n\t\t\t\t<div>\n\t\t\t\t\tMirror Image Roll: <b>${attackRoll}</b>  - Attack ${hit ? 'hits' : 'misses'}\n\t\t\t\t</div>\n\t\t\t\t<div class=\"midi-qol-target-npc-GM midi-qol-target-name\" id=\"${target.id}\"> ${target.name}'s Mirror Image, ${remaining} remaining!</div>\n\t\t\t\t<div class=\"midi-qol-target-npc-Player midi-qol-target-name\" id=\"${target.id}\"> ${target.name}'s Mirror Image, ${remaining} remaining!\n\t\t\t\t</div>\n\t\t\t\t<div><img src=\"${target.data.img}\" width=\"30\" height=\"30\" style=\"border:0px\">\n\t\t\t\t</div>\n\t\t\t</div>`);\n\tawait chatMessage.update({ content: chatMessageContent.prop('outerHTML') });\n}\n\nif (args[0] === \"on\") {\n\tDAE.setFlag(tactor, \"miLeft\", 3);\n\tlet hookId = Hooks.on(\"midi-qol.preCheckHits\", miCheck);\n    DAE.setFlag(tactor, \"miHook\", hookId);\n}\n\nif (args[0] === \"off\") {\n\tawait cleanUp(false);\n}",
+          "folder": null,
+          "sort": 0,
+          "permission": {
+            "default": 0
+          },
+          "flags": {}
+        },
+        "_id": null,
+        "name": "Mirror Image",
+        "type": "script",
+        "author": "ckiTPzlaPztdkjV6",
+        "img": "icons/svg/dice-target.svg",
+        "scope": "global",
+        "command": "// mirror image\n// requires MIDI-QOL, DAE, PERFECT-VISION\n\nconst lastArg = args[args.length - 1];\nconst token = await fromUuid(lastArg.tokenUuid);\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst tactor = tokenOrActor.actor ?? tokenOrActor;\n\nasync function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\n\nasync function cleanUp(removeEf) {\n\tconst flag1 = await DAE.getFlag(tactor, \"miHook\");\n\tif (flag1) {\n\t\tHooks.off(\"midi-qol.preCheckHits\", flag1);\n\t\tawait DAE.unsetFlag(tactor, \"miHook\");\n\t}\n\tconst flag2 = await DAE.getFlag(tactor, \"miLeft\");\n\tif (flag2) {\n\t\tawait DAE.unsetFlag(tactor, \"miLeft\");\n\t}\n\tif (removeEf) {\n\t\tlet mi = tactor.effects.find(i => i.data.label === \"Mirror Image\");\n\t\tif (mi) await tactor.deleteEmbeddedDocuments(\"ActiveEffect\", [mi.id]);\n\t}\n}\n\nasync function miCheck(workflow) {\n\tlet target = Array.from(workflow.targets)[0];\n    if (!target) return;\n\tlet targetId = target.id ?? target._id;\n\tconst attackRoll = workflow.attackRoll;\n\tif (!attackRoll || attackRoll.total == 9999) return;\n\t\n\tlet attacker = canvas.tokens.get(workflow.tokenId);\n\tconst senses = workflow.actor.data.data.attributes.senses;\n\tconst aVisRange = token.getFlag('perfect-vision', 'sightLimit') ? token.getFlag('perfect-vision', 'sightLimit') : 9999;\n\tconst aVision = Math.min(aVisRange, Math.max(senses.blindsight, senses.tremorsense, senses.truesight, 0));\n\tconst aDist = MidiQOL.getDistance(token, attacker, false);\n\tlet miIgnore = aVision >= aDist;\n\t\n\tlet miLeft = await DAE.getFlag(tactor, \"miLeft\");\n\tlet miDC = miLeft == 3 ? 6 : miLeft == 2 ? 8 : miLeft == 1 ? 11 : null;\n\tlet miAC = 10 + tactor.data.data.abilities.dex.mod;\n\tif ([\"mwak\", \"msak\", \"rwak\", \"rsak\"].includes(workflow.item.data.data.actionType) && lastArg.tokenId == targetId && !miIgnore) {\n\t\tconst roll = new Roll(`1d20`).evaluate({ async: false });\n\t\tif (game.dice3d) game.dice3d.showForRoll(roll);\n\t\tif (roll.total >= miDC) {\n\t\t\tworkflow.noAutoDamage = true;\n\t\t\tmiLeft -= 1;\n\t\t\tif (attackRoll.total >= miAC) {\n\t\t\t\tawait updateChatCard(workflow.itemCardId, target, roll.total, true, miLeft);\n\t\t\t\tif (miLeft < 1) {\n\t\t\t\t\tcleanUp(true);\n\t\t\t\t}\n\t\t\t\tDAE.setFlag(tactor, \"miLeft\", miLeft);\n\t\t\t} else if (attackRoll.total < miAC) {\n\t\t\t\tawait updateChatCard(workflow.itemCardId, target, roll.total, false, miLeft);\n\t\t\t}\n\t\t} else if (roll.total < miDC) {\n\t\t\tawait updateChatCardFailed(workflow.itemCardId, target, roll.total);\n\t\t}\n\t}\n}\n\nasync function updateChatCardFailed(itemCardId, target, attackRoll) {\n\tconst chatMessage = await game.messages.get(itemCardId, target);\n\tlet chatMessageContent = $(await duplicate(chatMessage.data.content));\n\tchatMessageContent.find(\".midi-qol-hits-display\").append(`<div class=\"midi-qol-flex-container\">\n\t\t\t\t<div>\n\t\t\t\t\tMirror Image Roll: <b>${attackRoll}</b>\n\t\t\t\t</div>\n\t\t\t</div>`);\n\tawait chatMessage.update({ content: chatMessageContent.prop('outerHTML') });\n}\n\nasync function updateChatCard(itemCardId, target, attackRoll, hit, remaining) {\n\tconst chatMessage = await game.messages.get(itemCardId, target);\n\t// console.log(chatMessage);\n\tlet chatMessageContent = $(await duplicate(chatMessage.data.content));\n\t// console.log(chatMessageContent);\n\tchatMessageContent.find(\".midi-qol-hits-display\").empty();\n\tchatMessageContent.find(\".midi-qol-hits-display\").append(`<div class=\"midi-qol-flex-container\">\n\t\t\t\t<div>\n\t\t\t\t\tMirror Image Roll: <b>${attackRoll}</b>  - Attack ${hit ? 'hits' : 'misses'}\n\t\t\t\t</div>\n\t\t\t\t<div class=\"midi-qol-target-npc-GM midi-qol-target-name\" id=\"${target.id}\"> ${target.name}'s Mirror Image, ${remaining} remaining!</div>\n\t\t\t\t<div class=\"midi-qol-target-npc-Player midi-qol-target-name\" id=\"${target.id}\"> ${target.name}'s Mirror Image, ${remaining} remaining!\n\t\t\t\t</div>\n\t\t\t\t<div><img src=\"${target.data.img}\" width=\"30\" height=\"30\" style=\"border:0px\">\n\t\t\t\t</div>\n\t\t\t</div>`);\n\tawait chatMessage.update({ content: chatMessageContent.prop('outerHTML') });\n}\n\nif (args[0] === \"on\") {\n\tDAE.setFlag(tactor, \"miLeft\", 3);\n\tlet hookId = Hooks.on(\"midi-qol.preCheckHits\", miCheck);\n    DAE.setFlag(tactor, \"miHook\", hookId);\n}\n\nif (args[0] === \"off\") {\n\tawait cleanUp(false);\n}",
+        "folder": null,
+        "sort": 0,
+        "permission": {
+          "default": 0
+        },
+        "flags": {}
+      }
+    },
+    "exportSource": {
+      "world": "dnd5e",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    }
+  }
+}

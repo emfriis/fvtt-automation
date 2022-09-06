@@ -1,0 +1,154 @@
+{
+  "name": "Lay on Hands",
+  "type": "feat",
+  "img": "icons/magic/light/orbs-hand-gray.webp",
+  "data": {
+    "description": {
+      "value": "<p>Your blessed touch can heal wounds. You have a pool of healing power that replenishes when you take a long rest. With that pool, you can restore a total number of hit points equal to your 5 times your paladin level.</p>\n<p>As an action, you can touch a creature and draw power from the pool to restore a number of hit points to that creature, up to the maximum amount remaining in your pool.</p>\n<p>Alternatively, you can expend 5 hit points from your pool of healing to cure the target of one disease or neutralize one poison affecting it. You can cure multiple diseases and neutralize multiple poisons with a single use of Lay on Hands, expending hit points separately for each one.</p>\n<p>This feature has no effect on undead and constructs.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "PHB pg. 84",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": "Target cannot be Undead or a Construct."
+    },
+    "duration": {
+      "value": null,
+      "units": ""
+    },
+    "target": {
+      "value": 1,
+      "width": null,
+      "units": "",
+      "type": "creature"
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": "touch"
+    },
+    "uses": {
+      "value": 5,
+      "max": "5",
+      "per": "lr",
+      "type": "lr"
+    },
+    "consume": {
+      "type": "attribute",
+      "target": "",
+      "amount": 1
+    },
+    "ability": "",
+    "actionType": "util",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": null
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell",
+      "value": ""
+    },
+    "requirements": "Paladin 1",
+    "recharge": {
+      "value": null,
+      "charged": false
+    },
+    "attunement": 0
+  },
+  "effects": [],
+  "flags": {
+    "_sheetTab": "description",
+    "entityorder": {
+      "order": 161
+    },
+    "itemacro": {
+      "macro": {
+        "data": {
+          "_id": null,
+          "name": "Lay on Hands",
+          "type": "script",
+          "author": "otqBqyqMuTGDffTr",
+          "img": "icons/svg/dice-target.svg",
+          "scope": "global",
+          "command": "// lay on hands\n// requires MIDI-QOL\n// requires 'Lay on Hands' to be the label of the primary, secondary, or tertiary resource\n\nasync function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\n\nconst lastArg = args[args.length - 1];\nif (lastArg.targets.length === 0) return ui.notifications.error(`Please select a single target.`);\nlet target = canvas.tokens.get(lastArg.targets[0].id);\nlet creatureTypes = [\"undead\", \"construct\"];\nlet illegal = creatureTypes.some(i => (target.actor.data.data.details.race || target.actor.data.data.details.type.value).toLowerCase().includes(i));\nlet actorD = game.actors.get(lastArg.actor._id);\nlet tokenD = canvas.tokens.get(lastArg.tokenId);\nlet itemD = lastArg.item;\nlet resourceList = [{ name: \"primary\" }, { name: \"secondary\" }, { name: \"tertiary\" }];\nlet resourceValues = Object.values(actorD.data.data.resources);\nlet resourceTable = mergeObject(resourceList, resourceValues);\nlet findResourceSlot = resourceTable.find(i => i.label.toLowerCase() === itemD.name.toLowerCase());\nif (!findResourceSlot) return ui.notifications.error(`${itemD.name} Resources is missing on ${tokenD.name}, Add it.`);\nlet resourceSlot = findResourceSlot.name;\nlet curtRes = actorD.data.data.resources[resourceSlot].value;\nlet maxResRnd = actorD.data.data.resources[resourceSlot].max / 5;\nlet curtResRnd = Math.floor(actorD.data.data.resources[resourceSlot].value / 5);\nlet maxHealz = Math.clamped(actorD.data.data.resources[resourceSlot].value, 0, target.actor.data.data.attributes.hp.max - target.actor.data.data.attributes.hp.value);\nif (illegal) return ui.notifications.error(`You cannot use ${itemD.name} on this target.`);\nif (curtRes === null) return ui.notifications.warn(`You are out of the required resources for ${itemD.name}.`);\nlet content_loh = `<p>Which <strong>Action</strong> would you like to do? [${curtRes}] points remaining.</p>`;\nnew Dialog({\n    title: itemD.name,\n    content: content_loh,\n    buttons: {\n        cure: { label: \"Cure Condition\", callback: () => loh_cure() },\n        heal: { label: \"Heal\", callback: () => loh_heal() }\n    },\n    default: \"heal\"\n}).render(true);\n\n// Condition Curing Function\nfunction loh_cure() {\n    let condition_list = [\"Diseased\", \"Poisoned\"];\n    let effect = target.actor.effects.filter(i => condition_list.includes(i.data.label));\n    let selectOptions = \"\";\n    for (let i = 0; i < effect.length; i++) {\n        let condition = effect[i].data.label;\n        selectOptions += `<option value=\"${condition}\">${condition}</option>`;\n    }\n    if (selectOptions === \"\") {\n        return ui.notifications.warn(`There's nothing to Cure on ${target.name}.`);\n    } else {\n        let content_cure = `<p><em>${tokenD.name} ${itemD.name} on ${target.name}.</em></p><p>Choose a Condition Cure | [${curtResRnd}/${maxResRnd}] charges left.</p><form class=\"flexcol\"><div class=\"form-group\"><select id=\"element\">${selectOptions}</select></div></form>`;\n        new Dialog({\n            title: `${itemD.name}: Curing`,\n            content: content_cure,\n            buttons: {\n                cure: {\n                    icon: '<i class=\"fas fa-check\"></i>',\n                    label: 'Cure!',\n                    callback: async (html) => {\n                        let element = html.find('#element').val();\n                        let effect = target.actor.effects.find(i => i.data.label === element);\n                        await MidiQOL.socket().executeAsGM(\"removeEffects\", { actorUuid: target.actor.uuid, effects: [effect.id] });\n                        await updateRec(actorD, resourceSlot, curtRes, 5);\n                        let chatContent = `<div class=\"midi-qol-nobox\"><div class=\"midi-qol-flex-container\"><div>Cures ${element}:</div><div class=\"midi-qol-target-npc midi-qol-target-name\" id=\"${target.data.id}\"> ${target.name}</div><div><img src=\"${target.data.img}\" width=\"30\" height=\"30\" style=\"border:0px\"></img></div></div></div>`;\n                        await wait(500);\n                        let chatMessage = game.messages.get(lastArg.itemCardId);\n                        let content = duplicate(chatMessage.data.content);\n                        let searchString = /<div class=\"midi-qol-hits-display\">[\\s\\S]*<div class=\"end-midi-qol-hits-display\">/g;\n                        let replaceString = `<div class=\"midi-qol-hits-display\"><div class=\"end-midi-qol-hits-display\">${chatContent}`;\n                        content = content.replace(searchString, replaceString);\n                        chatMessage.update({ content: content });\n                    }\n                }\n            },\n            default: \"cure\"\n        }).render(true);\n    }\n}\n// Healing Function\nfunction loh_heal() {\n    let content_heal = `<p><em>${tokenD.name} lays hands on ${target.name}.</em></p><p>How many HP do you want to restore to ${target.name}?</p><form class=\"flexcol\"><div class=\"form-group\"><label for=\"num\">HP to Restore: (Max = ${maxHealz})</label><input id=\"num\" name=\"num\" type=\"number\" min=\"0\" max=\"${maxHealz}\"></input></div></form>`;\n    new Dialog({\n        title: `${itemD.name}: Healing`,\n        content: content_heal,\n        buttons: {\n            heal: {\n                icon: '<i class=\"fas fa-check\"></i>', label: 'Heal', callback: async (html) => {\n                    let number = Math.floor(Number(html.find('#num')[0].value));\n                    if (number < 1 || number > maxHealz) {\n                        return ui.notifications.warn(`Invalid number of charges entered = ${number}. Aborting action.`);\n                    } else {\n                        let damageRoll = new Roll(`${number}`).evaluate({ async: false });\n                        await new MidiQOL.DamageOnlyWorkflow(actorD, tokenD, damageRoll.total, \"healing\", [target], damageRoll, { flavor: `(Healing)`, itemCardId: lastArg.itemCardId });\n                        await updateRec(actorD, resourceSlot, curtRes, number);\n                    }\n                }\n            }\n        },\n        default: \"heal\"\n    }).render(true);\n}\n\nasync function updateRec(actorD, resourceSlot, curtRes, number) {\n    let updates = {};\n    let resources = `data.resources.${resourceSlot}.value`;\n    updates[resources] = curtRes - number;\n    await actorD.update(updates);\n}",
+          "folder": null,
+          "sort": 0,
+          "permission": {
+            "default": 0
+          },
+          "flags": {}
+        }
+      }
+    },
+    "enhancedcombathud": {
+      "set1p": false,
+      "set2p": false,
+      "set3p": false
+    },
+    "midi-qol": {
+      "onUseMacroName": "[postActiveEffects]ItemMacro",
+      "effectActivation": false
+    },
+    "magicitems": {
+      "enabled": false,
+      "equipped": false,
+      "attuned": false,
+      "charges": "0",
+      "chargeType": "c1",
+      "destroy": false,
+      "destroyFlavorText": "reaches 0 charges: it crumbles into ashes and is destroyed.",
+      "rechargeable": false,
+      "recharge": "0",
+      "rechargeType": "t1",
+      "rechargeUnit": "r1",
+      "sorting": "l"
+    },
+    "favtab": {
+      "isFavorite": true
+    },
+    "core": {
+      "sourceId": "Item.0cE3JBc8abhziSUn"
+    },
+    "exportSource": {
+      "world": "Curse of Strahd",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    },
+    "midiProperties": {
+      "nodam": false,
+      "fulldam": false,
+      "halfdam": false,
+      "rollOther": false,
+      "critOther": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "concentration": false,
+      "toggleEffect": false
+    },
+    "link-item-resource-5e": {
+      "resource-link": "primary"
+    },
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "scene-packer": {
+      "sourceId": "Item.u2H3SUZsCuSXYlaP"
+    }
+  }
+}

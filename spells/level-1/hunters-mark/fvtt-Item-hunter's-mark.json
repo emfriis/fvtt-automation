@@ -1,0 +1,239 @@
+{
+  "name": "Hunter's Mark",
+  "type": "spell",
+  "img": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg",
+  "data": {
+    "description": {
+      "value": "<p>You choose a creature you can see within range and mystically mark it as your quarry. Until the spell ends, you deal an extra 1d6 damage to the target whenever you hit it with a weapon attack, and you have advantage on any Wisdom (@Compendium[dnd5e.rules.Using Each Ability]{Perception}) or Wisdom (@Compendium[dnd5e.rules.Using Each Ability]{Survival}) check you make to find it. If the target drops to 0 hit points before this spell ends, you can use a bonus action on a subsequent turn of yours to mark a new creature.</p>\n<p><strong>At Higher Levels.</strong> When you cast this spell using a spell slot of 3rd or 4th level, you can maintain your concentration on the spell for up to 8 hours. When you use a spell slot of 5th level or higher, you can maintain your concentration on the spell for up to 24 hours.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "Basic Rules, Player's Handbook pg 251",
+    "activation": {
+      "type": "bonus",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "hour"
+    },
+    "target": {
+      "value": 1,
+      "width": null,
+      "units": "",
+      "type": "creature"
+    },
+    "range": {
+      "value": 90,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "util",
+    "attackBonus": 0,
+    "chatFlavor": "[1d6 - bludgeoning] Weapon Damage Type - bludgeoning, piercing, or slashing, [1d6 - piercing] Weapon Damage Type - bludgeoning, piercing, or slashing, [1d6 - slashing] Weapon Damage Type - bludgeoning, piercing, or slashing",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": "",
+      "value": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "level": 1,
+    "school": "div",
+    "components": {
+      "value": "",
+      "vocal": true,
+      "somatic": false,
+      "material": false,
+      "ritual": false,
+      "concentration": true
+    },
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    },
+    "attunement": null
+  },
+  "effects": [
+    {
+      "label": "Marked",
+      "icon": "systems/dnd5e/icons/spells/evil-eye-red-1.jpg",
+      "changes": [],
+      "duration": {
+        "startTime": null
+      },
+      "tint": null,
+      "transfer": false,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": false,
+          "stackable": "none",
+          "selfTarget": false,
+          "durationExpression": "@spellLevel > 4 ? 86400 : @spellLevel > 2 ? 28800 : 3600",
+          "macroRepeat": "none",
+          "specialDuration": []
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {
+          "statusId": ""
+        },
+        "dnd5e-helpers": {
+          "rest-effect": "Ignore"
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "aura": "None",
+          "radius": null,
+          "alignment": "",
+          "type": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "displayTemp": false,
+          "hostile": false,
+          "onlyOnce": false
+        }
+      },
+      "_id": "445fvu7dkh9c1umq"
+    }
+  ],
+  "flags": {
+    "ddbimporter": {
+      "id": 138323,
+      "definitionId": 2149,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Hunter's Mark",
+      "sources": [
+        {
+          "sourceId": 1,
+          "pageNumber": null,
+          "sourceType": 2
+        },
+        {
+          "sourceId": 2,
+          "pageNumber": 251,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Damage",
+        "Debuff"
+      ],
+      "version": "2.9.59",
+      "effectsApplied": true
+    },
+    "betterRolls5e": {
+      "quickVersatile": {
+        "altValue": true
+      },
+      "quickCharges": {
+        "value": {
+          "use": true,
+          "resource": true
+        },
+        "altValue": {
+          "use": true,
+          "resource": true
+        }
+      }
+    },
+    "itemacro": {
+      "macro": {
+        "data": {
+          "_id": null,
+          "name": "Hunter's Mark",
+          "type": "script",
+          "author": "otqBqyqMuTGDffTr",
+          "img": "icons/svg/dice-target.svg",
+          "scope": "global",
+          "command": "// hunter's mark\n\nif (args[0].hitTargets.length === 0) return;\nif (args[0].tag === \"OnUse\") {\n  const targetUuid = args[0].hitTargets[0].uuid;\n  const tokenOrActor = await fromUuid(args[0].actorUuid);\n  const caster = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n  const durationSeconds = args[0].item.level > 4 ? 86400 : args[0].item.level > 2 ? 28800 : 3600; \n\n  if (!caster || !targetUuid) {\n    ui.notifications.warn(\"Hunter's Mark: no token/target selected\");\n    console.error(\"Hunter's Mark: no token/target selected\");\n    return;\n  }\n\n  const effectData = {\n    changes: [\n      {\n        key: \"flags.midi-qol.huntersMark\",\n        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,\n        value: targetUuid,\n        priority: 20,\n      }, // who is marked\n      {\n        key: \"flags.dnd5e.DamageBonusMacro\",\n        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n        value: `ItemMacro.${args[0].item.name}`,\n        priority: 20,\n      }, // macro to apply the damage\n    ],\n    origin: args[0].itemUuid,\n    disabled: false,\n    duration: { seconds: durationSeconds },\n    icon: args[0].item.img,\n    label: args[0].item.name,\n  };\n  effectData.duration.startTime = game.time.worldTime;\n  await caster.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n} else if (args[0].tag === \"DamageBonus\") {\n  // only weapon attacks\n  if (![\"mwak\", \"rwak\"].includes(args[0].item.data.actionType)) return {};\n  const targetUuid = args[0].hitTargets[0].uuid;\n  // only on the marked target\n  if (targetUuid !== getProperty(args[0].actor.flags, \"midi-qol.huntersMark\")) return {};\n  const damageType = args[0].item.data.damage.parts[0][1];\n  const diceMult = args[0].isCritical ? 2 : 1;\n  return { damageRoll: `${diceMult}d6[${damageType}]`, flavor: \"Hunters Mark Damage\" };\n}",
+          "folder": null,
+          "sort": 0,
+          "permission": {
+            "default": 0
+          },
+          "flags": {}
+        }
+      }
+    },
+    "midi-qol": {
+      "onUseMacroName": "[postActiveEffects]ItemMacro",
+      "effectActivation": false,
+      "forceCEOff": false,
+      "forceCEOn": false
+    },
+    "core": {
+      "sourceId": "Compendium.world.ddb-spells.Ic5hfx2tAtZliN5H"
+    },
+    "midiProperties": {
+      "nodam": false,
+      "fulldam": false,
+      "halfdam": false,
+      "rollOther": false,
+      "critOther": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "concentration": false,
+      "toggleEffect": false
+    },
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "scene-packer": {
+      "sourceId": "Item.20mbIPGlsLdo4y9n",
+      "hash": "8a80145c1b4f924d90956c2b2a33d66f21db6ada"
+    },
+    "exportSource": {
+      "world": "Curse of Strahd",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    }
+  }
+}

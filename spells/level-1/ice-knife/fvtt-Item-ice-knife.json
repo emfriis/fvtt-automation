@@ -1,0 +1,246 @@
+{
+  "name": "Ice Knife",
+  "type": "spell",
+  "img": "systems/dnd5e/icons/spells/ice-sky-1.jpg",
+  "data": {
+    "description": {
+      "value": "<p class=\"Core-Styles_Core-Body\">You create a shard of ice and fling it at one creature within range. Make a ranged spell attack against the target. On a hit, the target takes 1d10 piercing damage. Hit or miss, the shard then explodes. The target and each creature within 5 feet of it must succeed on a Dexterity saving throw or take 2d6 cold damage.</p>\n<p class=\"Core-Styles_Core-Body\"><span class=\"Serif-Character-Style_Inline-Subhead-Serif\"><strong>At Higher Levels.</strong> </span>When you cast this spell using a spell slot of 2nd level or higher, the cold damage increases by 1d6 for each slot level above 1st.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "Elemental Evil Player's Companion pg 157",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": "inst"
+    },
+    "target": {
+      "value": 1,
+      "width": null,
+      "units": "",
+      "type": "creature"
+    },
+    "range": {
+      "value": 60,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "rsak",
+    "attackBonus": "0",
+    "chatFlavor": "[1d10 - piercing] On Hit, [2d6 - cold] On Dexterity Save Fail",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [
+        [
+          "1d10",
+          "piercing"
+        ]
+      ],
+      "versatile": "",
+      "value": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "level": 1,
+    "school": "con",
+    "components": {
+      "value": "a drop of water or a piece of ice",
+      "vocal": false,
+      "somatic": true,
+      "material": true,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": "a drop of water or a piece of ice",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    },
+    "attunement": 0
+  },
+  "effects": [],
+  "flags": {
+    "ddbimporter": {
+      "id": 138117,
+      "definitionId": 2384,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Ice Knife",
+      "sources": [
+        {
+          "sourceId": 4,
+          "pageNumber": 157,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Damage"
+      ],
+      "version": "2.9.59",
+      "effectsApplied": true
+    },
+    "betterRolls5e": {
+      "quickVersatile": {
+        "altValue": true,
+        "value": false
+      },
+      "quickCharges": {
+        "value": {
+          "use": true,
+          "resource": true
+        },
+        "altValue": {
+          "use": true,
+          "resource": true
+        }
+      },
+      "quickDamage": {
+        "context": {
+          "0": "",
+          "1": ""
+        },
+        "value": {
+          "0": true,
+          "1": true
+        },
+        "altValue": {
+          "0": true,
+          "1": true
+        }
+      },
+      "quickOther": {
+        "context": "",
+        "value": true,
+        "altValue": true
+      },
+      "quickDesc": {
+        "value": true,
+        "altValue": true
+      },
+      "quickAttack": {
+        "value": true,
+        "altValue": true
+      },
+      "quickSave": {
+        "value": true,
+        "altValue": true
+      },
+      "quickProperties": {
+        "value": true,
+        "altValue": true
+      },
+      "quickTemplate": {
+        "value": true,
+        "altValue": true
+      },
+      "quickFlavor": {
+        "value": true,
+        "altValue": true
+      }
+    },
+    "midi-qol": {
+      "fumbleThreshold": null,
+      "effectActivation": false,
+      "onUseMacroName": "[postActiveEffects]ItemMacro"
+    },
+    "midiProperties": {
+      "nodam": false,
+      "fulldam": false,
+      "halfdam": false,
+      "rollOther": false,
+      "critOther": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "concentration": false,
+      "toggleEffect": false
+    },
+    "itemacro": {
+      "macro": {
+        "data": {
+          "_id": null,
+          "name": "Ice Knife",
+          "type": "script",
+          "author": "ckiTPzlaPztdkjV6",
+          "img": "icons/svg/dice-target.svg",
+          "scope": "global",
+          "command": "// Midi-qol \"on use\"\nconst lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst casterActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\nconst casterToken = await fromUuid(lastArg.tokenUuid);\n\nif (lastArg.targets.length > 0) {\n  let areaSpellData = duplicate(lastArg.item);\n  const damageDice = 1 + lastArg.spellLevel;\n  delete(areaSpellData.effects);\n  delete(areaSpellData.id);\n  delete(areaSpellData.flags[\"midi-qol\"].onUseMacroName);\n  delete(areaSpellData.flags[\"midi-qol\"].onUseMacroParts);\n  delete(areaSpellData.flags.itemacro);\n  areaSpellData.name = \"Ice Explosion\";\n  areaSpellData.data.damage.parts = [[`${damageDice}d6[cold]`, \"cold\"]];\n  areaSpellData.data.actionType = \"save\";\n  areaSpellData.data.save.ability = \"dex\";\n  areaSpellData.data.scaling = { mode: \"level\", formula: \"1d6\" };\n  areaSpellData.data.preparation.mode =\"atwill\";\n  const areaSpell = new CONFIG.Item.documentClass(areaSpellData, { parent: casterActor })\n  const target = canvas.tokens.get(lastArg.targets[0].id);\n  const aoeTargets = await canvas.tokens.placeables.filter((placeable) =>\n    MidiQOL.getDistance(target, placeable, false) <= 5 &&\n    !canvas.walls.checkCollision(new Ray(target.center, placeable.center)\n  )).map((placeable) => placeable.document.uuid);\n\n  const options = {\n    showFullCard: false,\n    createWorkflow: true,\n    targetUuids: aoeTargets,\n    configureDialog: false,\n    versatile: false,\n    consumeResource: false,\n    consumeSlot: false,\n  };\n\n  await MidiQOL.completeItemRoll(areaSpell, options);\n} else {\n  ui.notifications.error(\"Ice Knife: No target selected: unable to automate burst effect.\");\n}",
+          "folder": null,
+          "sort": 0,
+          "permission": {
+            "default": 0
+          },
+          "flags": {}
+        },
+        "_id": null,
+        "name": "Ice Knife",
+        "type": "script",
+        "author": "ckiTPzlaPztdkjV6",
+        "img": "icons/svg/dice-target.svg",
+        "scope": "global",
+        "command": "// ice knife\n\nconst lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst casterActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\nconst casterToken = await fromUuid(lastArg.tokenUuid);\n\nif (lastArg.targets.length > 0) {\n  let areaSpellData = duplicate(lastArg.item);\n  const damageDice = 1 + lastArg.spellLevel;\n  delete(areaSpellData.effects);\n  delete(areaSpellData.id);\n  delete(areaSpellData.flags[\"midi-qol\"].onUseMacroName);\n  delete(areaSpellData.flags[\"midi-qol\"].onUseMacroParts);\n  delete(areaSpellData.flags.itemacro);\n  areaSpellData.name = \"Ice Explosion\";\n  areaSpellData.data.damage.parts = [[`${damageDice}d6[cold]`, \"cold\"]];\n  areaSpellData.data.actionType = \"save\";\n  areaSpellData.data.save.ability = \"dex\";\n  areaSpellData.data.scaling = { mode: \"level\", formula: \"1d6\" };\n  areaSpellData.data.preparation.mode =\"atwill\";\n  const areaSpell = new CONFIG.Item.documentClass(areaSpellData, { parent: casterActor })\n  const target = canvas.tokens.get(lastArg.targets[0].id);\n  const aoeTargets = await canvas.tokens.placeables.filter((placeable) =>\n    MidiQOL.getDistance(target, placeable, false) <= 5 &&\n    !canvas.walls.checkCollision(new Ray(target.center, placeable.center)\n  )).map((placeable) => placeable.document.uuid);\n\n  const options = {\n    showFullCard: false,\n    createWorkflow: true,\n    targetUuids: aoeTargets,\n    configureDialog: false,\n    versatile: false,\n    consumeResource: false,\n    consumeSlot: false,\n  };\n\n  await MidiQOL.completeItemRoll(areaSpell, options);\n} else {\n  ui.notifications.error(\"Ice Knife: No target selected: unable to automate burst effect.\");\n}",
+        "folder": null,
+        "sort": 0,
+        "permission": {
+          "default": 0
+        },
+        "flags": {}
+      }
+    },
+    "core": {
+      "sourceId": "Compendium.world.ddb-spells.G7rZ6eVuvMTXRx5C"
+    },
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "scene-packer": {
+      "sourceId": "Item.a8Yy0Mf9AOCt6hFd",
+      "hash": "b8a5638631192cab7f2dc3923f73609a02c38a79"
+    },
+    "exportSource": {
+      "world": "dnd5e",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    }
+  }
+}

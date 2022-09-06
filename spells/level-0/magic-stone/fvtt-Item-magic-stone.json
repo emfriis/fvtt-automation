@@ -1,0 +1,235 @@
+{
+  "name": "Magic Stone",
+  "type": "spell",
+  "img": "systems/dnd5e/icons/spells/rock-royal-1.jpg",
+  "data": {
+    "description": {
+      "value": "<p>You touch one to three pebbles and imbue them with magic. You or someone else can make a ranged spell attack with one of the pebbles by throwing it or hurling it with a sling. If thrown, it has a range of 60 feet. If someone else attacks with the pebble, that attacker adds your spellcasting ability modifier, not the attacker’s, to the attack roll. On a hit, the target takes bludgeoning damage equal to 1d6 + your spellcasting ability modifier. Hit or miss, the spell then ends on the stone.</p>\n<p>If you cast this spell again, the spell ends early on any pebbles still affected by it.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "Elemental Evil Player's Companion pg 160",
+    "activation": {
+      "type": "bonus",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "minute"
+    },
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": "self"
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": "self"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "util",
+    "attackBonus": "0",
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "level": 0,
+    "school": "trs",
+    "components": {
+      "value": "",
+      "vocal": true,
+      "somatic": true,
+      "material": false,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "effects": [
+    {
+      "_id": "qIeIL995LQ0uG0i8",
+      "changes": [
+        {
+          "key": "macro.itemMacro",
+          "mode": 0,
+          "value": "@mod @attributes.prof",
+          "priority": "20"
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null
+      },
+      "icon": "systems/dnd5e/icons/spells/rock-royal-1.jpg",
+      "label": "Magic Stone",
+      "origin": "Item.Bt2hN5Abhqg3W2Xu",
+      "transfer": false,
+      "flags": {
+        "dae": {
+          "selfTarget": false,
+          "stackable": "none",
+          "durationExpression": "",
+          "macroRepeat": "none",
+          "specialDuration": [],
+          "transfer": false
+        },
+        "core": {
+          "statusId": ""
+        },
+        "dnd5e-helpers": {
+          "rest-effect": "Ignore"
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "aura": "None",
+          "radius": null,
+          "alignment": "",
+          "type": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "displayTemp": false,
+          "hostile": false,
+          "onlyOnce": false
+        }
+      },
+      "tint": null,
+      "selectedKey": "macro.itemMacro"
+    }
+  ],
+  "flags": {
+    "ddbimporter": {
+      "id": 138187,
+      "definitionId": 2391,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Magic Stone",
+      "sources": [
+        {
+          "sourceId": 4,
+          "pageNumber": 160,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Damage"
+      ],
+      "version": "2.9.59",
+      "effectsApplied": true
+    },
+    "betterRolls5e": {
+      "quickVersatile": {
+        "altValue": true
+      },
+      "quickCharges": {
+        "value": {
+          "use": true,
+          "resource": true
+        },
+        "altValue": {
+          "use": true,
+          "resource": true
+        }
+      }
+    },
+    "core": {
+      "sourceId": "Compendium.world.ddb-spells.S4wnDp0JFIlxsGVi"
+    },
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "midi-qol": {
+      "fumbleThreshold": null,
+      "effectActivation": false
+    },
+    "midiProperties": {
+      "nodam": false,
+      "fulldam": false,
+      "halfdam": false,
+      "rollOther": false,
+      "critOther": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "concentration": false,
+      "toggleEffect": false
+    },
+    "itemacro": {
+      "macro": {
+        "data": {
+          "_id": null,
+          "name": "Magic Stone",
+          "type": "script",
+          "author": "otqBqyqMuTGDffTr",
+          "img": "icons/svg/dice-target.svg",
+          "scope": "global",
+          "command": "// magic stone\n\nconst lastArg = args[args.length - 1];\nconsole.log(lastArg);\nlet tactor;\nif (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;\nelse tactor = game.actors.get(lastArg.actorId);\nconst itemD = lastArg.efData.flags.dae.itemData;\nconst atkMod = Number(args[1]) + Number(args[2]);\nconst dmgMod = Number(args[1]);\n\nif (args[0] === \"on\") {\n    let itemData = [{\n        \"name\": `Stone (${itemD.name})`,\n        \"type\": \"weapon\",\n        \"img\": itemD.img,\n        \"data\": {\n            \"description\": {\n                \"value\": \"<p>A magically imbued stone.</p>\",\n                \"chat\": \"\",\n                \"unidentified\": \"\"\n            },\n            \"quantity\": 3,\n            \"equipped\": true,\n            \"identified\": true,\n            \"activation\": {\n                \"type\": \"action\",\n                \"cost\": 1,\n                \"condition\": \"\"\n            },\n            \"range\": {\n                \"value\": 60,\n                \"long\": null,\n                \"units\": \"ft\"\n            },\n            \"uses\": {\n                \"value\": 1,\n                \"max\": 1,\n                \"per\": \"charges\",\n                \"autoDestroy\": true\n            },\n            \"actionType\": \"rsak\",\n            \"attackBonus\": `${atkMod} - @mod`,\n            \"damage\": {\n                \"parts\": [\n                    [\n                        `1d6 + ${dmgMod} - @mod[bludgeoning]`,\n                        \"bludgeoning\"\n                    ]\n                ],\n                \"versatile\": \"\"\n            },\n\t\t\t\"weaponType\": \"natural\",\n            \"properties\": {\n                \"mgc\": true,\n                \"thr\": true\n            },\n            \"proficient\": false,\n        }\n    }];\n    await tactor.createEmbeddedDocuments(\"Item\", itemData);\n\tui.notifications.notify(\"You imbue 3 stones with magical force\")\n}\n\nif (args[0] === \"off\") {\n    let items = tactor.data.items.find(i => i.name === `Stone (${itemD.name})` && i.type === \"weapon\");\n    if (items) await tactor.deleteEmbeddedDocuments('Item', [items.id]);\n\tui.notifications.notify(\"The stones' magic fades\")\n}",
+          "folder": null,
+          "sort": 0,
+          "permission": {
+            "default": 0
+          },
+          "flags": {}
+        }
+      }
+    },
+    "scene-packer": {
+      "sourceId": "Item.WBhpygHJl8SnPszb",
+      "hash": "e6eaaf7b11e9c6fa96f3d5fd1aeb81e00d9011ee"
+    },
+    "inventory-plus": {
+      "category": "weapon"
+    },
+    "exportSource": {
+      "world": "Curse of Strahd",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    }
+  }
+}
