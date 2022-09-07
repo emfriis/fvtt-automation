@@ -85,10 +85,10 @@ function weaponAttack(caster, sourceItemData, origin, target) {
   //Filter for weapons
   filteredWeapons.forEach((weapon) => {
     weapon_content += `<label class="radio-label">
-  <input type="radio" name="weapon" value="${weapon.id}">
-  <img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">
-  ${weapon.data.name}
-</label>`;
+    <input type="radio" name="weapon" value="${weapon.id}">
+    <img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">
+    ${weapon.data.name}
+    </label>`;
   });
 
   let content = `
@@ -134,9 +134,8 @@ function weaponAttack(caster, sourceItemData, origin, target) {
     </form>
   `;
 
-
   new Dialog({
-    title: "Green Flame Blade: Choose a weapon to attack with",
+    title: "Green Flame Blade: Choose a weapon",
     content,
     buttons: {
       Ok: {
@@ -182,17 +181,66 @@ async function attackNearby(originToken, ignoreIds) {
   const sourceItem = await fromUuid(lastArg.efData.flags.origin);
   const caster = sourceItem.parent;
   const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
-  const targetContent = potentialTargets.map((t) => `<option value="${t.id}">${t.name}</option>`).join("");
-  const content = `<div class="form-group"><label>Targets : </label><select name="secondaryTargetId"}>${targetContent}</select></div>`;
+
+  let target_content = "";
+  potentialTargets.forEach((t) => {
+    target_content += `<label class="radio-label">
+    <input type="radio" name="target" value="${t.id}">
+    <img src="${t.data.img}" style="border:0px; width: 100px; height:100px;">
+    </label>`;
+  });
+
+  let content = `
+    <style>
+    .target .form-group {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        align-items: flex-start;
+      }
+
+      .target .radio-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        justify-items: center;
+        flex: 1 0 25%;
+        line-height: normal;
+      }
+
+      .target .radio-label input {
+        display: none;
+      }
+
+      .target img {
+        border: 0px;
+        width: 50px;
+        height: 50px;
+        flex: 0 0 50px;
+        cursor: pointer;
+      }
+
+      /* CHECKED STYLES */
+      .target [type=radio]:checked + img {
+        outline: 2px solid #f00;
+      }
+    </style>
+    <form class="target">
+      <div class="form-group" id="target">
+          ${target_content}
+      </div>
+    </form>
+  `;
 
   new Dialog({
-    title: "Green Flame Blade: Choose a secondary target to attack",
+    title: "Green Flame Blade: Choose a secondary target",
     content,
     buttons: {
       Choose: {
         label: "Choose",
         callback: async (html) => {
-          const selectedId = html.find("[name=secondaryTargetId]")[0].value;
+          const selectedId = $("input[type='radio'][name='target']:checked").val();
           const targetToken = canvas.tokens.get(selectedId);
           const sourceItem = await fromUuid(lastArg.efData.flags.origin);
           const mod = caster.data.data.abilities[sourceItem.abilityMod].mod;

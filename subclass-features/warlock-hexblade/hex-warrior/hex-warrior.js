@@ -75,8 +75,8 @@ if (args[0] === "on") {
           let copyItem = duplicate(weaponItem);
           DAE.setFlag(targetActor, "hexWeapon", {
             weapon: itemId,
-			ability: copyItem.data.ability,
-			name: copyItem.name,
+			      ability: copyItem.data.ability,
+			      name: copyItem.name,
           });
           if (copyItem.data.attackBonus === "") copyItem.data.attackBonus = "0";
           copyItem.data.ability = "cha";
