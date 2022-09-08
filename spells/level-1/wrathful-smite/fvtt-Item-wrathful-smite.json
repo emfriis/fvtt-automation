@@ -1,0 +1,168 @@
+{
+  "name": "Wrathful Smite",
+  "type": "spell",
+  "img": "systems/dnd5e/icons/spells/enchant-royal-2.jpg",
+  "data": {
+    "description": {
+      "value": "<p>The next time you hit with a melee weapon attack during this spell’s duration, your attack deals an extra 1d6 psychic damage. Additionally, if the target is a creature, it must make a Wisdom saving throw or be @Compendium[dnd5e.rules.Frightened]{frightened} of you until the spell ends. As an action, the creature can make a Wisdom check against your spell save DC to steel its resolve and end this spell.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "Player's Handbook pg 289",
+    "activation": {
+      "type": "bonus",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "minute"
+    },
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": "self"
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": "self"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "other",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "level": 1,
+    "school": "evo",
+    "components": {
+      "value": "",
+      "vocal": true,
+      "somatic": false,
+      "material": false,
+      "ritual": false,
+      "concentration": true
+    },
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    },
+    "attunement": null
+  },
+  "effects": [],
+  "flags": {
+    "ddbimporter": {
+      "id": 138957,
+      "definitionId": 2324,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Wrathful Smite",
+      "sources": [
+        {
+          "sourceId": 2,
+          "pageNumber": 289,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Damage",
+        "Control"
+      ],
+      "version": "2.9.64",
+      "effectsApplied": true
+    },
+    "core": {
+      "sourceId": "Compendium.world.ddb-spells-2.AZgt7YaYhGn4VpCr"
+    },
+    "scene-packer": {
+      "hash": "eaa0d01c26e240c433380e5eda10dd349bee591e",
+      "sourceId": "Item.vIPy2KEL467L8AGZ"
+    },
+    "itemacro": {
+      "macro": {
+        "data": {
+          "_id": null,
+          "name": "Wrathful Smite",
+          "type": "script",
+          "author": "otqBqyqMuTGDffTr",
+          "img": "icons/svg/dice-target.svg",
+          "scope": "global",
+          "command": "// wrathful smite\n\nasync function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\nconst lastArg = args[args.length - 1];\nconst tokenD = canvas.tokens.get(lastArg.tokenId);\nconst actorD = tokenD.actor;\nconst gameRound = game.combat ? game.combat.round : 0;\n\nasync function attemptRemoval(targetToken, condition, item) {\n    if (game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.uuid)) {\n        new Dialog({\n        title: `Use action to attempt to remove ${condition}?`,\n        buttons: {\n            one: {\n            label: \"Yes\",\n            callback: async () => {\n                const caster = item.parent;\n                const saveDc = caster.data.data.attributes.spelldc;\n                const removalCheck = true;\n                const ability = \"wis\";\n                const type = removalCheck ? \"check\" : \"save\";\n                const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability]} ${type} vs DC${saveDc}`;\n                const rollResult = removalCheck\n                ? (await targetToken.actor.rollAbilityTest(ability, { flavor })).total\n                : (await targetToken.actor.rollAbilitySave(ability, { flavor })).total;\n\n                if (rollResult >= saveDc) {\n                game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: targetToken.uuid });\n                } else {\n                if (rollResult < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the ${type} for ${item.name}, still has the ${condition} condition.` });\n                }\n            },\n            },\n            two: {\n            label: \"No\",\n            callback: () => {},\n            },\n        },\n        }).render(true);\n    }\n}\n\nif (lastArg.tag === \"OnUse\") {\n    let itemD = lastArg.item;\n    let itemName = game.i18n.localize(itemD.name);\n    let effectData = [{\n        changes: [\n            { key: \"flags.dnd5e.DamageBonusMacro\", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro.${itemName}`, priority: 20 },\n            { key: \"flags.midi-qol.spellId\", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: lastArg.uuid, priority: 20 }\n        ],\n        origin: lastArg.uuid,\n        disabled: false,\n        duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },\n        flags: {\n            \"dae\": { itemData: itemD, specialDuration: [\"1Hit\"] }\n        },\n        icon: itemD.img,\n        label: itemName\n    }];\n    await MidiQOL.socket().executeAsGM(\"createEffects\", { actorUuid: tokenD.actor.uuid, effects: effectData });\n}\n\nif (lastArg.tag === \"DamageBonus\") {\n    if (![\"mwak\"].includes(lastArg.item.data.actionType)) return {};\n    let target = canvas.tokens.get(lastArg.hitTargets[0].id);\n    let spellDC = actorD.data.data.attributes.spelldc;\n    let conc = actorD.effects.find(i => i.data.label === game.i18n.localize(\"Concentrating\"));\n    let spellUuid = getProperty(actorD.data.flags, \"midi-qol.spellId\");\n    let spellItem = await fromUuid(getProperty(actorD.data.flags, \"midi-qol.spellId\"));\n    let itemName = game.i18n.localize(spellItem.name);\n    let damageType = \"psychic\";\n    let effectData = [{\n        changes: [\n            { key: `StatusEffect`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: \"Convenient Effect: Frightened\", priority: 20 },\n            { key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: \"\", priority: 20 },\n            { key: `flags.dae.deleteUuid`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: conc.uuid, priority: 20 }\n        ],\n        origin: spellUuid,\n        flags: {\n            \"dae\": { itemData: spellItem.data, token: target.actor.uuid, macroRepeat: \"startEveryTurn\" }\n        },\n        disabled: false,\n        duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },\n        icon: spellItem.img,\n        label: itemName\n    }];\n\n    if (conc) {\n        const flavor = `${\"Frightened\"} (via ${itemName}) : ${CONFIG.DND5E.abilities[\"wis\"]} ${\"save\"} vs DC${spellDC}`;\n        let save = (await target.actor.rollAbilitySave(\"wis\", { flavor })).total;\n        if (save < spellDC) {\n            await MidiQOL.socket().executeAsGM(\"createEffects\", { actorUuid: target.actor.uuid, effects: effectData });\n        }\n        let concUpdate = await getProperty(actorD.data.flags, \"midi-qol.concentration-data.targets\");\n        await concUpdate.push({ tokenUuid: target.document.uuid, actorUuid: target.actor.uuid });\n        await actorD.setFlag(\"midi-qol\", \"concentration-data.targets\", concUpdate);\n    }\n\n    const diceMult = args[0].isCritical ? 2: 1;\n    return { damageRoll: `${diceMult}d6[${damageType}]`, flavor: `(${itemName} (${CONFIG.DND5E.damageTypes[damageType]}))` };\n}\n\nif (args[0] === \"each\") {\n    const targetToken = await fromUuid(lastArg.tokenUuid);\n    const condition = \"Frightened\";\n    const item = await fromUuid(lastArg.efData.origin);\n    attemptRemoval(targetToken, condition, item);\n}",
+          "folder": null,
+          "sort": 0,
+          "permission": {
+            "default": 0
+          },
+          "flags": {}
+        }
+      }
+    },
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "midi-qol": {
+      "effectActivation": false,
+      "onUseMacroName": "[postActiveEffects]ItemMacro"
+    },
+    "midiProperties": {
+      "nodam": false,
+      "fulldam": false,
+      "halfdam": false,
+      "rollOther": false,
+      "critOther": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "concentration": false,
+      "toggleEffect": false
+    },
+    "exportSource": {
+      "world": "Curse of Strahd",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    }
+  }
+}
