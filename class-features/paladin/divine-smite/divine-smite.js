@@ -66,7 +66,7 @@ try {
                   }
               },
               default: "two",
-              close: callBack => {resolve(false)}
+              close: () => {resolve(false)}
           }).render(true);
       });
       smite = await dialog;
@@ -88,8 +88,7 @@ try {
           let objUpdate = new Object();
           if (!pactSlot) {
               objUpdate['data.spells.spell' + slotLevel + '.value'] = chosenSpellSlots.value - 1;
-                  }
-          else {
+          } else {
               objUpdate['data.spells.pact.value'] = chosenSpellSlots.value - 1;
           }
           actor.update(objUpdate);

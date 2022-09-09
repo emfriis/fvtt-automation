@@ -1,0 +1,186 @@
+{
+  "name": "Aura of Protection",
+  "type": "feat",
+  "img": "icons/magic/air/wind-tornado-wall-blue.webp",
+  "data": {
+    "description": {
+      "value": "<p>Starting at 6th level, whenever you or a friendly creature within 10 feet of you must make a saving throw, the creature gains a bonus to the saving throw equal to your Charisma modifier (with a minimum bonus of +1). You must be conscious to grant this bonus.</p>\n<p> At 18th level, the range of this aura increases to 30 feet.</p>\n<p> </p>\n<p>Requires Active Auras.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "PHB pg. 85",
+    "activation": {
+      "type": "none",
+      "cost": 0,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": ""
+    },
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": "self"
+    },
+    "range": {
+      "value": 10,
+      "long": 30,
+      "units": "ft"
+    },
+    "uses": {
+      "value": 0,
+      "max": "0",
+      "per": "",
+      "type": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": null
+    },
+    "damage": {
+      "parts": [],
+      "versatile": "",
+      "value": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell",
+      "value": ""
+    },
+    "requirements": "Paladin 6",
+    "recharge": {
+      "value": null,
+      "charged": false
+    },
+    "armor": {
+      "value": 10
+    },
+    "hp": {
+      "value": 0,
+      "max": 0,
+      "dt": null,
+      "conditions": ""
+    },
+    "properties": {},
+    "attributes": {
+      "spelldc": 10
+    }
+  },
+  "effects": [
+    {
+      "_id": "9OFOAQENA1VYGc7T",
+      "flags": {
+        "ActiveAuras": {
+          "isAura": true,
+          "inactive": false,
+          "aura": "Allies",
+          "radius": 10,
+          "hidden": false,
+          "height": false,
+          "alignment": "",
+          "type": "",
+          "ignoreSelf": false,
+          "hostile": false,
+          "onlyOnce": false
+        },
+        "dae": {
+          "stackable": "none",
+          "specialDuration": [],
+          "transfer": true,
+          "macroRepeat": "none"
+        },
+        "dnd5e-helpers": {
+          "rest-effect": "Ignore"
+        },
+        "core": {
+          "statusId": "1"
+        }
+      },
+      "changes": [
+        {
+          "key": "data.bonuses.abilities.save",
+          "mode": 0,
+          "value": "+@abilities.cha.mod",
+          "priority": "20"
+        },
+        {
+          "key": "macro.tokenMagic",
+          "mode": 0,
+          "value": "magic-field",
+          "priority": "20"
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null
+      },
+      "icon": "systems/dnd5e/icons/skills/blue_13.jpg",
+      "label": "Aura of Protection",
+      "origin": "Actor.Y7foSiLRLo7ysFr9.OwnedItem.MyXtCPagugDlf6TQ",
+      "tint": null,
+      "transfer": true,
+      "selectedKey": [
+        "data.bonuses.abilities.save",
+        "macro.tokenMagic"
+      ]
+    }
+  ],
+  "flags": {
+    "dae": {
+      "migrated": true,
+      "activeEquipped": false,
+      "alwaysActive": true
+    },
+    "magicitems": {
+      "enabled": false,
+      "equipped": false,
+      "attuned": false,
+      "charges": "0",
+      "chargeType": "c1",
+      "destroy": false,
+      "destroyFlavorText": "reaches 0 charges: it crumbles into ashes and is destroyed.",
+      "rechargeable": false,
+      "recharge": "0",
+      "rechargeType": "t1",
+      "rechargeUnit": "r1",
+      "sorting": "l"
+    },
+    "favtab": {
+      "isFavorite": false
+    },
+    "core": {
+      "sourceId": "Item.WiVleJLWZ5UXryDN"
+    },
+    "gm-notes": {},
+    "exportSource": {
+      "world": "Curse of Strahd",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    },
+    "cf": null,
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "scene-packer": {
+      "sourceId": "Item.W6hnP41iJy3Xu5wy"
+    }
+  }
+}
