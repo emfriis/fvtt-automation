@@ -29,7 +29,7 @@ Optional Modules that also aid with automation and/or immersion:
 
 ## Credit
 
-Most items are created by or draw their basis from several existing macro authors in the Foundry community:
+Most items draw their basis from several existing macro authors in the Foundry community:
 
 - Crymic (https://gitlab.com/crymic/foundry-vtt-macros)
 - Kandashi (https://github.com/kandashi/Macros/tree/master/Spell%20Macros)

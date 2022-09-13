@@ -34,7 +34,7 @@ async function attemptRemoval(targetToken, condition, item, isCheck, abilityType
 
 await attemptRemoval(targetToken, condition, item, isCheck, abilityType);
 
-// using midi qol - still doesnt offer tokenbar roll if active
+// using midi qol - still doesnt offer tokenbar roll if active - is better I think?
 
 async function attemptRemovalMidi(targetToken, condition, item, isCheck, abilityType) {
     if (game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.uuid)) {
