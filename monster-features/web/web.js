@@ -13,16 +13,15 @@ async function attemptRemoval(targetToken, condition) {
                 const saveDc = 12;
                 const removalCheck = true;
                 const ability = "str";
-                const type = removalCheck ? "check" : "save";
-                const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability]} ${type} vs DC${saveDc}`;
-                const rollResult = removalCheck
-                ? (await targetToken.actor.rollAbilityTest(ability, { flavor })).total
-                : (await targetToken.actor.rollAbilitySave(ability, { flavor })).total;
+                const type = removalCheck ? "abil" : "save";
+                const rollOptions = { chatMessage: true, fastForward: true };
+                const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: type, targetUuid: targetToken.uuid, ability: ability, options: rollOptions });
+                if (game.dice3d) game.dice3d.showForRoll(roll);
 
-                if (rollResult >= saveDc) {
-                game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: targetToken.uuid });
+                if (roll.total >= saveDc) {
+                    game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: targetToken.uuid });
                 } else {
-                if (rollResult < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the ${type}, still has the ${condition} condition.` });
+                    if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll, still has the ${condition} condition.` });
                 }
             },
             },

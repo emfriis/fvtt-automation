@@ -26,7 +26,7 @@ if (!game.modules.get("dfreds-convenient-effects")?.active) {
         blind: {
           label: "Blindness",
           callback: () => {
-            if (!targetActor.data.data.traits.ci.value.includes("Blinded")) {
+            if (!targetActor.data.data.traits.ci.value.includes("blinded")) {
                 DAE.setFlag(targetActor, "DAEBlind", "blind");
                 game.dfreds.effectInterface.addEffect({ effectName: "Blinded", uuid: targetActor.uuid });
                 const changes = [

@@ -72,7 +72,7 @@ if (lastArg.tag === "DamageBonus") {
     return { damageRoll: `${diceMult}d8[${damageType}]`, flavor: `(${itemName} (${CONFIG.DND5E.damageTypes[damageType]}))` };
 }
 
-if (args[0] === "on" && !actorD.data.data.traits.ci.value.includes("Blinded")) {
+if (args[0] === "on" && !actorD.data.data.traits.ci.value.includes("blinded")) {
     const token = await fromUuid(lastArg.tokenUuid);
     const senses = actorD.data.data.attributes.senses;
     let visionRange = Math.max(senses.blindsight, senses.tremorsense, 0);

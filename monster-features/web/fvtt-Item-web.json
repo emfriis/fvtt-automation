@@ -157,7 +157,7 @@
           "author": "otqBqyqMuTGDffTr",
           "img": "icons/svg/dice-target.svg",
           "scope": "global",
-          "command": "const lastArg = args[args.length - 1];\n  \nasync function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\n\nasync function attemptRemoval(targetToken, condition) {\n    if (game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.uuid)) {\n        new Dialog({\n        title: `Use action to attempt to remove ${condition}?`,\n        buttons: {\n            one: {\n            label: \"Yes\",\n            callback: async () => {\n                const saveDc = 12;\n                const removalCheck = true;\n                const ability = \"str\";\n                const type = removalCheck ? \"check\" : \"save\";\n                const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability]} ${type} vs DC${saveDc}`;\n                const rollResult = removalCheck\n                ? (await targetToken.actor.rollAbilityTest(ability, { flavor })).total\n                : (await targetToken.actor.rollAbilitySave(ability, { flavor })).total;\n\n                if (rollResult >= saveDc) {\n                game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: targetToken.uuid });\n                } else {\n                if (rollResult < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the ${type}, still has the ${condition} condition.` });\n                }\n            },\n            },\n            two: {\n            label: \"No\",\n            callback: () => {},\n            },\n        },\n        }).render(true);\n    }\n}\n\nif (args[0] === \"each\") {\n    const targetToken = await fromUuid(lastArg.tokenUuid);\n    const condition = \"Restrained\";\n    attemptRemoval(targetToken, condition);\n}",
+          "command": "const lastArg = args[args.length - 1];\n  \nasync function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\n\nasync function attemptRemoval(targetToken, condition) {\n    if (game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.uuid)) {\n        new Dialog({\n        title: `Use action to attempt to remove ${condition}?`,\n        buttons: {\n            one: {\n            label: \"Yes\",\n            callback: async () => {\n                const saveDc = 12;\n                const removalCheck = true;\n                const ability = \"str\";\n                const type = removalCheck ? \"abil\" : \"save\";\n                const rollOptions = { chatMessage: true, fastForward: true };\n                const roll = await MidiQOL.socket().executeAsGM(\"rollAbility\", { request: type, targetUuid: targetToken.uuid, ability: ability, options: rollOptions });\n                if (game.dice3d) game.dice3d.showForRoll(roll);\n\n                if (roll.total >= saveDc) {\n                    game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: targetToken.uuid });\n                } else {\n                    if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll, still has the ${condition} condition.` });\n                }\n            },\n            },\n            two: {\n            label: \"No\",\n            callback: () => {},\n            },\n        },\n        }).render(true);\n    }\n}\n\nif (args[0] === \"each\") {\n    const targetToken = await fromUuid(lastArg.tokenUuid);\n    const condition = \"Restrained\";\n    attemptRemoval(targetToken, condition);\n}",
           "folder": null,
           "sort": 0,
           "permission": {
@@ -168,11 +168,11 @@
       }
     },
     "scene-packer": {
-      "hash": "0674b3e7928b73930df7a66ae1d2ca237b04562d",
-      "sourceId": "Item.4bwItlvY62N8KP6n"
+      "hash": "fcbccf60250211df04d97878c4fe2ab092391884",
+      "sourceId": "Item.N1jXrfooWeqoMpKD"
     },
     "core": {
-      "sourceId": "Item.4bwItlvY62N8KP6n"
+      "sourceId": "Item.N1jXrfooWeqoMpKD"
     },
     "exportSource": {
       "world": "Curse of Strahd",
