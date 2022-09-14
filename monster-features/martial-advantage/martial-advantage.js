@@ -63,7 +63,7 @@ try {
     if (!useAdv) return {}
     const diceMult = args[0].isCritical ? 2: 1;
     const baseDice = 2;
-	const damageType = args[0].item.data.damage.parts[0][1];
+  	const damageType = args[0].item.data.damage.parts[0][1];
     if (game.combat) {
       const combatTime = `${game.combat.id}-${game.combat.round + game.combat.turn /100}`;
       const lastTime = actor.getFlag("midi-qol", "martialAdvantageTime");
