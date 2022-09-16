@@ -1,4 +1,4 @@
-// macro.itemMacro.GM with args[1] being @token, on active effect with CE: Frightened, execute macros end of each turn
+// macro.itemMacro.GM with args[1] being @token, on active effect
 // requires DAE, Itemacro, Midi-QOL, More Hooks D&D5e, optionally CV, Levels
 
 const lastArg = args[args.length - 1];
