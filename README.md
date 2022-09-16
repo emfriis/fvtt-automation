@@ -16,12 +16,13 @@ All items are created assuming the use of the following modules (and their prere
 - Perfect Vision
 - Time's Up
 - Warp Gate
+- More Hooks D&D5E
+- Levels
 
 Optional Modules that also aid with automation and/or immersion:
 - DFreds Template Enhancements/Levels: Volumetric Templates
 - DnD5e Helpers
 - Enchanced Terrain Layer
-- Levels
 - Monk's Little Details
 - Monk's TokenBar
 - Multilevel Tokens
