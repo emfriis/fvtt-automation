@@ -156,18 +156,18 @@ if (lastArg.tag === "DamageBonus") {
     let damageType = "psychic";
     let effectData = [{
         changes: [
-            { key: `StatusEffect`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Frightened", priority: 20 },
             { key: `macro.itemMacro.GM`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: lastArg.tokenId, priority: 20 },
             { key: `flags.dae.deleteUuid`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: conc.uuid, priority: 20 }
         ],
         origin: spellUuid,
         flags: {
-            "dae": { itemData: spellItem.data, token: tactorTarget.uuid, macroRepeat: "startEveryTurn" }
+            "dae": { itemData: spellItem.data, token: tactorTarget.uuid, macroRepeat: "startEveryTurn" },
+            "core": { statusId: "Frightened" }
         },
         disabled: false,
         duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },
-        icon: spellItem.img,
-        label: itemName
+        icon: "icons/svg/terror.svg",
+        label: "Frightened"
     }];
 
     if (conc) {
