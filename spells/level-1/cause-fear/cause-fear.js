@@ -1,4 +1,6 @@
-// wrathful smite
+// cause fear
+// requires DAE, Itemacro, Midi-QOL, More Hooks D&D5e, DFreds CE, optionally CV, Levels
+// almost RAW, macro will overwrite other sources of disadvantage on skill and ability checks
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 const lastArg = args[args.length - 1];
@@ -6,38 +8,23 @@ const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const sourceToken = canvas.tokens.get(args[1]);
-const gameRound = game.combat ? game.combat.round : 0;
 
-async function attemptRemoval(targetToken, condition, item) {
-    if (game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.uuid)) {
-        new Dialog({
-        title: `Use action to attempt to remove ${condition}?`,
-        buttons: {
-            one: {
-            label: "Yes",
-            callback: async () => {
-                const caster = item.parent;
-                const saveDc = caster.data.data.attributes.spelldc;
-                const removalCheck = true;
-                const ability = "wis";
-                const type = removalCheck ? "abil" : "save";
-                const rollOptions = { chatMessage: true, fastForward: true };
-                const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: type, targetUuid: targetToken.uuid, ability: ability, options: rollOptions });
-                if (game.dice3d) game.dice3d.showForRoll(roll);
+async function attemptRemoval(targetToken, condition, item, getResist) {
+    const caster = item.parent;
+    const saveDc = caster.data.data.attributes.spelldc;
+    const removalCheck = false;
+    const ability = "wis";
+    const type = removalCheck ? "abil" : "save"; // can be "abil", "save", or "skill"
+    const targetUuid = targetToken.actor.uuid;
+    const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
+    const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: type, targetUuid: targetUuid, ability: ability, options: rollOptions });
+    if (game.dice3d) game.dice3d.showForRoll(roll);
 
-                if (roll.total >= saveDc) {
-                game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: targetToken.uuid });
-                } else {
-                if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll for ${item.name}, still has the ${condition} condition.` });
-                }
-            },
-            },
-            two: {
-            label: "No",
-            callback: () => {},
-            },
-        },
-        }).render(true);
+    if (roll.total >= saveDc) {
+        let fear = tactor.effects.find(i => i.data === lastArg.efData);
+		if (fear) await tactor.deleteEmbeddedDocuments("ActiveEffect", [fear.id]);
+    } else {
+        if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll for ${item.name}, still has the ${condition} condition.` });
     }
 }
 
@@ -124,71 +111,33 @@ async function sightCheck(actorOrWorkflow, rollData) {
     }
 }
 
-if (lastArg.tag === "OnUse") {
-    let itemD = lastArg.item;
-    let itemName = game.i18n.localize(itemD.name);
-    let effectData = [{
-        changes: [
-            { key: "flags.dnd5e.DamageBonusMacro", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro.${itemName}`, priority: 20 },
-            { key: "flags.midi-qol.spellId", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: lastArg.uuid, priority: 20 }
-        ],
-        origin: lastArg.uuid,
-        disabled: false,
-        duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },
-        flags: {
-            "dae": { itemData: itemD, specialDuration: ["1Hit"] }
-        },
-        icon: itemD.img,
-        label: itemName
-    }];
-    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: token.actor.uuid, effects: effectData });
-}
-
-if (lastArg.tag === "DamageBonus") {
-    if (!["mwak"].includes(lastArg.item.data.actionType) || lastArg.hitTargetUuids.length < 1) return {};
-    let tokenOrActorTarget = await fromUuid(lastArg.hitTargetUuids[0]);
-    let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-    let spellDC = tactor.data.data.attributes.spelldc;
-    let conc = tactor.effects.find(i => i.data.label === game.i18n.localize("Concentrating"));
-    let spellUuid = getProperty(tactor.data.flags, "midi-qol.spellId");
-    let spellItem = await fromUuid(getProperty(tactor.data.flags, "midi-qol.spellId"));
-    let itemName = game.i18n.localize(spellItem.name);
-    let damageType = "psychic";
-    let effectData = [{
-        changes: [
-            { key: `StatusEffect`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Frightened", priority: 20 },
-            { key: `macro.itemMacro.GM`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: lastArg.tokenId, priority: 20 },
-            { key: `flags.dae.deleteUuid`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: conc.uuid, priority: 20 }
-        ],
-        origin: spellUuid,
-        flags: {
-            "dae": { itemData: spellItem.data, token: tactorTarget.uuid, macroRepeat: "startEveryTurn" }
-        },
-        disabled: false,
-        duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },
-        icon: spellItem.img,
-        label: itemName
-    }];
-
-    if (conc) {
-        const resist = ["Brave", "Fear Resilience"];
-        const getResist = tactorTarget.items.find(i => resist.includes(i.name));
-        const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
-        const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "save", targetUuid: tactorTarget.uuid, ability: "wis", options: rollOptions });
-        if (game.dice3d) game.dice3d.showForRoll(roll);
-        if (roll.total < spellDC) {
-            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: effectData });
+if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPass === "preSave") {
+    const resist = ["Brave", "Fear Resilience"];
+    for (let i = 0; i < lastArg.targetUuids.length; i++) {
+        let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
+        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
+        let getResist = tactorTarget.items.find(i => resist.includes(i.name));
+        if (getResist) {
+            const effectData = {
+                changes: [
+                    {
+                        key: "flags.midi-qol.advantage.ability.save.all",
+                        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+                        value: 1,
+                        priority: 20,
+                    }
+                ],
+                disabled: false,
+                flags: { dae: { specialDuration: ["isSave"] } },
+                icon: args[0].item.img,
+                label: `${args[0].item.name} Save Advantage`,
+            };
+            await tactorTarget.createEmbeddedDocuments("ActiveEffect", [effectData]);
         }
-        let concUpdate = await getProperty(tactor.data.flags, "midi-qol.concentration-data.targets");
-        await concUpdate.push({ tokenUuid: tokenOrActorTarget.uuid, actorUuid: tactorTarget.uuid });
-        await tactor.setFlag("midi-qol", "concentration-data.targets", concUpdate);
     }
-
-    const diceMult = args[0].isCritical ? 2: 1;
-    return { damageRoll: `${diceMult}d6[${damageType}]`, flavor: `(${itemName} (${CONFIG.DND5E.damageTypes[damageType]}))` };
 }
 
-if (args[0] === "on" && token !== sourceToken) {
+if (args[0] === "on") {
     if (game.modules.get("midi-qol")?.active) {
     let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
     DAE.setFlag(tactor, "fearAtkHook", hookId1);
@@ -203,14 +152,16 @@ if (args[0] === "on" && token !== sourceToken) {
     }
 }
 
-if (args[0] === "each" && lastArg.efData.disabled === false && token !== sourceToken) {
+if (args[0] === "each" && lastArg.efData.disabled === false) {
+    const resist = ["Brave", "Fear Resilience"];
+    const getResist = tactor.items.find(i => resist.includes(i.name));
     const targetToken = await fromUuid(lastArg.tokenUuid);
     const condition = "Frightened";
     const item = await fromUuid(lastArg.efData.origin);
-    attemptRemoval(targetToken, condition, item);
+    attemptRemoval(targetToken, condition, item, getResist);
 }
 
-if (args[0] === "off" && token !== sourceToken) {
+if (args[0] === "off") {
     const flag1 = await DAE.getFlag(tactor, "fearAtkHook");
 	if (flag1) {
 		Hooks.off("midi-qol.preItemRoll", flag1);

@@ -1,0 +1,263 @@
+{
+  "name": "Fear",
+  "type": "spell",
+  "img": "systems/dnd5e/icons/spells/horror-eerie-2.jpg",
+  "data": {
+    "description": {
+      "value": "<p>You project a phantasmal image of a creature's worst fears. Each creature in a 30-foot cone must succeed on a Wisdom saving throw or drop whatever it is holding and become @Compendium[dnd5e.rules.Frightened]{frightened} for the duration.</p>\n<p>While @Compendium[dnd5e.rules.Frightened]{frightened} by this spell, a creature must take the Dash action and move away from you by the safest available route on each of its turns, unless there is nowhere to move. If the creature ends its turn in a location where it doesn't have line of sight to you, the creature can make a Wisdom saving throw. On a successful save, the spell ends for that creature.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "Basic Rules, Player's Handbook pg 239",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "minute"
+    },
+    "target": {
+      "value": 30,
+      "width": null,
+      "units": "ft",
+      "type": "cone"
+    },
+    "range": {
+      "value": null,
+      "long": null,
+      "units": "self"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "save",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "wis",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "level": 3,
+    "school": "ill",
+    "components": {
+      "value": "a white feather or the heart of a hen",
+      "vocal": true,
+      "somatic": true,
+      "material": true,
+      "ritual": false,
+      "concentration": true
+    },
+    "materials": {
+      "value": "a white feather or the heart of a hen",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    },
+    "attunement": null
+  },
+  "effects": [
+    {
+      "label": "Fear",
+      "icon": "systems/dnd5e/icons/spells/horror-eerie-2.jpg",
+      "changes": [
+        {
+          "key": "StatusEffect",
+          "mode": 0,
+          "value": "Convenient Effect: Frightened",
+          "priority": "20"
+        },
+        {
+          "key": "macro.itemMacro.GM",
+          "mode": 0,
+          "value": "@token",
+          "priority": "20"
+        }
+      ],
+      "duration": {
+        "startTime": null
+      },
+      "tint": null,
+      "transfer": false,
+      "disabled": false,
+      "flags": {
+        "dae": {
+          "transfer": false,
+          "stackable": "none",
+          "selfTarget": false,
+          "durationExpression": "",
+          "macroRepeat": "endEveryTurn",
+          "specialDuration": []
+        },
+        "ddbimporter": {
+          "disabled": false
+        },
+        "midi-qol": {
+          "forceCEOff": true
+        },
+        "core": {
+          "statusId": ""
+        },
+        "dnd5e-helpers": {
+          "rest-effect": "Ignore"
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "aura": "None",
+          "radius": null,
+          "alignment": "",
+          "type": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "displayTemp": false,
+          "hostile": false,
+          "onlyOnce": false
+        }
+      },
+      "_id": "kh03kw04odqdswq6",
+      "selectedKey": [
+        "StatusEffect",
+        "macro.itemMacro.GM"
+      ]
+    }
+  ],
+  "flags": {
+    "ddbimporter": {
+      "id": 136764,
+      "definitionId": 2094,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Fear",
+      "sources": [
+        {
+          "sourceId": 1,
+          "pageNumber": null,
+          "sourceType": 2
+        },
+        {
+          "sourceId": 2,
+          "pageNumber": 239,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Control",
+        "Debuff"
+      ],
+      "version": "2.9.59",
+      "effectsApplied": true
+    },
+    "betterRolls5e": {
+      "quickVersatile": {
+        "altValue": true
+      },
+      "quickCharges": {
+        "value": {
+          "use": true,
+          "resource": true
+        },
+        "altValue": {
+          "use": true,
+          "resource": true
+        }
+      }
+    },
+    "dae": {
+      "activeEquipped": false,
+      "alwaysActive": false
+    },
+    "midi-qol": {
+      "onUseMacroName": "",
+      "effectActivation": false
+    },
+    "core": {
+      "sourceId": "Compendium.world.ddb-spells.jCJ5jkx3gtr1gKFj"
+    },
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "midiProperties": {
+      "nodam": false,
+      "fulldam": false,
+      "halfdam": false,
+      "rollOther": false,
+      "critOther": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "concentration": false,
+      "toggleEffect": false
+    },
+    "scene-packer": {
+      "sourceId": "Item.FJ2STC2U2IsevTU6",
+      "hash": "d453a80106eee9b2cb4da0dfa17be47b0340d488"
+    },
+    "itemacro": {
+      "macro": {
+        "data": {
+          "_id": null,
+          "name": "Fear",
+          "type": "script",
+          "author": "otqBqyqMuTGDffTr",
+          "img": "icons/svg/dice-target.svg",
+          "scope": "global",
+          "command": "// cause fear\n// requires DAE, Itemacro, Midi-QOL, More Hooks D&D5e, DFreds CE, optionally CV, Levels\n// almost RAW, macro will overwrite other sources of disadvantage on skill and ability checks\n\nasync function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\nconst lastArg = args[args.length - 1];\nconst token = canvas.tokens.get(lastArg.tokenId);\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\nconst sourceToken = canvas.tokens.get(args[1]);\n\nasync function attemptRemoval(targetToken, condition, item, getResist) {\n    const caster = item.parent;\n    const saveDc = caster.data.data.attributes.spelldc;\n    const removalCheck = false;\n    const ability = \"wis\";\n    const type = removalCheck ? \"abil\" : \"save\"; // can be \"abil\", \"save\", or \"skill\"\n    const targetUuid = targetToken.actor.uuid;\n    const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };\n    const roll = await MidiQOL.socket().executeAsGM(\"rollAbility\", { request: type, targetUuid: targetUuid, ability: ability, options: rollOptions });\n    if (game.dice3d) game.dice3d.showForRoll(roll);\n\n    if (roll.total >= saveDc) {\n        let fear = tactor.effects.find(i => i.data === lastArg.efData);\n\t\tif (fear) await tactor.deleteEmbeddedDocuments(\"ActiveEffect\", [fear.id]);\n    } else {\n        if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll for ${item.name}, still has the ${condition} condition.` });\n    }\n}\n\n// canSee by tposney via midi-qol utils.js\nasync function canSee(tokenEntity, targetEntity) {\n\t//TODO - requires rewrite for v10\n\t//@ts-ignore\n\tlet target = targetEntity instanceof TokenDocument ? targetEntity.object : targetEntity;\n\t//@ts-ignore\n\tlet token = tokenEntity instanceof TokenDocument ? tokenEntity.object : tokenEntity;\n\tif (!token || !target)\n\t\treturn true;\n\tconst targetPoint = target.center;\n\tconst visionSource = token.vision;\n\tif (!token.vision.active)\n\t\treturn true; //TODO work out what to do with tokens with no vision\n\tconst lightSources = canvas?.lighting?.sources;\n\t// Determine the array of offset points to test\n\tconst t = Math.min(target.w, target.h) / 4;\n\tconst offsets = t > 0 ? [[0, 0], [-t, -t], [-t, t], [t, t], [t, -t], [-t, 0], [t, 0], [0, -t], [0, t]] : [[0, 0]];\n\tconst points = offsets.map(o => new PIXI.Point(targetPoint.x + o[0], targetPoint.y + o[1]));\n\t// If the point is entirely inside the buffer region, it may be hidden from view\n\t// if (!target._inBuffer && !points.some(p => canvas?.dimensions?.sceneRect.contains(p.x, p.y))) return false;\n\t// Check each point for one which provides both LOS and FOV membership\n\tconst returnValue = points.some(p => {\n\t\tlet hasLOS = false;\n\t\tlet hasFOV = false;\n\t\tlet requireFOV = !canvas?.lighting?.globalLight;\n\t\tif (!hasLOS || (!hasFOV && requireFOV)) { // Do we need to test for LOS?\n\t\t\tif (visionSource?.los?.contains(p.x, p.y)) {\n\t\t\t\thasLOS = true;\n\t\t\t\tif (!hasFOV && requireFOV) { // Do we need to test for FOV?\n\t\t\t\t\tif (visionSource?.fov?.contains(p.x, p.y))\n\t\t\t\t\t\thasFOV = true;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\tif (hasLOS && (!requireFOV || hasFOV)) { // Did we satisfy all required conditions?\n\t\t\treturn true;\n\t\t}\n\t\t// Check light sources\n\t\tfor (let source of lightSources?.values() ?? []) {\n\t\t\tif (!source.active)\n\t\t\t\tcontinue;\n\t\t\t//@ts-ignore\n\t\t\tif (source.containsPoint(p)) {\n\t\t\t\t//@ts-ignore\n\t\t\t\tif (source.data.vision)\n\t\t\t\t\thasLOS = true;\n\t\t\t\thasFOV = true;\n\t\t\t}\n\t\t\tif (hasLOS && (!requireFOV || hasFOV))\n\t\t\t\treturn true;\n\t\t}\n\t\treturn false;\n\t});\n\treturn returnValue;\n}\n\nasync function sightCheck(actorOrWorkflow, rollData) {\n    if (actorOrWorkflow.actor !== tactor && actorOrWorkflow !== tactor) return;\n    if (token && sourceToken) { \n        let canSeeSource = false;\n        if (game.modules.get(\"conditional-visibility\")?.active && game.modules.get(\"levels\")?.active && _levels) { \n            canSeeSource = game.modules.get('conditional-visibility')?.api?.canSee(token, sourceToken) && _levels?.advancedLosTestVisibility(token, sourceToken);\n        } else {\n            canSeeSource = canSee(token, sourceToken);\n        }\n        if (!canSeeSource) {\n            if (rollData) {\n                Object.assign(rollData, { disadvantage: undefined });\n                return;\n            }\n            let ef = await tactor.effects.find(i => i.data === lastArg.efData);\n            let newChanges = ef.data.changes.filter((c) => c.key !== \"flags.midi-qol.disadvantage.attack.all\" && c.key !== \"flags.midi-qol.disadvantage.ability.check.all\");\n            await ef.update({ changes: newChanges });\n            if (newChanges) {\n                newChanges = [];\n                if (!ef.data.changes.find(c => c.key === \"flags.midi-qol.disadvantage.attack.all\")) newChanges.push({ key: \"flags.midi-qol.disadvantage.attack.all\", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 0 });\n                if (!ef.data.changes.find(c => c.key === \"flags.midi-qol.disadvantage.ability.check.all\")) newChanges.push({ key: \"flags.midi-qol.disadvantage.ability.check.all\", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 0 });\n                ef.update({ changes: newChanges.concat(ef.data.changes) });\n            }\n        } \n    }\n}\n\nif (args[0].tag === \"OnUse\" && lastArg.targetUuids.length > 0 && args[0].macroPass === \"preSave\") {\n    const resist = [\"Brave\", \"Fear Resilience\"];\n    for (let i = 0; i < lastArg.targetUuids.length; i++) {\n        let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);\n        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;\n        let getResist = tactorTarget.items.find(i => resist.includes(i.name));\n        if (getResist) {\n            const effectData = {\n                changes: [\n                    {\n                        key: \"flags.midi-qol.advantage.ability.save.all\",\n                        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n                        value: 1,\n                        priority: 20,\n                    }\n                ],\n                disabled: false,\n                flags: { dae: { specialDuration: [\"isSave\"] } },\n                icon: args[0].item.img,\n                label: `${args[0].item.name} Save Advantage`,\n            };\n            await tactorTarget.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n        }\n    }\n}\n\nif (args[0] === \"on\") {\n    if (game.modules.get(\"midi-qol\")?.active) {\n    let hookId1 = Hooks.on(\"midi-qol.preItemRoll\", sightCheck);\n    DAE.setFlag(tactor, \"fearAtkHook\", hookId1);\n    }\n    \n    if (game.modules.get(\"more-hooks-5e\")?.active) {\n    let hookId2 = Hooks.on(\"Actor5e.preRollAbilityTest\", sightCheck);\n    DAE.setFlag(tactor, \"fearAblHook\", hookId2);\n\n    let hookId3 = Hooks.on(\"Actor5e.preRollSkill\", sightCheck);\n    DAE.setFlag(tactor, \"fearSklHook\", hookId3);\n    }\n}\n\nif (args[0] === \"each\" && lastArg.efData.disabled === false) {\n    if (token && sourceToken) { \n        let canSeeSource = false;\n        if (game.modules.get(\"conditional-visibility\")?.active && game.modules.get(\"levels\")?.active && _levels) { \n            canSeeSource = game.modules.get('conditional-visibility')?.api?.canSee(token, sourceToken) && _levels?.advancedLosTestVisibility(token, sourceToken);\n        } else {\n            canSeeSource = canSee(token, sourceToken);\n        }\n        if (!canSeeSource) {\n            const resist = [\"Brave\", \"Fear Resilience\"];\n            const getResist = tactor.items.find(i => resist.includes(i.name));\n            const targetToken = await fromUuid(lastArg.tokenUuid);\n            const condition = \"Frightened\";\n            const item = await fromUuid(lastArg.efData.origin);\n            attemptRemoval(targetToken, condition, item, getResist);\n        }\n    }\n}\n\nif (args[0] === \"off\") {\n    const flag1 = await DAE.getFlag(tactor, \"fearAtkHook\");\n\tif (flag1) {\n\t\tHooks.off(\"midi-qol.preItemRoll\", flag1);\n\t\tawait DAE.unsetFlag(tactor, \"fearAtkHook\");\n\t}\n    \n    const flag2 = await DAE.getFlag(tactor, \"fearAblHook\");\n\tif (flag2) {\n\t\tHooks.off(\"Actor5e.preRollAbilityTest\", flag2);\n\t\tawait DAE.unsetFlag(tactor, \"fearAblHook\");\n\t}\n    \n    const flag3 = await DAE.getFlag(tactor, \"fearSklHook\");\n\tif (flag3) {\n\t\tHooks.off(\"Actor5e.preRollSkill\", flag3);\n\t\tawait DAE.unsetFlag(tactor, \"fearSklHook\");\n\t}\n}",
+          "folder": null,
+          "sort": 0,
+          "permission": {
+            "default": 0
+          },
+          "flags": {}
+        }
+      }
+    },
+    "enhanced-terrain-layer": {
+      "multiple": null,
+      "elevation": null,
+      "depth": null,
+      "environment": ""
+    },
+    "exportSource": {
+      "world": "Curse of Strahd",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    }
+  }
+}

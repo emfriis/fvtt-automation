@@ -1,6 +1,7 @@
 const lastArg = args[args.length - 1];
 
 // frightened
+// CAUSE FEAR, WRATHFUL SMITE, FEAR
 
 
 if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0) {
@@ -8,7 +9,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0) {
     for (let i = 0; i < lastArg.targetUuids.length; i++) {
         let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
         let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-        let getResist = tactorTarget.items.find(i => resist.includes(i.name))
+        let getResist = tactorTarget.items.find(i => resist.includes(i.name));
         if (getResist) {
             const effectData = {
                 changes: [
@@ -30,13 +31,14 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0) {
 }
 
 // charmed
+// CHARM PERSON, HYPNOTIC PATTERN
 
 if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0) {
     const resist = ["Fey Ancestry", "Duergar Reslience", "Charm Resilience"];
     for (let i = 0; i < lastArg.targetUuids.length; i++) {
         let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
         let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-        let getResist = tactorTarget.items.find(i => resist.includes(i.name))
+        let getResist = tactorTarget.items.find(i => resist.includes(i.name));
         if (getResist) {
             const effectData = {
                 changes: [
@@ -58,13 +60,14 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0) {
 }
 
 // poisoned
+// RAY OF SICKNESS
 
 if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0) {
     const resist = ["Dwarven Resilience", "Duergar Resilience", "Stout Resilience", "Poison Resilience"];
     for (let i = 0; i < lastArg.targetUuids.length; i++) {
         let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
         let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-        let getResist = tactorTarget.items.find(i => resist.includes(i.name))
+        let getResist = tactorTarget.items.find(i => resist.includes(i.name));
         if (getResist) {
             const effectData = {
                 changes: [
@@ -86,13 +89,14 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0) {
 }
 
 // paralyzed
+// HOLD PERSON, HOLD MONSTER
 
 if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0) {
-    const resist = ["Duergar Resilience"];
+    const resist = ["Duergar Resilience", "Paralysis Resilience"];
     for (let i = 0; i < lastArg.targetUuids.length; i++) {
         let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
         let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-        let getResist = tactorTarget.items.find(i => resist.includes(i.name))
+        let getResist = tactorTarget.items.find(i => resist.includes(i.name));
         if (getResist) {
             const effectData = {
                 changes: [
@@ -114,6 +118,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0) {
 }
 
 // land's stride
+// ENTANGLE
 
 if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0) {
     const resist = ["Land's Stride"];

@@ -1,0 +1,279 @@
+{
+  "name": "Ray of Sickness",
+  "type": "spell",
+  "img": "systems/dnd5e/icons/spells/beam-acid-1.jpg",
+  "data": {
+    "description": {
+      "value": "<p>A ray of sickening greenish energy lashes out toward a creature within range. Make a ranged spell attack against the target. On a hit, the target takes 2d8 poison damage and must make a Constitution saving throw. On a failed save, it is also @Compendium[dnd5e.rules.Poisoned]{poisoned} until the end of your next turn.</p>\n<p><strong>At Higher Levels. </strong>When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d8 for each slot level above 1st.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "Player's Handbook pg 271",
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": "inst"
+    },
+    "target": {
+      "value": 1,
+      "width": null,
+      "units": "",
+      "type": "creature"
+    },
+    "range": {
+      "value": 60,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "rsak",
+    "attackBonus": "0",
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [
+        [
+          "2d8[poison]",
+          "poison"
+        ]
+      ],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "con",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "level": 1,
+    "school": "nec",
+    "components": {
+      "value": "",
+      "vocal": true,
+      "somatic": true,
+      "material": false,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "level",
+      "formula": "1d8"
+    },
+    "attunement": null
+  },
+  "effects": [
+    {
+      "_id": "CMhqQ36oL3vl9z4b",
+      "changes": [
+        {
+          "key": "StatusEffect",
+          "mode": 0,
+          "value": "Convenient Effect: Poisoned",
+          "priority": "20"
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null,
+        "rounds": 1,
+        "turns": 1
+      },
+      "icon": "systems/dnd5e/icons/spells/beam-acid-1.jpg",
+      "label": "Poisoned",
+      "origin": "Item.nmnvhdHTpTDP3FpP",
+      "transfer": false,
+      "flags": {
+        "dae": {
+          "selfTarget": false,
+          "stackable": "none",
+          "durationExpression": "",
+          "macroRepeat": "none",
+          "specialDuration": [
+            "turnEndSource"
+          ],
+          "transfer": false
+        },
+        "core": {
+          "statusId": ""
+        },
+        "dnd5e-helpers": {
+          "rest-effect": "Ignore"
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "aura": "None",
+          "radius": null,
+          "alignment": "",
+          "type": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "displayTemp": false,
+          "hostile": false,
+          "onlyOnce": false
+        }
+      },
+      "tint": null,
+      "selectedKey": "StatusEffect"
+    }
+  ],
+  "flags": {
+    "ddbimporter": {
+      "id": 138636,
+      "definitionId": 2318,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "generic",
+        "lookupName": "generic",
+        "level": null,
+        "castAtLevel": null
+      },
+      "originalName": "Ray of Sickness",
+      "sources": [
+        {
+          "sourceId": 2,
+          "pageNumber": 271,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Damage",
+        "Debuff"
+      ],
+      "version": "2.9.59",
+      "effectsApplied": true
+    },
+    "betterRolls5e": {
+      "quickVersatile": {
+        "altValue": true,
+        "value": false
+      },
+      "quickCharges": {
+        "value": {
+          "use": true,
+          "resource": true
+        },
+        "altValue": {
+          "use": true,
+          "resource": true
+        }
+      },
+      "quickDamage": {
+        "context": {
+          "0": ""
+        },
+        "value": {
+          "0": true
+        },
+        "altValue": {
+          "0": true
+        }
+      },
+      "quickOther": {
+        "context": "",
+        "value": true,
+        "altValue": true
+      },
+      "quickDesc": {
+        "value": true,
+        "altValue": true
+      },
+      "quickAttack": {
+        "value": true,
+        "altValue": true
+      },
+      "quickSave": {
+        "value": true,
+        "altValue": true
+      },
+      "quickProperties": {
+        "value": true,
+        "altValue": true
+      },
+      "quickFlavor": {
+        "value": true,
+        "altValue": true
+      }
+    },
+    "midi-qol": {
+      "fumbleThreshold": null,
+      "effectActivation": false,
+      "onUseMacroName": "[preSave]ItemMacro"
+    },
+    "midiProperties": {
+      "nodam": false,
+      "fulldam": false,
+      "halfdam": false,
+      "rollOther": false,
+      "critOther": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "concentration": false,
+      "toggleEffect": false
+    },
+    "core": {
+      "sourceId": "Compendium.world.ddb-spells.ViVK2KgDfU3LtXta"
+    },
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "scene-packer": {
+      "sourceId": "Item.nHwkK9TGJot3RCFu",
+      "hash": "dda72d7aea9bcfbe2c77110b4f6d4073e37fdad2"
+    },
+    "exportSource": {
+      "world": "dnd5e",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    },
+    "itemacro": {
+      "macro": {
+        "_id": null,
+        "name": "Ray of Sickness",
+        "type": "script",
+        "author": "ckiTPzlaPztdkjV6",
+        "img": "icons/svg/dice-target.svg",
+        "scope": "global",
+        "command": "const lastArg = args[args.length - 1];\n\nif (args[0].tag === \"OnUse\" && lastArg.hitTargetUuids.length > 0) {\n    const resist = [\"Dwarven Resilience\", \"Duergar Resilience\", \"Stout Resilience\", \"Poison Resilience\"];\n    for (let i = 0; i < lastArg.hitTargetUuids.length; i++) {\n        let tokenOrActorTarget = await fromUuid(lastArg.hitTargetUuids[i]);\n        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;\n        let getResist = tactorTarget.items.find(i => resist.includes(i.name))\n        if (getResist) {\n            const effectData = {\n                changes: [\n                    {\n                        key: \"flags.midi-qol.advantage.ability.save.all\",\n                        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n                        value: 1,\n                        priority: 20,\n                    }\n                ],\n                disabled: false,\n                flags: { dae: { specialDuration: [\"isSave\"] } },\n                icon: args[0].item.img,\n                label: `${args[0].item.name} Save Advantage`,\n            };\n            await tactorTarget.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n        }\n    }\n}",
+        "folder": null,
+        "sort": 0,
+        "permission": {
+          "default": 0
+        },
+        "flags": {}
+      }
+    }
+  }
+}

@@ -103,7 +103,7 @@
       "duration": {
         "startTime": null
       },
-      "tint": "",
+      "tint": null,
       "transfer": false,
       "disabled": false,
       "flags": {
@@ -194,7 +194,7 @@
       }
     },
     "midi-qol": {
-      "onUseMacroName": "",
+      "onUseMacroName": "[preSave]ItemMacro",
       "effectActivation": false
     },
     "rest-recovery": {
@@ -219,8 +219,8 @@
       "sourceId": "Compendium.world.ddb-spells.ofM8qXjG0plYx0Q3"
     },
     "scene-packer": {
-      "sourceId": "Item.FruMrfY5rebhra2v",
-      "hash": "53793bc6e02b373d91041c79f7dd1b12eb75941b"
+      "sourceId": "Item.r5o2pEWTeWmQtzgs",
+      "hash": "d0df24346f6a7d7cc4890957e0434dc9f3b44a37"
     },
     "itemacro": {
       "macro": {
@@ -238,17 +238,30 @@
             "default": 0
           },
           "flags": {}
-        }
+        },
+        "_id": null,
+        "name": "Entangle",
+        "type": "script",
+        "author": "ckiTPzlaPztdkjV6",
+        "img": "icons/svg/dice-target.svg",
+        "scope": "global",
+        "command": "const lastArg = args[args.length - 1];\nlet tokenOrActor = await fromUuid(lastArg.actorUuid);\nlet tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n  \nasync function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\n\nasync function attemptRemoval(targetToken, condition, item) {\n    if (game.dfreds.effectInterface.hasEffectApplied(condition, targetToken.uuid)) {\n        new Dialog({\n        title: `Use action to attempt to remove ${condition}?`,\n        buttons: {\n            one: {\n            label: \"Yes\",\n            callback: async () => {\n                const caster = item.parent;\n                const saveDc = caster.data.data.attributes.spelldc;\n                const removalCheck = true;\n                const ability = \"str\";\n                const type = removalCheck ? \"abil\" : \"save\";\n                const targetUuid = targetToken.actor.uuid;\n                const rollOptions = { chatMessage: true, fastForward: true};\n                const roll = await MidiQOL.socket().executeAsGM(\"rollAbility\", { request: type, targetUuid: targetUuid, ability: ability, options: rollOptions });\n                if (game.dice3d) game.dice3d.showForRoll(roll);\n\n                if (roll.total >= saveDc) {\n                game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: targetToken.uuid });\n                } else {\n                    if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll for ${item.name}, still has the ${condition} condition.` });\n                }\n            },\n            },\n            two: {\n            label: \"No\",\n            callback: () => {},\n            },\n        },\n        }).render(true);\n    }\n}\n\nif (args[0].tag === \"OnUse\" && lastArg.targetUuids.length > 0) {\n    const resist = [\"Land's Stride\"];\n    for (let i = 0; i < lastArg.targetUuids.length; i++) {\n        let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);\n        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;\n        let getResist = tactorTarget.items.find(i => resist.includes(i.name))\n        if (getResist) {\n            const effectData = {\n                changes: [\n                    {\n                        key: \"flags.midi-qol.advantage.ability.save.all\",\n                        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n                        value: 1,\n                        priority: 20,\n                    }\n                ],\n                disabled: false,\n                flags: { dae: { specialDuration: [\"isSave\"] } },\n                icon: args[0].item.img,\n                label: `${args[0].item.name} Save Advantage`,\n            };\n            await tactorTarget.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n        }\n    }\n}\n\nif (args[0] === \"each\") {\n    const targetToken = await fromUuid(lastArg.tokenUuid);\n    const condition = \"Restrained\";\n    const item = await fromUuid(lastArg.efData.origin);\n    attemptRemoval(targetToken, condition, item);\n}",
+        "folder": null,
+        "sort": 0,
+        "permission": {
+          "default": 0
+        },
+        "flags": {}
       }
     },
     "enhanced-terrain-layer": {
-      "multiple": null,
+      "multiple": 2,
       "elevation": null,
       "depth": null,
       "environment": "plants"
     },
     "exportSource": {
-      "world": "Curse of Strahd",
+      "world": "dnd5e",
       "system": "dnd5e",
       "coreVersion": "9.280",
       "systemVersion": "1.6.3"

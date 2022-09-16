@@ -86,7 +86,7 @@
       "mode": "none",
       "formula": ""
     },
-    "attunement": 0
+    "attunement": null
   },
   "effects": [
     {
@@ -95,15 +95,13 @@
         {
           "key": "macro.itemMacro",
           "mode": 0,
-          "value": "0",
+          "value": "",
           "priority": "20"
         }
       ],
       "disabled": false,
       "duration": {
-        "startTime": null,
-        "rounds": 1,
-        "turns": 1
+        "startTime": null
       },
       "icon": "icons/magic/control/debuff-energy-hold-pink.webp",
       "label": "Mind Whip",
@@ -144,7 +142,7 @@
           "onlyOnce": false
         }
       },
-      "tint": null,
+      "tint": "",
       "selectedKey": "macro.itemMacro"
     }
   ],
@@ -219,7 +217,7 @@
           "author": "otqBqyqMuTGDffTr",
           "img": "icons/svg/dice-target.svg",
           "scope": "global",
-          "command": "// tasha's mind whip\n\nconst lastArg = args[args.length - 1];\n\nif (args[0] === \"off\" && lastArg.tokenId === game.combat?.current.tokenId && lastArg[\"expiry-reason\"] !== \"times-up:turn-start-end\") {\n\tconst tokenOrActor = await fromUuid(lastArg.actorUuid);\n\tconst tokenActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n    const hasEffectApplied = await game.dfreds.effectInterface.hasEffectApplied(\"Incapacitated\", lastArg.actorUuid );\n\tif (!hasEffectApplied) {\n        let effectData = {\n                        label: \"Incapacitated\",\n                        icon: \"icons/magic/control/debuff-energy-hold-pink.webp\",\n                        origin: lastArg.uuid,\n                        duration: {turns: 1, startTime: game.time.worldTime}, \n                        disabled: false,\n                        changes: [{ key: `StatusEffect`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: \"Convenient Effect: Incapacitated\" }, { key: `data.attributes.movement.all`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: \"0\" }]\n        };\n        await MidiQOL.socket().executeAsGM(\"createEffects\", { actorUuid: tokenActor.uuid, effects: [effectData] });\n    }\n}",
+          "command": "// tasha's mind whip\n\nconst lastArg = args[args.length - 1];\n\nif (args[0] === \"off\" && lastArg.tokenId === game.combat?.current.tokenId && lastArg[\"expiry-reason\"] !== \"times-up:turn-start-end\") {\n\tconst tokenOrActor = await fromUuid(lastArg.actorUuid);\n\tconst tokenActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n\tif (lastArg[\"expiry-reason\"] === \"midi-qol:isMoved\") {\n        let effectData = {\n            label: \"Mind Whip\",\n            icon: \"icons/magic/control/debuff-energy-hold-pink.webp\",\n            origin: lastArg.uuid,\n            duration: {turns: 1, startTime: game.time.worldTime}, \n            disabled: false,\n        };\n        await MidiQOL.socket().executeAsGM(\"createEffects\", { actorUuid: tokenActor.uuid, effects: [effectData] });\n    } else {\n        let effectData = {\n            label: \"Mind Whip\",\n            icon: \"icons/magic/control/debuff-energy-hold-pink.webp\",\n            origin: lastArg.uuid,\n            duration: {turns: 1, startTime: game.time.worldTime}, \n            disabled: false,\n            changes: [{ key: `data.attributes.movement.all`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: \"0\" }]\n        };\n        await MidiQOL.socket().executeAsGM(\"createEffects\", { actorUuid: tokenActor.uuid, effects: [effectData] });\n    }\n}",
           "folder": null,
           "sort": 0,
           "permission": {
@@ -230,8 +228,8 @@
       }
     },
     "scene-packer": {
-      "sourceId": "Item.DxOyDNm9afdyBATM",
-      "hash": "d57b1afcd0c0eef02daf19686f89f49f17fe1f52"
+      "sourceId": "Item.ClZV22c6OHnS4Q6X",
+      "hash": "81201f44768c0fe2217b51335611c03e92d070b8"
     },
     "exportSource": {
       "world": "Curse of Strahd",

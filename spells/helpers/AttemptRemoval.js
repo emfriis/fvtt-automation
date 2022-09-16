@@ -49,7 +49,6 @@ async function attemptRemoval(targetToken, condition, item, isCheck, abilityType
                 const removalCheck = isCheck;
                 const ability = abilityType;
                 const type = removalCheck ? "abil" : "save"; // can be "abil", "save", or "skill"
-                const flavor = `${condition} (via ${item.name}) : ${CONFIG.DND5E.abilities[ability]} ${type} vs DC${saveDc}`;
                 const targetUuid = targetToken.actor.uuid;
                 const rollOptions = { chatMessage: true, fastForward: true };
                 const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: type, targetUuid: targetUuid, ability: ability, options: rollOptions });

@@ -127,7 +127,7 @@ if(args[0].tag === "OnUse"){
   sequencerEffect(targetToken, sequencerFile, sequencerScale);
 } else if (args[0] === "off") {
   // uses midis move flag to determine if to apply extra damage
-  if (lastArg["expiry-reason"] === "midi-qol:isMoved" || lastArg["expiry-reaason"] === "midi-qol:isMoved") {
+  if (lastArg["expiry-reason"] === "midi-qol:isMoved") {
     const targetToken = await fromUuid(lastArg.tokenUuid);
     const sourceItem = await fromUuid(lastArg.efData.flags.origin);
     const caster = sourceItem.parent;
