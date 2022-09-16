@@ -1,5 +1,6 @@
 // macro.itemMacro.GM with args[1] being @token, on active effect with CE: Frightened, execute macros end of each turn
-// requires DAE, Itemacro, Midi-QOL, More Hooks D&D5e, optionally CV, Levels
+// requires DAE, Itemacro, Midi-QOL, More Hooks D&D5e, DFreds CE, optionally CV, Levels
+// almost RAW, macro will overwrite other sources of disadvantage on skill and ability checks if source of fear is unseen
 
 const lastArg = args[args.length - 1];
 const token = canvas.tokens.get(lastArg.tokenId);
@@ -72,19 +73,19 @@ async function sightCheck(actorOrWorkflow, rollData) {
         } else {
             canSeeSource = canSee(token, sourceToken);
         }
-        if (canSeeSource) {
+        if (!canSeeSource) {
             if (rollData) {
-                Object.assign(rollData, { disadvantage: true });
+                Object.assign(rollData, { disadvantage: undefined });
                 return;
             }
-            let ef = await tactor.effects.find(i => i.data === lastArg.efData);
-            let newChanges = [];
-            if (!ef.data.changes.find(c => c.key === "flags.midi-qol.disadvantage.attack.all")) newChanges.push({ key: "flags.midi-qol.disadvantage.attack.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 0 });
-            if (!ef.data.changes.find(c => c.key === "flags.midi-qol.disadvantage.ability.check.all")) newChanges.push({ key: "flags.midi-qol.disadvantage.ability.check.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 0 });
-            await ef.update({ changes: newChanges.concat(ef.data.changes) });
+			let ef = await tactor.effects.find(i => i.data === lastArg.efData);
+            let newChanges = ef.data.changes.filter((c) => c.key !== "flags.midi-qol.disadvantage.attack.all" && c.key !== "flags.midi-qol.disadvantage.ability.check.all");
+            await ef.update({ changes: newChanges });
             if (newChanges) {
-                newChanges = ef.data.changes.filter((c) => c.key !== "flags.midi-qol.disadvantage.attack.all" && c.key !== "flags.midi-qol.disadvantage.ability.check.all");
-                ef.update({ changes: newChanges });
+                newChanges = [];
+            	if (!ef.data.changes.find(c => c.key === "flags.midi-qol.disadvantage.attack.all")) newChanges.push({ key: "flags.midi-qol.disadvantage.attack.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 0 });
+            	if (!ef.data.changes.find(c => c.key === "flags.midi-qol.disadvantage.ability.check.all")) newChanges.push({ key: "flags.midi-qol.disadvantage.ability.check.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 0 });
+            	ef.update({ changes: newChanges.concat(ef.data.changes) });
             }
         } 
     }

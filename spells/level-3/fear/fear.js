@@ -93,19 +93,19 @@ async function sightCheck(actorOrWorkflow, rollData) {
         } else {
             canSeeSource = canSee(token, sourceToken);
         }
-        if (!canSeeSource) {
+        if (canSeeSource) {
             if (rollData) {
-                Object.assign(rollData, { disadvantage: undefined });
+                Object.assign(rollData, { disadvantage: true });
                 return;
             }
             let ef = await tactor.effects.find(i => i.data === lastArg.efData);
-            let newChanges = ef.data.changes.filter((c) => c.key !== "flags.midi-qol.disadvantage.attack.all" && c.key !== "flags.midi-qol.disadvantage.ability.check.all");
-            await ef.update({ changes: newChanges });
+            let newChanges = [];
+            if (!ef.data.changes.find(c => c.key === "flags.midi-qol.disadvantage.attack.all")) newChanges.push({ key: "flags.midi-qol.disadvantage.attack.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 0 });
+            if (!ef.data.changes.find(c => c.key === "flags.midi-qol.disadvantage.ability.check.all")) newChanges.push({ key: "flags.midi-qol.disadvantage.ability.check.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 0 });
+            await ef.update({ changes: newChanges.concat(ef.data.changes) });
             if (newChanges) {
-                newChanges = [];
-                if (!ef.data.changes.find(c => c.key === "flags.midi-qol.disadvantage.attack.all")) newChanges.push({ key: "flags.midi-qol.disadvantage.attack.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 0 });
-                if (!ef.data.changes.find(c => c.key === "flags.midi-qol.disadvantage.ability.check.all")) newChanges.push({ key: "flags.midi-qol.disadvantage.ability.check.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 0 });
-                ef.update({ changes: newChanges.concat(ef.data.changes) });
+                newChanges = ef.data.changes.filter((c) => c.key !== "flags.midi-qol.disadvantage.attack.all" && c.key !== "flags.midi-qol.disadvantage.ability.check.all");
+                ef.update({ changes: newChanges });
             }
         } 
     }
