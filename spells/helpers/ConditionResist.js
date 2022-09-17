@@ -1,6 +1,7 @@
 const lastArg = args[args.length - 1];
 
 // ItemMacro beforeSave
+// Add magic resistance if spell on end of turn
 
 // frightened
 // CAUSE FEAR, WRATHFUL SMITE, FEAR

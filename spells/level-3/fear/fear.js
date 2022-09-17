@@ -161,7 +161,7 @@ if (args[0] === "each" && lastArg.efData.disabled === false) {
             canSeeSource = canSee(token, sourceToken);
         }
         if (!canSeeSource) {
-            const resist = ["Brave", "Fear Resilience"];
+            const resist = ["Brave", "Fear Resilience", "Magic Resistance"];
             const getResist = tactor.items.find(i => resist.includes(i.name));
             const targetToken = await fromUuid(lastArg.tokenUuid);
             const condition = "Frightened";

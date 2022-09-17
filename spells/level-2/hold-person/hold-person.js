@@ -46,7 +46,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
 }
 
 if (args[0] === "each" && lastArg.efData.disabled === false) {
-    const resist = ["Duergar Resilience", "Paralysis Resilience"];
+    const resist = ["Duergar Resilience", "Paralysis Resilience", "Magic Resistance"];
     const getResist = tactor.items.find(i => resist.includes(i.name));
     const targetToken = await fromUuid(lastArg.tokenUuid);
     const condition = "Paralyzed";
