@@ -34,11 +34,10 @@ for (let target of targets) {
             duration: { rounds: 10, seconds: 60, startRound: gameRound, startTime: game.time.worldTime },
             flags: { dae: { specialDuration: ["isDamaged"] } },
             changes: [
-              { key: "macro.CE", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Prone", priority: 20 },
               { key: "macro.CE", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Unconscious", priority: 20 },
+              { key: "macro.CE", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Prone", priority: 20 },
             ]
         };
-
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: findTarget.actor.uuid, effects: [effectData] });
         continue;
     } else {

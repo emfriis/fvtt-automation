@@ -1,0 +1,161 @@
+{
+  "name": "Bite",
+  "type": "weapon",
+  "img": "icons/creatures/abilities/mouth-teeth-long-red.webp",
+  "data": {
+    "description": {
+      "value": "<section class=\"secret\">\n<p><em>Melee Weapon Attack:</em><strong>+5 to hit,</strong>, <strong>5 ft.,</strong> one creature. Hit: <strong>7 (1d8 + 3) <em>piercing damage</em></strong>.</p>\n<p>The target must make a  <strong>DC 11 Constitution</strong> saving throw, taking <strong>9 (2d8) <em>poison damage</em></strong> on a failed save, or half as much damage on a successful one. If the <em>poison damage</em> reduces the target to 0 hit points, the target is stable but poisoned for 1 hour, even after regaining hit points, and is paralyzed while poisoned in this way.</p>\n</section>\n<p>The Giant Spider attacks with its Bite. The target must make a <strong>Constitution</strong> saving throw.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "",
+    "quantity": 1,
+    "weight": 0,
+    "price": "",
+    "attunement": 0,
+    "equipped": true,
+    "rarity": "",
+    "identified": true,
+    "activation": {
+      "type": "action",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": null,
+      "units": ""
+    },
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": ""
+    },
+    "range": {
+      "value": 5,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": 0,
+      "max": "0",
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "dex",
+    "actionType": "mwak",
+    "attackBonus": "0",
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [
+        [
+          "1d8 + @mod",
+          "piercing"
+        ]
+      ],
+      "versatile": ""
+    },
+    "formula": "2d8[poison]",
+    "save": {
+      "ability": "con",
+      "dc": 11,
+      "scaling": "flat"
+    },
+    "armor": {
+      "value": 10
+    },
+    "hp": {
+      "value": 0,
+      "max": 0,
+      "dt": null,
+      "conditions": ""
+    },
+    "weaponType": "natural",
+    "baseItem": "",
+    "properties": {
+      "fin": true,
+      "amm": false,
+      "fir": false,
+      "foc": false,
+      "hvy": false,
+      "lgt": false,
+      "lod": false,
+      "rch": false,
+      "rel": false,
+      "ret": false,
+      "spc": false,
+      "thr": false,
+      "two": false,
+      "ver": false,
+      "ada": false,
+      "mgc": false,
+      "sil": false
+    },
+    "proficient": true,
+    "attuned": false
+  },
+  "effects": [],
+  "flags": {
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "midi-qol": {
+      "fumbleThreshold": null,
+      "effectActivation": false,
+      "onUseMacroName": "[preSave]ItemMacro,[postActiveEffects]ItemMacro"
+    },
+    "midiProperties": {
+      "nodam": false,
+      "fulldam": false,
+      "halfdam": false,
+      "rollOther": false,
+      "critOther": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "concentration": false,
+      "toggleEffect": false
+    },
+    "itemacro": {
+      "macro": {
+        "_id": null,
+        "name": "Bite",
+        "type": "script",
+        "author": "ckiTPzlaPztdkjV6",
+        "img": "icons/svg/dice-target.svg",
+        "scope": "global",
+        "command": "const lastArg = args[args.length - 1];\n\n// poison damage save advantage check\n\nif (args[0].tag === \"OnUse\" && lastArg.hitTargetUuids.length > 0 && args[0].macroPass === \"preSave\") {\n    const resist = [\"Dwarven Resilience\", \"Duergar Resilience\", \"Stout Resilience\", \"Poison Resilience\"];\n    for (let i = 0; i < lastArg.hitTargetUuids.length; i++) {\n        let tokenOrActorTarget = await fromUuid(lastArg.hitTargetUuids[i]);\n        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;\n        let getResist = tactorTarget.items.find(i => resist.includes(i.name));\n        if (getResist) {\n            const effectData = {\n                changes: [\n                    {\n                        key: \"flags.midi-qol.advantage.ability.save.all\",\n                        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n                        value: 1,\n                        priority: 20,\n                    }\n                ],\n                disabled: false,\n                flags: { dae: { specialDuration: [\"isSave\"] } },\n                icon: args[0].item.img,\n                label: `${args[0].item.name} Save Advantage`,\n            };\n            await tactorTarget.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n        }\n    }\n}\n\n// poisoned condition application check\n\nif (args[0].tag === \"OnUse\" && lastArg.failedSaveUuids.length > 0 && args[0].macroPass === \"postActiveEffects\") {\n    for (let i = 0; i < lastArg.failedSaveUuids.length; i++) {\n        let tokenOrActorTarget = await fromUuid(lastArg.failedSaveUuids[i]);\n        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;\n        if (!tactorTarget.data.data.traits.di?.value.includes(\"poison\") && !tactorTarget.data.data.traits.ci?.value.includes(\"poisoned\") && tactorTarget.data.data.attributes.hp.value < 1) {\n            const effectData = {\n                changes: [\n                    { key: `StatusEffect`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: \"Convenient Effect: Poisoned\", priority: 20 },\n                    { key: `macro.CE`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: \"Paralyzed\", priority: 20 },\n                ],\n                disabled: false,\n                duration: { seconds: 3600, startTime: game.time.worldTime },\n                icon: args[0].item.img,\n                label: `${args[0].item.name} Poison`,\n            };\n            await tactorTarget.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n        }\n    }\n}",
+        "folder": null,
+        "sort": 0,
+        "permission": {
+          "default": 0
+        },
+        "flags": {}
+      }
+    },
+    "scene-packer": {
+      "hash": "59a3d53abfefa4a2005822e8b2bf9610427b842a",
+      "sourceId": "Item.Wx1BPEAffmnx9p8C"
+    },
+    "core": {
+      "sourceId": "Item.Wx1BPEAffmnx9p8C"
+    },
+    "exportSource": {
+      "world": "dnd5e",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    }
+  }
+}

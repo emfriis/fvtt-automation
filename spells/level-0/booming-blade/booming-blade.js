@@ -77,7 +77,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
     buttons: {
       Ok: {
         label: "Ok",
-        callback: async (html) => {
+        callback: async () => {
           const characterLevel = caster.data.type === "character" ? caster.data.data.details.level : caster.data.data.details.cr;
           const cantripDice = 1 + Math.floor((characterLevel + 1) / 6);
           const itemId = $("input[type='radio'][name='weapon']:checked").val();
@@ -86,7 +86,13 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const weaponCopy = duplicate(weaponItem);
           delete weaponCopy._id;
           if (cantripDice > 0) {
-            weaponCopy.data.damage.parts[0][0] += ` + ${cantripDice - 1}d8[${damageType}]`;
+            let effectData = {
+              changes: [{ key: "flags.dnd5e.DamageBonusMacro", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro.${lastArg.item.name}`, priority: 20, }],
+              origin: args[0].itemUuid,
+              disabled: false,
+              flags: { dae: { specialDuration: ["1Attack"] }}
+            };
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: caster.uuid, effects: [effectData] });
           }
           weaponCopy.name = weaponItem.name + " [Booming Blade]";
           weaponCopy.effects.push({
@@ -154,4 +160,13 @@ if(args[0].tag === "OnUse"){
     );
     sequencerEffect(targetToken, sequencerFile, sequencerScale);
   }
+}
+
+if (args[0].tag === "DamageBonus" && ["mwak"].includes(args[0].item.data.actionType)) {
+  const casterData = await fromUuid(lastArg.actorUuid);
+  const caster = casterData.actor ? casterData.actor : casterData;
+  const characterLevel = caster.data.type === "character" ? caster.data.data.details.level : caster.data.data.details.cr;
+  const cantripDice = 1 + Math.floor((characterLevel + 1) / 6);
+	const diceMult = args[0].isCritical ? 2 : 1;
+	return { damageRoll: `${diceMult * (cantripDice - 1)}d8[thunder]`, flavor: "Booming Blade" };
 }

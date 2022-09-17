@@ -118,16 +118,16 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
 
 if (args[0] === "on") {
     if (game.modules.get("midi-qol")?.active) {
-    let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
-    DAE.setFlag(tactor, "fearAtkHook", hookId1);
+		let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
+		DAE.setFlag(tactor, "fearAtkHook", hookId1);
     }
     
     if (game.modules.get("more-hooks-5e")?.active) {
-    let hookId2 = Hooks.on("Actor5e.preRollAbilityTest", sightCheck);
-    DAE.setFlag(tactor, "fearAblHook", hookId2);
+		let hookId2 = Hooks.on("Actor5e.preRollAbilityTest", sightCheck);
+		DAE.setFlag(tactor, "fearAblHook", hookId2);
 
-    let hookId3 = Hooks.on("Actor5e.preRollSkill", sightCheck);
-    DAE.setFlag(tactor, "fearSklHook", hookId3);
+		let hookId3 = Hooks.on("Actor5e.preRollSkill", sightCheck);
+		DAE.setFlag(tactor, "fearSklHook", hookId3);
     }
 }
 

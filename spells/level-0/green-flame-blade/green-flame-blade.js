@@ -140,7 +140,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
     buttons: {
       Ok: {
         label: "Ok",
-        callback: async (html) => {
+        callback: async () => {
           const characterLevel = caster.data.type === "character" ? caster.data.data.details.level : caster.data.data.details.cr;
           const cantripDice = 1 + Math.floor((characterLevel + 1) / 6);
           const itemId = $("input[type='radio'][name='weapon']:checked").val();
@@ -149,7 +149,13 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const weaponCopy = duplicate(weaponItem);
           delete weaponCopy._id;
           if (cantripDice > 0) {
-            weaponCopy.data.damage.parts[0][0] += ` + ${cantripDice - 1}d8[${damageType}]`;
+            let effectData = {
+              changes: [{ key: "flags.dnd5e.DamageBonusMacro", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro.${lastArg.item.name}`, priority: 20, }],
+              origin: args[0].itemUuid,
+              disabled: false,
+              flags: { dae: { specialDuration: ["1Attack"] }}
+            };
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: caster.uuid, effects: [effectData] });
           }
           weaponCopy.name = weaponItem.name + " [Green Flame Blade]";
           weaponCopy.effects.push({
@@ -159,7 +165,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
             label: sourceItemData.name,
             origin,
             transfer: false,
-            flags: { targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { transfer: false, specialDuration: ["isAttacked"] }},
+            flags: { targetUuid: target.uuid, casterId: caster.id, origin, cantripDice, damageType, dae: { transfer: false, specialDuration: ["turnEndSource", "isAttacked", "isDamaged"] }},
           });
           setProperty(weaponCopy, "flags.itemacro", duplicate(sourceItemData.flags.itemacro));
           setProperty(weaponCopy, "flags.midi-qol.effectActivation", false);
@@ -287,4 +293,13 @@ if (args[0].tag === "OnUse"){
   const casterId = lastArg.efData.flags.casterId;
   console.log(`Checking ${targetToken.name} for nearby tokens for Green-Flame Blade from ${casterId}`);
   await attackNearby(targetToken, [casterId]);
+}
+
+if (args[0].tag === "DamageBonus" && ["mwak"].includes(args[0].item.data.actionType)) {
+  const casterData = await fromUuid(lastArg.actorUuid);
+  const caster = casterData.actor ? casterData.actor : casterData;
+  const characterLevel = caster.data.type === "character" ? caster.data.data.details.level : caster.data.data.details.cr;
+  const cantripDice = 1 + Math.floor((characterLevel + 1) / 6);
+	const diceMult = args[0].isCritical ? 2 : 1;
+	return { damageRoll: `${diceMult * (cantripDice - 1)}d8[fire]`, flavor: "Green-Flame Blade" };
 }

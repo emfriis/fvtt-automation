@@ -9,17 +9,19 @@ if (getProperty(tactor.data.flags, "midi-qol.ghoulStenchImmunity") || tactor.dat
 
 if (args[0] === "each") {
     const targetUuid = lastArg.actorUuid;
-    const rollOptions = { chatMessage: true, fastForward: true };
+    const dc = 10;
+    const resist = ["Dwarven Resilience", "Duergar Resilience", "Stout Resilience", "Poison Resilience"];
+    let getResist = tactorTarget.items.find(i => resist.includes(i.name));
+    const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
     const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "save", targetUuid: targetUuid, ability: "con", options: rollOptions });
     if (game.dice3d) game.dice3d.showForRoll(roll);
 
-    if (roll.total < 10) {
+    if (roll.total < dc) {
         let effectData = {
             label: "Poisoned",
             origin: args[0].uuid,
             disabled: false,
             flags: { dae: { specialDuration: ["turnStart"] } },
-            duration: {rounds: 1, turns: 1, startTime: game.time.worldTime},
             changes: [
                 { key: `StatusEffect`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Poisoned", priority: 20 },
             ]
