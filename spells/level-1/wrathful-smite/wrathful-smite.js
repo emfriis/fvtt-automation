@@ -26,9 +26,10 @@ async function attemptRemoval(targetToken, condition, item) {
                 if (game.dice3d) game.dice3d.showForRoll(roll);
 
                 if (roll.total >= saveDc) {
-                game.dfreds.effectInterface.removeEffect({ effectName: condition, uuid: targetToken.uuid });
+                    let fear = tactor.effects.find(i => i.data === lastArg.efData);
+		            if (fear) await tactor.deleteEmbeddedDocuments("ActiveEffect", [fear.id]);
                 } else {
-                if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll for ${item.name}, still has the ${condition} condition.` });
+                    if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll for ${item.name}, still has the ${condition} condition.` });
                 }
             },
             },
