@@ -7,7 +7,7 @@ if (args[0].tag === "OnUse" && lastArg.hitTargetUuids.length > 0 && args[0].macr
     for (let i = 0; i < lastArg.hitTargetUuids.length; i++) {
         let tokenOrActorTarget = await fromUuid(lastArg.hitTargetUuids[i]);
         let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-        let getResist = tactorTarget.items.find(i => resist.includes(i.name));
+        let getResist = tactorTarget.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));
         if (getResist) {
             const effectData = {
                 changes: [

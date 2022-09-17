@@ -8,7 +8,7 @@ if (args[0].tag === "OnUse") {
 		let targetToken = await fromUuid(lastArg.targetUuids[0]);
 		let targetActor = targetToken.actor ?? targetToken._actor;
 		const resist = ["Fey Ancestry", "Duergar Reslience", "Charm Resilience"];
-		let getResist = targetActor.items.find(i => resist.includes(i.name));
+		let getResist = targetActor.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));
 		if ((game?.combat?.current && targetToken.data.disposition != token.data.disposition && targetToken.data.disposition != "Neutral") || getResist) {
 			const effectData = {
 				changes: [

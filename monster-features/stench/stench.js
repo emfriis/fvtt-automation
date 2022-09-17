@@ -11,7 +11,7 @@ if (args[0] === "each") {
     const targetUuid = lastArg.actorUuid;
     const dc = 10;
     const resist = ["Dwarven Resilience", "Duergar Resilience", "Stout Resilience", "Poison Resilience"];
-    let getResist = tactorTarget.items.find(i => resist.includes(i.name));
+    let getResist = tactorTarget.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));
     const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
     const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "save", targetUuid: targetUuid, ability: "con", options: rollOptions });
     if (game.dice3d) game.dice3d.showForRoll(roll);

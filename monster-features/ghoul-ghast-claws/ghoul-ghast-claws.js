@@ -23,7 +23,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
     for (let i = 0; i < lastArg.targetUuids.length; i++) {
         let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
         let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-        let getResist = tactorTarget.items.find(i => resist.includes(i.name));
+        let getResist = tactorTarget.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));
         if (getResist) {
             const effectData = {
                 changes: [
@@ -46,7 +46,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
 
 if (args[0] === "each" && lastArg.efData.disabled === false) {
     const resist = ["Duergar Resilience", "Paralysis Resilience"];
-    const getResist = tactor.items.find(i => resist.includes(i.name));
+    const getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
     const targetToken = await fromUuid(lastArg.tokenUuid);
     const condition = "Paralyzed";
     const item = await fromUuid(lastArg.efData.origin);

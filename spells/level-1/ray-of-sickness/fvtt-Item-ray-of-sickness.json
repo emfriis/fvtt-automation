@@ -90,24 +90,28 @@
   },
   "effects": [
     {
-      "_id": "CMhqQ36oL3vl9z4b",
+      "_id": "nQWGu9GgHFGoi0GR",
       "changes": [
         {
-          "key": "StatusEffect",
+          "key": "flags.midi-qol.disadvantage.attack.all",
           "mode": 0,
-          "value": "Convenient Effect: Poisoned",
+          "value": "1",
+          "priority": "20"
+        },
+        {
+          "key": "flags.midi-qol.disadvantage.ability.all",
+          "mode": 0,
+          "value": "1",
           "priority": "20"
         }
       ],
       "disabled": false,
       "duration": {
-        "startTime": null,
-        "rounds": 1,
-        "turns": 1
+        "startTime": null
       },
       "icon": "systems/dnd5e/icons/spells/beam-acid-1.jpg",
-      "label": "Poisoned",
-      "origin": "Item.nmnvhdHTpTDP3FpP",
+      "label": "Ray of Sickness",
+      "origin": "Item.fw3daJvRfrwQqaKZ",
       "transfer": false,
       "flags": {
         "dae": {
@@ -141,7 +145,10 @@
         }
       },
       "tint": null,
-      "selectedKey": "StatusEffect"
+      "selectedKey": [
+        "flags.midi-qol.disadvantage.attack.all",
+        "flags.midi-qol.disadvantage.ability.all"
+      ]
     }
   ],
   "flags": {
@@ -249,8 +256,8 @@
       }
     },
     "scene-packer": {
-      "sourceId": "Item.nHwkK9TGJot3RCFu",
-      "hash": "dda72d7aea9bcfbe2c77110b4f6d4073e37fdad2"
+      "sourceId": "Item.4F4unAgZzpN0dxaA",
+      "hash": "70ec2204f252fdea048167e140b7af1858eda8ee"
     },
     "exportSource": {
       "world": "dnd5e",
@@ -266,7 +273,7 @@
         "author": "ckiTPzlaPztdkjV6",
         "img": "icons/svg/dice-target.svg",
         "scope": "global",
-        "command": "const lastArg = args[args.length - 1];\n\nif (args[0].tag === \"OnUse\" && lastArg.hitTargetUuids.length > 0) {\n    const resist = [\"Dwarven Resilience\", \"Duergar Resilience\", \"Stout Resilience\", \"Poison Resilience\"];\n    for (let i = 0; i < lastArg.hitTargetUuids.length; i++) {\n        let tokenOrActorTarget = await fromUuid(lastArg.hitTargetUuids[i]);\n        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;\n        let getResist = tactorTarget.items.find(i => resist.includes(i.name))\n        if (getResist) {\n            const effectData = {\n                changes: [\n                    {\n                        key: \"flags.midi-qol.advantage.ability.save.all\",\n                        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n                        value: 1,\n                        priority: 20,\n                    }\n                ],\n                disabled: false,\n                flags: { dae: { specialDuration: [\"isSave\"] } },\n                icon: args[0].item.img,\n                label: `${args[0].item.name} Save Advantage`,\n            };\n            await tactorTarget.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n        }\n    }\n}",
+        "command": "const lastArg = args[args.length - 1];\n\nif (args[0].tag === \"OnUse\" && lastArg.hitTargetUuids.length > 0) {\n    const resist = [\"Dwarven Resilience\", \"Duergar Resilience\", \"Stout Resilience\", \"Poison Resilience\"];\n    for (let i = 0; i < lastArg.hitTargetUuids.length; i++) {\n        let tokenOrActorTarget = await fromUuid(lastArg.hitTargetUuids[i]);\n        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;\n        let getResist = tactorTarget.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));\n        if (getResist) {\n            const effectData = {\n                changes: [\n                    {\n                        key: \"flags.midi-qol.advantage.ability.save.all\",\n                        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n                        value: 1,\n                        priority: 20,\n                    }\n                ],\n                disabled: false,\n                flags: { dae: { specialDuration: [\"isSave\"] } },\n                icon: args[0].item.img,\n                label: `${args[0].item.name} Save Advantage`,\n            };\n            await tactorTarget.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n        }\n    }\n}",
         "folder": null,
         "sort": 0,
         "permission": {

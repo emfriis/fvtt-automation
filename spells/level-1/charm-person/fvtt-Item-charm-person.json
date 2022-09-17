@@ -89,15 +89,15 @@
       "icon": "systems/dnd5e/icons/spells/explosion-magenta-2.jpg",
       "changes": [
         {
-          "key": "StatusEffect",
+          "key": "flags.midi-qol.charm",
           "mode": 0,
-          "value": "Convenient Effect: Charmed",
+          "value": "@token",
           "priority": "20"
         },
         {
-          "key": "flags.charmSource",
+          "key": "StatusEffect",
           "mode": 0,
-          "value": "@actorUuid",
+          "value": "Convenient Effect: Charmed",
           "priority": "20"
         }
       ],
@@ -144,8 +144,8 @@
       },
       "_id": "e19yq2k1kc7n18qy",
       "selectedKey": [
-        "StatusEffect",
-        "__"
+        "__",
+        "StatusEffect"
       ]
     }
   ],
@@ -184,8 +184,8 @@
       "sourceId": "Compendium.world.ddb-spells-2.RHuJwiS78fNWYdQ5"
     },
     "scene-packer": {
-      "hash": "7d4cb3fced9937914b039a83ae682bff6f36ff4a",
-      "sourceId": "Item.nMLisTVBfyf6ufhG"
+      "hash": "27f35aad583612d3db10b4e524451bee8772726b",
+      "sourceId": "Item.9hSlekCqMVqtFGMJ"
     },
     "rest-recovery": {
       "data": {
@@ -233,7 +233,7 @@
         "author": "ckiTPzlaPztdkjV6",
         "img": "icons/svg/dice-target.svg",
         "scope": "global",
-        "command": "// charm person\n\nconst lastArg = args[args.length - 1];\n\nif (args[0].tag === \"OnUse\") {\n\tif (lastArg.targetUuids.length > 0) {\n\t\tlet token = await fromUuid(lastArg.tokenUuid);\n\t\tlet targetToken = await fromUuid(lastArg.targetUuids[0]);\n\t\tlet targetActor = targetToken.actor ?? targetToken._actor;\n\t\tconst resist = [\"Fey Ancestry\", \"Duergar Reslience\", \"Charm Resilience\"];\n\t\tlet getResist = targetActor.items.find(i => resist.includes(i.name));\n\t\tif ((game?.combat?.current && targetToken.data.disposition != token.data.disposition && targetToken.data.disposition != \"Neutral\") || getResist) {\n\t\t\tconst effectData = {\n\t\t\t\tchanges: [\n\t\t\t\t\t{\n\t\t\t\t\t\tkey: \"flags.midi-qol.advantage.ability.save.all\",\n\t\t\t\t\t\tmode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n\t\t\t\t\t\tvalue: 1,\n\t\t\t\t\t\tpriority: 20,\n\t\t\t\t\t}\n\t\t\t\t],\n\t\t\t\tdisabled: false,\n\t\t\t\tflags: { dae: { specialDuration: [\"isSave\"] } },\n\t\t\t\ticon: args[0].item.img,\n\t\t\t\tlabel: `${args[0].item.name} Save Advantage`,\n\t\t\t};\n\t\t\tawait targetActor.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n\t\t}\n\t}\n}",
+        "command": "// charm person\n\nconst lastArg = args[args.length - 1];\n\nif (args[0].tag === \"OnUse\") {\n\tif (lastArg.targetUuids.length > 0) {\n\t\tlet token = await fromUuid(lastArg.tokenUuid);\n\t\tlet targetToken = await fromUuid(lastArg.targetUuids[0]);\n\t\tlet targetActor = targetToken.actor ?? targetToken._actor;\n\t\tconst resist = [\"Fey Ancestry\", \"Duergar Reslience\", \"Charm Resilience\"];\n\t\tlet getResist = targetActor.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));\n\t\tif ((game?.combat?.current && targetToken.data.disposition != token.data.disposition && targetToken.data.disposition != \"Neutral\") || getResist) {\n\t\t\tconst effectData = {\n\t\t\t\tchanges: [\n\t\t\t\t\t{\n\t\t\t\t\t\tkey: \"flags.midi-qol.advantage.ability.save.all\",\n\t\t\t\t\t\tmode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n\t\t\t\t\t\tvalue: 1,\n\t\t\t\t\t\tpriority: 20,\n\t\t\t\t\t}\n\t\t\t\t],\n\t\t\t\tdisabled: false,\n\t\t\t\tflags: { dae: { specialDuration: [\"isSave\"] } },\n\t\t\t\ticon: args[0].item.img,\n\t\t\t\tlabel: `${args[0].item.name} Save Advantage`,\n\t\t\t};\n\t\t\tawait targetActor.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n\t\t}\n\t}\n}",
         "folder": null,
         "sort": 0,
         "permission": {

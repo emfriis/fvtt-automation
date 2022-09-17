@@ -89,15 +89,9 @@
       "icon": "systems/dnd5e/icons/spells/air-burst-magenta-2.jpg",
       "changes": [
         {
-          "key": "StatusEffect",
+          "key": "flags.midi-qol.charm",
           "mode": 0,
-          "value": "Convenient Effect: Charmed",
-          "priority": "20"
-        },
-        {
-          "key": "flags.charmSource",
-          "mode": 0,
-          "value": "@actorUuid",
+          "value": "@token",
           "priority": "20"
         },
         {
@@ -158,7 +152,6 @@
       },
       "_id": "jpg21udg3plpiddn",
       "selectedKey": [
-        "StatusEffect",
         "__",
         "macro.itemMacro",
         "data.attributes.movement.all"
@@ -240,8 +233,8 @@
       "toggleEffect": false
     },
     "scene-packer": {
-      "sourceId": "Item.PeyhZqXNcLzWh721",
-      "hash": "0ded672c54d9d4850911ba948f53ef9cb94cd11c"
+      "sourceId": "Item.LdPzOfWDTseUor86",
+      "hash": "647e3c2c864fe24e01dc4f8f30487a638f4b9d7c"
     },
     "enhanced-terrain-layer": {
       "multiple": null,
@@ -272,7 +265,7 @@
         "author": "ckiTPzlaPztdkjV6",
         "img": "icons/svg/dice-target.svg",
         "scope": "global",
-        "command": "// hypnotic pattern\n\nasync function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\nconst lastArg = args[args.length - 1];\nconst target = await fromUuid(lastArg.actorUuid);\nconst targetActor = target.actor ? target.actor : target;\n\nfunction effectAppliedAndActive(conditionName) {\n    return targetActor.data.effects.some(\n      (activeEffect) =>\n        activeEffect?.data == lastArg.efData &&\n        !activeEffect?.data?.disabled\n    );\n}\n\nif (args[0].tag === \"OnUse\" && lastArg.targetUuids.length > 0) {\n    const resist = [\"Fey Ancestry\", \"Duergar Reslience\", \"Charm Resilience\"];\n    for (let i = 0; i < lastArg.targetUuids.length; i++) {\n        let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);\n        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;\n        let getResist = tactorTarget.items.find(i => resist.includes(i.name));\n        if (getResist) {\n            const effectData = {\n                changes: [\n                    {\n                        key: \"flags.midi-qol.advantage.ability.save.all\",\n                        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n                        value: 1,\n                        priority: 20,\n                    }\n                ],\n                disabled: false,\n                flags: { dae: { specialDuration: [\"isSave\"] } },\n                icon: args[0].item.img,\n                label: `${args[0].item.name} Save Advantage`,\n            };\n            await tactorTarget.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n        }\n    }\n}\n\nif (args[0] === \"on\" && effectAppliedAndActive(\"Charmed\")) {\n    wait(500);\n    let effect = await targetActor.effects.find(i => i.data.label === \"Charmed\");\n    if (effect) {\n        await game.dfreds.effectInterface.addEffect({ effectName: \"Incapacitated\", uuid: targetActor.uuid });\n        let effect2 = await targetActor.effects.find(i => i.data.label === \"Incapacitated\");\n        effect.update({ changes: [{ key: `flags.dae.deleteUuid`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: effect2.uuid, priority: 20 }].concat(effect.data.changes) });\n    }\n}",
+        "command": "// hypnotic pattern\n\nasync function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }\nconst lastArg = args[args.length - 1];\nconst target = await fromUuid(lastArg.actorUuid);\nconst targetActor = target.actor ? target.actor : target;\n\nfunction effectAppliedAndActive() {\n    return targetActor.data.effects.some(\n      (activeEffect) =>\n        activeEffect?.data == lastArg.efData &&\n        !activeEffect?.data?.disabled\n    );\n}\n\nif (args[0].tag === \"OnUse\" && lastArg.targetUuids.length > 0) {\n    const resist = [\"Fey Ancestry\", \"Duergar Reslience\", \"Charm Resilience\"];\n    for (let i = 0; i < lastArg.targetUuids.length; i++) {\n        let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);\n        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;\n        let getResist = tactorTarget.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));\n        if (getResist) {\n            const effectData = {\n                changes: [\n                    {\n                        key: \"flags.midi-qol.advantage.ability.save.all\",\n                        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n                        value: 1,\n                        priority: 20,\n                    }\n                ],\n                disabled: false,\n                flags: { dae: { specialDuration: [\"isSave\"] } },\n                icon: args[0].item.img,\n                label: `${args[0].item.name} Save Advantage`,\n            };\n            await tactorTarget.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n        }\n    }\n}\n\nif (args[0] === \"on\" && effectAppliedAndActive()) {\n    wait(500);\n    let effect = await targetActor.effects.find(i => i.data.label === \"Charmed\");\n    if (effect) {\n        await game.dfreds.effectInterface.addEffect({ effectName: \"Incapacitated\", uuid: targetActor.uuid });\n        let effect2 = await targetActor.effects.find(i => i.data.label === \"Incapacitated\");\n        effect.update({ changes: [{ key: `flags.dae.deleteUuid`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: effect2.uuid, priority: 20 }].concat(effect.data.changes) });\n    }\n}",
         "folder": null,
         "sort": 0,
         "permission": {
