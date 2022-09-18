@@ -59,7 +59,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
   `;
 
   new Dialog({
-    title: "Two Weapon Fighting: Choose a weapon to attack with",
+    title: "Two-Weapon Fighting: Choose a weapon to attack with",
     content,
     buttons: {
       Ok: {
@@ -71,7 +71,7 @@ function weaponAttack(caster, sourceItemData, origin, target) {
           const weaponCopy = duplicate(weaponItem);
           delete weaponCopy._id;
           if (!twoFS) weaponCopy.data.damage.parts[0][0] += ` -@mod`;
-          weaponCopy.name = weaponItem.name + " (Two Weapon Fighting)";
+          weaponCopy.name = weaponItem.name + " (Two-Weapon Fighting)";
           const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
           const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
           await MidiQOL.completeItemRoll(attackItem, options);

@@ -1,5 +1,5 @@
 {
-  "name": "Two Weapon Fighting",
+  "name": "Two-Weapon Fighting",
   "type": "feat",
   "img": "icons/weapons/swords/swords-cutlasses-white.webp",
   "data": {
@@ -104,7 +104,20 @@
             "default": 0
           },
           "flags": {}
-        }
+        },
+        "_id": null,
+        "name": "Two-Weapon Fighting",
+        "type": "script",
+        "author": "ckiTPzlaPztdkjV6",
+        "img": "icons/svg/dice-target.svg",
+        "scope": "global",
+        "command": "const lastArg = args[args.length - 1];\n\nfunction weaponAttack(caster, sourceItemData, origin, target) {\n  const twoFS = caster.items.find(i => i.name.toLowerCase().includes(\"fighting style: two-weapon fighting\")); // search for two-weapon fighting style\n  const twoFeat = caster.items.find(i => i.name.toLowerCase().includes(\"dual wielder\")); // search for dual wielder feat\n  const filteredWeapons = caster.items.filter((i) => i.data.data.equipped && (i.data.data.properties?.lgt || twoFeat) && !i.data.data.properties?.two);\n  let weapon_content = \"\";\n\n  //Filter for weapons\n  filteredWeapons.forEach((weapon) => {\n    weapon_content += `<label class=\"radio-label\">\n    <input type=\"radio\" name=\"weapon\" value=\"${weapon.id}\">\n    <img src=\"${weapon.img}\" style=\"border:0px; width: 50px; height:50px;\">\n    ${weapon.data.name}\n    </label>`;\n  });\n\n  let content = `\n    <style>\n    .hexWeapon .form-group {\n        display: flex;\n        flex-wrap: wrap;\n        width: 100%;\n        align-items: flex-start;\n      }\n\n      .hexWeapon .radio-label {\n        display: flex;\n        flex-direction: column;\n        align-items: center;\n        text-align: center;\n        justify-items: center;\n        flex: 1 0 25%;\n        line-height: normal;\n      }\n\n      .hexWeapon .radio-label input {\n        display: none;\n      }\n\n      .hexWeapon img {\n        border: 0px;\n        width: 50px;\n        height: 50px;\n        flex: 0 0 50px;\n        cursor: pointer;\n      }\n\n      /* CHECKED STYLES */\n      .hexWeapon [type=radio]:checked + img {\n        outline: 2px solid #f00;\n      }\n    </style>\n    <form class=\"hexWeapon\">\n      <div class=\"form-group\" id=\"weapons\">\n          ${weapon_content}\n      </div>\n    </form>\n  `;\n\n  new Dialog({\n    title: \"Two-Weapon Fighting: Choose a weapon to attack with\",\n    content,\n    buttons: {\n      Ok: {\n        label: \"Ok\",\n        callback: async (html) => {\n          const itemId = $(\"input[type='radio'][name='weapon']:checked\").val();\n          const weaponItem = caster.getEmbeddedDocument(\"Item\", itemId);\n          DAE.setFlag(caster, \"bonusAttackChoice\", itemId);\n          const weaponCopy = duplicate(weaponItem);\n          delete weaponCopy._id;\n          if (!twoFS) weaponCopy.data.damage.parts[0][0] += ` -@mod`;\n          weaponCopy.name = weaponItem.name + \" (Two-Weapon Fighting)\";\n          const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });\n          const options = { showFullCard: false, createWorkflow: true, configureDialog: true };\n          await MidiQOL.completeItemRoll(attackItem, options);\n        },\n      },\n      Cancel: {\n        label: \"Cancel\",\n      },\n    },\n  }).render(true);\n}\n\nif(args[0].tag === \"OnUse\"){\n  if (lastArg.targets.length > 0) {\n    const casterData = await fromUuid(lastArg.actorUuid);\n    const caster = casterData.actor ? casterData.actor : casterData;\n    weaponAttack(caster, lastArg.itemData, lastArg.uuid, lastArg.targets[0]);\n  } else {\n    ui.notifications.error(\"Two Weapon Fighting: No target selected: please select a target and try again.\");\n  }\n\n}",
+        "folder": null,
+        "sort": 0,
+        "permission": {
+          "default": 0
+        },
+        "flags": {}
       }
     },
     "core": {
@@ -112,10 +125,10 @@
     },
     "scene-packer": {
       "hash": "111c36a9aec563e9282188c362d86c8ebc1a40ba",
-      "sourceId": "Item.ZHDGj1bgNw1bRwW1"
+      "sourceId": "Item.xtg00fu3IhaA90Se"
     },
     "exportSource": {
-      "world": "Curse of Strahd",
+      "world": "dnd5e",
       "system": "dnd5e",
       "coreVersion": "9.280",
       "systemVersion": "1.6.3"

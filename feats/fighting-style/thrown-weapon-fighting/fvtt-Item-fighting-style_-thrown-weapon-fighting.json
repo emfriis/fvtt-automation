@@ -164,14 +164,27 @@
             "default": 0
           },
           "flags": {}
-        }
+        },
+        "_id": null,
+        "name": "Fighting Style: Thrown Weapon Fighting",
+        "type": "script",
+        "author": "ckiTPzlaPztdkjV6",
+        "img": "icons/svg/dice-target.svg",
+        "scope": "global",
+        "command": "if (args[0].tag === \"DamageBonus\" && args[0].hitTarget.length > 0) {\n\tif (![\"rwak\", \"mwak\"].includes(args[0].item.data.actionType) || !args[0].itemData.data.properties?.thr) return {}; // thrown weapon attack\n\tconst token = canvas.tokens.get(args[0].tokenId);\n\tconst tokenTarget = canvas.tokens.get(args[0].hitTargets[0].id ?? args[0].hitTargets[0]._id);\n\tif (MidiQOL.getDistance(tokenTarget, token, false) > 5) { // attack is ranged\n\t\tconst damageType = args[0].item.data.damage.parts[0][1];\n\t\treturn {damageRoll: `2[${damageType}]`, flavor: \"Thrown Weapon Fighting\"}\n\t}\n}",
+        "folder": null,
+        "sort": 0,
+        "permission": {
+          "default": 0
+        },
+        "flags": {}
       }
     },
     "scene-packer": {
-      "sourceId": "Item.M66ZlHh9Z8AbZdT4"
+      "sourceId": "Item.xtg00fu3IhaA90Se"
     },
     "exportSource": {
-      "world": "Curse of Strahd",
+      "world": "dnd5e",
       "system": "dnd5e",
       "coreVersion": "9.280",
       "systemVersion": "1.6.3"

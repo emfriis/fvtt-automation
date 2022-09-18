@@ -8,12 +8,6 @@ if(args[0] === "off") {
     const effectData = {
 		changes: [
 			{
-				key: "StatusEffect",
-				mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-				value: "Convenient Effect: Incapacitated",
-				priority: 20,
-			},
-			{
 				key: "data.attributes.movement.all",
 				mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
 				value: "0",
@@ -21,8 +15,7 @@ if(args[0] === "off") {
 			}, 
 		],
 		disabled: false,
-		duration: { rounds: 1, turns: 1, startTime: game.time.worldTime },
-		flags: { dae: { specialDuration: ["turnEnd"] } },
+		flags: { dae: { specialDuration: ["turnEnd"] }, core: { statusId: "Haste Fatigue" } },
 		icon: "systems/dnd5e/icons/spells/haste-royal-2.jpg",
 		label: "Haste Fatigue",
 	};

@@ -4,7 +4,7 @@ const lastArg = args[args.length - 1];
 // Add magic resistance if spell on end of turn
 
 // frightened
-// CAUSE FEAR, WRATHFUL SMITE, FEAR
+// CAUSE FEAR, WRATHFUL SMITE, FEAR, MENACING ATTACK
 
 
 if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPass === "preSave") {

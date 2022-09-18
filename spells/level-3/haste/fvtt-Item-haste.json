@@ -233,7 +233,20 @@
             "default": 0
           },
           "flags": {}
-        }
+        },
+        "_id": null,
+        "name": "Haste",
+        "type": "script",
+        "author": "ckiTPzlaPztdkjV6",
+        "img": "icons/svg/dice-target.svg",
+        "scope": "global",
+        "command": "// haste\n\nif(args[0] === \"off\") {\n\tconst lastArg = args[args.length - 1];\n\tconst tokenOrActor = await fromUuid(lastArg.actorUuid);\n\tconst targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n\n    const effectData = {\n\t\tchanges: [\n\t\t\t{\n\t\t\t\tkey: \"data.attributes.movement.all\",\n\t\t\t\tmode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n\t\t\t\tvalue: \"0\",\n\t\t\t\tpriority: 20,\n\t\t\t}, \n\t\t],\n\t\tdisabled: false,\n\t\tflags: { dae: { specialDuration: [\"turnEnd\"] }, core: { statusId: \"Haste Fatigue\" } },\n\t\ticon: \"systems/dnd5e/icons/spells/haste-royal-2.jpg\",\n\t\tlabel: \"Haste Fatigue\",\n\t};\n\tawait MidiQOL.socket().executeAsGM(\"createEffects\", { actorUuid: targetActor.uuid, effects: [effectData] });\n}",
+        "folder": null,
+        "sort": 0,
+        "permission": {
+          "default": 0
+        },
+        "flags": {}
       }
     },
     "core": {
@@ -258,11 +271,11 @@
       "toggleEffect": false
     },
     "scene-packer": {
-      "sourceId": "Item.25V4D0FsGgE38Ne2",
+      "sourceId": "Item.GNtkpwKUIRNgL94s",
       "hash": "fb8aab015d79709e85936de2c5ec6bb46442eb01"
     },
     "exportSource": {
-      "world": "Curse of Strahd",
+      "world": "dnd5e",
       "system": "dnd5e",
       "coreVersion": "9.280",
       "systemVersion": "1.6.3"
