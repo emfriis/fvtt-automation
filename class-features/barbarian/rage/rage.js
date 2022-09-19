@@ -1,20 +1,36 @@
 // rage
+// uses handler of user-socket-functions - "useDialog"
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
 const lastArg = args[args.length - 1];
-const tokenOrActor = await fromUuid(lastArg.actorUuid);
-const tactor = tokenOrActor.actor ?? tokenOrActor;
+const tokenId = lastArg.tokenId;
+const tokenOrActor = await fromUuid(lastArg.tokenUuid);
+const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const targetToken = await fromUuid(lastArg.tokenUuid);
 const actorData = tactor.getRollData();
 const levels = actorData.classes?.barbarian?.levels ?? 0;
 
+async function playerForActor(actor) {
+	if (!actor) return undefined;
+	let user;
+	if (actor.hasPlayerOwner) user = game.users?.find(u => u.data.character === actor?.id && u.active);
+	if (!user) user = game.users?.players.find(p => p.active && actor?.data.permission[p.id ?? ""] === CONST.ENTITY_PERMISSIONS.OWNER);
+	if (!user) user = game.users?.find(p => p.isGM && p.active);
+	return user;
+}
+
 async function cleanUp(removeEf) {
 	wait(1000);
-	const flag = await DAE.getFlag(tactor, "rageHook");
-	if (flag) {
-		Hooks.off("midi-qol.RollComplete", flag);
+	const flag1 = await DAE.getFlag(tactor, "rageHook");
+	if (flag1) {
+		Hooks.off("midi-qol.preApplyActiveEffects", flag1);
 		await DAE.unsetFlag(tactor, "rageHook");
+	}
+	const flag2 = await DAE.getFlag(tactor, "endRageHook");
+	if (flag2) {
+		Hooks.off("midi-qol.RollComplete", flag2);
+		await DAE.unsetFlag(tactor, "endRageHook");
 	}
 	try {
 		if (removeEf) {
@@ -31,27 +47,14 @@ async function cleanUp(removeEf) {
 	}
 }
 
-async function endRage(hp, damage) {
+async function relentlessRage(hp, damage) {
 	let relentlessDC = Number(getProperty(tactor.data.flags, "midi-qol.relentlessDC") ?? 10);
-	if (levels >= 11 && relentlessDC && hp < 1 && damage - tactor.data.data.attributes.hp.value < tactor.data.data.attributes.hp.max) {
-		let dialog = new Promise((resolve, reject) => {
-			new Dialog({
-				title: "Relentless Rage: Use Feature?",
-				buttons: {
-					Ok: {
-						label: "Ok",
-						callback: () => {resolve(true)},
-					},
-					Cancel: {
-						label: "Cancel",
-						callback: () => {resolve(false)},
-					},
-				},
-				default: "Cancel",
-				close: () => {resolve(false)}
-			}).render(true);
-		});
-		let doSave = await dialog;
+	if (levels >= 11 && relentlessDC && hp < 1 && damage < tactor.data.data.attributes.hp.value + tactor.data.data.attributes.hp.max) {
+		let player = await playerForActor(tactor);
+		let socket;
+    	if (game.modules.get("user-socket-functions")?.active) socket = socketlib.registerModule("user-socket-functions");
+		let doSave = false;
+        if (game.modules.get("user-socket-functions")?.active) doSave = await socket.executeAsUser("useDialog", player.id, { title: `Relentless Rage`, content: `Use Relentless Rage to attempt to survive grievous wounds?` });
 
 		if (doSave) {
 			const rollOptions = { chatMessage: true, fastForward: true };
@@ -78,22 +81,22 @@ async function endRage(hp, damage) {
 			if (roll.total >= relentlessDC) {
 				tactor.update({"data.attributes.hp.value": 1});
 				let uncon = tactor.effects.find(i => i.data.label === "Unconscious");
-				if (uncon) await actor.deleteEmbeddedDocuments("ActiveEffect", [uncon.id]);
-			} else {
-				cleanUp(true);
-			}
-		}
-	} else {
-		if (tactor.effects.find(i => i.data.label === "Unconscious") || tactor.data.data.attributes.hp.value < 1) {
-			cleanUp(true);
-		}
+				if (uncon) await tactor.deleteEmbeddedDocuments("ActiveEffect", [uncon.id]);
+			} 
+		} 
+	} 
+}
+
+async function endRage() {
+	await wait(1000);
+	if (tactor.effects.find(i => i.data.label === "Unconscious") || tactor.data.data.attributes.hp.value < 1) {
+		cleanUp(true);
 	}
 }
 
 async function damageCheck(workflow) {
-	if (workflow?.damageList) {
-		let attackWorkflow = workflow?.damageList.map((i) => ({ tokenId: i?.tokenId, hpDamage: i?.hpDamage, newHP: i?.newHP })).filter(i => i.tokenId === lastArg.tokenId);
-		if (!attackWorkflow) return;
+	let attackWorkflow = workflow?.damageList?.map((i) => ({ tokenId: i?.tokenId, hpDamage: i?.hpDamage, newHP: i?.newHP })).filter(i => i.tokenId === tokenId);
+	if (attackWorkflow) {
 		let lastAttack = attackWorkflow[attackWorkflow.length - 1];
 		if (lastAttack?.hpDamage > 0) {
 			if (levels < 15) {
@@ -115,8 +118,7 @@ async function damageCheck(workflow) {
 				};
 				await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
 			}
-
-			await endRage(lastAttack?.newHP, lastAttack?.hpDamage);
+			await relentlessRage(lastAttack?.newHP, lastAttack?.hpDamage);
 		}
 	}
 }
@@ -140,8 +142,10 @@ if (args[0] == "on") {
 		await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);	
 	}
 
-	let hookId = Hooks.on("midi-qol.RollComplete", damageCheck);
-    DAE.setFlag(tactor, "rageHook", hookId);
+	let hookId1 = Hooks.on("midi-qol.preApplyDynamicEffects", damageCheck);
+    DAE.setFlag(tactor, "rageHook", hookId1);
+	let hookId2 = Hooks.on("midi-qol.RollComplete", endRage);
+    DAE.setFlag(tactor, "endRageHook", hookId2);
 }
 
 if (args[0] === "each" && levels < 15) {

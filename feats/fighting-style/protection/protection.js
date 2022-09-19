@@ -7,17 +7,11 @@ const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const item = await fromUuid(lastArg.efData.origin);
 
 async function playerForActor(actor) {
-	if (!actor)
-		return undefined;
+	if (!actor) return undefined;
 	let user;
-	// find an active user whose character is the actor
-	if (actor.hasPlayerOwner)
-		user = game.users?.find(u => u.data.character === actor?.id && u.active);
-	if (!user) // no controller - find the first owner who is active
-		user = game.users?.players.find(p => p.active && actor?.data.permission[p.id ?? ""] === CONST.ENTITY_PERMISSIONS.OWNER);
-	// if all else fails it's and active gm.
-	if (!user)
-		user = game.users?.find(p => p.isGM && p.active);
+	if (actor.hasPlayerOwner) user = game.users?.find(u => u.data.character === actor?.id && u.active);
+	if (!user) user = game.users?.players.find(p => p.active && actor?.data.permission[p.id ?? ""] === CONST.ENTITY_PERMISSIONS.OWNER);
+	if (!user) user = game.users?.find(p => p.isGM && p.active);
 	return user;
 }
 
@@ -36,9 +30,10 @@ async function attackCheck(workflow) {
 
     let workflowTargets = Array.from(workflow?.targets);
     let player = await playerForActor(tactor);
-    let socket = socketlib.registerModule("user-socket-functions");
+    let socket;
+    if (game.modules.get("user-socket-functions")?.active) socket = socketlib.registerModule("user-socket-functions");
     
-    for (i = 0; i < workflowTargets.length; i++) {
+    for (let i = 0; i < workflowTargets.length; i++) {
         if (workflowTargets[i].id === token.id || MidiQOL.getDistance(workflowTargets[i], token, false) > 5 || workflowTargets[i].data.disposition !== token.data.disposition) return;
         let useProtect = false;
         if (game.modules.get("user-socket-functions")?.active) useProtect = await socket.executeAsUser("useDialog", player.id, { title: `${item.data.name}`, content: `Use your reaction to impose disadvantage on attack against ${workflowTargets[i].name}?` });
