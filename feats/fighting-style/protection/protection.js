@@ -1,4 +1,5 @@
-async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+// uses handler of user-socket-functions - "useDialog"
+
 const lastArg = args[args.length - 1];
 const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.tokenUuid);
@@ -39,7 +40,8 @@ async function attackCheck(workflow) {
     
     for (i = 0; i < workflowTargets.length; i++) {
         if (workflowTargets[i].id === token.id || MidiQOL.getDistance(workflowTargets[i], token, false) > 5 || workflowTargets[i].data.disposition !== token.data.disposition) return;
-        let useProtect = await socket.executeAsUser("useDialog", player.id, { title: `${item.data.name}`, content: `Use your reaction to impose disadvantage on attack against ${workflowTargets[i].name}?` });
+        let useProtect = false;
+        if (game.modules.get("user-socket-functions")?.active) useProtect = await socket.executeAsUser("useDialog", player.id, { title: `${item.data.name}`, content: `Use your reaction to impose disadvantage on attack against ${workflowTargets[i].name}?` });
         if (useProtect) {
             await Object.assign(workflow, { disadvantage: true });
             const hasEffectApplied = game.dfreds.effectInterface.hasEffectApplied("Reaction", tokenOrActor.uuid );
