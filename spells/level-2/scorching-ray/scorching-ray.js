@@ -22,6 +22,7 @@ async function applyAttack(targetUuid) {
 
 let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
 await Object.assign(workflow, { noAutoAttack: true });
+await Object.assign(workflow, { targets: [] });
 
 if (lastArg.targets.length === 1) {
     for (i = 0; i < attacks; i++) {

@@ -1,0 +1,45 @@
+{
+  "name": "user-socket-functions",
+  "title": "User Socket Functions",
+  "description": "Execute Functions on user clients",
+  "version": "0.1",
+  "author": "emfriis",
+  "authors": [
+      {
+          "name": "emfriis",
+          "email": "emilyfriis4@gmail.com",
+          "url": ""
+      }
+  ],
+  "languages": [
+      {
+          "lang": "en",
+          "name": "English",
+          "path": "languages/en.json"
+      }
+  ],
+  "scripts": [
+      "./scripts/module.js"
+  ],
+  "styles": [
+      "./styles/module.css"
+  ],
+  "packs": [
+  ],
+  "minimumCoreVersion": "9",
+  "compatibleCoreVersion": "9",
+  "compatibility": {
+    "minimum": 9,
+    "verified": 9,
+    "maximum": 9
+  },
+  "url": "",
+  "manifest": "",
+  "download": "",
+  "socket":true,
+  "dependencies": [
+    {
+        "name": "socketlib"
+    }
+  ]
+}

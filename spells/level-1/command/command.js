@@ -1,10 +1,12 @@
 // command
 
-if (args[0].tag === "OnUse" && args[0].failedSaves.length > 0) {
+const lastArg = args[args.length - 1];
 
-	let target = canvas.tokens.get(args[0].hitTargets[0].id ?? args[0].hitTargets[0]._id);
-    if (!target) MidiQOL.error("No target for Command found");
-	let targetActor = args[0].hitTargets[0].actor ?? args[0].hitTargets[0]._actor;
+if (args[0].tag === "OnUse" && args[0].failedSaveUuids.length > 0) {
+
+	const tokenOrActorTarget = await fromUuid(lastArg.failedSaveUuids[0]);
+    const tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
+    if (!tactorTarget) MidiQOL.error("No target for Command found");
 
 	let dialog = new Promise((resolve, reject) => {
 		new Dialog({
@@ -37,20 +39,37 @@ if (args[0].tag === "OnUse" && args[0].failedSaves.length > 0) {
 	});
 	commandWord = await dialog;
 	
+	const item = await fromUuid(lastArg.uuid);
 	const effectData = {
 		changes: [
-			{
-				key: "flags.midi-qol.CommandWord",
-				mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-				value: commandWord,
-				priority: 20,
-			}
+			{ key: "flags.midi-qol.commandWord", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: commandWord, priority: 20 },
+			{ key: `macro.itemMacro.GM`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "", priority: 20 },
 		],
 		disabled: false,
-		duration: { rounds: 1, turns: 1, startTime: game.time.worldTime },
-		flags: { dae: { specialDuration: ["turnEnd"] } },
-		icon: args[0].item.img,
-		label: `${args[0].item.name}`,
+		flags: { dae: { itemData: item.data, specialDuration: ["turnEnd"], macroRepeat: "startEveryTurn" }, core: { statusId: "Command" } },
+		icon: lastArg.item.img,
+		label: `${lastArg.item.name}`,
 	};
-	await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [effectData] });
+	await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
+}
+
+if (args[0] === "each") {
+	const tokenOrActor = await fromUuid(lastArg.tokenUuid);
+	const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+	let commandWord = getProperty(tactor.data.flags, "midi-qol.commandWord");
+	new Dialog({
+		title: "Command",
+		content: `
+		<form id="command-form">
+			<p>You are magically compelled to ${commandWord}.</p>
+		</form>
+		`,
+		buttons: {
+			one: {
+				icon: '<i class="fas fa-check"></i>',
+				label: "Ok",
+			},
+		},
+		default: "one",
+		}).render(true);
 }

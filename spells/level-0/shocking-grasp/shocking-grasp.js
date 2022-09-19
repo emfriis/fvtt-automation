@@ -9,8 +9,8 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "preAttackRoll") {
 		let targetUuid = lastArg.targetUuids[0];
 		let tokenOrActorTarget = await fromUuid(targetUuid);
 		let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-		let isMetal = tactorTarget.items.find(i => i.type == "equipment" && i.data.equipped && (i.data.armor.type == "heavy" || i.data.armor.type == "medium") && !i.name.toLowerCase().includes("hide"));
-		ui.notifications.warn(tactorTarget.items.find(i => i.type == "equipment" && i.data.equipped));
+		let isMetal = tactorTarget.items.find(i => i.type == "equipment" && i.data.data.equipped && (i.data.data.armor.type == "heavy" || i.data.data.armor.type == "medium") && !i.data.name.toLowerCase().includes("hide"));
+		ui.notifications.warn(tactorTarget.items.find(i => i.data.type == "equipment" && i.data.data.equipped));
 		if (isMetal) {
 			const effectData = {
 				changes: [
