@@ -119,34 +119,34 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
 if (args[0] === "on") {
     if (game.modules.get("midi-qol")?.active) {
 		let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
-		DAE.setFlag(tactor, "fearAtkHook", hookId1);
+		DAE.setFlag(tactor, `fearAtkHookG`, hookId1);
     }
     
     if (game.modules.get("more-hooks-5e")?.active) {
 		let hookId2 = Hooks.on("Actor5e.preRollAbilityTest", sightCheck);
-		DAE.setFlag(tactor, "fearAblHook", hookId2);
+		DAE.setFlag(tactor, `fearAblHookG`, hookId2);
 
 		let hookId3 = Hooks.on("Actor5e.preRollSkill", sightCheck);
-		DAE.setFlag(tactor, "fearSklHook", hookId3);
+		DAE.setFlag(tactor, `fearSklHookG`, hookId3);
     }
 }
 
 if (args[0] === "off") {
-    const flag1 = await DAE.getFlag(tactor, "fearAtkHook");
+    const flag1 = await DAE.getFlag(tactor, `fearAtkHookG`);
 	if (flag1) {
 		Hooks.off("midi-qol.preItemRoll", flag1);
-		await DAE.unsetFlag(tactor, "fearAtkHook");
+		await DAE.unsetFlag(tactor, `fearAtkHookG`);
 	}
     
-    const flag2 = await DAE.getFlag(tactor, "fearAblHook");
+    const flag2 = await DAE.getFlag(tactor, `fearAblHookG`);
 	if (flag2) {
 		Hooks.off("Actor5e.preRollAbilityTest", flag2);
-		await DAE.unsetFlag(tactor, "fearAblHook");
+		await DAE.unsetFlag(tactor, `fearAblHookG`);
 	}
     
-    const flag3 = await DAE.getFlag(tactor, "fearSklHook");
+    const flag3 = await DAE.getFlag(tactor, `fearSklHookG`);
 	if (flag3) {
 		Hooks.off("Actor5e.preRollSkill", flag3);
-		await DAE.unsetFlag(tactor, "fearSklHook");
+		await DAE.unsetFlag(tactor, `fearSklHookG`);
 	}
 }

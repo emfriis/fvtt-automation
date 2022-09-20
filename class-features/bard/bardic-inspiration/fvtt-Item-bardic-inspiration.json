@@ -4,7 +4,7 @@
   "img": "icons/magic/symbols/clover-luck-white-green.webp",
   "data": {
     "description": {
-      "value": "<p>You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time.</p>\n<p>You can use this feature a number of times equal to your Charisma modifier (a minimum of once).</p>\n<p>You regain any expended uses when you finish a long rest.</p>\n<p>Your Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level.</p>\n<h3><em>**Midi-qol note: The Other Formula is removed as it is not  required.<br /><br /></em><strong>You must ensure your bard has the dnd1.6 bard class not the older 1.5 version or scaling won't work.</strong></h3>",
+      "value": "<p>You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time.</p>\n<p>You can use this feature a number of times equal to your Charisma modifier (a minimum of once).</p>\n<p>You regain any expended uses when you finish a long rest.</p>\n<p>Your Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level.</p>",
       "chat": "",
       "unidentified": ""
     },
@@ -231,7 +231,7 @@
       "selfEffect": false
     },
     "scene-packer": {
-      "sourceId": "Item.P0cxHQ8enPbL8nd4",
+      "sourceId": "Item.9VPbvYIweLsvYM6S",
       "hash": "c71820d219a2e34c5def824fa9bece1a81c060ba"
     },
     "rest-recovery": {
@@ -242,7 +242,7 @@
       }
     },
     "exportSource": {
-      "world": "Curse of Strahd",
+      "world": "dnd5e",
       "system": "dnd5e",
       "coreVersion": "9.280",
       "systemVersion": "1.6.3"

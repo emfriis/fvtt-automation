@@ -162,21 +162,21 @@ if (args[0] === "each" && lastArg.efData.disabled === false) {
 }
 
 if (args[0] === "off") {
-    const flag1 = await DAE.getFlag(tactor, "fearAtkHook");
+    const flag1 = await DAE.getFlag(tactor, "fearAtkHookCF");
 	if (flag1) {
 		Hooks.off("midi-qol.preItemRoll", flag1);
-		await DAE.unsetFlag(tactor, "fearAtkHook");
+		await DAE.unsetFlag(tactor, "fearAtkHookCF");
 	}
     
-    const flag2 = await DAE.getFlag(tactor, "fearAblHook");
+    const flag2 = await DAE.getFlag(tactor, "fearAblHookCF");
 	if (flag2) {
 		Hooks.off("Actor5e.preRollAbilityTest", flag2);
-		await DAE.unsetFlag(tactor, "fearAblHook");
+		await DAE.unsetFlag(tactor, "fearAblHookCF");
 	}
     
     const flag3 = await DAE.getFlag(tactor, "fearSklHook");
 	if (flag3) {
 		Hooks.off("Actor5e.preRollSkill", flag3);
-		await DAE.unsetFlag(tactor, "fearSklHook");
+		await DAE.unsetFlag(tactor, "fearSklHookCF");
 	}
 }

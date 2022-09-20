@@ -71,5 +71,5 @@ if (args[0] === "each") {
 			},
 		},
 		default: "one",
-		}).render(true);
+	}).render(true);
 }

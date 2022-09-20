@@ -192,15 +192,15 @@ if (lastArg.tag === "DamageBonus") {
 if (args[0] === "on" && token !== sourceToken) {
     if (game.modules.get("midi-qol")?.active) {
     let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
-    DAE.setFlag(tactor, "fearAtkHook", hookId1);
+    DAE.setFlag(tactor, "fearAtkHookWS", hookId1);
     }
     
     if (game.modules.get("more-hooks-5e")?.active) {
     let hookId2 = Hooks.on("Actor5e.preRollAbilityTest", sightCheck);
-    DAE.setFlag(tactor, "fearAblHook", hookId2);
+    DAE.setFlag(tactor, "fearAblHookWS", hookId2);
 
     let hookId3 = Hooks.on("Actor5e.preRollSkill", sightCheck);
-    DAE.setFlag(tactor, "fearSklHook", hookId3);
+    DAE.setFlag(tactor, "fearSklHookWS", hookId3);
     }
 }
 
@@ -212,21 +212,21 @@ if (args[0] === "each" && lastArg.efData.disabled === false && token !== sourceT
 }
 
 if (args[0] === "off" && token !== sourceToken) {
-    const flag1 = await DAE.getFlag(tactor, "fearAtkHook");
+    const flag1 = await DAE.getFlag(tactor, "fearAtkHookWS");
 	if (flag1) {
 		Hooks.off("midi-qol.preItemRoll", flag1);
-		await DAE.unsetFlag(tactor, "fearAtkHook");
+		await DAE.unsetFlag(tactor, "fearAtkHookWS");
 	}
     
-    const flag2 = await DAE.getFlag(tactor, "fearAblHook");
+    const flag2 = await DAE.getFlag(tactor, "fearAblHookWS");
 	if (flag2) {
 		Hooks.off("Actor5e.preRollAbilityTest", flag2);
-		await DAE.unsetFlag(tactor, "fearAblHook");
+		await DAE.unsetFlag(tactor, "fearAblHookWS");
 	}
     
-    const flag3 = await DAE.getFlag(tactor, "fearSklHook");
+    const flag3 = await DAE.getFlag(tactor, "fearSklHookWS");
 	if (flag3) {
 		Hooks.off("Actor5e.preRollSkill", flag3);
-		await DAE.unsetFlag(tactor, "fearSklHook");
+		await DAE.unsetFlag(tactor, "fearSklHookWS");
 	}
 }
