@@ -5,7 +5,7 @@ const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const sourceToken = canvas.tokens.get(args[1]);
-const item = await fromUuid(lastArg.uuid);
+const sourceActor = sourceToken?.actor ?? sourceToken?._actor;
 
 // canSee by tposney via midi-qol utils.js
 async function canSee(tokenEntity, targetEntity) {
@@ -90,7 +90,7 @@ async function sightCheck(actorOrWorkflow, rollData) {
     }
 }
 
-if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPass === "preItemRoll") {
+if (args[0].tag === "OnUse" && args[0].macroPass === "preItemRoll") {
 	let dialog = new Promise(async (resolve, reject) => {
         let errorMessage;
         new Dialog({
@@ -98,14 +98,12 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
             content: `Apply Charmed or Frightened?`,
             buttons: {
 				charmed: {
-					icon: '<i class="fas fa-check"></i>',
 					label: "Charmed",
-					callback: () => {resolve("charmed")}
+					callback: () => {resolve(true)}
 				},
 				frightened: {
-					icon: '<i class="fas fa-times"></i>',
 					label: "Frightened",
-					callback: () => {resolve(frightened)}
+					callback: () => {resolve(false)}
 				}
 			},
             close: async (html) => {
@@ -114,16 +112,30 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
             default: "charmed"
         }).render(true);
     });
-    await dialog;
-	if (dialog === "charmed") {
-
-	} else if (dialog === "frightend") {
-
+    let efCharmed = await dialog;
+	if (efCharmed) {
+		let effectData = {
+            label: "Fey Presence Charm",
+            icon: "icons/magic/unholy/orb-hands-pink.webp",
+            origin: lastArg.uuid,
+            flags: { dae: { specialDuration: ["turnEnd"] }}, 
+            disabled: false
+        };
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+	} else {
+		let effectData = {
+            label: "Fey Presence Frighten",
+            icon: "icons/magic/unholy/orb-hands-pink.webp",
+            origin: lastArg.uuid,
+            flags: { dae: { specialDuration: ["turnEnd"] }}, 
+            disabled: false
+        };
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
 	}
 }
 
 if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPass === "preSave") {
-	if (1) {
+	if (tactor.effects.find(e => e.data.label === "Fey Presence Frighten")) {
 		const resist = ["Brave", "Fear Resilience"];
 		for (let i = 0; i < lastArg.targetUuids.length; i++) {
 			let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
@@ -147,7 +159,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
 				await tactorTarget.createEmbeddedDocuments("ActiveEffect", [effectData]);
 			}
 		}
-	} else if (2) {
+	} else if (tactor.effects.find(e => e.data.label === "Fey Presence Charm")) {
 		if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPass === "preSave") {
 			const resist = ["Fey Ancestry", "Duergar Reslience", "Charm Resilience"];
 			for (let i = 0; i < lastArg.targetUuids.length; i++) {
@@ -176,37 +188,61 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
 	}
 }
 
-if (args[0] === "on" && tactor.effects.find(i => i.data.label = "Frightened")) {
-    if (game.modules.get("midi-qol")?.active) {
-		let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
-		DAE.setFlag(tactor, "fearAtkHook", hookId1);
-    }
-    
-    if (game.modules.get("more-hooks-5e")?.active) {
-		let hookId2 = Hooks.on("Actor5e.preRollAbilityTest", sightCheck);
-		DAE.setFlag(tactor, "fearAblHook", hookId2);
+if (args[0] === "on") {
+	let fear = sourceActor.effects.find(i => i.data.label === "Fey Presence Frighten");
+	let charm = sourceActor.effects.find(i => i.data.label === "Fey Presence Charm");
+	if (fear) {
+		let ef = tactor.effects.find(i => i.data === lastArg.efData);
+		if (ef) ef.update({ label: "Frightened", icon: "icons/svg/terror.svg", flags: { core: { statusId: "Frightened" } } });
 
-		let hookId3 = Hooks.on("Actor5e.preRollSkill", sightCheck);
-		DAE.setFlag(tactor, "fearSklHook", hookId3);
-    }
+		if (game.modules.get("midi-qol")?.active) {
+			let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
+			DAE.setFlag(tactor, "fearAtkHookFP", hookId1);
+		}
+		
+		if (game.modules.get("more-hooks-5e")?.active) {
+			let hookId2 = Hooks.on("Actor5e.preRollAbilityTest", sightCheck);
+			DAE.setFlag(tactor, "fearAblHookFP", hookId2);
+	
+			let hookId3 = Hooks.on("Actor5e.preRollSkill", sightCheck);
+			DAE.setFlag(tactor, "fearSklHookFP", hookId3);
+		}
+	} else if (charm) {
+		let ef = tactor.effects.find(i => i.data === lastArg.efData);
+		const changes = [
+			{
+				key: "StatusEffect",
+				mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
+				priority: 0,
+				value: "Convenient Effect: Charmed"
+			},
+			{
+				key: "flags.midi-qol.charm",
+				mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+				priority: 0,
+				value: `${args[1]}`
+			}
+		]
+		if (ef) ef.update({ label: "Charmed", icon: "modules/dfreds-convenient-effects/images/charmed.svg", flags: { core: { statusId: "Convenient Effect: Charmed" } }, changes: changes });
+	}
 }
 
 if (args[0] === "off") {
-    const flag1 = await DAE.getFlag(tactor, "fearAtkHook");
+    const flag1 = await DAE.getFlag(tactor, "fearAtkHookFP");
 	if (flag1) {
 		Hooks.off("midi-qol.preItemRoll", flag1);
-		await DAE.unsetFlag(tactor, "fearAtkHook");
+		await DAE.unsetFlag(tactor, "fearAtkHookFP");
 	}
     
-    const flag2 = await DAE.getFlag(tactor, "fearAblHook");
+    const flag2 = await DAE.getFlag(tactor, "fearAblHookFP");
 	if (flag2) {
 		Hooks.off("Actor5e.preRollAbilityTest", flag2);
-		await DAE.unsetFlag(tactor, "fearAblHook");
+		await DAE.unsetFlag(tactor, "fearAblHookFP");
 	}
     
-    const flag3 = await DAE.getFlag(tactor, "fearSklHook");
+    const flag3 = await DAE.getFlag(tactor, "fearSklHookFP");
 	if (flag3) {
 		Hooks.off("Actor5e.preRollSkill", flag3);
-		await DAE.unsetFlag(tactor, "fearSklHook");
+		await DAE.unsetFlag(tactor, "fearSklHookFP");
 	}
 }
