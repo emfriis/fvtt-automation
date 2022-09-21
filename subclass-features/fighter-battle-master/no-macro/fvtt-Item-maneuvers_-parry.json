@@ -25,9 +25,9 @@
       "type": "self"
     },
     "range": {
-      "value": 15,
+      "value": null,
       "long": null,
-      "units": "ft"
+      "units": "self"
     },
     "uses": {
       "value": null,
@@ -40,7 +40,7 @@
       "amount": 1
     },
     "ability": "dex",
-    "actionType": "other",
+    "actionType": "",
     "attackBonus": 0,
     "chatFlavor": "",
     "critical": {
@@ -51,7 +51,7 @@
       "parts": [],
       "versatile": ""
     },
-    "formula": "@scale.battle-master.combat-superiority-die",
+    "formula": "",
     "save": {
       "ability": "",
       "dc": null,
@@ -71,13 +71,13 @@
         {
           "key": "flags.midi-qol.DR.mwak",
           "mode": 2,
-          "value": "@scale.battle-master.combat-superiority-die",
+          "value": "@scale.battle-master.combat-superiority-die + @abilities.dex.mod",
           "priority": "20"
         },
         {
           "key": "flags.midi-qol.DR.msak",
           "mode": 2,
-          "value": "@scale.battle-master.combat-superiority-die",
+          "value": "@scale.battle-master.combat-superiority-die + @abilities.dex.mod",
           "priority": "20"
         }
       ],
@@ -91,7 +91,7 @@
       "transfer": false,
       "flags": {
         "dae": {
-          "selfTarget": true,
+          "selfTarget": false,
           "stackable": "none",
           "durationExpression": "",
           "macroRepeat": "none",
@@ -172,10 +172,11 @@
       "toggleEffect": false
     },
     "scene-packer": {
-      "sourceId": "Item.bMp4k2UHUL7zrIss"
+      "sourceId": "Item.3xo7Irc3g7YYkU0X",
+      "hash": "424757134f9641d87a8a5ea1f78da5c0e04f1c48"
     },
     "exportSource": {
-      "world": "Curse of Strahd",
+      "world": "dnd5e",
       "system": "dnd5e",
       "coreVersion": "9.280",
       "systemVersion": "1.6.3"

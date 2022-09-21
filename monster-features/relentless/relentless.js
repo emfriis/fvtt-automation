@@ -3,7 +3,7 @@
 Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
     let attackWorkflow = workflow?.damageList?.map((i) => ({ tokenUuid: i?.tokenUuid, appliedDamage: i?.appliedDamage, newHP: i?.newHP, oldHP: i?.oldHP }));
     if (!attackWorkflow) return;
-    for (let a = 0; a < attackWorkflow.length; a++) {
+    for (let a = 0; a < attackWorkflow?.length; a++) {
         let tokenOrActor = await fromUuid(attackWorkflow[a]?.tokenUuid);
         let tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
         let featItem = await tactor.items.find(i => i.name === "Relentless");

@@ -1,0 +1,3 @@
+Foundry VTT SRD uses the scale value "@scale.bard.inspiration" which returns a non rollable value i.e., "d8"
+
+DDB Importer uses the scale value "@scale.bard.bardic-inspiration" which returns a rollable value i.e., "1d8"

@@ -2,7 +2,7 @@
 
 try {
 
-	if (args[0].tag !== "DamageBonus" || !["mwak", "rwak"].includes(args[0].itemData.data.actionType)|| args[0].hitTargetUuids.length < 1) return {};
+	if (args[0].tag !== "DamageBonus" || !["mwak", "rwak"].includes(args[0].itemData.data.actionType) || args[0].hitTargets.length < 1) return;
 	const tokenOrActor = await fromUuid(args[0].tokenUuid);
 	const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 	const tokenOrActorTarget = await fromUuid(args[0].hitTargetUuids[0]);
@@ -45,12 +45,12 @@ try {
 		dieCount = Object.values(tactor.data.data.resources).find(r => r.label === "Combat Superiority");
 		if (dieCount.value < 1) {
 			ui.notifications.warn("Trip Attack: No Superiority Die Remaining");
-			return {};
+			return;
 		} else {
 			await tactor.update({ 'data.resources.primary.value' : dieCount.value - 1 });
 		}
 		
-        let canProne = tactorTarget.data.data.traits.size !== "grg" && tactorTarget.data.data.traits.size !== "huge";
+		let canProne = tactorTarget.data.data.traits.size !== "grg" && tactorTarget.data.data.traits.size !== "huge";
 		if (canProne) {
 			const rollData = tactor.getRollData();
 			const strDC = 8 + rollData.attributes.prof + rollData.abilities.str.mod;
@@ -74,7 +74,7 @@ try {
 		
 		const diceMult = args[0].isCritical ? 2: 1;
 		const damageType = args[0].item.data.damage.parts[0][1];
-		
+
 		return {damageRoll: `${diceMult}${die}[${damageType}]`, flavor: "Trip Attack"};
 	}
 } catch(err) {
