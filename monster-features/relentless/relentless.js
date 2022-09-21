@@ -7,7 +7,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
         let tokenOrActor = await fromUuid(attackWorkflow[a]?.tokenUuid);
         let tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
         let featItem = await tactor.items.find(i => i.name === "Relentless");
-        let damageThreshold = getProperty(tactor.data.flags, "midi-qol.relentlessThreshold");
+        let damageThreshold = Math.ceil(tactor.data.data.details?.cr * 2 + 6);
         if (!featItem || !featItem.data.data.uses.value || featItem.data.data.uses.value === 0 || !damageThreshold || attackWorkflow[a]?.oldHP < 1) return;
         if (attackWorkflow[a]?.appliedDamage > 0 && attackWorkflow[a]?.newHP < 1 && attackWorkflow[a]?.appliedDamage <= damageThreshold) {
             tactor.update({"data.attributes.hp.value" : 1});
