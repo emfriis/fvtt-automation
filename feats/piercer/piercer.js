@@ -10,6 +10,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preDamageRoll") {
     let effectData = [{
         changes: [
             { key: `flags.dnd5e.meleeCriticalDamageDice`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1, priority: 20 },
+            { key: `flags.dnd5e.rangedCriticalDamageDice`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 1, priority: 20 },
         ],
         origin: args[0].uuid,
         flags: {
