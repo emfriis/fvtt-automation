@@ -74,16 +74,15 @@ for (let target of targetList) {
                 let mutateCallbacks = "";
                 await warpgate.mutate(target, updates, mutateCallbacks, { permanent: true });
             } else {   
-				let condition = "Frightened";
                 console.warn(`=>`, `Target Processed:`, target.name, `| CR:`, mon_cr, `| DC:`, DC, `| Save:`, save.total, `[Fail]`, `| Result: ${condition}`);
                 let effectData = {
-				label: condition,
-				icon: "icons/svg/terror.svg",
-				origin: args[0].uuid,
-				disabled: false,
-				flags: { dae: { specialDuration: ["turnEndSource"] } },
-				changes: [{ key: `StatusEffect`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Frightened", priority: 20 }]
-			};
+                    label: "Turn Undead",
+                    icon: "icons/svg/stoned.svg",
+                    origin: args[0].uuid,
+                    disabled: false,
+                    duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },
+                    flags: { dae: { specialDuration: ["isDamaged"] } }
+			    };
                 let effect = target.actor.effects.find(i => i.data.label === condition);
                 if (!effect) {
                     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.actor.uuid, effects: [effectData] });
