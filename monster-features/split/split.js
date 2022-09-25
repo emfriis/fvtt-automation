@@ -28,7 +28,7 @@ let newHeight = Math.max(1, token.data.height - 1);
 let newWidth = Math.max(1, token.data.width - 1);
 let updates = {
     token: { "height": Math.max(1, token.data.height - 1), "width": Math.max(1, token.data.width - 1) },
-    actor: { "data.attributes.hp.value": Math.floor(hp / 2), "data.attributes.hp.max": Math.floor(hp / 2), "data.traits.size": newSize },
+    actor: { "data.attributes.hp.max": Math.floor(hp / 2), "data.attributes.hp.value": Math.floor(hp / 2), "data.traits.size": newSize },
 };
 let effectData = {
     label: "Split Size",
@@ -44,13 +44,13 @@ let effectData = {
         {
             key: "ATL.height",
             mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-            priority: 99 - newHeight,
+            priority: 99 - newWidth,
             value: newHeight,
         },
         {
             key: "ATL.scale",
             mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-            priority: 99 - newHeight,
+            priority: 99 - newWidth,
             value: newScale,
         },
     ]
