@@ -1,7 +1,8 @@
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 const lastArg = args[args.length - 1];
 const token = await fromUuid(lastArg.tokenUuid);
-const tactor = token.actor ? token.actor : token;
+const tactor = token?.actor ? token?.actor : token;
+if (!token || !tactor) return;
 
 let size = tactor.data.data.traits.size;
 let hp = tactor.data.data.attributes.hp.value;
@@ -27,8 +28,9 @@ let updates = {
     actor: { "data.attributes.hp.value": Math.floor(hp / 2), "data.attributes.hp.max": Math.floor(hp / 2), "data.traits.size": newSize },
     token: { "height": Math.max(1, token.data.height - 1), "width": Math.max(1, token.data.width - 1) },
 };
-let shallowTokenCopy = { ...token };
 let tactorName = tactor.name;
+let center = { x: token.data.x, y: token.data.y };
+console.warn(center);
 await token.delete();
-await wait(250);
-await warpgate.spawnAt({ x: shallowTokenCopy._object.data.x, y: shallowTokenCopy._object.data.y}, tactorName, updates, {}, { permanent: true, duplicates: 2 });
+await wait(500);
+await warpgate.spawnAt(center, tactorName, updates, {}, { permanent: true, duplicates: 2 });
