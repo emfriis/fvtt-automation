@@ -10,7 +10,8 @@ const itemCopy = duplicate(itemSource);
 setProperty(itemCopy, "flags.itemacro.command", "");
 setProperty(itemCopy, "flags.itemacro.macro", {});
 setProperty(itemCopy, "flags.midi-qol.onUseMacroName", "");
-setProperty(itemCopy, "data.preparation.mode", "atwill");
+//setProperty(itemCopy, "data.preparation.mode", "atwill");
+setProperty(itemCopy, "type", "feat");
 const attackItem = new CONFIG.Item.documentClass(itemCopy, { parent: tactor });
 
 const attacks = 1 + Number(lastArg.spellLevel);

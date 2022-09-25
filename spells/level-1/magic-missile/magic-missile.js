@@ -10,7 +10,8 @@ const itemCopy = duplicate(itemSource);
 setProperty(itemCopy, "flags.itemacro.command", "");
 setProperty(itemCopy, "flags.itemacro.macro", {});
 setProperty(itemCopy, "flags.midi-qol.onUseMacroName", "");
-setProperty(itemCopy, "data.preparation.mode", "atwill");
+//setProperty(itemCopy, "data.preparation.mode", "atwill");
+setProperty(itemCopy, "type", "feat");
 const attackItem = new CONFIG.Item.documentClass(itemCopy, { parent: tactor });
 
 const attacks = 2 + Number(lastArg.spellLevel);
@@ -83,3 +84,4 @@ if (lastArg.targets.length === 1) {
 
 let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
 await Object.assign(workflow, { shouldRollDamage: false });
+await Object.assign(workflow, { targets: [] });
