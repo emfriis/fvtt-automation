@@ -1,6 +1,4 @@
-// cause fear
-// requires DAE, Itemacro, Midi-QOL, More Hooks D&D5e, DFreds CE, optionally CV, Levels
-// almost RAW, macro will overwrite other sources of disadvantage on skill and ability checks
+// fear ray
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 const lastArg = args[args.length - 1];
@@ -9,14 +7,21 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const sourceToken = canvas.tokens.get(args[1]);
 
-async function attemptRemoval(targetToken, condition, item, getResist) {
-    const caster = item.parent;
+async function attemptRemoval(targetToken, condition, getResist) {
     const saveDc = caster.data.data.attributes.spelldc;
     const removalCheck = false;
     const ability = "wis";
     const type = removalCheck ? "abil" : "save"; // can be "abil", "save", or "skill"
     const targetUuid = targetToken.actor.uuid;
-    const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
+    if (token && sourceToken) { 
+        let canSeeSource = false;
+        if (game.modules.get("conditional-visibility")?.active && game.modules.get("levels")?.active && _levels) { 
+            canSeeSource = game.modules.get('conditional-visibility')?.api?.canSee(token, sourceToken) && _levels?.advancedLosTestVisibility(token, sourceToken);
+        }
+    }
+    const rollOptions = { chatMessage: true, fastForward: true };
+    if (getResist) rollOptions.advantage = true;
+    if (canSeeSource) rollOptions.disadvantage = true;
     const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: type, targetUuid: targetUuid, ability: ability, options: rollOptions });
     if (game.dice3d) game.dice3d.showForRoll(roll);
 
@@ -34,7 +39,9 @@ async function sightCheck(actorOrWorkflow, rollData) {
         let canSeeSource = false;
         if (game.modules.get("conditional-visibility")?.active && game.modules.get("levels")?.active && _levels) { 
             canSeeSource = game.modules.get('conditional-visibility')?.api?.canSee(token, sourceToken) && _levels?.advancedLosTestVisibility(token, sourceToken);
-        } 
+        } else {
+            canSeeSource = canSee(token, sourceToken);
+        }
         if (canSeeSource) {
             if (rollData) {
                 Object.assign(rollData, { disadvantage: true });
@@ -82,53 +89,42 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
 if (args[0] === "on") {
     if (game.modules.get("midi-qol")?.active) {
     let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
-    DAE.setFlag(tactor, "fearAtkHookF", hookId1);
+    DAE.setFlag(tactor, "fearAtkHookFR", hookId1);
     }
     
     if (game.modules.get("more-hooks-5e")?.active) {
     let hookId2 = Hooks.on("Actor5e.preRollAbilityTest", sightCheck);
-    DAE.setFlag(tactor, "fearAblHookF", hookId2);
+    DAE.setFlag(tactor, "fearAblHookFR", hookId2);
 
     let hookId3 = Hooks.on("Actor5e.preRollSkill", sightCheck);
-    DAE.setFlag(tactor, "fearSklHookF", hookId3);
+    DAE.setFlag(tactor, "fearSklHookFR", hookId3);
     }
 }
 
 if (args[0] === "each" && lastArg.efData.disabled === false) {
-    if (token && sourceToken) { 
-        let canSeeSource = false;
-        if (game.modules.get("conditional-visibility")?.active && game.modules.get("levels")?.active && _levels) { 
-            canSeeSource = game.modules.get('conditional-visibility')?.api?.canSee(token, sourceToken) && _levels?.advancedLosTestVisibility(token, sourceToken);
-        } else {
-            canSeeSource = canSee(token, sourceToken);
-        }
-        if (!canSeeSource) {
-            const resist = ["Brave", "Fear Resilience", "Magic Resistance"];
-            const getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
-            const targetToken = await fromUuid(lastArg.tokenUuid);
-            const condition = "Frightened";
-            const item = await fromUuid(lastArg.efData.origin);
-            attemptRemoval(targetToken, condition, item, getResist);
-        }
-    }
+    const resist = ["Brave", "Fear Resilience"];
+    const getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
+    const targetToken = await fromUuid(lastArg.tokenUuid);
+    const condition = "Frightened";
+    attemptRemoval(targetToken, condition, getResist);
 }
 
 if (args[0] === "off") {
-    const flag1 = await DAE.getFlag(tactor, "fearAtkHookF");
+    const flag1 = await DAE.getFlag(tactor, "fearAtkHookFR");
 	if (flag1) {
 		Hooks.off("midi-qol.preItemRoll", flag1);
-		await DAE.unsetFlag(tactor, "fearAtkHookF");
+		await DAE.unsetFlag(tactor, "fearAtkHookFR");
 	}
     
-    const flag2 = await DAE.getFlag(tactor, "fearAblHookF");
+    const flag2 = await DAE.getFlag(tactor, "fearAblHookFR");
 	if (flag2) {
 		Hooks.off("Actor5e.preRollAbilityTest", flag2);
-		await DAE.unsetFlag(tactor, "fearAblHookF");
+		await DAE.unsetFlag(tactor, "fearAblHookFR");
 	}
     
-    const flag3 = await DAE.getFlag(tactor, "fearSklHookF");
+    const flag3 = await DAE.getFlag(tactor, "fearSklHookFR");
 	if (flag3) {
 		Hooks.off("Actor5e.preRollSkill", flag3);
-		await DAE.unsetFlag(tactor, "fearSklHookF");
+		await DAE.unsetFlag(tactor, "fearSklHookFR");
 	}
 }

@@ -28,71 +28,13 @@ async function attemptRemoval(targetToken, condition, item, getResist) {
     }
 }
 
-// canSee by tposney via midi-qol utils.js
-async function canSee(tokenEntity, targetEntity) {
-	//TODO - requires rewrite for v10
-	//@ts-ignore
-	let target = targetEntity instanceof TokenDocument ? targetEntity.object : targetEntity;
-	//@ts-ignore
-	let token = tokenEntity instanceof TokenDocument ? tokenEntity.object : tokenEntity;
-	if (!token || !target)
-		return true;
-	const targetPoint = target.center;
-	const visionSource = token.vision;
-	if (!token.vision.active)
-		return true; //TODO work out what to do with tokens with no vision
-	const lightSources = canvas?.lighting?.sources;
-	// Determine the array of offset points to test
-	const t = Math.min(target.w, target.h) / 4;
-	const offsets = t > 0 ? [[0, 0], [-t, -t], [-t, t], [t, t], [t, -t], [-t, 0], [t, 0], [0, -t], [0, t]] : [[0, 0]];
-	const points = offsets.map(o => new PIXI.Point(targetPoint.x + o[0], targetPoint.y + o[1]));
-	// If the point is entirely inside the buffer region, it may be hidden from view
-	// if (!target._inBuffer && !points.some(p => canvas?.dimensions?.sceneRect.contains(p.x, p.y))) return false;
-	// Check each point for one which provides both LOS and FOV membership
-	const returnValue = points.some(p => {
-		let hasLOS = false;
-		let hasFOV = false;
-		let requireFOV = !canvas?.lighting?.globalLight;
-		if (!hasLOS || (!hasFOV && requireFOV)) { // Do we need to test for LOS?
-			if (visionSource?.los?.contains(p.x, p.y)) {
-				hasLOS = true;
-				if (!hasFOV && requireFOV) { // Do we need to test for FOV?
-					if (visionSource?.fov?.contains(p.x, p.y))
-						hasFOV = true;
-				}
-			}
-		}
-		if (hasLOS && (!requireFOV || hasFOV)) { // Did we satisfy all required conditions?
-			return true;
-		}
-		// Check light sources
-		for (let source of lightSources?.values() ?? []) {
-			if (!source.active)
-				continue;
-			//@ts-ignore
-			if (source.containsPoint(p)) {
-				//@ts-ignore
-				if (source.data.vision)
-					hasLOS = true;
-				hasFOV = true;
-			}
-			if (hasLOS && (!requireFOV || hasFOV))
-				return true;
-		}
-		return false;
-	});
-	return returnValue;
-}
-
 async function sightCheck(actorOrWorkflow, rollData) {
     if (actorOrWorkflow.actor !== tactor && actorOrWorkflow !== tactor) return;
     if (token && sourceToken) { 
         let canSeeSource = false;
         if (game.modules.get("conditional-visibility")?.active && game.modules.get("levels")?.active && _levels) { 
             canSeeSource = game.modules.get('conditional-visibility')?.api?.canSee(token, sourceToken) && _levels?.advancedLosTestVisibility(token, sourceToken);
-        } else {
-            canSeeSource = canSee(token, sourceToken);
-        }
+        } 
         if (canSeeSource) {
             if (rollData) {
                 Object.assign(rollData, { disadvantage: true });
@@ -140,15 +82,15 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
 if (args[0] === "on") {
     if (game.modules.get("midi-qol")?.active) {
     let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
-    DAE.setFlag(tactor, "fearAtkHook", hookId1);
+    DAE.setFlag(tactor, "fearAtkHookCF", hookId1);
     }
     
     if (game.modules.get("more-hooks-5e")?.active) {
     let hookId2 = Hooks.on("Actor5e.preRollAbilityTest", sightCheck);
-    DAE.setFlag(tactor, "fearAblHook", hookId2);
+    DAE.setFlag(tactor, "fearAblHookCF", hookId2);
 
     let hookId3 = Hooks.on("Actor5e.preRollSkill", sightCheck);
-    DAE.setFlag(tactor, "fearSklHook", hookId3);
+    DAE.setFlag(tactor, "fearSklHookCF", hookId3);
     }
 }
 
@@ -174,7 +116,7 @@ if (args[0] === "off") {
 		await DAE.unsetFlag(tactor, "fearAblHookCF");
 	}
     
-    const flag3 = await DAE.getFlag(tactor, "fearSklHook");
+    const flag3 = await DAE.getFlag(tactor, "fearSklHookCF");
 	if (flag3) {
 		Hooks.off("Actor5e.preRollSkill", flag3);
 		await DAE.unsetFlag(tactor, "fearSklHookCF");

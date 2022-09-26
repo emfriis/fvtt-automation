@@ -1,10 +1,7 @@
 const lastArg = args[args.length - 1];
 
-// ItemMacro beforeSave 
-
-// beforeSave on save type save
 if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPass === "preSave") {
-    const resist = [];
+    const resist = ["Duergar Resilience", "Paralysis Resilience"];
     for (let i = 0; i < lastArg.targetUuids.length; i++) {
         let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
         let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
@@ -29,38 +26,10 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
     }
 }
 
-// beforeSave on attack type save
-if (args[0].tag === "OnUse" && lastArg.hitTargetUuids.length > 0 && args[0].macroPass === "preSave") {
-    const resist = [];
-    for (let i = 0; i < lastArg.hitTargetUuids.length; i++) {
-        let tokenOrActorTarget = await fromUuid(lastArg.hitTargetUuids[i]);
-        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-        let getResist = tactorTarget.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));
-        if (getResist) {
-            const effectData = {
-                changes: [
-                    {
-                        key: "flags.midi-qol.advantage.ability.save.all",
-                        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                        value: 1,
-                        priority: 20,
-                    }
-                ],
-                disabled: false,
-                flags: { dae: { specialDuration: ["isSave"] } },
-                icon: args[0].item.img,
-                label: `${args[0].item.name} Save Advantage`,
-            };
-            await tactorTarget.createEmbeddedDocuments("ActiveEffect", [effectData]);
-        }
-    }
-}
-
-// save/check on turn start/end
 async function attemptRemoval(targetToken, condition, getResist) {
-    const saveDc = 0;
+    const saveDc = 13;
     const removalCheck = false;
-    const ability = "";
+    const ability = "con";
     const type = removalCheck ? "abil" : "save"; // can be "abil", "save", or "skill"
     const targetUuid = targetToken.actor.uuid;
     const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
@@ -75,29 +44,9 @@ async function attemptRemoval(targetToken, condition, getResist) {
 }
 
 if (args[0] === "each" && lastArg.efData.disabled === false) {
-    const resist = [];
+    const resist = ["Duergar Resilience", "Paralysis Resilience"];
     const getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
     const targetToken = await fromUuid(lastArg.tokenUuid);
-    const condition = "";
-    attemptRemoval(targetToken, condition, item, getResist);
+    const condition = "Paralyzed";
+    attemptRemoval(targetToken, condition, getResist);
 }
-
-// Add magic resistance if spell on end of turn: , "Magic Resistance"
-
-// frightened: ["Brave", "Fear Resilience"]
-// CAUSE FEAR, WRATHFUL SMITE, FEAR, MENACING ATTACK
-
-// charmed ["Fey Ancestry", "Duergar Reslience", "Charm Resilience"]
-// CHARM PERSON, HYPNOTIC PATTERN
-
-// poisoned ["Dwarven Resilience", "Duergar Resilience", "Stout Resilience", "Poison Resilience"]
-// POISON BITE, RAY OF SICKNESS
-
-// paralyzed ["Duergar Resilience", "Paralysis Resilience"]
-// HOLD PERSON, HOLD MONSTER
-
-// land's stride ["Land's Stride"]]
-// ENTANGLE
-
-// prone ["Sure-Footed", "Prone Resilience"]
-// POUNCE, RAM, BITE

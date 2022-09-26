@@ -42,71 +42,13 @@ async function attemptRemoval(targetToken, condition, item) {
     }
 }
 
-// canSee by tposney via midi-qol utils.js
-async function canSee(tokenEntity, targetEntity) {
-	//TODO - requires rewrite for v10
-	//@ts-ignore
-	let target = targetEntity instanceof TokenDocument ? targetEntity.object : targetEntity;
-	//@ts-ignore
-	let token = tokenEntity instanceof TokenDocument ? tokenEntity.object : tokenEntity;
-	if (!token || !target)
-		return true;
-	const targetPoint = target.center;
-	const visionSource = token.vision;
-	if (!token.vision.active)
-		return true; //TODO work out what to do with tokens with no vision
-	const lightSources = canvas?.lighting?.sources;
-	// Determine the array of offset points to test
-	const t = Math.min(target.w, target.h) / 4;
-	const offsets = t > 0 ? [[0, 0], [-t, -t], [-t, t], [t, t], [t, -t], [-t, 0], [t, 0], [0, -t], [0, t]] : [[0, 0]];
-	const points = offsets.map(o => new PIXI.Point(targetPoint.x + o[0], targetPoint.y + o[1]));
-	// If the point is entirely inside the buffer region, it may be hidden from view
-	// if (!target._inBuffer && !points.some(p => canvas?.dimensions?.sceneRect.contains(p.x, p.y))) return false;
-	// Check each point for one which provides both LOS and FOV membership
-	const returnValue = points.some(p => {
-		let hasLOS = false;
-		let hasFOV = false;
-		let requireFOV = !canvas?.lighting?.globalLight;
-		if (!hasLOS || (!hasFOV && requireFOV)) { // Do we need to test for LOS?
-			if (visionSource?.los?.contains(p.x, p.y)) {
-				hasLOS = true;
-				if (!hasFOV && requireFOV) { // Do we need to test for FOV?
-					if (visionSource?.fov?.contains(p.x, p.y))
-						hasFOV = true;
-				}
-			}
-		}
-		if (hasLOS && (!requireFOV || hasFOV)) { // Did we satisfy all required conditions?
-			return true;
-		}
-		// Check light sources
-		for (let source of lightSources?.values() ?? []) {
-			if (!source.active)
-				continue;
-			//@ts-ignore
-			if (source.containsPoint(p)) {
-				//@ts-ignore
-				if (source.data.vision)
-					hasLOS = true;
-				hasFOV = true;
-			}
-			if (hasLOS && (!requireFOV || hasFOV))
-				return true;
-		}
-		return false;
-	});
-	return returnValue;
-}
-
 async function sightCheck(actorOrWorkflow, rollData) {
     if (actorOrWorkflow.actor !== tactor && actorOrWorkflow !== tactor) return;
     if (token && sourceToken) { 
         let canSeeSource = false;
         if (game.modules.get("conditional-visibility")?.active && game.modules.get("levels")?.active && _levels) { 
             canSeeSource = game.modules.get('conditional-visibility')?.api?.canSee(token, sourceToken) && _levels?.advancedLosTestVisibility(token, sourceToken);
-        } else {
-            canSeeSource = canSee(token, sourceToken);
-        }
+        } 
         if (canSeeSource) {
             if (rollData) {
                 Object.assign(rollData, { disadvantage: true });
@@ -166,7 +108,6 @@ if (lastArg.tag === "DamageBonus") {
             "core": { statusId: "Frightened" }
         },
         disabled: false,
-        duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },
         icon: "icons/svg/terror.svg",
         label: "Frightened"
     }];
