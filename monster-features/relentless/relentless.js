@@ -5,6 +5,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
     if (!attackWorkflow) return;
     for (let a = 0; a < attackWorkflow?.length; a++) {
         let tokenOrActor = await fromUuid(attackWorkflow[a]?.tokenUuid);
+        if (!tokenOrActor) return;
         let tactor = tokenOrActor?.actor ? tokenOrActor?.actor : tokenOrActor;
         if (!tactor) return;
         let featItem = await tactor.items.find(i => i.name === "Relentless");

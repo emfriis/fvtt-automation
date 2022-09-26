@@ -15,7 +15,9 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
     if (!attackWorkflow) return;
     for (let a = 0; a < attackWorkflow.length; a++) {
         let tokenOrActor = await fromUuid(attackWorkflow[a]?.tokenUuid);
+        if (!tokenOrActor) return;
         let tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+        if (!tactor) return;
         let featItem = await tactor.items.find(i => i.name === "Relentless Endurance");
         if (!featItem || !featItem.data.data.uses.value || featItem.data.data.uses.value === 0 || a?.oldHP < 1) return;
         if (attackWorkflow[a]?.appliedDamage > 0 && attackWorkflow[a]?.newHP < 1 && attackWorkflow[a]?.appliedDamage < tactor.data.data.attributes.hp.max + tactor.data.data.attributes.hp.value) {

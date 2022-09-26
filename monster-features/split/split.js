@@ -18,8 +18,8 @@ for (let i = 0; i < workflowOptions.damageDetail.length; i++) {
         hp -= tactor.data.data.traits.di?.value.includes(workflowOptions.damageDetail[i].type.toLowerCase()) ? 0 : tactor.data.data.traits.dr?.value.includes(workflowOptions.damageDetail[i].type.toLowerCase()) ? Math.ceil(workflowOptions.damageDetail[i].damage / 2) : tactor.data.data.traits.dv?.value.includes(workflowOptions.damageDetail[i].type.toLowerCase()) ? workflowOptions.damageDetail[i].damage * 2 : workflowOptions.damageDetail[i].damage;
     }
 };
-if (!useSplit) {
-    ui.notifications.warn("No slashing or lightning damage taken");
+if (!useSplit || hp < 1) {
+    ui.notifications.warn("Invalid damage for splitting");
     return;
 };
 let newSize = size === "grg" ? "huge" : size === "huge" ? "lg" : size === "lg" ? "med" : "sm";
@@ -55,6 +55,19 @@ let effectData = {
         },
     ]
 };
+
+let workflow = MidiQOL.Workflow.getWorkflow(args[0].workflowOptions.sourceItemUuid);
+if (workflow?.targets) newTargets = new Set((Array.from(workflow.targets)).filter(i => i.data._id !== lastArg.tokenId));
+if (workflow?.hitTargets) newHitTargets = new Set((Array.from(workflow.hitTargets)).filter(i => i.data._id !== lastArg.tokenId));
+if (workflow?.failedSaves) newFailedSaves = new Set((Array.from(workflow.failedSaves)).filter(i => i.data._id !== lastArg.tokenId));
+//console.warn(newTargets);
+await Object.assign(workflow, { 
+    targets: newTargets ?? new Set(),
+    hitTargets: newHitTargets ?? new Set(), 
+    failedSaves: newFailedSaves ?? new Set(),
+});
+//console.warn(workflow);
+
 await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
 await warpgate.spawnAt({ x: token.data.x, y: token.data.y}, token.data, updates, { permanent: true });
 await warpgate.spawnAt({ x: token.data.x, y: token.data.y}, token.data, updates, { permanent: true });
