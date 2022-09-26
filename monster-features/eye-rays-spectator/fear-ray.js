@@ -8,13 +8,13 @@ const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const sourceToken = canvas.tokens.get(args[1]);
 
 async function attemptRemoval(targetToken, condition, getResist) {
-    const saveDc = caster.data.data.attributes.spelldc;
+    const saveDc = 13;
     const removalCheck = false;
     const ability = "wis";
     const type = removalCheck ? "abil" : "save"; // can be "abil", "save", or "skill"
     const targetUuid = targetToken.actor.uuid;
+    let canSeeSource = false;
     if (token && sourceToken) { 
-        let canSeeSource = false;
         if (game.modules.get("conditional-visibility")?.active && game.modules.get("levels")?.active && _levels) { 
             canSeeSource = game.modules.get('conditional-visibility')?.api?.canSee(token, sourceToken) && _levels?.advancedLosTestVisibility(token, sourceToken);
         }
@@ -29,7 +29,7 @@ async function attemptRemoval(targetToken, condition, getResist) {
         let fear = tactor.effects.find(i => i.data === lastArg.efData);
 		if (fear) await tactor.deleteEmbeddedDocuments("ActiveEffect", [fear.id]);
     } else {
-        if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll for ${item.name}, still has the ${condition} condition.` });
+        if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll, still has the ${condition} condition.` });
     }
 }
 
@@ -86,7 +86,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
     }
 }
 
-if (args[0] === "on") {
+if (args[0] === "on" && !tactor.data.data.traits.ci.value.includes("frightened")) {
     if (game.modules.get("midi-qol")?.active) {
     let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
     DAE.setFlag(tactor, "fearAtkHookFR", hookId1);

@@ -79,7 +79,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
     }
 }
 
-if (args[0] === "on") {
+if (args[0] === "on" && !tactor.data.data.traits.ci.value.includes("frightened")) {
     if (game.modules.get("midi-qol")?.active) {
     let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
     DAE.setFlag(tactor, "fearAtkHookF", hookId1);

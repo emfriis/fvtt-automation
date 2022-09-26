@@ -130,7 +130,7 @@ if (lastArg.tag === "DamageBonus") {
     return { damageRoll: `${diceMult}d6[${damageType}]`, flavor: `(${itemName} (${CONFIG.DND5E.damageTypes[damageType]}))` };
 }
 
-if (args[0] === "on" && token !== sourceToken) {
+if (args[0] === "on" && token !== sourceToken && !tactor.data.data.traits.ci.value.includes("frightened")) {
     if (game.modules.get("midi-qol")?.active) {
     let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
     DAE.setFlag(tactor, "fearAtkHookWS", hookId1);
