@@ -6,7 +6,7 @@ const tactor = token.actor ? token.actor : token;
 let size = tactor.data.data.traits.size;
 let hp = tactor.data.data.attributes.hp.value;
 if (size === "sm" || hp < 10) {
-    ui.notifications.warn("Ooze to small to split");
+    ui.notifications.warn("Ooze too small to split");
     return;
 };
 let workflowOptions = lastArg.workflowOptions;
@@ -56,19 +56,20 @@ let effectData = {
     ]
 };
 
+// duplicate target with updates and delete original
+await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+await warpgate.spawnAt({ x: token.data.x, y: token.data.y}, token.data, updates, { permanent: true });
+await warpgate.spawnAt({ x: token.data.x, y: token.data.y}, token.data, updates, { permanent: true });
+await token.delete();
+
+// remove splitting target from active workflow targets
 let workflow = MidiQOL.Workflow.getWorkflow(args[0].workflowOptions.sourceItemUuid);
 if (workflow?.targets) newTargets = new Set((Array.from(workflow.targets)).filter(i => i.data._id !== lastArg.tokenId));
 if (workflow?.hitTargets) newHitTargets = new Set((Array.from(workflow.hitTargets)).filter(i => i.data._id !== lastArg.tokenId));
 if (workflow?.failedSaves) newFailedSaves = new Set((Array.from(workflow.failedSaves)).filter(i => i.data._id !== lastArg.tokenId));
-//console.warn(newTargets);
 await Object.assign(workflow, { 
     targets: newTargets ?? new Set(),
     hitTargets: newHitTargets ?? new Set(), 
     failedSaves: newFailedSaves ?? new Set(),
 });
-//console.warn(workflow);
-
-await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-await warpgate.spawnAt({ x: token.data.x, y: token.data.y}, token.data, updates, { permanent: true });
-await warpgate.spawnAt({ x: token.data.x, y: token.data.y}, token.data, updates, { permanent: true });
-await token.delete();
+// still throws sequencer (automated animations?) error for original target position not found
