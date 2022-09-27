@@ -1,3 +1,6 @@
+// apply paralyzed and allow save end of turn
+// effect condition - !("@raceOrType".includes("elf") || "@raceOrType".includes("undead"))
+
 const lastArg = args[args.length - 1];
 const saveDc = 10;
 
@@ -14,7 +17,7 @@ async function attemptRemoval(targetToken, condition, item, getResist) {
         let para = tactor.effects.find(i => i.data === lastArg.efData);
 		if (para) await tactor.deleteEmbeddedDocuments("ActiveEffect", [para.id]);
     } else {
-        if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll for ${item.name}, still has the ${condition} condition.` });
+        if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll for, still has the ${condition} condition.` });
     }
 }
 
@@ -25,7 +28,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
         let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
         let getResist = tactorTarget.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));
         if (getResist) {
-            const effectData = {
+            const effectData1 = {
                 changes: [
                     {
                         key: "flags.midi-qol.advantage.ability.save.all",
@@ -39,7 +42,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
                 icon: args[0].item.img,
                 label: `${args[0].item.name} Save Advantage`,
             };
-            await tactorTarget.createEmbeddedDocuments("ActiveEffect", [effectData]);
+            await tactorTarget.createEmbeddedDocuments("ActiveEffect", [effectData1]);
         }
     }
 }
@@ -49,6 +52,5 @@ if (args[0] === "each" && lastArg.efData.disabled === false) {
     const getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
     const targetToken = await fromUuid(lastArg.tokenUuid);
     const condition = "Paralyzed";
-    const item = await fromUuid(lastArg.efData.origin);
-    attemptRemoval(targetToken, condition, item, getResist);
+    attemptRemoval(targetToken, condition, getResist);
 }

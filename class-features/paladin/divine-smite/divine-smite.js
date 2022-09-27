@@ -97,7 +97,7 @@ try {
       let diceMult = args[0].isCritical ? 2: 1;
       let numDice = 1 + slotLevel;
       if (numDice > 5) numDice = 5;
-      let smiteType = ["fiend", "fiend (shapechanger)", "undead", "undead (shapechanger)"].some(type => (target?.actor.data.data.details.type?.value || "").toLowerCase().includes(type));
+      let smiteType = ["fiend", "fiend (shapechanger)", "undead", "undead (shapechanger)"].some(type => (target?.actor.data.data.details?.type?.value || "").toLowerCase().includes(type));
       if (smiteType) numDice += 1;
       
       return {damageRoll: `${numDice * diceMult}d8[radiant]`, flavor: "Divine Smite"};
