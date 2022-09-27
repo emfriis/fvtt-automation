@@ -1,15 +1,14 @@
 // redirect attack ala goblin boss
-// almost RAW, figure out how to negate/fail critical or attack against single target of attack - until then cancel reaction on crits
 
 const lastArg = args[args.length - 1];
 const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-const workflow = MidiQOL.Workflow.getWorkflow(args[0].workflowOptions.sourceItemUuid);
-if (!["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType) || workflow.isCritical) return;
+const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].workflowOptions.sourceItemUuid);
+if (!["mwak","rwak","msak","rsak"].includes(attackWorkflow.item.data.data.actionType)) return;
 
-const attacker = workflow.token;
+const attacker = attackWorkflow.token;
 if (!attacker) return;
 
 let canSeeAttacker = true;
@@ -34,16 +33,11 @@ if (nearbyAllyGoblins.length < 1) {
     ui.notifications.warn("No nearby Goblins found");
     return;
 } else if (nearbyAllyGoblins.length === 1) {
-    workflow?.targets.delete(token);
-    workflow?.targets.add(nearbyAllyGoblins[0]);
-    const effectData = {
-        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 999, priority: 20 }],
-        origin: args[0].itemUuid,
-        disabled: false,
-        flags: { "dae": { specialDuration: ["1Reaction"] }  },
-        label: args[0].item.name,
-    };
-    await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+    attackWorkflow?.targets.delete(token);
+    attackWorkflow?.targets.add(nearbyAllyGoblins[0]);
+    Hooks.once("midi-qol.preDamageRoll", workflow => {
+        if (workflow.uuid === attackWorkflow.uuid) workflow?.hitTargets.delete(token);
+    });
     const tokenCoords = { x: token.data.x, y: token.data.y };
     const newTargetCoords = { x: nearbyAllyGoblins[0].data.x, y: nearbyAllyGoblins[0].data.y };
     new Sequence().animation().on(token).moveTowards(newTargetCoords).animation().on(nearbyAllyGoblins[0]).moveTowards(tokenCoords).play();
@@ -111,16 +105,11 @@ let dialog = new Promise(async (resolve, reject) => {
                 callback: async () => {
                     const selectedId = $("input[type='radio'][name='target']:checked").val();
                     const newTarget = canvas.tokens.get(selectedId);
-                    workflow?.targets.delete(token);
-                    workflow?.targets.add(newTarget);
-                    const effectData = {
-                        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 999, priority: 20 }],
-                        origin: args[0].itemUuid,
-                        disabled: false,
-                        flags: { "dae": { specialDuration: ["1Reaction"] }  },
-                        label: args[0].item.name,
-                    };
-                    await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+                    attackWorkflow?.targets.delete(token);
+                    attackWorkflow?.targets.add(newTarget);
+                    Hooks.once("midi-qol.preDamageRoll", workflow => {
+                        if (workflow.uuid === attackWorkflow.uuid) workflow?.hitTargets.delete(token);
+                    });
                     const tokenCoords = { x: token.data.x, y: token.data.y };
                     const newTargetCoords = { x: newTarget.data.x, y: newTarget.data.y };
                     new Sequence().animation().on(token).moveTowards(newTargetCoords).animation().on(newTarget).moveTowards(tokenCoords).play();
