@@ -1,5 +1,5 @@
 // apply paralyzed and allow save end of turn
-// effect condition - !("@raceOrType".includes("elf") || "@raceOrType".includes("undead"))
+// effect condition - !("@raceOrType".includes("elf") || "@raceOrType".includes("undead")) FOR GHOUL || !("@raceOrType".includes("undead")) FOR GHAST
 
 const lastArg = args[args.length - 1];
 const saveDc = 10;

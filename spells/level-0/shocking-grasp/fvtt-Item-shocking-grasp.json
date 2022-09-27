@@ -170,7 +170,7 @@
     "midi-qol": {
       "fumbleThreshold": null,
       "effectActivation": false,
-      "onUseMacroName": "[postActiveEffects]ItemMacro"
+      "onUseMacroName": "[preAttackRoll]ItemMacro,[postActiveEffects]ItemMacro"
     },
     "midiProperties": {
       "nodam": false,
@@ -209,12 +209,25 @@
             "default": 0
           },
           "flags": {}
-        }
+        },
+        "_id": null,
+        "name": "Shocking Grasp",
+        "type": "script",
+        "author": "ckiTPzlaPztdkjV6",
+        "img": "icons/svg/dice-target.svg",
+        "scope": "global",
+        "command": "// shocking grasp WIP\n\nconst lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n\nif (args[0].tag === \"OnUse\" && lastArg.macroPass === \"preAttackRoll\") {\n\tif (lastArg.targetUuids.length > 0) {\n\t\tlet targetUuid = lastArg.targetUuids[0];\n\t\tlet tokenOrActorTarget = await fromUuid(targetUuid);\n\t\tlet tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;\n\t\tlet isMetal = tactorTarget.items.find(i => i.type == \"equipment\" && i.data.data.equipped && (i.data.data.armor.type == \"heavy\" || i.data.data.armor.type == \"medium\") && !i.data.name.toLowerCase().includes(\"hide\"));\n\t\tif (isMetal) {\n\t\t\tconst effectData = {\n\t\t\t\tchanges: [\n\t\t\t\t\t{\n\t\t\t\t\t\tkey: \"flags.midi-qol.advantage.attack.msak\",\n\t\t\t\t\t\tmode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,\n\t\t\t\t\t\tvalue: 1,\n\t\t\t\t\t\tpriority: 20,\n\t\t\t\t\t}\n\t\t\t\t],\n\t\t\t\tdisabled: false,\n\t\t\t\tflags: { dae: { specialDuration: [\"1Attack\"] } },\n\t\t\t\ticon: args[0].item.img,\n\t\t\t\tlabel: `${args[0].item.name} Advantage`,\n\t\t\t};\n\t\t\tawait tactor.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n\t\t}\n\t}\n}\n\nif (args[0].tag === \"OnUse\" && lastArg.macroPass === \"postActiveEffects\") {\n\tif (lastArg.hitTargetUuids.length > 0) {\n\t\tlet targetUuid = lastArg.hitTargetUuids[0];\n\t\tlet tokenOrActorTarget = await fromUuid(targetUuid);\n\t\tlet tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;\n\t\tconst hasEffectApplied = await game.dfreds.effectInterface.hasEffectApplied(\"Reaction\", targetUuid );\n\t\tif (!hasEffectApplied) {\n\t\t\tgame.dfreds.effectInterface.addEffect({ effectName: \"Reaction\", uuid: tactorTarget.uuid });\n\t\t}\n\t}\n}",
+        "folder": null,
+        "sort": 0,
+        "permission": {
+          "default": 0
+        },
+        "flags": {}
       }
     },
     "scene-packer": {
-      "hash": "4618d35c65ee72a23d688cddbdbd1d567a113a04",
-      "sourceId": "Item.6sAHTTeqzZedXd2V"
+      "hash": "ebb89aa201774693c2d0b1d98414398e2f93d1ce",
+      "sourceId": "Item.1PwSYmw3LwUHHbxj"
     },
     "exportSource": {
       "world": "dnd5e",
