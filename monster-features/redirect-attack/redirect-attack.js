@@ -1,10 +1,13 @@
+// redirect attack ala goblin boss
+// almost RAW, figure out how to negate/fail critical or attack against single target of attack - until then cancel reaction on crits
+
 const lastArg = args[args.length - 1];
 const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 const workflow = MidiQOL.Workflow.getWorkflow(args[0].workflowOptions.sourceItemUuid);
-if (!["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) return;
+if (!["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType) || workflow.isCritical) return;
 
 const attacker = workflow.token;
 if (!attacker) return;
@@ -96,13 +99,16 @@ let dialog = new Promise(async (resolve, reject) => {
                     workflow?.targets.delete(token);
                     workflow?.targets.add(newTarget);
                     const effectData = {
-                        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 20, }],
+                        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 20 }],
                         origin: args[0].itemUuid,
                         disabled: false,
                         flags: { "dae": { specialDuration: ["1Reaction"] }  },
                         label: args[0].item.name,
                     };
                     await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+                    const tokenCoords = { x: token.data.x, y: token.data.y };
+                    const newTargetCoords = { x: newTarget.data.x, y: newTarget.data.y };
+                    new Sequence().animation().on(token).moveTowards(newTargetCoords).animation().on(newTarget).moveTowards(tokenCoords).play();
                     resolve(true);
                 }
             },
