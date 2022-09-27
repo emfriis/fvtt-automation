@@ -33,6 +33,21 @@ let nearbyAllyGoblins = await canvas.tokens.placeables.filter(t => {
 if (nearbyAllyGoblins.length < 1) {
     ui.notifications.warn("No nearby Goblins found");
     return;
+} else if (nearbyAllyGoblins.length === 1) {
+    workflow?.targets.delete(token);
+    workflow?.targets.add(nearbyAllyGoblins[0]);
+    const effectData = {
+        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 999, priority: 20 }],
+        origin: args[0].itemUuid,
+        disabled: false,
+        flags: { "dae": { specialDuration: ["1Reaction"] }  },
+        label: args[0].item.name,
+    };
+    await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+    const tokenCoords = { x: token.data.x, y: token.data.y };
+    const newTargetCoords = { x: nearbyAllyGoblins[0].data.x, y: nearbyAllyGoblins[0].data.y };
+    new Sequence().animation().on(token).moveTowards(newTargetCoords).animation().on(nearbyAllyGoblins[0]).moveTowards(tokenCoords).play();
+    return;
 }
 
 let target_content = "";
