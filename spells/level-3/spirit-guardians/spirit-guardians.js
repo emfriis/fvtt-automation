@@ -4,7 +4,7 @@ const lastArg = args[args.length - 1];
 if (args[0] === "on" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.combat?.current.tokenId) {
   const sourceItem = await fromUuid(lastArg.origin);
   const tokenOrActor = await fromUuid(lastArg.actorUuid);
-  const theActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+  const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
   const damageType = "radiant";
 
   const itemData = mergeObject(
@@ -33,7 +33,7 @@ if (args[0] === "on" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.
   );
   itemData.data.target.type = "self";
   setProperty(itemData.flags, "autoanimations.killAnim", true);
-  const item = new CONFIG.Item.documentClass(itemData, { parent: theActor });
+  const item = new CONFIG.Item.documentClass(itemData, { parent: tactor });
   const options = { showFullCard: false, createWorkflow: true, versatile: false, configureDialog: false };
   await MidiQOL.completeItemRoll(item, options);
 }

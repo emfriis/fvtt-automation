@@ -1,4 +1,4 @@
-// mage hand 
+// dancing lights
 // on use post active effects
 
 const lastArg = args[args.length - 1];
@@ -6,7 +6,7 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 async function postWarp(location, spawnedTokenDoc, updates, iteration) {
-    let ef = tactor.effects.find(i => i.data.label === "Mage Hand");
+    let ef = tactor.effects.find(i => i.data.label === "Dancing Lights");
     let summonUuid = spawnedTokenDoc.uuid;
     if (ef) {
         let changes = [
@@ -22,7 +22,10 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
 };
 
 let updates = {
-    token: { "name": `Mage Hand (${tactor.name})` },
-    actor: { "name": `Mage Hand (${tactor.name})` }
+    token: { "name": `Dancing Light (${tactor.name})` },
+    actor: { "name": `Dancing Light (${tactor.name})` }
 };
-await warpgate.spawn("Mage Hand", updates, { post: postWarp }, {});
+await warpgate.spawn("Dancing Light", updates, { post: postWarp }, {});
+await warpgate.spawn("Dancing Light", updates, { post: postWarp }, {});
+await warpgate.spawn("Dancing Light", updates, { post: postWarp }, {});
+await warpgate.spawn("Dancing Light", updates, { post: postWarp }, {});

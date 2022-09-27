@@ -1,4 +1,5 @@
 // wild shape
+//requires "Beast Summons" folder in actors
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 const lastArg = args[args.length - 1];
@@ -18,7 +19,7 @@ let combatWildShape = tactor.items.find(i => i.name === "Combat Wild Shape");
 let primalStrike = tactor.items.find(i => i.name === "Primal Strike");
 if (circleForms) druidCR = classLevel > 5 ? Math.floor(classLevel / 3) : 1;
 
-const folderName = "Wildshape";
+const folderName = "Beast Summons";
 const getFolder = game.folders.getName(folderName).content;
 const filteredFolder = getFolder.filter((i) => i.data.data.details.cr <= druidCR && ["beast"].some(type => (i.data.data.details.type?.value || "").toLowerCase().includes(type)) && i.data.data.attributes.movement.fly <= maxFly && i.data.data.attributes.movement.swim <= maxSwim);
 const folderContents = filteredFolder.reduce((acc, target) => acc += `<option value="${target.id}">${target.name} CR: ${target.data.data.details.cr}</option>`
