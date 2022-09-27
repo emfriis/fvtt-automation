@@ -1,4 +1,6 @@
 const lastArg = args[args.length - 1];
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 // ItemMacro beforeSave 
 
@@ -101,22 +103,3 @@ if (args[0] === "each" && lastArg.efData.disabled === false) {
 
 // prone ["Sure-Footed", "Prone Resilience"]
 // POUNCE, RAM, BITE
-
-// race/type immunity
-if (["elf", "undead"].some(type => (tactorTarget.data.data.details?.type?.value || "").toLowerCase().includes(type) || (tactorTarget.data.data.details?.race || "").toLowerCase().includes(type))) {
-    const effectData = {
-        changes: [
-            {
-                key: "flags.midi-qol.min.ability.save.all",
-                mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                value: 9999,
-                priority: 20,
-            }
-        ],
-        disabled: false,
-        flags: { dae: { specialDuration: ["isSave"] } },
-        icon: args[0].item.img,
-        label: `${args[0].item.name} Immunity`,
-    };
-    await tactorTarget.createEmbeddedDocuments("ActiveEffect", [effectData]);
-}

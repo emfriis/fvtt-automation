@@ -1,5 +1,5 @@
 // wild shape
-//requires "Beast Summons" folder in actors
+// requires "Beast Summons" folder in actors dir
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 const lastArg = args[args.length - 1];
