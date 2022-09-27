@@ -10,7 +10,7 @@
                 let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
                 workflow.disadvantage = true;
             } else {
-                await tactor.setFlag("midi-qol", "fumbleTime", fumbleTime)
+                await tactor.setFlag("midi-qol", "fumbleTime", fumbleTime);
             };
         };
     };
