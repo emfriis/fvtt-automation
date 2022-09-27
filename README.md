@@ -14,6 +14,7 @@ All items are created assuming the use of the following modules (and their prere
 - Link Item and Resource DnD5e
 - Midi QOL
 - Perfect Vision
+- Sequencer
 - Time's Up
 - Warp Gate
 - More Hooks D&D5E

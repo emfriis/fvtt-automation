@@ -99,7 +99,7 @@ let dialog = new Promise(async (resolve, reject) => {
                     workflow?.targets.delete(token);
                     workflow?.targets.add(newTarget);
                     const effectData = {
-                        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 20 }],
+                        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 999, priority: 20 }],
                         origin: args[0].itemUuid,
                         disabled: false,
                         flags: { "dae": { specialDuration: ["1Reaction"] }  },
