@@ -2,7 +2,7 @@
 // requires MIDI-QOL, DAE, PERFECT-VISION
 
 const lastArg = args[args.length - 1];
-const token = await fromUuid(lastArg.tokenUuid);
+const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ?? tokenOrActor;
 
@@ -31,13 +31,19 @@ async function miCheck(workflow) {
 	const attackRoll = workflow.attackRoll;
 	if (!attackRoll || attackRoll.total == 9999) return;
 	
-	let attacker = canvas.tokens.get(workflow.tokenId);
+	let attacker = workflow.token;
 	const senses = workflow.actor.data.data.attributes.senses;
-	const aVisRange = token.getFlag('perfect-vision', 'sightLimit') ? token.getFlag('perfect-vision', 'sightLimit') : 9999;
+	const aVisRange = attacker.data.flags["perfect-vision"].sightLimit ? attacker.data.flags["perfect-vision"].sightLimit : 9999;
 	const aVision = Math.min(aVisRange, Math.max(senses.blindsight, senses.tremorsense, senses.truesight, 0));
-	const aDist = MidiQOL.getDistance(token, attacker, false);
+	const aDist = MidiQOL.getDistance(attacker, token, false);
 	let miIgnore = aVision >= aDist;
-	
+	if (miIgnore) {
+		let canSeeTarget = true;
+		if (game.modules.get("conditional-visibility")?.active && game.modules.get("levels")?.active && _levels) { 
+			canSeeTarget = game.modules.get('conditional-visibility')?.api?.canSee(attacker, token) && _levels?.advancedLosTestVisibility(attacker, token);
+		} 
+		miIgnore = canSeeTarget;
+	}
 	let miLeft = await DAE.getFlag(tactor, "miLeft");
 	let miDC = miLeft == 3 ? 6 : miLeft == 2 ? 8 : miLeft == 1 ? 11 : null;
 	let miAC = 10 + tactor.data.data.abilities.dex.mod;

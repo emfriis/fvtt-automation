@@ -69,9 +69,7 @@ async function sightCheck(actorOrWorkflow, rollData) {
         let canSeeSource = false;
         if (game.modules.get("conditional-visibility")?.active && game.modules.get("levels")?.active && _levels) { 
             canSeeSource = game.modules.get('conditional-visibility')?.api?.canSee(token, sourceToken) && _levels?.advancedLosTestVisibility(token, sourceToken);
-        } else {
-            canSeeSource = canSee(token, sourceToken);
-        }
+        } 
         if (canSeeSource) {
             if (rollData) {
                 Object.assign(rollData, { disadvantage: true });
