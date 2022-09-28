@@ -23,7 +23,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preDamageRoll") {
 }
 
 if (args[0].tag === "OnUse" && args[0].macroPass === "postDamageRoll") {
-    if (!["mwak","rwak","msak","rsak"].includes(args[0].item.data.actionType) || args[0].itemData.data?.damage?.parts[0][1] !== "piercing") return;
+    if (!["mwak","rwak","msak","rsak"].includes(args[0].item.data.actionType) || args[0].itemData.data?.damage?.parts[0][1] !== "piercing" || args[0].hitTargets.length < 1) return;
     if (game.combat) {
         const combatTime = `${game.combat.id}-${game.combat.round + game.combat.turn / 100}`;
         const lastTime = tactor.getFlag("midi-qol", "piercerTime");
