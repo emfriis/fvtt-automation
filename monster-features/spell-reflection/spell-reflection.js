@@ -1,4 +1,6 @@
 // Spell Reflection
+// Rolls item against new target as if target was the source
+// Requires always roll damage midi-qol on - OR refactor to manually check hits with preCheckHits hook
 
 Hooks.on("midi-qol.preDamageRoll", async workflow => {
     if (workflow.item.data.type !== "spell" || workflow.item.data.data.target.type !== "creature") return;
@@ -49,7 +51,7 @@ Hooks.on("midi-qol.preDamageRoll", async workflow => {
         } else if (newTargets.length === 1) {
             workflow?.targets.delete(t);
             const itemCopy = duplicate(workflow.item);
-            const attackItem = new CONFIG.Item.documentClass(itemCopy, { parent: workflow.actor });
+            const attackItem = new CONFIG.Item.documentClass(itemCopy, { parent: t.actor });
             let rollOptions = { targetUuids: [newTargets[0].document.uuid], showFullCard: false, createWorkflow: true };
             await MidiQOL.completeItemRoll(attackItem, rollOptions);
             if (game?.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: t.actor.uuid });
@@ -187,7 +189,7 @@ Hooks.on("midi-qol.postCheckSaves", async workflow => {
         } else if (newTargets.length === 1) {
             workflow?.targets.delete(t);
             const itemCopy = duplicate(workflow.item);
-            const attackItem = new CONFIG.Item.documentClass(itemCopy, { parent: workflow.actor });
+            const attackItem = new CONFIG.Item.documentClass(itemCopy, { parent: t.actor });
             let rollOptions = { targetUuids: [newTargets[0].document.uuid], showFullCard: false, createWorkflow: true };
             await MidiQOL.completeItemRoll(attackItem, rollOptions);
             if (game?.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: t.actor.uuid });
