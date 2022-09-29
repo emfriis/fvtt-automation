@@ -107,7 +107,7 @@ try {
         });
     }
 
-    // spellUseDialog; takes args title, actorData, and timeout; returns selected input's value, consume checkbox bool, and selected input text in array
+    // spellUseDialog; takes args title, actorData, and timeout; returns selected option value, text, and consume checkbox bool in array
     async function spellUseDialog(...args) {
         return new Promise((resolve, reject) => {
             let slotOptions = "";
@@ -140,7 +140,7 @@ try {
                     one: {
                         icon: '<i class="fas fa-check"></i>',
                         label: "Confirm",
-                        callback: () => {resolve([$("option:selected").val(), $("#consume").is(":checked"), $("option:selected").text()])}
+                        callback: () => {resolve([$("#slot").find(":selected").val(), $("#slot").find(":selected").text(), $("#consume").is(":checked")])}
                     },
                     two: {
                         icon: '<i class="fas fa-times"></i>',
