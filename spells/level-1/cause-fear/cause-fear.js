@@ -1,6 +1,4 @@
 // cause fear
-// requires DAE, Itemacro, Midi-QOL, More Hooks D&D5e, DFreds CE, optionally CV, Levels
-// almost RAW, macro will overwrite other sources of disadvantage on skill and ability checks
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 const lastArg = args[args.length - 1];
@@ -25,31 +23,6 @@ async function attemptRemoval(targetToken, condition, item, getResist) {
 		if (fear) await tactor.deleteEmbeddedDocuments("ActiveEffect", [fear.id]);
     } else {
         if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll for ${item.name}, still has the ${condition} condition.` });
-    }
-}
-
-async function sightCheck(actorOrWorkflow, rollData) {
-    if (actorOrWorkflow.actor !== tactor && actorOrWorkflow !== tactor) return;
-    if (token && sourceToken) { 
-        let canSeeSource = false;
-        if (game.modules.get("conditional-visibility")?.active && game.modules.get("levels")?.active && _levels) { 
-            canSeeSource = game.modules.get('conditional-visibility')?.api?.canSee(token, sourceToken) && _levels?.advancedLosTestVisibility(token, sourceToken);
-        } 
-        if (canSeeSource) {
-            if (rollData) {
-                Object.assign(rollData, { disadvantage: true });
-                return;
-            }
-            let ef = await tactor.effects.find(i => i.data === lastArg.efData);
-            let newChanges = [];
-            if (!ef.data.changes.find(c => c.key === "flags.midi-qol.disadvantage.attack.all")) newChanges.push({ key: "flags.midi-qol.disadvantage.attack.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 0 });
-            if (!ef.data.changes.find(c => c.key === "flags.midi-qol.disadvantage.ability.check.all")) newChanges.push({ key: "flags.midi-qol.disadvantage.ability.check.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 0 });
-            await ef.update({ changes: newChanges.concat(ef.data.changes) });
-            if (newChanges) {
-                newChanges = ef.data.changes.filter((c) => c.key !== "flags.midi-qol.disadvantage.attack.all" && c.key !== "flags.midi-qol.disadvantage.ability.check.all");
-                ef.update({ changes: newChanges });
-            }
-        } 
     }
 }
 
@@ -79,21 +52,6 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
     }
 }
 
-if (args[0] === "on" && !tactor.data.data.traits.ci.value.includes("frightened")) {
-    if (game.modules.get("midi-qol")?.active) {
-    let hookId1 = Hooks.on("midi-qol.preItemRoll", sightCheck);
-    DAE.setFlag(tactor, "fearAtkHookCF", hookId1);
-    }
-    
-    if (game.modules.get("more-hooks-5e")?.active) {
-    let hookId2 = Hooks.on("Actor5e.preRollAbilityTest", sightCheck);
-    DAE.setFlag(tactor, "fearAblHookCF", hookId2);
-
-    let hookId3 = Hooks.on("Actor5e.preRollSkill", sightCheck);
-    DAE.setFlag(tactor, "fearSklHookCF", hookId3);
-    }
-}
-
 if (args[0] === "each" && lastArg.efData.disabled === false) {
     const resist = ["Brave", "Fear Resilience", "Magic Resistance"];
     const getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
@@ -101,24 +59,4 @@ if (args[0] === "each" && lastArg.efData.disabled === false) {
     const condition = "Frightened";
     const item = await fromUuid(lastArg.efData.origin);
     attemptRemoval(targetToken, condition, item, getResist);
-}
-
-if (args[0] === "off") {
-    const flag1 = await DAE.getFlag(tactor, "fearAtkHookCF");
-	if (flag1) {
-		Hooks.off("midi-qol.preItemRoll", flag1);
-		await DAE.unsetFlag(tactor, "fearAtkHookCF");
-	}
-    
-    const flag2 = await DAE.getFlag(tactor, "fearAblHookCF");
-	if (flag2) {
-		Hooks.off("Actor5e.preRollAbilityTest", flag2);
-		await DAE.unsetFlag(tactor, "fearAblHookCF");
-	}
-    
-    const flag3 = await DAE.getFlag(tactor, "fearSklHookCF");
-	if (flag3) {
-		Hooks.off("Actor5e.preRollSkill", flag3);
-		await DAE.unsetFlag(tactor, "fearSklHookCF");
-	}
 }
