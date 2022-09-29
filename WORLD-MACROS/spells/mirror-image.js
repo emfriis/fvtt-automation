@@ -5,7 +5,7 @@ if (!game.modules.get("midi-qol")?.active || !game.modules.get("conditional-visi
 
 Hooks.on("midi-qol.preCheckHits", async (workflow) => {
     if (!workflow?.token || !["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) return;
-    Array.from(workflow?.targets).forEach(async t => {
+    workflow?.targets.forEach(async (t) => {
         if (!t?.actor || !t.actor.effects.find(i => i.data.label === "Mirror Image")) return;
         const senses = workflow.actor.data.data.attributes.senses;
         const visRange = workflow.token.data.flags["perfect-vision"].sightLimit ? workflow.token.data.flags["perfect-vision"].sightLimit : 9999;

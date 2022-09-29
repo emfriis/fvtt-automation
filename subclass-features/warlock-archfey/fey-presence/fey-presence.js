@@ -4,8 +4,8 @@ const lastArg = args[args.length - 1];
 const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const sourceToken = canvas.tokens.get(args[1]);
-const sourceActor = sourceToken?.actor ?? sourceToken?._actor;
+const sourceTokenOrActor = await fromUuid(args[1]);
+const sourceActor = sourceTokenOrActor?.actor ?? sourceTokenOrActor?._actor;
 
 if (args[0].tag === "OnUse" && args[0].macroPass === "preItemRoll") {
 	let dialog = new Promise(async (resolve, reject) => {
@@ -110,7 +110,15 @@ if (args[0] === "on") {
 	let charm = sourceActor.effects.find(i => i.data.label === "Fey Presence Charm");
 	if (fear) {
 		let ef = tactor.effects.find(i => i.data === lastArg.efData);
-		if (ef) ef.update({ label: "Frightened", icon: "icons/svg/terror.svg", flags: { core: { statusId: "Frightened" } } });
+		const changes = [
+			{
+				key: "flags.midi-qol.fear",
+				mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+				priority: 0,
+				value: `${args[1]}`
+			}
+		]
+		if (ef) ef.update({ label: "Frightened", icon: "icons/svg/terror.svg", flags: { core: { statusId: "Frightened" } }, changes: changes });
 	} else if (charm) {
 		let ef = tactor.effects.find(i => i.data === lastArg.efData);
 		const changes = [
@@ -122,7 +130,7 @@ if (args[0] === "on") {
 			},
 			{
 				key: "flags.midi-qol.charm",
-				mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+				mode: CONST.ACTIVE_EFFECT_MODES.ADD,
 				priority: 0,
 				value: `${args[1]}`
 			}
