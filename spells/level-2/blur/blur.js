@@ -6,6 +6,7 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ?? tokenOrActor;
 
 async function blurCheck(workflow) {
+	ui.notifications.warn("hi");
 	let target = Array.from(workflow.targets)[0];
     if (!target) return;
 	let targetId = target.id ?? target._id;

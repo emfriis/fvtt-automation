@@ -1,6 +1,8 @@
 // relentless endurance world macro
 // uses handler of user-socket-functions - "useDialog"
 
+if (!game.modules.get("midi-qol")?.active) throw new Error("requisite module(s) missing");
+
 async function playerForActor(actor) {
 	if (!actor) return undefined;
 	let user;
