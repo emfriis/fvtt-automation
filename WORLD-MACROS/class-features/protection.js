@@ -1,10 +1,7 @@
+// fs: protection world macro
 // uses handler of user-socket-functions - "useDialog"
 
-const lastArg = args[args.length - 1];
-const token = canvas.tokens.get(lastArg.tokenId);
-const tokenOrActor = await fromUuid(lastArg.tokenUuid);
-const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const item = await fromUuid(lastArg.efData.origin);
+if (!game.modules.get("midi-qol")?.active || !game.modules.get("conditional-visibility")?.active || !game.modules.get("levels")?.active || !_levels || !game.modules.get("perfect-vision")?.active) throw new Error("requisite module(s) missing");
 
 async function playerForActor(actor) {
 	if (!actor) return undefined;
@@ -15,45 +12,34 @@ async function playerForActor(actor) {
 	return user;
 }
 
-async function attackCheck(workflow) {
-    if (!["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) return;
-    let shield = await tactor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data.equipped);
-    let reactionUsed = await tactor.effects.find(e => e.data.label === "Reaction" || e.data.label === "Incapacitated")
-    if (tactor.data.data.attributes.hp.value < 1 || !shield || reactionUsed) return;
-
-    let tokenAttacker = canvas.tokens.get(workflow.tokenId);
-    let canSeeAttacker = true;
-    if (game.modules.get("conditional-visibility")?.active && game.modules.get("levels")?.active && _levels) { 
-        canSeeAttacker = game.modules.get('conditional-visibility')?.api?.canSee(token, tokenAttacker) && _levels?.advancedLosTestVisibility(token, tokenAttacker);
-    }
-    if (!canSeeAttacker) return;
-
-    let workflowTargets = Array.from(workflow?.targets);
-    let player = await playerForActor(tactor);
-    let socket;
-    if (game.modules.get("user-socket-functions")?.active) socket = socketlib.registerModule("user-socket-functions");
-    
-    for (let i = 0; i < workflowTargets.length; i++) {
-        if (workflowTargets[i].id === token.id || MidiQOL.getDistance(workflowTargets[i], token, false) > 5 || workflowTargets[i].data.disposition !== token.data.disposition) return;
-        let useProtect = false;
-        if (game.modules.get("user-socket-functions")?.active) useProtect = await socket.executeAsUser("useDialog", player.id, { title: `${item.data.name}`, content: `Use your reaction to impose disadvantage on attack against ${workflowTargets[i].name}?` });
-        if (useProtect) {
-            await Object.assign(workflow, { disadvantage: true });
-            const hasEffectApplied = game.dfreds.effectInterface.hasEffectApplied("Reaction", tokenOrActor.uuid );
-            if (!hasEffectApplied) {
-                await game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: tactor.uuid });
-            }
-            return;
-        }
-    }
-}
-
-if (args[0] === "each") { // start of turn macros always run on combat start
-    const flag = await DAE.getFlag(tactor, "proHook");
-    if (flag) {
-        Hooks.off("midi-qol.preambleComplete", flag);
-		await DAE.unsetFlag(tactor, "proHook");
-    }
-    let hookId = Hooks.on("midi-qol.preambleComplete", attackCheck);
-    DAE.setFlag(tactor, "proHook", hookId);
-}
+Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
+    if (!workflow?.token || !workflow?.targets || !["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) return;
+    let protTokens = await canvas.tokens.placeables.filter(t => {
+        let token = (
+            t?.actor && // exists
+            t?.document.uuid !== workflow.token.document.uuid && // not attacker
+            t?.actor.items.find(i => i.data.name === "Fighting Style: Protection") && // has feature
+            t?.actor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data.equipped) && // shield equipped
+            !t?.actor.effects.find(e => e.data.label === "Reaction" || e.data.label === "Incapacitated") && // can react
+            (game.modules.get('conditional-visibility')?.api?.canSee(t, workflow.token) && _levels?.advancedLosTestVisibility(t, workflow.token)) // can see
+        );
+        return token;
+    });
+    if (protTokens.length === 0) return;
+    for (let t = 0; t < workflow.targets.size; t++) {
+        let token = Array.from(workflow.targets)[t];
+        if (!token?.actor) return;
+        for (let p = 0; p < protTokens.length; p++) {
+            let prot = protTokens[p];
+            if (MidiQOL.getDistance(prot, token, false) > 5 || prot.data.disposition === -token.data.disposition || prot.document.uuid === token.document.uuid) return;
+            let player = await playerForActor(prot?.actor);
+            let socket = socketlib.registerModule("user-socket-functions");
+            let useProtect = false;
+            useProtect = await socket.executeAsUser("useDialog", player.id, { title: `Fighting Style: Protection`, content: `Use your reaction to impose disadvantage on attack against ${token.name}?` });
+            if (useProtect) {
+                workflow.disadvantage = true;
+                if (game.combat) game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: prot.actor.uuid });
+            };
+        };
+    };
+});
