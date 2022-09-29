@@ -112,7 +112,7 @@ try {
         return new Promise((resolve, reject) => {
             let slotOptions = "";
             for (let i = 0; i < 9; i++) {
-                let slot = i === 0 ? args[0].actor.data.spells?.pact : args[0].actor.data.spells[`spell${i}`];
+                let slot = i === 0 ? args[0].actorData.data.spells?.pact : args[0].actorData.data.spells[`spell${i}`];
                 if (!slot?.value) continue;
                 let level = slot?.level ? CONFIG.DND5E.spellLevels[slot.level] : CONFIG.DND5E.spellLevels[i];
                 let label = slot?.level ? game.i18n.format('DND5E.SpellLevelSlot', {level: level, n: slot.value}) + " (Pact)" : game.i18n.format('DND5E.SpellLevelSlot', {level: level, n: slot.value});
@@ -120,10 +120,10 @@ try {
                 if (level && label && value) slotOptions += `<option value="${value}">${label}</option>`;
             };
             let dialog = new Dialog({
-                title: `${title}`,
+                title: `${args[0]?.title}`,
                 content: `
                 <form id="spell-use-form">
-                    <p>` + game.i18n.format("DND5E.AbilityUseHint", {name: `${title}`, type: "spell"}) + `</p>
+                    <p>` + game.i18n.format("DND5E.AbilityUseHint", {name: `${args[0]?.title}`, type: "spell"}) + `</p>
                     <div class="form-group">
                         <label>Spell Slot Level</label>
                         <div class="form-fields">
@@ -162,6 +162,6 @@ try {
         socket = socketlib.registerModule("user-socket-functions");
         socket.register("useDialog", useDialog);
         socket.register("optionDialog", optionDialog);
-        socket.register("spellUseDialog", useDialog);
+        socket.register("spellUseDialog", spellUseDialog);
     });
 } catch (err) {}
