@@ -1,6 +1,15 @@
 try {
     let socket;
 
+    // midiItemRoll, takes args itemUuid, and options; returns workflow data
+    async function midiItemRoll(...args) {
+        return new Promise(async (resolve, reject) => {
+            const item = await fromUuid(args[0]?.itemUuid);
+            const workflow = await MidiQOL.completeItemRoll(item, args[0]?.options);
+            resolve({ itemLevel: workflow?.itemLevel, countered: workflow?.countered }); // cant return actual workflow
+        });
+    };
+
     // useDialog, takes args title, content, and timeout (optional); returns true or false
     async function useDialog(...args) {
         return new Promise((resolve, reject) => {
@@ -162,6 +171,7 @@ try {
 
     Hooks.once("socketlib.ready", () => {
         socket = socketlib.registerModule("user-socket-functions");
+        socket.register("midiItemRoll", midiItemRoll);
         socket.register("useDialog", useDialog);
         socket.register("optionDialog", optionDialog);
         socket.register("spellUseDialog", spellUseDialog);

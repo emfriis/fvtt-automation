@@ -48,34 +48,31 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
         if (!token?.actor) return;
         let player = await playerForActor(token?.actor);
         let socket = socketlib.registerModule("user-socket-functions");
-        let verbal = workflow.item.data.data?.components?.verbal;
-        let somatic = workflow.item.data.data?.components?.somatic;
-        let material = workflow.item.data.data?.components?.material;
         let useCounter = false;
-        useCounter = await socket.executeAsUser("useDialog", player.id, { title: `Counterspell`, content: `
-            Use your reaction to cast counterspell? <br>
-            (Spell cast with components: ${verbal && (somatic || material) ? "verbal, " : verbal ? "verbal" : ""}${somatic && material ? "somatic, " : somatic ? "somatic" : ""}${material ? "material" : ""})
-            ` 
-        });
+        useCounter = await socket.executeAsUser("useDialog", player.id, { title: `Counterspell`, content: `Use your reaction to cast counterspell?` });
         if (useCounter) {
+            let itemUuid = token.actor.items.find(i => i.name === "Counterspell" && i.data.type === "spell")?.uuid;
+            let options = { targetUuids: [workflow.tokenUuid] };
+            if (!itemUuid || !options) return;
             let counterCast = false;
-            counterCast = await MidiQOL.completeItemRoll(token.actor.items.find(i => i.name === "Counterspell" && i.data.type === "spell"), { targetUuids: [workflow.token.document.uuid] });
+            counterCast = await socket.executeAsUser("midiItemRoll", player.id, { itemUuid: itemUuid, options: options});
             sequencerEffect(token, workflow.token);
             if (!counterCast?.countered) {
-                let level = counterCast.itemLevel;
-                if (level >= workflow.itemLevel) {
+                let level = counterCast?.itemLevel;
+                if (level >= workflow?.itemLevel) {
                     if (!workflow.item.name.toLowerCase().includes("counter")) return false;
                     workflow.countered = true;
                 } else {
                     let rollOptions = { chatMessage: true, fastForward: true };
                     let roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "abil", targetUuid: token.actor.uuid, ability: (token.actor.data.data.attributes?.spellcasting ?? "int"), options: rollOptions });
                     if (game.dice3d) game.dice3d.showForRoll(roll);
-                    if (roll.total >= workflow.itemLevel + 10) {
+                    if (roll.total >= workflow?.itemLevel + 10) {
                         if (!workflow.item.name.toLowerCase().includes("counter")) return false;
                         workflow.countered = true;
                     };
                 };
             };
+            if (counterCast) return;
         };
     };
 });
