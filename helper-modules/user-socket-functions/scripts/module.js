@@ -1,7 +1,7 @@
 try {
     let socket;
 
-    // useDialog, takes args title and content, returns true or false
+    // useDialog, takes args title, content, and timeout (optional); returns true or false
     async function useDialog(...args) {
         return new Promise((resolve, reject) => {
             let dialog = new Dialog({
@@ -29,15 +29,15 @@ try {
         });
     };
 
-    // optionDialog; takes args title, options (an array of objects with ids, imgs, and names), and timeout; returns checked options's id
+    // optionDialog; takes args title, options (an array of objects with ids, imgs, and names), and timeout (optional); returns checked options's id
     async function optionDialog(...args) {
         return new Promise((resolve, reject) => {
             let optionsContent = "";
             (args[0].options).forEach((option) => {
                 optionsContent += `<label class="radio-label">
-                <input type="radio" name="option" value="${option.id}">
-                <img src="${option.img}" style="border:0px; width: 50px; height:50px;">
-                ${option.name}
+                <input type="radio" name="option" value="${option.id ?? option.data.id}">
+                <img src="${option.img ?? option.data.img}" style="border:0px; width: 100px; height:100px;">
+                ${option.name ?? option.data.name}
                 </label>`;
             });
             let content = `
@@ -107,17 +107,19 @@ try {
         });
     }
 
-    // spellUseDialog; takes args title, actorData, and timeout; returns selected option value, text, and consume checkbox bool in array
+    // spellUseDialog; takes args title, actorData, minLevel (optional), and timeout (optional); returns selected option id, value, and consume checkbox bool in array
     async function spellUseDialog(...args) {
         return new Promise((resolve, reject) => {
             let slotOptions = "";
             for (let i = 0; i < 9; i++) {
-                let slot = i === 0 ? args[0].actorData.data.spells?.pact : args[0].actorData.data.spells[`spell${i}`];
+                let slot = i === 0 ? args[0]?.actorData.data.spells?.pact : args[0].actorData.data.spells[`spell${i}`];
+                let minLevel = args[0]?.minLevel ?? 1;
                 if (!slot?.value) continue;
-                let level = slot?.level ? CONFIG.DND5E.spellLevels[slot.level] : CONFIG.DND5E.spellLevels[i];
-                let label = slot?.level ? game.i18n.format('DND5E.SpellLevelSlot', {level: level, n: slot.value}) + " (Pact)" : game.i18n.format('DND5E.SpellLevelSlot', {level: level, n: slot.value});
+                if ((i === 0 && slot?.level < minLevel) || (i > 0 && i < minLevel)) continue;
+                let level = slot?.level ? slot.level : i;
+                let label = slot?.level ? game.i18n.format('DND5E.SpellLevelSlot', {level: CONFIG.DND5E.spellLevels[level], n: slot.value}) + " (Pact)" : game.i18n.format('DND5E.SpellLevelSlot', {level: CONFIG.DND5E.spellLevels[level], n: slot.value});
                 let value = slot?.level ? "pact" : `spell${i}`;
-                if (level && label && value) slotOptions += `<option value="${value}">${label}</option>`;
+                if (level && label && value) slotOptions += `<option id="${level}" value="${value}">${label}</option>`;
             };
             let dialog = new Dialog({
                 title: `${args[0]?.title}`,
@@ -140,7 +142,7 @@ try {
                     one: {
                         icon: '<i class="fas fa-check"></i>',
                         label: "Confirm",
-                        callback: () => {resolve([$("#slot").find(":selected").val(), $("#slot").find(":selected").text(), $("#consume").is(":checked")])}
+                        callback: () => {resolve({ level: $("#slot").find(":selected").attr("id"), type: $("#slot").find(":selected").val(), consume: $("#consume").is(":checked")})}
                     },
                     two: {
                         icon: '<i class="fas fa-times"></i>',
