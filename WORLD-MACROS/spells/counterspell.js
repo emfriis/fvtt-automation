@@ -60,11 +60,12 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
             if (!itemUuid || !options) continue;
             let counterCast = false;
             counterCast = await socket.executeAsUser("midiItemRoll", player.id, { itemUuid: itemUuid, options: options});
-            sequencerEffect(token, workflow.token);
-            if (!counterCast?.countered) {
+            if (counterCast && counterCast?.itemLevel) {
+                sequencerEffect(token, workflow.token);
+                if (counterCast?.countered) continue;
                 let level = counterCast?.itemLevel;
                 if (level >= workflow?.itemLevel) {
-                    if (!workflow.item.name.toLowerCase().includes("counterspell")) return false;
+                    if (!workflow.item.name === "Counterspell") return false;
                     workflow.countered = true;
                     return;
                 } else {
@@ -72,7 +73,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                     let roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "abil", targetUuid: token.actor.uuid, ability: (token.actor.data.data.attributes?.spellcasting ?? "int"), options: rollOptions });
                     if (game.dice3d) game.dice3d.showForRoll(roll);
                     if (roll.total >= workflow?.itemLevel + 10) {
-                        if (!workflow.item.name.toLowerCase().includes("counterspell")) return false;
+                        if (!workflow.item.name === "Counterspell") return false;
                         workflow.countered = true;
                         return;
                     };
