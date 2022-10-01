@@ -33,7 +33,6 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
         let item = t?.actor.items.find(i => i.name === "Counterspell" && i.type === "spell");
         let token = (
             item && // has item
-            t?.actor && // exists
             t?.document.uuid !== workflow.token.document.uuid && // not caster
             t?.data.disposition !== workflow.token.data.disposition && // not friendly
             !t?.actor.effects.find(e => e.data.label === "Reaction" || e.data.label === "Incapacitated") && // can react
@@ -50,7 +49,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
     if (counterTokens?.length === 0) return;
     for (let c = 0; c < counterTokens.length; c++) {
         let token = counterTokens[c];
-        if (!token?.actor) return;
+        if (!token?.actor) continue;
         let player = await playerForActor(token?.actor);
         let socket = socketlib.registerModule("user-socket-functions");
         let useCounter = false;
@@ -58,7 +57,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
         if (useCounter) {
             let itemUuid = token.actor.items.find(i => i.name === "Counterspell" && i.type === "spell")?.uuid;
             let options = { targetUuids: [workflow.tokenUuid] };
-            if (!itemUuid || !options) return;
+            if (!itemUuid || !options) continue;
             let counterCast = false;
             counterCast = await socket.executeAsUser("midiItemRoll", player.id, { itemUuid: itemUuid, options: options});
             sequencerEffect(token, workflow.token);
@@ -67,6 +66,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                 if (level >= workflow?.itemLevel) {
                     if (!workflow.item.name.toLowerCase().includes("counterspell")) return false;
                     workflow.countered = true;
+                    return;
                 } else {
                     let rollOptions = { chatMessage: true, fastForward: true };
                     let roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "abil", targetUuid: token.actor.uuid, ability: (token.actor.data.data.attributes?.spellcasting ?? "int"), options: rollOptions });
@@ -74,10 +74,10 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                     if (roll.total >= workflow?.itemLevel + 10) {
                         if (!workflow.item.name.toLowerCase().includes("counterspell")) return false;
                         workflow.countered = true;
+                        return;
                     };
                 };
             };
-            if (counterCast) return;
         };
     };
 });
