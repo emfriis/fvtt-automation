@@ -1,6 +1,8 @@
 // counterspell
 // uses handler of user-socket-functions - "useDialog"
 
+// doesn't work - dialog appears synchronously with template
+
 if (!game.modules.get("midi-qol")?.active || !game.modules.get("conditional-visibility")?.active || !game.modules.get("levels")?.active || !_levels) throw new Error("requisite module(s) missing");
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); };
@@ -26,7 +28,9 @@ async function sequencerEffect(source, target) {
     };
 };
 
-Hooks.on("midi-qol.preambleComplete", async (workflow) => {
+Hooks.on("Item5e.roll", async (...args) => {
+    let workflow = MidiQOL.Workflow.getWorkflow(args[0]?.item?.uuid);
+    if (!workflow) return;
     if (!workflow?.token || !["spell"].includes(workflow.item.data.type)) return;
     if (workflow?.actor?.effects.find(i => i.data.label === "Metamagic: Subtle Spell") && !workflow.item.data.data?.components?.material) return;
     let counterTokens = await canvas.tokens.placeables.filter(t => {
@@ -65,17 +69,23 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                 if (counterCast?.countered) continue;
                 let level = counterCast?.itemLevel;
                 if (level >= workflow?.itemLevel) {
-                    if (!workflow.item.name === "Counterspell") return false;
-                    workflow.countered = true;
-                    return;
+                    if (!workflow.item.name === "Counterspell") {
+                        workflow = {};
+                    } else {
+                        workflow.countered = true;
+                        return;
+                    };
                 } else {
                     let rollOptions = { chatMessage: true, fastForward: true };
-                    let roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "abil", targetUuid: token.actor.uuid, ability: (token.actor.data.data.attributes?.spellcasting), options: rollOptions });
+                    let roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "abil", targetUuid: token.actor.uuid, ability: (token.actor.data.data.attributes?.spellcasting ?? "int"), options: rollOptions });
                     if (game.dice3d) game.dice3d.showForRoll(roll);
                     if (roll.total >= workflow?.itemLevel + 10) {
-                        if (!workflow.item.name === "Counterspell") return false;
-                        workflow.countered = true;  
-                        return;
+                        if (!workflow.item.name === "Counterspell") {
+                            workflow = {};
+                        } else {
+                            workflow.countered = true;
+                            return;
+                        };
                     };
                 };
             };
