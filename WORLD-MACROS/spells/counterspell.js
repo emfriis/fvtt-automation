@@ -1,5 +1,5 @@
 // counterspell
-// uses handler of user-socket-functions - "useDialog"
+// uses handlers of user-socket-functions - "useDialog" & "midiItemRoll"
 
 if (!game.modules.get("midi-qol")?.active || !game.modules.get("conditional-visibility")?.active || !game.modules.get("levels")?.active || !_levels) throw new Error("requisite module(s) missing");
 
@@ -65,17 +65,23 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                 if (counterCast?.countered) continue;
                 let level = counterCast?.itemLevel;
                 if (level >= workflow?.itemLevel) {
-                    if (!workflow.item.name === "Counterspell") return false;
-                    workflow.countered = true;
-                    return;
+                    if (workflow.item.name !== "Counterspell") {
+                        if (workflow?.templateId && canvas.scene.templates.contents.find(i => i.id === workflow.tempateId)) canvas.scene.deleteEmbeddedDocuments('MeasuredTemplate', [workflow.tempateId]);
+                        return false;
+                    } else {
+                        workflow.countered = true;
+                    };
                 } else {
                     let rollOptions = { chatMessage: true, fastForward: true };
                     let roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "abil", targetUuid: token.actor.uuid, ability: (token.actor.data.data.attributes?.spellcasting), options: rollOptions });
                     if (game.dice3d) game.dice3d.showForRoll(roll);
                     if (roll.total >= workflow?.itemLevel + 10) {
-                        if (!workflow.item.name === "Counterspell") return false;
-                        workflow.countered = true;  
-                        return;
+                        if (workflow.item.name !== "Counterspell") {
+                            if (workflow?.templateId && canvas.scene.templates.contents.find(i => i.id === workflow.tempateId)) canvas.scene.deleteEmbeddedDocuments('MeasuredTemplate', [workflow.tempateId]);
+                            return false;
+                        } else {
+                            workflow.countered = true;  
+                        };
                     };
                 };
             };

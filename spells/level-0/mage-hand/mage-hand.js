@@ -1,5 +1,4 @@
 // mage hand 
-// on use post active effects
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
@@ -21,8 +20,10 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     };
 };
 
-let updates = {
-    token: { "name": `Mage Hand (${tactor.name})` },
-    actor: { "name": `Mage Hand (${tactor.name})` }
+if (args[0] === "on") {
+    let updates = {
+        token: { "name": `Mage Hand (${tactor.name})` },
+        actor: { "name": `Mage Hand (${tactor.name})` }
+    };
+    await warpgate.spawn("Mage Hand", updates, { post: postWarp }, {});
 };
-await warpgate.spawn("Mage Hand", updates, { post: postWarp }, {});

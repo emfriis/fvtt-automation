@@ -1,5 +1,4 @@
 // dancing lights
-// on use post active effects
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
@@ -21,11 +20,13 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     };
 };
 
-let updates = {
-    token: { "name": `Dancing Light (${tactor.name})` },
-    actor: { "name": `Dancing Light (${tactor.name})` }
+if (args[0] === "on") {
+    let updates = {
+        token: { "name": `Dancing Light (${tactor.name})` },
+        actor: { "name": `Dancing Light (${tactor.name})` }
+    };
+    await warpgate.spawn("Dancing Light", updates, { post: postWarp }, {});
+    await warpgate.spawn("Dancing Light", updates, { post: postWarp }, {});
+    await warpgate.spawn("Dancing Light", updates, { post: postWarp }, {});
+    await warpgate.spawn("Dancing Light", updates, { post: postWarp }, {});
 };
-await warpgate.spawn("Dancing Light", updates, { post: postWarp }, {});
-await warpgate.spawn("Dancing Light", updates, { post: postWarp }, {});
-await warpgate.spawn("Dancing Light", updates, { post: postWarp }, {});
-await warpgate.spawn("Dancing Light", updates, { post: postWarp }, {});
