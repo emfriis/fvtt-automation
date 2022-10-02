@@ -1,0 +1,858 @@
+{
+  "name": "Spiritual Weapon",
+  "type": "npc",
+  "img": "https://assets.forge-vtt.com/bazaar/modules/jb2a_patreon-2d960ceba80cc778/assets/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Mace01_01_Spectral_Blue_Thumb.webp",
+  "data": {
+    "abilities": {
+      "str": {
+        "value": 10,
+        "proficient": 0,
+        "bonuses": {
+          "check": "",
+          "save": ""
+        }
+      },
+      "dex": {
+        "value": 10,
+        "proficient": 0,
+        "bonuses": {
+          "check": "",
+          "save": ""
+        }
+      },
+      "con": {
+        "value": 10,
+        "proficient": 0,
+        "bonuses": {
+          "check": "",
+          "save": ""
+        }
+      },
+      "int": {
+        "value": 10,
+        "proficient": 0,
+        "bonuses": {
+          "check": "",
+          "save": ""
+        }
+      },
+      "wis": {
+        "value": 10,
+        "proficient": 0,
+        "bonuses": {
+          "check": "",
+          "save": ""
+        }
+      },
+      "cha": {
+        "value": 10,
+        "proficient": 0,
+        "bonuses": {
+          "check": "",
+          "save": ""
+        }
+      },
+      "san": {
+        "value": 16,
+        "proficient": 0,
+        "bonuses": {
+          "check": "",
+          "save": ""
+        }
+      }
+    },
+    "attributes": {
+      "ac": {
+        "flat": null,
+        "calc": "default",
+        "formula": ""
+      },
+      "hp": {
+        "value": 1,
+        "min": 0,
+        "max": 1,
+        "temp": null,
+        "tempmax": null,
+        "formula": "1"
+      },
+      "init": {
+        "value": 0,
+        "bonus": 0
+      },
+      "movement": {
+        "burrow": 0,
+        "climb": 0,
+        "fly": 30,
+        "swim": 0,
+        "walk": 0,
+        "units": "ft",
+        "hover": true
+      },
+      "attunement": {
+        "max": 3
+      },
+      "senses": {
+        "darkvision": 0,
+        "blindsight": 0,
+        "tremorsense": 0,
+        "truesight": 0,
+        "units": "ft",
+        "special": ""
+      },
+      "spellcasting": "int"
+    },
+    "details": {
+      "biography": {
+        "value": "",
+        "public": ""
+      },
+      "alignment": "Unaligned",
+      "race": "",
+      "type": {
+        "value": "custom",
+        "subtype": "",
+        "swarm": "",
+        "custom": "NoTarget"
+      },
+      "environment": "",
+      "cr": "0",
+      "spellLevel": 0,
+      "xp": {
+        "value": 10
+      },
+      "source": "",
+      "gender": "",
+      "age": "",
+      "height": "",
+      "weight": "",
+      "eyes": "",
+      "skin": "",
+      "hair": "",
+      "notes1name": "",
+      "notes2name": "",
+      "notes3name": "",
+      "notes4name": ""
+    },
+    "traits": {
+      "size": "med",
+      "di": {
+        "value": [
+          "acid",
+          "bludgeoning",
+          "cold",
+          "fire",
+          "force",
+          "lightning",
+          "necrotic",
+          "physical",
+          "piercing",
+          "poison",
+          "psychic",
+          "radiant",
+          "slashing",
+          "thunder",
+          "silver",
+          "adamant",
+          "spell",
+          "healing",
+          "temphp"
+        ],
+        "custom": ""
+      },
+      "dr": {
+        "value": [],
+        "custom": ""
+      },
+      "dv": {
+        "value": [],
+        "custom": ""
+      },
+      "ci": {
+        "value": [
+          "blinded",
+          "charmed",
+          "deafened",
+          "diseased",
+          "exhaustion",
+          "frightened",
+          "grappled",
+          "incapacitated",
+          "invisible",
+          "paralyzed",
+          "petrified",
+          "poisoned",
+          "prone",
+          "restrained",
+          "stunned",
+          "unconscious"
+        ],
+        "custom": ""
+      },
+      "languages": {
+        "value": [],
+        "custom": ""
+      }
+    },
+    "currency": {
+      "pp": 0,
+      "gp": 0,
+      "ep": 0,
+      "sp": 0,
+      "cp": 0
+    },
+    "skills": {
+      "acr": {
+        "value": 0,
+        "ability": "dex",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "ani": {
+        "value": 0,
+        "ability": "wis",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "arc": {
+        "value": 0,
+        "ability": "int",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "ath": {
+        "value": 0,
+        "ability": "str",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "dec": {
+        "value": 0,
+        "ability": "cha",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "his": {
+        "value": 0,
+        "ability": "int",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "ins": {
+        "value": 0,
+        "ability": "wis",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "itm": {
+        "value": 0,
+        "ability": "cha",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "inv": {
+        "value": 0,
+        "ability": "int",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "med": {
+        "value": 0,
+        "ability": "wis",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "nat": {
+        "value": 0,
+        "ability": "int",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "prc": {
+        "value": 0,
+        "ability": "wis",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "prf": {
+        "value": 0,
+        "ability": "cha",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "per": {
+        "value": 0,
+        "ability": "cha",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "rel": {
+        "value": 0,
+        "ability": "int",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "slt": {
+        "value": 0,
+        "ability": "dex",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "ste": {
+        "value": 0,
+        "ability": "dex",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      },
+      "sur": {
+        "value": 0,
+        "ability": "wis",
+        "bonuses": {
+          "check": "",
+          "passive": ""
+        }
+      }
+    },
+    "spells": {
+      "spell1": {
+        "value": 0,
+        "override": null
+      },
+      "spell2": {
+        "value": 0,
+        "override": null
+      },
+      "spell3": {
+        "value": 0,
+        "override": null
+      },
+      "spell4": {
+        "value": 0,
+        "override": null
+      },
+      "spell5": {
+        "value": 0,
+        "override": null
+      },
+      "spell6": {
+        "value": 0,
+        "override": null
+      },
+      "spell7": {
+        "value": 0,
+        "override": null
+      },
+      "spell8": {
+        "value": 0,
+        "override": null
+      },
+      "spell9": {
+        "value": 0,
+        "override": null
+      },
+      "pact": {
+        "value": 0,
+        "override": null
+      }
+    },
+    "bonuses": {
+      "mwak": {
+        "attack": "",
+        "damage": ""
+      },
+      "rwak": {
+        "attack": "",
+        "damage": ""
+      },
+      "msak": {
+        "attack": "",
+        "damage": ""
+      },
+      "rsak": {
+        "attack": "",
+        "damage": ""
+      },
+      "abilities": {
+        "check": "",
+        "save": "",
+        "skill": ""
+      },
+      "spell": {
+        "dc": ""
+      }
+    },
+    "resources": {
+      "legact": {
+        "value": 0,
+        "max": 0
+      },
+      "legres": {
+        "value": 0,
+        "max": 0
+      },
+      "lair": {
+        "value": false,
+        "initiative": 0
+      }
+    }
+  },
+  "token": {
+    "name": "Spiritual Weapon",
+    "img": "https://assets.forge-vtt.com/bazaar/modules/jb2a_patreon-2d960ceba80cc778/assets/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Mace01_01_Spectral_Blue_200x200.webm",
+    "displayName": 0,
+    "actorLink": false,
+    "width": 1,
+    "height": 1,
+    "scale": 1,
+    "mirrorX": false,
+    "mirrorY": false,
+    "lockRotation": false,
+    "rotation": 0,
+    "alpha": 1,
+    "vision": true,
+    "dimSight": 20,
+    "brightSight": 0,
+    "sightAngle": 0,
+    "light": {
+      "alpha": 0.1,
+      "angle": 0,
+      "bright": 0,
+      "coloration": 1,
+      "dim": 0.5,
+      "gradual": true,
+      "luminosity": 0.5,
+      "saturation": 0,
+      "contrast": 0,
+      "shadows": 0,
+      "animation": {
+        "speed": 5,
+        "intensity": 5,
+        "reverse": false,
+        "type": "fog"
+      },
+      "darkness": {
+        "min": 0,
+        "max": 1
+      },
+      "color": "#ffffff"
+    },
+    "disposition": 0,
+    "displayBars": 0,
+    "bar1": {
+      "attribute": "attributes.hp"
+    },
+    "bar2": {
+      "attribute": ""
+    },
+    "flags": {
+      "levels": {
+        "tokenHeight": 0
+      },
+      "monks-tokenbar": {
+        "include": "default"
+      },
+      "splatter": {
+        "bloodColor": ""
+      },
+      "monks-little-details": {
+        "token-highlight": "",
+        "token-combat-animation": ""
+      },
+      "image-hover": {
+        "hideArt": false
+      },
+      "wall-height": {
+        "tokenHeight": 0
+      },
+      "monks-enhanced-journal": {
+        "chatbubble": ""
+      },
+      "tagger": {
+        "tags": ""
+      },
+      "perfect-vision": {
+        "visionRules": "default",
+        "monoVisionColor": "",
+        "sightLimit": null,
+        "light": {}
+      },
+      "core": {
+        "priority": null
+      },
+      "elevation-drag-ruler": {
+        "selectedSpeed": "auto",
+        "hideSpeedButton": false,
+        "hideTerrainButton": false,
+        "ignoredEnvironments": {
+          "all": {
+            "any": false,
+            "walk": false,
+            "swim": false,
+            "fly": false,
+            "burrow": false,
+            "climb": false
+          },
+          "arctic": {
+            "any": false,
+            "walk": false,
+            "swim": false,
+            "fly": false,
+            "burrow": false,
+            "climb": false
+          },
+          "coast": {
+            "any": false,
+            "walk": false,
+            "swim": false,
+            "fly": false,
+            "burrow": false,
+            "climb": false
+          },
+          "desert": {
+            "any": false,
+            "walk": false,
+            "swim": false,
+            "fly": false,
+            "burrow": false,
+            "climb": false
+          },
+          "forest": {
+            "any": false,
+            "walk": false,
+            "swim": false,
+            "fly": false,
+            "burrow": false,
+            "climb": false
+          },
+          "grassland": {
+            "any": false,
+            "walk": false,
+            "swim": false,
+            "fly": false,
+            "burrow": false,
+            "climb": false
+          },
+          "jungle": {
+            "any": false,
+            "walk": false,
+            "swim": false,
+            "fly": false,
+            "burrow": false,
+            "climb": false
+          },
+          "mountain": {
+            "any": false,
+            "walk": false,
+            "swim": false,
+            "fly": false,
+            "burrow": true,
+            "climb": true
+          },
+          "swamp": {
+            "any": false,
+            "walk": false,
+            "swim": false,
+            "fly": false,
+            "burrow": false,
+            "climb": false
+          },
+          "underdark": {
+            "any": false,
+            "walk": false,
+            "swim": false,
+            "fly": false,
+            "burrow": false,
+            "climb": false
+          },
+          "urban": {
+            "any": false,
+            "walk": false,
+            "swim": false,
+            "fly": false,
+            "burrow": false,
+            "climb": false
+          },
+          "water": {
+            "any": false,
+            "walk": false,
+            "swim": true,
+            "fly": false,
+            "burrow": false,
+            "climb": false
+          }
+        }
+      }
+    },
+    "randomImg": false,
+    "tint": null,
+    "x": null,
+    "y": null,
+    "elevation": null,
+    "actor": {
+      "data": {
+        "flags": {
+          "conditional-visibility": {
+            "blindsight": {
+              "visionLevelValue": 0
+            },
+            "blinded": {
+              "visionLevelValue": 0
+            },
+            "darkvision": {
+              "visionLevelValue": 0
+            },
+            "devilssight": {
+              "visionLevelValue": 0
+            },
+            "normal": {
+              "visionLevelValue": 0
+            },
+            "perception": {
+              "visionLevelValue": 0
+            },
+            "seeinvisible": {
+              "visionLevelValue": 0
+            },
+            "tremorsense": {
+              "visionLevelValue": 0
+            },
+            "truesight": {
+              "visionLevelValue": 0
+            },
+            "dataforcevisible": false,
+            "datausestealthpassive": false,
+            "hidden": {
+              "visionLevelValue": 0
+            },
+            "indarkness": {
+              "visionLevelValue": 0
+            },
+            "invisible": {
+              "visionLevelValue": 0
+            },
+            "obscured": {
+              "visionLevelValue": 0
+            },
+            "stealth": {
+              "visionLevelValue": 0
+            },
+            "dataautoskillstoken": [
+              "perception",
+              "stealth"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "items": [
+    {
+      "_id": "HoOQ7I3A6QkQeZnV",
+      "name": "Spiritual Weapon Attack",
+      "type": "weapon",
+      "img": "icons/magic/light/explosion-star-glow-blue-purple.webp",
+      "data": {
+        "description": {
+          "value": "<p>you can make a melee spell attack against a creature within 5 feet of the weapon. On a hit, the target takes force damage equal to 1d8 + your spellcasting ability modifier.</p>",
+          "chat": "",
+          "unidentified": ""
+        },
+        "source": "",
+        "quantity": 1,
+        "weight": 0,
+        "price": "0",
+        "attunement": 0,
+        "equipped": true,
+        "rarity": "",
+        "identified": true,
+        "activation": {
+          "type": "special",
+          "cost": null,
+          "condition": ""
+        },
+        "duration": {
+          "value": null,
+          "units": ""
+        },
+        "target": {
+          "value": null,
+          "width": null,
+          "units": "",
+          "type": "creature"
+        },
+        "range": {
+          "value": 5,
+          "long": null,
+          "units": "ft"
+        },
+        "uses": {
+          "value": null,
+          "max": "",
+          "per": ""
+        },
+        "consume": {
+          "type": "",
+          "target": "",
+          "amount": null
+        },
+        "ability": "",
+        "actionType": "msak",
+        "attackBonus": "0",
+        "chatFlavor": "",
+        "critical": {
+          "threshold": null,
+          "damage": ""
+        },
+        "damage": {
+          "parts": [],
+          "versatile": ""
+        },
+        "formula": "",
+        "save": {
+          "ability": "",
+          "dc": null,
+          "scaling": "spell"
+        },
+        "armor": {
+          "value": 10
+        },
+        "hp": {
+          "value": 0,
+          "max": 0,
+          "dt": null,
+          "conditions": ""
+        },
+        "weaponType": "natural",
+        "baseItem": "",
+        "properties": {
+          "ada": false,
+          "amm": false,
+          "fin": false,
+          "fir": false,
+          "foc": false,
+          "hvy": false,
+          "lgt": false,
+          "lod": false,
+          "mgc": true,
+          "rch": false,
+          "rel": false,
+          "ret": false,
+          "sil": false,
+          "spc": false,
+          "thr": false,
+          "two": false,
+          "ver": false
+        },
+        "proficient": false
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 1001,
+      "permission": {
+        "default": 0,
+        "Tyd5yiqWrRZMvG30": 3
+      },
+      "flags": {
+        "magicitems": {
+          "enabled": false,
+          "equipped": false,
+          "attuned": false,
+          "charges": "0",
+          "chargeType": "c1",
+          "destroy": false,
+          "destroyFlavorText": "reaches 0 charges: it crumbles into ashes and is destroyed.",
+          "rechargeable": false,
+          "recharge": "0",
+          "rechargeType": "t1",
+          "rechargeUnit": "r1",
+          "sorting": "l"
+        },
+        "midi-qol": {
+          "effectActivation": false,
+          "fumbleThreshold": null
+        },
+        "midiProperties": {
+          "nodam": false,
+          "fulldam": false,
+          "halfdam": false,
+          "rollOther": false,
+          "critOther": false,
+          "magicdam": false,
+          "magiceffect": false,
+          "concentration": false,
+          "toggleEffect": false
+        },
+        "rest-recovery": {
+          "data": {
+            "recovery": {
+              "enabled": false
+            }
+          }
+        }
+      }
+    }
+  ],
+  "effects": [],
+  "flags": {
+    "tidy5e-sheet": {
+      "allow-edit": true,
+      "traitsExpanded": true
+    },
+    "summons": {
+      "actorId": "Rb6ljVxR2pw0K5Gy"
+    },
+    "warpgate": {
+      "control": {
+        "user": "Tyd5yiqWrRZMvG30"
+      }
+    },
+    "exportSource": {
+      "world": "dnd5e",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    },
+    "midi-qol": {
+      "concentration-damage": 0
+    },
+    "core": {
+      "sourceId": "Actor.hHCrmUuJIpK5jJDa"
+    },
+    "scene-packer": {
+      "sourceId": "Actor.hHCrmUuJIpK5jJDa"
+    }
+  }
+}
