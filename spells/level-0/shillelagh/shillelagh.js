@@ -76,12 +76,14 @@ if (args[0] === "on") {
                 DAE.setFlag(tactor, "shillelagh", {
                     weapon: itemId,
                         ability: copyItem.data.ability,
-                        damage : copyItem.data.damage.parts[0][0]
+                        damage : copyItem.data.damage.parts[0][0],
+                        magic : copyItem.data.properties.mgc
                 });
                 if (copyItem.data.attackBonus === "") copyItem.data.attackBonus = "0";
                 let damage = copyItem.data.damage.parts[0][0];
                 var newDamage = damage.replace(/1d(4|6)/g,"1d8");
                 copyItem.data.damage.parts[0][0] = newDamage;
+                copyItem.data.properties.mgc = true;
                 copyItem.data.ability = tactor.data.data.attributes.spellcasting;
                 copyItem.name = "Imbued " + copyItem.name;
                 tactor.updateEmbeddedDocuments("Item", [copyItem]);
@@ -97,12 +99,13 @@ if (args[0] === "on") {
 //Revert weapon and unset flag.
 if (args[0] === "off") {
     try {
-        const { weapon, ability, damage } = DAE.getFlag(tactor, "shillelagh");
+        const { weapon, ability, damage, magic } = DAE.getFlag(tactor, "shillelagh");
         const weaponItem = tactor.items.get(weapon);
         let copyItem = duplicate(weaponItem);
         copyItem.data.ability = ability;
         copyItem.name = copyItem.name.replace("Imbued ", "");
         copyItem.data.damage.parts[0][0] = damage;
+        copyItem.data.properties.mgc = magic;
         tactor.updateEmbeddedDocuments("Item", [copyItem]);
         DAE.unsetFlag(tactor, "shillelagh");
     } catch (err) {
