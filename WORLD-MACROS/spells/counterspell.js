@@ -39,8 +39,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
             MidiQOL.getDistance(t, workflow.token, false) <= 60 && // in range
             (game.modules.get('conditional-visibility')?.api?.canSee(t, workflow.token) && _levels?.advancedLosTestVisibility(t, workflow.token)) && // can see
             (
-                ((item.data.data.preparation?.prepared || item.data.data.preparation.mode === "always") && Object.keys(t.actor.data.data.spells).find(i => i !== "pact" && (parseInt(i.slice(-1)) >= 3 && t.actor.data.data.spells[i]?.value > 0))) ||
-                (item.data.data.preparation.mode === "pact" && t.actor.data.data.spells.pact?.level >= 3 && t.actor.data.data.spells.pact?.value > 0) || 
+                ((item.data.data.preparation?.prepared || item.data.data.preparation.mode === "always" || item.data.data.preparation.mode === "pact") && Object.keys(t.actor.data.data.spells).find(i => (t.actor.data.data.spells.pact?.level >= 3 && t.actor.data.data.spells.pact?.value > 0) || (i !== "pact" && parseInt(i.slice(-1)) >= 3 && t.actor.data.data.spells[i]?.value > 0))) ||
                 ((item.data.data.preparation.mode === "atwill" || item.data.data.preparation.mode === "innate") && (item.data.data.uses?.value > 0 || !item.data.data.uses?.max))
             ) // can cast
         );
