@@ -51,7 +51,6 @@ if (args[0].tag === "OnUse") {
         type = await dialog;
     }
     if (!type) return;
-    let gameRound = game.combat ? game.combat.rounds : 0;
     let effectData = [{
         label: itemD.name,
         icon: itemD.img,
@@ -61,13 +60,12 @@ if (args[0].tag === "OnUse") {
         ],
         origin: lastArg.uuid,
         disabled: false,
-        duration: {rounds: 1, startTime: game.time.worldTime, startRound: gameRound },
-        flags: { dae: { specialDuration: ["turnStartSource"], itemData: itemD } },
+        flags: { dae: { specialDuration: ["turnStartSource"], itemData: itemD } , core: { statusId: "Absorb Elements" }},
     }]
     await actorD.createEmbeddedDocuments("ActiveEffect", effectData);
 }
 
-if (args[0] === "off" && (lastArg["expiry-reason"] === "times-up:duration:turns" || lastArg["expiry-reason"] === "times-up:duration-special")) {
+if (args[0] === "off" && lastArg["expiry-reason"] === "times-up:duration-special") {
     let type = args[1];
     let level = args[2];
     let gameRound = game.combat ? game.combat.rounds : 0;

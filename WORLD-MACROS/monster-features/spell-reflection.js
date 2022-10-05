@@ -52,7 +52,7 @@ Hooks.on("midi-qol.preCheckHits", async workflow => {
         } else if (newTargets.length === 1) {
             workflow?.targets.delete(t);
             const itemCopy = duplicate(workflow.item);
-            const attackItem = new CONFIG.Item.documentClass(itemCopy, { parent: t.actor });
+            const attackItem = new CONFIG.Item.documentClass(itemCopy, { parent: workflow.actor });
             let rollOptions = { targetUuids: [newTargets[0].document.uuid], showFullCard: false, createWorkflow: true };
             await MidiQOL.completeItemRoll(attackItem, rollOptions);
             if (game?.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: t.actor.uuid });
@@ -122,7 +122,7 @@ Hooks.on("midi-qol.preCheckHits", async workflow => {
                             const replaceTarget = canvas.tokens.get(selectedId);
                             workflow?.targets.delete(t);
                             const itemCopy = duplicate(workflow.item);
-                            const attackItem = new CONFIG.Item.documentClass(itemCopy, { parent: t.actor });
+                            const attackItem = new CONFIG.Item.documentClass(itemCopy, { parent: workflow.actor });
                             let rollOptions = { targetUuids: [replaceTarget.document.uuid], showFullCard: false, createWorkflow: true };
                             await MidiQOL.completeItemRoll(attackItem, rollOptions);
                             if (game?.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: t.actor.uuid });
