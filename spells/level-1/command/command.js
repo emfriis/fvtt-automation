@@ -43,7 +43,7 @@ if (args[0].tag === "OnUse" && args[0].failedSaveUuids.length > 0) {
 	const effectData = {
 		changes: [
 			{ key: "flags.midi-qol.commandWord", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: commandWord, priority: 20 },
-			{ key: `macro.itemMacro.GM`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "", priority: 20 },
+			{ key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "", priority: 20 },
 		],
 		disabled: false,
 		flags: { dae: { itemData: item.data, specialDuration: ["turnEnd"], macroRepeat: "startEveryTurn" }, core: { statusId: "Command" } },

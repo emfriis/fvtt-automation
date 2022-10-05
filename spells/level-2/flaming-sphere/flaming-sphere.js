@@ -35,7 +35,7 @@ if (args[0] === "on") {
             },
             ActiveEffect: {
                 "Flaming Sphere Damage": {
-                    "changes":  [{"key":"flags.midi-qol.OverTime","mode":5,"value": `turn=end,saveDC=${spellDC},saveAbility=dex,damageRoll=${spellLevel - 1}d6,damageType=fire,saveDamage=halfdamage,saveRemove=false`,"priority":"20"}],
+                    "changes":  [{"key":"flags.midi-qol.OverTime","mode":5,"value": `label=Flaming Sphere (End of Turn),turn=end,saveDC=${spellDC},saveAbility=dex,damageRoll=${spellLevel - 1}d6,damageType=fire,saveDamage=halfdamage,saveRemove=false`,"priority":"20"}],
                     "disabled": false,
                     "icon": "systems/dnd5e/icons/spells/light-air-fire-3.jpg",
                     "label": "Flaming Sphere Damage",

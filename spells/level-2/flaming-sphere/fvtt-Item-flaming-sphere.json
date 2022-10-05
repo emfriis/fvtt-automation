@@ -80,7 +80,8 @@
     "scaling": {
       "mode": "none",
       "formula": ""
-    }
+    },
+    "attunement": null
   },
   "effects": [
     {
@@ -130,7 +131,7 @@
           "onlyOnce": false
         }
       },
-      "tint": "",
+      "tint": null,
       "selectedKey": "macro.itemMacro"
     }
   ],
@@ -139,8 +140,8 @@
       "sourceId": "Compendium.dnd5e.spells.FjYE214HTERCRZNm"
     },
     "scene-packer": {
-      "hash": "639d461305895c98337268e1c70cbf684b0e203f",
-      "sourceId": "Item.ag6NtG2q2gEqtpip"
+      "hash": "f6c6541e8383442629838a0a21b702eccd01227c",
+      "sourceId": "Item.k1WoGZTYyGInjYQG"
     },
     "rest-recovery": {
       "data": {
@@ -177,7 +178,7 @@
         "author": "ckiTPzlaPztdkjV6",
         "img": "icons/svg/dice-target.svg",
         "scope": "global",
-        "command": "// flaming sphere \n\nconst lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\nconst spellLevel = args[1];\nconst spellDC = tactor.data.data.attributes.spelldc;\n\nasync function postWarp(location, spawnedTokenDoc, updates, iteration) {\n    let ef = tactor.effects.find(i => i.data.label === \"Flaming Sphere\");\n    let summonUuid = spawnedTokenDoc.uuid;\n    if (ef) {\n        let changes = [\n            {\n                key: \"flags.dae.deleteUuid\",\n                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,\n                value: summonUuid,\n                priority: 20,\n            }\n        ];\n        await ef.update({ changes: changes.concat(ef.data.changes) });\n    };\n};\n\nif (args[0] === \"on\") {\n    let updates = {\n        token: { \"name\": `Flaming Sphere (${tactor.name})` },\n        actor: { \"name\": `Flaming Sphere (${tactor.name})` },\n        embedded: {\n            Item: {\n                \"Flaming Sphere Damage\": {\n                    \"data.damage.parts\": [[`${spellLevel - 1}d6`, \"fire\"]], \n                    \"data.save.dc\": spellDC\n                },\n            },\n            ActiveEffect: {\n                \"Flaming Sphere Damage\": {\n                    \"changes\":  [{\"key\":\"flags.midi-qol.OverTime\",\"mode\":5,\"value\": `turn=end,saveDC=${spellDC},saveAbility=dex,damageRoll=${spellLevel - 1}d6,damageType=fire,saveDamage=halfdamage,saveRemove=false`,\"priority\":\"20\"}],\n                    \"disabled\": false,\n                    \"icon\": \"systems/dnd5e/icons/spells/light-air-fire-3.jpg\",\n                    \"label\": \"Flaming Sphere Damage\",\n                    \"flags\": {\n                        \"ActiveAuras\": {\n                            \"isAura\":true,\n                            \"aura\":\"All\",\n                            \"radius\":5,\n                            \"alignment\":\"\",\n                            \"type\":\"\",\n                            \"ignoreSelf\":true,\n                            \"height\":true,\n                            \"hidden\":false,\n                            \"hostile\":false,\n                            \"onlyOnce\":false\n                        },\n                    },\n                },\n            },\n        },\n    };\n    await warpgate.spawn(\"Flaming Sphere\", updates, { post: postWarp }, {});\n};",
+        "command": "// flaming sphere \n\nconst lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\nconst spellLevel = args[1];\nconst spellDC = tactor.data.data.attributes.spelldc;\n\nasync function postWarp(location, spawnedTokenDoc, updates, iteration) {\n    let ef = tactor.effects.find(i => i.data.label === \"Flaming Sphere\");\n    let summonUuid = spawnedTokenDoc.uuid;\n    if (ef) {\n        let changes = [\n            {\n                key: \"flags.dae.deleteUuid\",\n                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,\n                value: summonUuid,\n                priority: 20,\n            }\n        ];\n        await ef.update({ changes: changes.concat(ef.data.changes) });\n    };\n};\n\nif (args[0] === \"on\") {\n    let updates = {\n        token: { \"name\": `Flaming Sphere (${tactor.name})` },\n        actor: { \"name\": `Flaming Sphere (${tactor.name})` },\n        embedded: {\n            Item: {\n                \"Flaming Sphere Damage\": {\n                    \"data.damage.parts\": [[`${spellLevel - 1}d6`, \"fire\"]], \n                    \"data.save.dc\": spellDC\n                },\n            },\n            ActiveEffect: {\n                \"Flaming Sphere Damage\": {\n                    \"changes\":  [{\"key\":\"flags.midi-qol.OverTime\",\"mode\":5,\"value\": `label=Flaming Sphere (End of Turn),turn=end,saveDC=${spellDC},saveAbility=dex,damageRoll=${spellLevel - 1}d6,damageType=fire,saveDamage=halfdamage,saveRemove=false`,\"priority\":\"20\"}],\n                    \"disabled\": false,\n                    \"icon\": \"systems/dnd5e/icons/spells/light-air-fire-3.jpg\",\n                    \"label\": \"Flaming Sphere Damage\",\n                    \"flags\": {\n                        \"ActiveAuras\": {\n                            \"isAura\":true,\n                            \"aura\":\"All\",\n                            \"radius\":5,\n                            \"alignment\":\"\",\n                            \"type\":\"\",\n                            \"ignoreSelf\":true,\n                            \"height\":true,\n                            \"hidden\":false,\n                            \"hostile\":false,\n                            \"onlyOnce\":false\n                        },\n                    },\n                },\n            },\n        },\n    };\n    await warpgate.spawn(\"Flaming Sphere\", updates, { post: postWarp }, {});\n};",
         "folder": null,
         "sort": 0,
         "permission": {
@@ -185,6 +186,9 @@
         },
         "flags": {}
       }
+    },
+    "cf": {
+      "id": "temp_6m7ecx5ywq4"
     },
     "exportSource": {
       "world": "dnd5e",
