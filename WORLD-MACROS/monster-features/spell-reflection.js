@@ -2,14 +2,15 @@
 // Rolls item against new target as if target was the source
 // Requires always roll damage midi-qol on - OR refactor to manually check hits with preCheckHits hook
 
-Hooks.on("midi-qol.preDamageRoll", async workflow => {
-    if (workflow.item.data.type !== "spell" || workflow.item.data.data.target.type !== "creature") return;
+Hooks.on("midi-qol.preCheckHits", async workflow => {
+    if (workflow.item.data.type !== "spell" || workflow.item.data.data.target.type !== "creature" || workflow.item.data.data?.components.concentration !== false) return;
     let workflowTargets = Array.from(workflow?.targets);
-    let workflowHitTargets = Array.from(workflow?.hitTargets);
-    if (!workflowTargets || !workflowHitTargets) return;
+    // let workflowHitTargets = Array.from(workflow?.hitTargets);
+    if (!workflowTargets) return;
     for (let ti = 0; ti < workflowTargets.length; ti++) {
         const t = workflowTargets[ti];
-        if (workflowHitTargets.includes(t)) return;
+        // if (workflowHitTargets.includes(t)) return;
+        if (t?.actor.data.data.attributes.ac.value <= workflow?.attackRoll?.total) return;
         if (!t.actor.items.find(i => i.data.name === "Spell Reflection") || t.actor.effects.find(e => e.data.label === "Reaction" || e.data.label === "Incapacitated")) return;
 
         let dialog = new Promise((resolve, reject) => {
@@ -141,7 +142,7 @@ Hooks.on("midi-qol.preDamageRoll", async workflow => {
 });
 
 Hooks.on("midi-qol.postCheckSaves", async workflow => {
-    if (workflow.item.data.type !== "spell" || workflow.item.data.data.target.type !== "creature") return;
+    if (workflow.item.data.type !== "spell" || workflow.item.data.data.target.type !== "creature" || workflow.item.data.data?.components.concentration !== false) return;
     let workflowTargets = Array.from(workflow?.targets);
     let workflowFailedSaves = Array.from(workflow?.failedSaves);
     if (!workflowTargets || !workflowFailedSaves) return;
