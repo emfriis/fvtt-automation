@@ -84,7 +84,7 @@ if (args[0] === "each" && lastArg.efData.disabled === false) {
     attemptRemoval(targetToken, condition, item, getResist);
 }
 
-// Add magic resistance if spell on end of turn: , "Magic Resistance"
+// Add magic resistance if spell on end of turn: , "Magic Resistance", "Spell Resistance"
 
 // frightened: ["Brave", "Fear Resilience"]
 // CAUSE FEAR, WRATHFUL SMITE, FEAR, MENACING ATTACK

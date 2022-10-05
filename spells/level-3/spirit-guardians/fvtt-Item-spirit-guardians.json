@@ -1,14 +1,14 @@
 {
   "name": "Spirit Guardians",
   "type": "spell",
-  "img": "systems/dnd5e/icons/spells/needles-sky-2.jpg",
+  "img": "https://assets.forge-vtt.com/bazaar/systems/dnd5e/assets/icons/spells/needles-sky-2.jpg",
   "data": {
     "description": {
       "value": "<p>You call forth spirits to protect you. They flit around you to a distance of 15 feet for the duration. If you are good or neutral, their spectral form appears angelic or fey (your choice). If you are evil, they appear fiendish.</p>\n<p>When you cast this spell, you can designate any number of creatures you can see to be unaffected by it. An affected creature's speed is halved in the area, and when the creature enters the area for the first time on a turn or starts its turn there, it must make a Wisdom saving throw. On a failed save, the creature takes 3d8 radiant damage (if you are good or neutral) or 3d8 necrotic damage (if you are evil). On a successful save, the creature takes half as much damage.</p>\n<p><strong>At Higher Levels.</strong> When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d8 for each slot level above 3rd.</p>",
       "chat": "",
       "unidentified": ""
     },
-    "source": "Basic Rules, Player's Handbook pg 278",
+    "source": "PHB pg. 278",
     "activation": {
       "type": "action",
       "cost": 1,
@@ -25,13 +25,13 @@
       "type": "self"
     },
     "range": {
-      "value": 15,
+      "value": null,
       "long": null,
-      "units": "ft"
+      "units": "self"
     },
     "uses": {
-      "value": null,
-      "max": "",
+      "value": 0,
+      "max": "0",
       "per": ""
     },
     "consume": {
@@ -39,29 +39,25 @@
       "target": "",
       "amount": null
     },
-    "ability": null,
+    "ability": "",
     "actionType": "",
     "attackBonus": 0,
-    "chatFlavor": "[3d8 - radiant] Good or Neutral Alignment, [3d8 - necrotic] Evil Alignment",
-    "critical": {
-      "threshold": null,
-      "damage": ""
-    },
+    "chatFlavor": "",
+    "critical": null,
     "damage": {
       "parts": [],
-      "versatile": "",
-      "value": ""
+      "versatile": ""
     },
     "formula": "",
     "save": {
       "ability": "",
-      "dc": null,
+      "dc": 0,
       "scaling": "spell"
     },
     "level": 3,
     "school": "con",
     "components": {
-      "value": "a holy symbol",
+      "value": "",
       "vocal": true,
       "somatic": true,
       "material": true,
@@ -69,7 +65,7 @@
       "concentration": true
     },
     "materials": {
-      "value": "a holy symbol",
+      "value": "A holy symbol",
       "consumed": false,
       "cost": 0,
       "supply": 0
@@ -81,13 +77,11 @@
     "scaling": {
       "mode": "level",
       "formula": "1d8"
-    },
-    "attunement": null
+    }
   },
   "effects": [
     {
-      "label": "Spirit Guardians",
-      "icon": "systems/dnd5e/icons/spells/needles-sky-2.jpg",
+      "_id": "kJdmHhTJH03zJxo2",
       "changes": [
         {
           "key": "data.attributes.movement.all",
@@ -96,38 +90,31 @@
           "priority": "20"
         },
         {
-          "key": "flags.midi-qol.OverTime",
-          "mode": 2,
-          "value": "turn=start,label=Spirit Guardians (Start of Turn),damageRoll=(@spellLevel)d8,damageType=radiant,saveRemove=false,saveDC=@attributes.spelldc,saveAbility=wis,saveDamage=halfdamage,killAnim=true",
-          "priority": "20"
-        },
-        {
           "key": "macro.itemMacro",
           "mode": 0,
-          "value": "@token @spellLevel @attributes.spelldc",
+          "value": "@token @spellLevel @attributes.spelldc @data.details.alignment",
           "priority": "20"
         }
       ],
+      "disabled": false,
       "duration": {
         "startTime": null
       },
-      "tint": null,
+      "icon": "systems/dnd5e/icons/spells/needles-sky-2.jpg",
+      "label": "Spirit Guardians",
+      "origin": "Item.LTQm45DD4V2IqDpi",
       "transfer": false,
-      "disabled": false,
       "flags": {
         "dae": {
-          "transfer": false,
           "stackable": "none",
-          "selfTarget": true,
-          "durationExpression": "",
           "macroRepeat": "none",
-          "specialDuration": []
+          "specialDuration": [],
+          "transfer": false,
+          "selfTarget": false,
+          "durationExpression": ""
         },
-        "ddbimporter": {
-          "disabled": false
-        },
-        "midi-qol": {
-          "forceCEOff": true
+        "dnd5e-helpers": {
+          "rest-effect": "Ignore"
         },
         "ActiveAuras": {
           "isAura": true,
@@ -135,64 +122,77 @@
           "radius": 15,
           "alignment": "",
           "type": "",
-          "ignoreSelf": true,
+          "ignoreSelf": false,
           "height": true,
           "hidden": false,
-          "hostile": false,
-          "onlyOnce": false,
+          "hostile": true,
+          "onlyOnce": true,
           "displayTemp": true
         },
         "core": {
           "statusId": ""
-        },
-        "dnd5e-helpers": {
-          "rest-effect": "Ignore"
         }
       },
-      "_id": "wai7uc6872q0jwq3",
+      "tint": null,
       "selectedKey": [
         "data.attributes.movement.all",
-        "flags.midi-qol.OverTime",
         "macro.itemMacro"
       ]
     }
   ],
   "flags": {
-    "ddbimporter": {
-      "id": 138784,
-      "definitionId": 2264,
-      "entityTypeId": 435869154,
-      "dndbeyond": {
-        "lookup": "generic",
-        "lookupName": "generic",
-        "level": null,
-        "castAtLevel": null
-      },
-      "originalName": "Spirit Guardians",
-      "sources": [
-        {
-          "sourceId": 1,
-          "pageNumber": null,
-          "sourceType": 2
-        },
-        {
-          "sourceId": 2,
-          "pageNumber": 278,
-          "sourceType": 1
-        }
-      ],
-      "tags": [
-        "Damage",
-        "Control"
-      ],
-      "version": "2.9.59",
-      "effectsApplied": true
+    "core": {
+      "sourceId": "Compendium.dnd5e.spells.uCud2s4TjMfjiXUb"
+    },
+    "midi-qol": {
+      "onUseMacroName": "",
+      "effectActivation": false
     },
     "betterRolls5e": {
+      "quickOther": {
+        "context": "",
+        "value": true,
+        "altValue": true,
+        "type": "Boolean"
+      },
+      "quickDesc": {
+        "value": true,
+        "altValue": true,
+        "type": "Boolean"
+      },
+      "quickSave": {
+        "value": true,
+        "altValue": true,
+        "type": "Boolean"
+      },
+      "quickProperties": {
+        "value": true,
+        "altValue": true,
+        "type": "Boolean"
+      },
       "quickVersatile": {
+        "value": false,
+        "altValue": false,
+        "type": "Boolean"
+      },
+      "quickFlavor": {
+        "value": true,
+        "altValue": true,
+        "type": "Boolean"
+      },
+      "quickAttack": {
+        "type": "Boolean",
+        "value": true,
         "altValue": true
       },
+      "quickDamage": {
+        "type": "Array",
+        "value": [],
+        "altValue": [],
+        "context": []
+      },
       "quickCharges": {
+        "type": "Boolean",
         "value": {
           "use": true,
           "resource": true
@@ -201,29 +201,80 @@
           "use": true,
           "resource": true
         }
+      },
+      "quickTemplate": {
+        "type": "Boolean",
+        "value": true,
+        "altValue": true
+      },
+      "quickPrompt": {
+        "type": "Boolean",
+        "value": false,
+        "altValue": false
       }
+    },
+    "scene-packer": {
+      "hash": "3c2f441b7e486314d96da5ce5e50076a5c3e4c60",
+      "sourceId": "Item.9GIoFUebGXfvLObU"
     },
     "itemacro": {
       "macro": {
         "data": {
           "_id": null,
-          "name": "Spirit Guardians",
+          "name": "Spirit Guardians 0.8.85",
           "type": "script",
-          "author": "otqBqyqMuTGDffTr",
+          "author": "devnIbfBHb74U9Zv",
           "img": "icons/svg/dice-target.svg",
           "scope": "global",
-          "command": "const lastArg = args[args.length - 1];\n\n// Check when applying the effect - if the token is not the caster and it IS the tokens turn they take damage\nif (args[0] === \"on\" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.combat?.current.tokenId) {\n  const sourceItem = await fromUuid(lastArg.origin);\n  const tokenOrActor = await fromUuid(lastArg.actorUuid);\n  const theActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n  const damageType = \"radiant\";\n\n  const itemData = mergeObject(\n    duplicate(sourceItem.data),\n    {\n      type: \"weapon\",\n      effects: [],\n      flags: {\n        \"midi-qol\": {\n          noProvokeReaction: true, // no reactions triggered\n          onUseMacroName: null, //\n        },\n      },\n      data: {\n        equipped: true,\n        actionType: \"save\",\n        save: { dc: Number.parseInt(args[3]), ability: \"wis\", scaling: \"flat\" },\n        damage: { parts: [[`${args[2]}d8`, damageType]] },\n        \"target.type\": \"self\",\n        components: { concentration: false, material: false, ritual: false, somatic: false, value: \"\", vocal: false },\n        duration: { units: \"inst\", value: undefined },\n        weaponType: \"improv\",\n      },\n    },\n    { overwrite: true, inlace: true, insertKeys: true, insertValues: true }\n  );\n  itemData.data.target.type = \"self\";\n  setProperty(itemData.flags, \"autoanimations.killAnim\", true);\n  const item = new CONFIG.Item.documentClass(itemData, { parent: theActor });\n  const options = { showFullCard: false, createWorkflow: true, versatile: false, configureDialog: false };\n  await MidiQOL.completeItemRoll(item, options);\n}",
+          "command": "const lastArg = args[args.length -1];\n// Check when applying the effect - if the token is not the caster and it IS the tokens turn they take damage\nif (args[0] === \"on\" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.combat?.current.tokenId) {\n    const sourceItem = await fromUuid(lastArg.origin);\n    let theActor = await fromUuid(lastArg.actorUuid);\n    if (theActor.actor) theActor = theActor.actor;\n    const itemData = mergeObject(duplicate(sourceItem.data), {\n        type: \"weapon\",\n        effects: [],\n        flags: {\n            \"midi-qol\": {\n                noProvokeReaction: true, // no reactions triggered\n                onUseMacroName: null // \n            },\n        },\n        data: {\n            actionType: \"save\",\n            save: {dc: Number.parseInt(args[3]), ability: \"wis\", scaling: \"flat\"},\n            damage: { parts: [[`${args[2]}d8`, \"radiant\"]] },\n            \"target.type\": \"self\",\n            components: {concentration: false, material: false, ritual: false, somatic: false, value: \"\", vocal: false},\n            duration: {units: \"inst\", value: undefined},\n            weaponType: \"improv\"\n        }\n    }, {overwrite: true, inlace: true, insertKeys: true, insertValues: true});\n    itemData.data.target.type = \"self\";\n    setProperty(itemData.flags, \"autoanimations.killAnim\", true);\n    itemData.flags.autoanimations.killAnim = true;;\n    const item = new CONFIG.Item.documentClass(itemData, { parent: theActor })\n    const options = { showFullCard: false, createWorkflow: true, versatile: false, configureDialog: false };\n    await MidiQOL.completeItemRoll(item, options);\n\n}",
           "folder": null,
           "sort": 0,
           "permission": {
             "default": 0
           },
           "flags": {}
-        }
+        },
+        "_id": null,
+        "name": "Spirit Guardians",
+        "type": "script",
+        "author": "ckiTPzlaPztdkjV6",
+        "img": "icons/svg/dice-target.svg",
+        "scope": "global",
+        "command": "// spirit guardians\n// data.attributes.movement.all - /2\n// macro.itemMacro - @token @spellLevel @attributes.spelldc @data.details.alignment\n// aura - enemies, 15ft, check height, apply effect, only apply current turn, only once per turn\n\nconst lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\n\nasync function applySaveAdvantage() {\n  const resist = [\"Magic Resistance\", \"Spell Resistance\"];\n  const getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));\n  if (getResist) {\n    const effectData = {\n      changes: [{ key: \"flags.midi-qol.advantage.ability.save.all\", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, }],\n      disabled: false,\n      flags: { dae: { specialDuration: [\"isSave\"] } },\n      label: `Save Advantage`,\n    };\n    await tactor.createEmbeddedDocuments(\"ActiveEffect\", [effectData]);\n  };\n};\n\n// Check when applying the effect - if the token is not the caster and it IS the tokens turn they take damage\nif (args[0] === \"on\" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.combat?.current.tokenId) {\n  const sourceItem = await fromUuid(lastArg.origin);\n  const isEvil = args[5] ?  args[5]?.toLowerCase().includes(\"evil\") : false;\n  const damageType = isEvil ? \"necrotic\" : \"radiant\";\n\n  const itemData = mergeObject(\n    duplicate(sourceItem.data),\n    {\n      type: \"feat\",\n      effects: [],\n      flags: {\n        \"midi-qol\": {\n          onUseMacroName: null, // no macro\n        },\n      },\n      data: {\n        equipped: true,\n        actionType: \"save\",\n        save: { dc: Number.parseInt(args[3]), ability: \"wis\", scaling: \"flat\" },\n        damage: { parts: [[`${args[2]}d8`, damageType]] },\n        \"target.type\": \"creature\",\n        components: { concentration: false, material: false, ritual: false, somatic: false, value: \"\", vocal: false },\n        duration: { units: \"inst\", value: undefined },\n      },\n    },\n    { overwrite: true, inlace: true, insertKeys: true, insertValues: true }\n  );\n  itemData.data.target.type = \"creature\";\n  setProperty(itemData.flags, \"autoanimations.killAnim\", true);\n  const item = new CONFIG.Item.documentClass(itemData, { parent: sourceItem.parent });\n  const options = { showFullCard: false, createWorkflow: true, versatile: false, configureDialog: false, targetUuids: [lastArg.tokenUuid] };\n  await applySaveAdvantage();\n  await MidiQOL.completeItemRoll(item, options);\n\n  tactor?.deleteEmbeddedDocuments(\"ActiveEffect\", [lastArg.efData.id ?? lastArg.efData._id]);\n};",
+        "folder": null,
+        "sort": 0,
+        "permission": {
+          "default": 0
+        },
+        "flags": {}
       }
     },
-    "core": {
-      "sourceId": "Compendium.world.ddb-spells.Pr4wMEvTyI5syVzL"
+    "gm-notes": {},
+    "autoanimations": {
+      "version": 1,
+      "killAnim": false,
+      "options": {
+        "ammo": false
+      },
+      "override": false,
+      "autoOverride": {
+        "enable": false
+      },
+      "allSounds": {
+        "item": {
+          "enableAudio": false
+        }
+      },
+      "sourceToken": {
+        "enable": false
+      },
+      "targetToken": {
+        "enable": false
+      }
+    },
+    "cf": {
+      "id": "temp_avaf5p3yxxi",
+      "color": "#000000"
     },
     "rest-recovery": {
       "data": {
@@ -232,12 +283,8 @@
         }
       }
     },
-    "scene-packer": {
-      "sourceId": "Item.GlBwj3P8loEJjtqV",
-      "hash": "c4d90452fa695166d4377698d6eb855d4b74c880"
-    },
     "exportSource": {
-      "world": "Curse of Strahd",
+      "world": "dnd5e",
       "system": "dnd5e",
       "coreVersion": "9.280",
       "systemVersion": "1.6.3"
