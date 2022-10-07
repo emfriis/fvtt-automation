@@ -3,6 +3,7 @@
 // aura - all, check height, apply effect
 
 const lastArg = args[args.length - 1];
+const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const template = canvas.templates.placeables.find(i => i.data.flags?.ActiveAuras?.IsAura[0]?.data?.origin === lastArg.efData.origin);
@@ -46,12 +47,9 @@ async function applyItem(damageDice, saveDC, damageType, saveType) {
 };
   
 if (args[0] === "on" || args[0] === "each") {
-    if (VolumetricTemplates) {
-        const templateTargets = VolumetricTemplates.compute3Dtemplate(template);
-        if (templateTargets && !templateTargets.includes(lastArg.tokenId)) {
-            await tactor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
-            return;
-        };
+    if (token?.data?.elevation > template?.data?.flags?.levels?.elevation + 5 || token?.data?.elevation + token?.losHeight < template?.data?.flags?.levels?.elevation) {
+        await tactor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
+        return;
     };
     const damageDice = `${typeof args[1] === "int" ? 1 + Math.floor((args[1] + 1) / 6) : 1 + Math.floor((args[2] + 1) / 6)}d8`;
     const damageType = "fire";
