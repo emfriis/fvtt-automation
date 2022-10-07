@@ -24,7 +24,7 @@ async function applySaveAdvantage() {
 // Check when applying the effect - if the token is not the caster and it IS the tokens turn they take damage
 if (args[0] === "on" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.combat?.current.tokenId) {
   const sourceItem = await fromUuid(lastArg.origin);
-  const isEvil = args[5] ?  args[5]?.toLowerCase().includes("evil") : false;
+  const isEvil = typeof args[5] === "string" ?  args[5]?.toLowerCase().includes("evil") : false;
   const damageType = isEvil ? "necrotic" : "radiant";
 
   const itemData = mergeObject(
@@ -38,7 +38,7 @@ if (args[0] === "on" && args[1] !== lastArg.tokenId && lastArg.tokenId === game.
         },
       },
       data: {
-        equipped: true,
+        "activationType": "none",
         actionType: "save",
         save: { dc: Number.parseInt(args[3]), ability: "wis", scaling: "flat" },
         damage: { parts: [[`${args[2]}d8`, damageType]] },
