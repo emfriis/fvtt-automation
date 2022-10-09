@@ -21,12 +21,6 @@ const template = canvas.templates.placeables.find(i => i.data.flags?.ActiveAuras
         let visionRange = Math.max(senses.blindsight, senses.tremorsense);
         await tokenDoc.setFlag('perfect-vision', 'sightLimit', visionRange);
     } else if (args[0] === "off") { // leaving aura vertically requires manual effect removal
-        if (template && VolumetricTemplates) {
-            const templateTargets = VolumetricTemplates.compute3Dtemplate(template);
-            if (templateTargets && templateTargets.includes(lastArg.tokenId)) {
-                return;
-            };
-        };
         // if (tactor.effects.find(i => i.data.label === "Blinded") && !tactor.data.data.traits.ci.value.includes("blinded")) // should check for already blinded
         await tokenDoc.setFlag('perfect-vision', 'sightLimit', null);
     };
