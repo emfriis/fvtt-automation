@@ -11,7 +11,7 @@ const tokenOrActorTarget = await fromUuid(lastArg.targetUuids[0]);
 const tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
 
 if (args[0].macroPass === "preambleComplete") {
-    if (!tactorTarget || token.data.disposition === -lastArg.targets[0].data.disposition) return;
+    if (!tactorTarget || token.data.disposition === -lastArg.targets[0].data.disposition || lastArg.tokenUuid === lastArg.targetUuids[0]) return;
 
     let dialog = new Promise(async (resolve, reject) => {
         new Dialog({
