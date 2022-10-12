@@ -15,9 +15,10 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
 });
 
 Hooks.on("Actor5e.preRollAbilityTest", async (actor, rollData) => {
-    if (!actor?.token) return;
+    const token = actor?.token ?? canvas.tokens.placeables.find(t => t.actor.uuid === actor.uuid);
+    if (!token) return;
     await canvas.tokens.placeables.forEach(t => {
-        if (t.actor && actor.data.flags["midi-qol"]?.fear?.includes(t.actor.uuid) && _levels?.advancedLosTestVisibility(actor.token._object, t) && game.modules.get('conditional-visibility')?.api?.canSee(actor.token._object, t)) {
+        if (t.actor && actor.data.flags["midi-qol"]?.fear?.includes(t.actor.uuid) && _levels?.advancedLosTestVisibility(token, t) && game.modules.get('conditional-visibility')?.api?.canSee(token, t)) {
             rollData.disadvantage = true;
             return;
         };
@@ -25,9 +26,10 @@ Hooks.on("Actor5e.preRollAbilityTest", async (actor, rollData) => {
 });
 
 Hooks.on("Actor5e.preRollSkill", async (actor, rollData) => {
-    if (!actor?.token) return;
+    const token = actor?.token ?? canvas.tokens.placeables.find(t => t.actor.uuid === actor.uuid);
+    if (!token) return;
     await canvas.tokens.placeables.forEach(t => {
-        if (t.actor && actor.data.flags["midi-qol"]?.fear?.includes(t.actor.uuid) && _levels?.advancedLosTestVisibility(actor.token._object, t) && game.modules.get('conditional-visibility')?.api?.canSee(actor.token._object, t)) {
+        if (t.actor && actor.data.flags["midi-qol"]?.fear?.includes(t.actor.uuid) && _levels?.advancedLosTestVisibility(token, t) && game.modules.get('conditional-visibility')?.api?.canSee(token, t)) {
             rollData.disadvantage = true;
             return;
         };
