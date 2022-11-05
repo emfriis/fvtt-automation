@@ -19,38 +19,6 @@ if (!game.modules.get("dfreds-convenient-effects")?.active) {
           callback: async () => {
             if (!tactor.data.data.traits.ci.value.includes("blinded")) {
                 DAE.setFlag(tactor, "DAEBlind", "blind");
-                const changes = [
-                  {
-                    key: "ATCV.blinded",
-                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                    priority: 99,
-                    value: "1",
-                  },
-                  {
-                    key: "ATCV.conditionType",
-                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                    priority: 99,
-                    value: "sense",
-                  },
-                  {
-                    key: "ATCV.conditionBlinded",
-                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                    priority: 99,
-                    value: "true",
-                  },
-                  {
-                    key: "ATCV.conditionTargets",
-                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                    priority: 99,
-                    value: "",
-                  },
-                  {
-                    key: "ATCV.conditionSources",
-                    mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                    priority: 99,
-                    value: "",
-                  },
-                ];
                 const senses = tactor.data.data.attributes.senses;
                 let visionRange = Math.max(senses.blindsight, senses.tremorsense, 0);
                 const effectData = [{

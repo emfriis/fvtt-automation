@@ -35,22 +35,22 @@ if (lastArg.tag === "DamageBonus") {
     let spellItem = await fromUuid(getProperty(actorD.data.flags, "midi-qol.spellId"));
     let itemName = game.i18n.localize(spellItem.name);
     let damageType = "radiant";
+    const senses = actorD.data.data.attributes.senses;
+    let visionRange = Math.max(senses.blindsight, senses.tremorsense, 0);
     let effectData = [{
         changes: [
-            { key: `StatusEffect`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Blinded", priority: 20 },
+            { key: `StatusEffect`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Blinded", priority: 99 - visionRange },
+            { key: "ATL.flags.perfect-vision.sightLimit", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 99 - visionRange, value: `${visionRange}`, },
             { key: `flags.midi-qol.OverTime`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: `turn=end,label=${itemName},saveDC=${spellDC},saveAbility=con,saveMagic=true`, priority: 20 },
-            { key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "", priority: 20 },
-            { key: `flags.dae.deleteUuid`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: conc.uuid, priority: 20 },
-            { key: "ATCV.blinded", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99, value: "1" },
-            { key: "ATCV.conditionBlinded", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99, value: "true" },
-            { key: "ATCV.conditionType", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99, value: "sense" },
-            { key: "ATCV.conditionTargets", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99, value: "" }, 
-            { key: "ATCV.conditionSources", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99, value: "" }
+            { key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "", priority: 99 - visionRange },
+            { key: `flags.dae.deleteUuid`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: conc.uuid, priority: 99 - visionRange },
+            { key: "ATCV.blinded", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99 - visionRange, value: "1" },
+            { key: "ATCV.conditionBlinded", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99 - visionRange, value: "true" },
+            { key: "ATCV.conditionType", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99 - visionRange, value: "sense" },
+            { key: "ATCV.conditionTargets", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99 - visionRange, value: "" }, 
+            { key: "ATCV.conditionSources", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99 - visionRange, value: "" }
         ],
         origin: spellUuid,
-        flags: {
-            "dae": { itemData: spellItem.data, token: target.actor.uuid }
-        },
         disabled: false,
         duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },
         icon: spellItem.img,
@@ -70,16 +70,4 @@ if (lastArg.tag === "DamageBonus") {
 
     const diceMult = args[0].isCritical ? 6 : 3;
     return { damageRoll: `${diceMult}d8[${damageType}]`, flavor: `(${itemName} (${CONFIG.DND5E.damageTypes[damageType]}))` };
-}
-
-if (args[0] === "on" && !actorD.data.data.traits.ci.value.includes("blinded")) {
-    const token = await fromUuid(lastArg.tokenUuid);
-    const senses = actorD.data.data.attributes.senses;
-    let visionRange = Math.max(senses.blindsight, senses.tremorsense, 0);
-    token.setFlag('perfect-vision', 'sightLimit', visionRange);
-}
-
-if (args[0] === "off" && !actorD.effects.find(i => i.data.label === "Blinded")) {
-    const token = await fromUuid(lastArg.tokenUuid);
-    token.setFlag('perfect-vision', 'sightLimit', null);
 }
