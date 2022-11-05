@@ -1,7 +1,7 @@
 // proximity world macro
 
 Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
-    if (!workflow?.token || !["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) return;
+    if (!workflow?.token || !["rwak","rsak"].includes(workflow.item.data.data.actionType)) return;
     let negateConditions = ["Dead", "Defeated", "Incapacitated", "Stunned", "Unconcious"];
     let nearbyEnemy = canvas.tokens.placeables.filter(t => {
         let nearby = (
