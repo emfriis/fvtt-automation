@@ -35,12 +35,12 @@ if (lastArg.tag === "DamageBonus") {
     let spellItem = await fromUuid(getProperty(actorD.data.flags, "midi-qol.spellId"));
     let itemName = game.i18n.localize(spellItem.name);
     let damageType = "radiant";
-    const senses = actorD.data.data.attributes.senses;
+    const senses = tactor.data.data.attributes.senses;
     let visionRange = Math.max(senses.blindsight, senses.tremorsense, 0);
     let effectData = [{
         changes: [
             { key: `StatusEffect`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Blinded", priority: 99 - visionRange },
-            { key: "ATL.flags.perfect-vision.sightLimit", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 99 - visionRange, value: `${visionRange}`, },
+            { key: "ATL.flags.perfect-vision.sightLimit", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 99 - visionRange, value: `[[Math.max(@attributes.senses.blindsight, @attributes.senses.tremorsense, 0)]]`, },
             { key: `flags.midi-qol.OverTime`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: `turn=end,label=${itemName},saveDC=${spellDC},saveAbility=con,saveMagic=true`, priority: 20 },
             { key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "", priority: 99 - visionRange },
             { key: `flags.dae.deleteUuid`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: conc.uuid, priority: 99 - visionRange },

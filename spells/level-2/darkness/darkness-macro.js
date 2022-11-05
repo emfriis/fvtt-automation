@@ -20,11 +20,17 @@ const template = canvas.templates.placeables.find(i => i.data.flags?.ActiveAuras
         const ds = await (tactor.items.find(i => i.name.toLowerCase().includes("devil's sight")) || tactor.effects.find(i => i.data.label.toLowerCase().includes("devil's sight")));
         if (ds) return;
         const senses = tactor.data.data.attributes.senses;
-        let visionRange = Math.max(senses.blindsight, senses.tremorsense, senses.truesight);
-        await tokenDoc.setFlag('perfect-vision', 'sightLimit', visionRange);
+        let visionRange = Math.max(senses.blindsight, senses.tremorsense, senses.truesight, 0);
+        const effectData = [{
+            changes: [{ key: "ATL.flags.perfect-vision.sightLimit", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 99 - visionRange, value: `[[Math.max(@attributes.senses.blindsight, @attributes.senses.tremorsense, @attributes.senses.truesight, 0)]]`, }, ],
+            origin: lastArg.uuid,
+            disabled: false,
+            label: "Darkness Vision",
+        }];
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: effectData });
     } else if (args[0] === "off") { // leaving aura vertically requires manual effect removal
-        // if (tactor.effects.find(i => i.data.label === "Blinded") && !tactor.data.data.traits.ci.value.includes("blinded")) // should check for already blinded
-        await tokenDoc.setFlag('perfect-vision', 'sightLimit', null);
+        let blind = tactor.effects.find(i => i.data.label === "Darkness Vision" && i.data.origin === lastArg.uuid);
+        if (blind) await tactor.deleteEmbeddedDocuments("ActiveEffect", [blind.id]);
     };
 })();
 

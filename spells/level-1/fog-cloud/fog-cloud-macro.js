@@ -18,11 +18,17 @@ const template = canvas.templates.placeables.find(i => i.data.flags?.ActiveAuras
             };
         };
         const senses = tactor.data.data.attributes.senses;
-        let visionRange = Math.max(senses.blindsight, senses.tremorsense);
-        await tokenDoc.setFlag('perfect-vision', 'sightLimit', visionRange);
+        let visionRange = Math.max(senses.blindsight, senses.tremorsense, 0);
+        const effectData = [{
+            changes: [{ key: "ATL.flags.perfect-vision.sightLimit", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 99 - visionRange, value: `[[Math.max(@attributes.senses.blindsight, @attributes.senses.tremorsense, 0)]]`, }, ],
+            origin: lastArg.uuid,
+            disabled: false,
+            label: "Fog Cloud Vision",
+        }];
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: effectData });
     } else if (args[0] === "off") { // leaving aura vertically requires manual effect removal
-        // if (tactor.effects.find(i => i.data.label === "Blinded") && !tactor.data.data.traits.ci.value.includes("blinded")) // should check for already blinded
-        await tokenDoc.setFlag('perfect-vision', 'sightLimit', null);
+        let blind = tactor.effects.find(i => i.data.label === "Fog Cloud Vision" && i.data.origin === lastArg.uuid);
+        if (blind) await tactor.deleteEmbeddedDocuments("ActiveEffect", [blind.id]);
     };
 })();
 
