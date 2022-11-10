@@ -70,7 +70,7 @@ try {
             const item = await tactor.items.find(i => i.name.toLowerCase().includes("menacing attack"));
             let effectData = [{
                 changes: [
-                    { key: `macro.itemMacro.GM`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: args[0].tokenId, priority: 20 }
+                    { key: `flags.midi-qol.fear`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: args[0].actorUuid, priority: 20 }
                 ],
                 origin: args[0].uuid,
                 flags: {
