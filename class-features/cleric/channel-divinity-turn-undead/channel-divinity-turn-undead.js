@@ -74,7 +74,7 @@ for (let target of targetList) {
                 let mutateCallbacks = "";
                 await warpgate.mutate(target, updates, mutateCallbacks, { permanent: true });
             } else {   
-                console.warn(`=>`, `Target Processed:`, target.name, `| CR:`, mon_cr, `| DC:`, DC, `| Save:`, save.total, `[Fail]`, `| Result: ${condition}`);
+                console.warn(`=>`, `Target Processed:`, target.name, `| CR:`, mon_cr, `| DC:`, DC, `| Save:`, save.total, `[Fail]`, `| Result: Turned`);
                 let effectData = {
                     label: "Turn Undead",
                     icon: "icons/svg/stoned.svg",
@@ -83,12 +83,12 @@ for (let target of targetList) {
                     duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },
                     flags: { dae: { specialDuration: ["isDamaged"] } }
 			    };
-                let effect = target.actor.effects.find(i => i.data.label === condition);
+                let effect = target.actor.effects.find(i => i.data.label === "Turn Undead");
                 if (!effect) {
                     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.actor.uuid, effects: [effectData] });
-                    console.warn(`>`, target.name, `Applying: ${condition} Condition`, `Success`);
+                    console.warn(`>`, target.name, `Applying: Turned Condition`, `Success`);
                 } else {
-                    console.error(`>`, target.name, `Applying: ${condition} Condition`, `Failure`);
+                    console.error(`>`, target.name, `Applying: Turned Condition`, `Failure`);
                 }
                 turnTargets.push(`<div class="midi-qol-flex-container"><div class="midi-qol-target-npc midi-qol-target-name" id="${target.id}">${target.name} fails with ${save.total} [F]</div><div><img src="${target.data.img}" width="30" height="30" style="border:0px"></div></div>`);
             }
