@@ -12,8 +12,8 @@ const lastArg = args[args.length - 1];
 const actorD = canvas.tokens.get(lastArg.tokenId).actor;
 const rollData = actorD.getRollData();
 const level = rollData.details.cr ?? rollData.classes.cleric.levels;
-const DC = rollData.attributes.spelldc;
-const saveType = rollData.attributes.spellcasting;
+const DC = 8 + rollData.attributes.prof + rollData.abilities.wis.mod;
+const saveType = "wis";
 const itemD = lastArg.item;
 const gameRound = game.combat ? game.combat.round : 0;
 
