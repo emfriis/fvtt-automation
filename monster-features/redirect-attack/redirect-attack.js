@@ -35,8 +35,11 @@ if (nearbyAllyGoblins.length < 1) {
 } else if (nearbyAllyGoblins.length === 1) {
     attackWorkflow?.targets.delete(token);
     attackWorkflow?.targets.add(nearbyAllyGoblins[0]);
-    Hooks.once("midi-qol.preDamageRoll", workflow => {
-        if (workflow.uuid === attackWorkflow.uuid) workflow?.hitTargets.delete(token);
+    let hook = Hooks.on("midi-qol.preDamageRoll", workflow => {
+        if (workflow.uuid === attackWorkflow.uuid) {
+            workflow?.hitTargets.delete(token);
+            Hooks.off("midi-qol.preDamageRoll", hook);
+        };
     });
     const tokenCoords = { x: token.data.x, y: token.data.y };
     const newTargetCoords = { x: nearbyAllyGoblins[0].data.x, y: nearbyAllyGoblins[0].data.y };
@@ -107,8 +110,11 @@ let dialog = new Promise(async (resolve, reject) => {
                     const newTarget = canvas.tokens.get(selectedId);
                     attackWorkflow?.targets.delete(token);
                     attackWorkflow?.targets.add(newTarget);
-                    Hooks.once("midi-qol.preDamageRoll", workflow => {
-                        if (workflow.uuid === attackWorkflow.uuid) workflow?.hitTargets.delete(token);
+                    let hook = Hooks.on("midi-qol.preDamageRoll", workflow => {
+                        if (workflow.uuid === attackWorkflow.uuid) {
+                            workflow?.hitTargets.delete(token);
+                            Hooks.off("midi-qol.preDamageRoll", hook);
+                        }
                     });
                     const tokenCoords = { x: token.data.x, y: token.data.y };
                     const newTargetCoords = { x: newTarget.data.x, y: newTarget.data.y };
