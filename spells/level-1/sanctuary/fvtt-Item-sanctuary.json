@@ -1,0 +1,237 @@
+{
+  "name": "Sanctuary",
+  "type": "spell",
+  "img": "https://assets.forge-vtt.com/bazaar/systems/dnd5e/assets/icons/spells/haste-sky-3.jpg",
+  "data": {
+    "description": {
+      "value": "<p>You ward a creature within range against attack. Until the spell ends, any creature who targets the warded creature with an attack or a harmful spell must first make a Wisdom saving throw. On a failed save, the creature must choose a new target or lose the attack or spell. This spell doesn't protect the warded creature from area effects, such as the explosion of a fireball.</p>\n<p>If the warded creature makes an attack, casts a spell that affects an enemy, or deals damage to another creature, this spell ends.</p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "Basic Rules, Player's Handbook pg 272",
+    "activation": {
+      "type": "bonus",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "minute"
+    },
+    "target": {
+      "value": 1,
+      "width": null,
+      "units": "",
+      "type": "creature"
+    },
+    "range": {
+      "value": 30,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": null,
+      "max": "",
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "wis",
+    "actionType": "util",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": {
+      "threshold": null,
+      "damage": ""
+    },
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "level": 1,
+    "school": "abj",
+    "components": {
+      "value": "a small silver mirror",
+      "vocal": true,
+      "somatic": true,
+      "material": true,
+      "ritual": false,
+      "concentration": false
+    },
+    "materials": {
+      "value": "a small silver mirror",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "effects": [
+    {
+      "_id": "EnYKVuycuZR3wWcK",
+      "changes": [
+        {
+          "key": "flags.midi-qol.onUseMacroName",
+          "mode": 0,
+          "value": "ItemMacro.Sanctuary, preambleComplete",
+          "priority": "20"
+        }
+      ],
+      "disabled": false,
+      "duration": {
+        "startTime": null
+      },
+      "icon": "https://assets.forge-vtt.com/bazaar/systems/dnd5e/assets/icons/spells/haste-sky-3.jpg",
+      "label": "Sanctuary",
+      "origin": "Item.aXKNgCbUx37Ja7U4",
+      "transfer": false,
+      "flags": {
+        "dae": {
+          "selfTarget": false,
+          "stackable": "none",
+          "durationExpression": "",
+          "macroRepeat": "none",
+          "specialDuration": [],
+          "transfer": false
+        },
+        "core": {
+          "statusId": "Sanctuary"
+        },
+        "dnd5e-helpers": {
+          "rest-effect": "Ignore"
+        },
+        "ActiveAuras": {
+          "isAura": false,
+          "aura": "None",
+          "radius": null,
+          "alignment": "",
+          "type": "",
+          "ignoreSelf": false,
+          "height": false,
+          "hidden": false,
+          "displayTemp": false,
+          "hostile": false,
+          "onlyOnce": false
+        }
+      },
+      "tint": null,
+      "selectedKey": "flags.midi-qol.onUseMacroName"
+    }
+  ],
+  "flags": {
+    "ddbimporter": {
+      "id": 138661,
+      "definitionId": 2237,
+      "entityTypeId": 435869154,
+      "dndbeyond": {
+        "lookup": "classSpell",
+        "class": "Cleric",
+        "level": 2,
+        "characterClassId": 116186927,
+        "spellLevel": 1,
+        "ability": "wis",
+        "mod": 1,
+        "dc": 12,
+        "cantripBoost": false,
+        "overrideDC": false,
+        "id": 138661,
+        "entityTypeId": 435869154,
+        "healingBoost": 0,
+        "usesSpellSlot": true
+      },
+      "originalName": "Sanctuary",
+      "sources": [
+        {
+          "sourceId": 1,
+          "pageNumber": null,
+          "sourceType": 2
+        },
+        {
+          "sourceId": 2,
+          "pageNumber": 272,
+          "sourceType": 1
+        }
+      ],
+      "tags": [
+        "Buff",
+        "Warding"
+      ],
+      "version": "2.9.67",
+      "effectsApplied": true,
+      "importId": "pd5q290isltnqno1"
+    },
+    "spell-class-filter-for-5e": {
+      "parentClass": "cleric"
+    },
+    "scene-packer": {
+      "hash": "98c6985a7985ece065ff18e26c8da798c591a9b5",
+      "sourceId": "Item.JfPiMaKnPvvY1WBN"
+    },
+    "rest-recovery": {
+      "data": {
+        "recovery": {
+          "enabled": false
+        }
+      }
+    },
+    "midi-qol": {
+      "effectActivation": false
+    },
+    "midiProperties": {
+      "nodam": false,
+      "fulldam": false,
+      "halfdam": false,
+      "rollOther": false,
+      "critOther": false,
+      "magicdam": false,
+      "magiceffect": false,
+      "concentration": false,
+      "toggleEffect": false
+    },
+    "itemacro": {
+      "macro": {
+        "_id": null,
+        "name": "Sanctuary",
+        "type": "script",
+        "author": "ckiTPzlaPztdkjV6",
+        "img": "icons/svg/dice-target.svg",
+        "scope": "global",
+        "command": "// sanctuary\n\nconst lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\nconst token = canvas.tokens.get(lastArg.tokenId);\n\nif (args[0].tag === \"OnUse\") {\n    if (![\"mwak\",\"rwak\",\"msak\",\"rsak\"].includes(lastArg.item.data.actionType) && !lastArg.item.type === \"spell\") return;\n    if (!lastArg.targets.find(t => t.data.disposition !== token.data.disposition)) return;\n    let ef = await tactor.effects.filter(e => e.data.label === \"Sanctuary\");\n    await tactor.deleteEmbeddedDocuments(\"ActiveEffect\", ef.map((s) => s.id));\n}",
+        "folder": null,
+        "sort": 0,
+        "permission": {
+          "default": 0
+        },
+        "flags": {}
+      }
+    },
+    "core": {
+      "sourceId": "Item.aXKNgCbUx37Ja7U4"
+    },
+    "cf": {
+      "id": "temp_bo019z0gcv"
+    },
+    "exportSource": {
+      "world": "dnd5e",
+      "system": "dnd5e",
+      "coreVersion": "9.280",
+      "systemVersion": "1.6.3"
+    }
+  }
+}

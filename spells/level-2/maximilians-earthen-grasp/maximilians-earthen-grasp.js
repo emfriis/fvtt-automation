@@ -24,10 +24,14 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     await wait(500);
     const summon = await fromUuid(summonUuid);
     const summonActor = summon.actor;
-    await summonActor.data.items.forEach((item) => {
-        item.data.data.save.dc = tactor.data.data.attributes.spelldc;
-    });
-
+    let effectData = [{
+        changes: [
+            { key: `data.attributes.spelldc`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.data.data.attributes.spelldc, priority: 20 },
+        ],
+        disabled: false,
+        label: "Spell DC",
+    }];
+    await summonActor.createEmbeddedDocuments("ActiveEffect", effectData);
 };
 
 let updates = {
