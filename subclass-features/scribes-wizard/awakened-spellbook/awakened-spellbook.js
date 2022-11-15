@@ -9,11 +9,10 @@ if (args[0].tag === "OnUse" && args[0].item.type === "spell" && args[0].spellLev
     if (!validTypes.some(type => args[0].item.data.damage.parts[0][1]?.toLowerCase() === type)) return;
     const optionTypes = [];
     tactor.data.items.forEach(i => {
-        if (i.type === "spell" && i.data.data.level === args[0].spellLevel && i.data.data?.damage.parts.length > 0) {
-            i.data.data.damage.parts.forEach(p => {
-                if (!validTypes.some(type => p[1]?.toLowerCase() === type)) return;
-                ui.notifications.warn(p[1]);
-                if (!optionTypes.includes(p[1])) optionTypes.push(p[1]);
+        if (i.type === "spell" && i.data.data.level === args[0].spellLevel) {
+            validTypes.forEach(t => {
+                if (optionTypes.includes(t)) return;
+                if (i.data.data.description.value?.toLowerCase().includes(t)) optionTypes.push(t);
             });
         }
     });
@@ -46,7 +45,6 @@ if (args[0].tag === "OnUse" && args[0].item.type === "spell" && args[0].spellLev
         }).render(true);
     });
     let type = await dialog;
-    ui.notifications.warn(type);
     const workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
     workflow.defaultDamageType = type;
     const parts = workflow.item.data.data.damage.parts;
