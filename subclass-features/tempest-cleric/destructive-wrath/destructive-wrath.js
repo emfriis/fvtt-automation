@@ -12,7 +12,8 @@ if (args[0].tag === "OnUse" && args[0].hitTargets.length > 0) {
     if (!findResourceSlot) return ui.notifications.error(`<strong>REQUIRED</strong>: Please add "<strong>${abilityName}</strong>" as one of your <strong>Resources</strong>.`);
     if (findResourceSlot.value < 1) return;
     const resourceSlot = findResourceSlot.name;
-    if (args[0].item.data.damage.parts[0][1] !== "lighting" && args[0].item.data.damage.parts[0][1] !== "thunder") return;
+    const workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
+    if (!(["lightning", "thunder"].some(type => type === workflow.item.data.data.damage.parts[0][1].toLowerCase()))) return;
     let useFeat = await new Promise((resolve, reject) => {
         new Dialog({
             title: "Channel Divinity: Destructive Wrath",
@@ -33,16 +34,15 @@ if (args[0].tag === "OnUse" && args[0].hitTargets.length > 0) {
     });
     if (!useFeat) return;
 
-    let effectData = [{
-        changes: [
-            { key: `flags.midi-qol.max.damage.all`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20 }
-        ],
-        disabled: false,
-        icon: args[0].item.img,
-        label: "Destructive Wrath",
-        flags: { "dae": { itemData: args[0].item, specialDuration: ["1Spell"] } },
-    }];
-    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: effectData });
+    let damageFormula = workflow.damageRoll.formula;
+    let newDamageFormula = damageFormula.replace(/\d+d\d+/g, (i) => {
+        let die = parseInt(i.match(/^(\d+)/));
+        let faces = parseInt(i.match(/(\d+)+$/));
+        return `${die * faces}`;
+    });
+    workflow.damageRoll = await new Roll(newDamageFormula).roll();
+    workflow.damageTotal = workflow.damageRoll.total;
+    workflow.damageRollHTML = await workflow.damageRoll.render();
 
     let actor_data = duplicate(tactor.data._source);
     actor_data.data.resources[resourceSlot].value = Math.max(0, actor_data.data.resources[resourceSlot].value - 1);

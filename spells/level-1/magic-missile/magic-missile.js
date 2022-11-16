@@ -4,6 +4,7 @@
     const lastArg = args[args.length - 1];
     const tokenOrActor = await fromUuid(lastArg.tokenUuid);
     const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+
     const itemSource = await fromUuid(lastArg.uuid);
     const itemCopy = mergeObject(
         duplicate(itemSource),
@@ -27,7 +28,7 @@
     };
 
     let workflow = await MidiQOL.Workflow.getWorkflow(lastArg.uuid);
-    await Object.assign(workflow, { targets: null, noAutoDamage: true });
+    await Object.assign(workflow, { targets: null, noAutoAttack: true, noAutoDamage: true });
 
     if (lastArg.targets.length === 1) {
         for (i = 0; i < attacks; i++) {
