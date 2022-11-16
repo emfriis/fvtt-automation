@@ -45,6 +45,7 @@ if (args[0].tag === "OnUse" && args[0].item.type === "spell" && args[0].spellLev
         }).render(true);
     });
     let type = await dialog;
+    if (!type) return;
     const workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
     workflow.defaultDamageType = type;
     const parts = workflow.item.data.data.damage.parts;
