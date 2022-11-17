@@ -98,7 +98,7 @@ if (args[0] === "each" && lastArg.efData.disabled === false) {
 // paralyzed ["Duergar Resilience", "Paralysis Resilience"]
 // HOLD PERSON, HOLD MONSTER
 
-// land's stride ["Land's Stride"]]
+// land's stride ["Land's Stride"]
 // ENTANGLE
 
 // prone ["Sure-Footed", "Prone Resilience"]
