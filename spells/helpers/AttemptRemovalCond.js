@@ -1,27 +1,28 @@
+// macro.itemMacro, values : dc abil isCheck
+
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const saveDc = 0;
+const resist = [];
 
-async function attemptRemoval(targetToken, condition, item, getResist) {
-    const removalCheck = false;
-    const ability = "wis";
-    const type = removalCheck ? "abil" : "save"; // can be "abil", "save", or "skill"
-    const targetUuid = targetToken.actor.uuid;
+async function attemptRemoval(condition, getResist) {
+    const dc = args[1];
+    const abil = args[2];
+    const isCheck = args[3];
+    const type = isCheck ? "abil" : "save"; // can be "abil", "save", or "skill"
     const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
-    const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: type, targetUuid: targetUuid, ability: ability, options: rollOptions });
+    const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: type, targetUuid: tactor.uuid, ability: abil, options: rollOptions });
     if (game.dice3d) game.dice3d.showForRoll(roll);
-
-    if (roll.total >= saveDc) {
-        let para = tactor.effects.find(i => i.data === lastArg.efData);
-		if (para) await tactor.deleteEmbeddedDocuments("ActiveEffect", [para.id]);
+    if (roll.total >= dc) {
+        let ef = tactor.effects.find(i => i.data === lastArg.efData);
+		if (ef) await tactor.deleteEmbeddedDocuments("ActiveEffect", [ef.id]);
     } else {
-        if (roll.total < saveDc) ChatMessage.create({ content: `${targetToken.name} fails the roll for ${item.name}, still has the ${condition} condition.` });
+        if (roll.total < dc) ChatMessage.create({ content: `${tactor.name} fails the roll and still has the ${condition} condition.` });
     }
 }
 
 if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPass === "preSave") {
-    const resist = [];
+    if (!resist) return;
     for (let i = 0; i < lastArg.hitTargetUuids.length; i++) {
         let tokenOrActorTarget = await fromUuid(lastArg.hitTargetUuids[i]);
         let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
@@ -47,10 +48,8 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
 }
 
 if (args[0] === "each" && lastArg.efData.disabled === false) {
-    const resist = [];
-    const getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
-    const targetToken = await fromUuid(lastArg.tokenUuid);
-    const condition = "Paralyzed";
-    const item = await fromUuid(lastArg.efData.origin);
-    attemptRemoval(targetToken, condition, item, getResist);
+    const getResist = false;
+    if (resist) getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
+    const condition = lastArg.efData.label;
+    attemptRemoval(condition, getResist);
 }
