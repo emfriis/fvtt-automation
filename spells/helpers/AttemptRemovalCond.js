@@ -73,10 +73,10 @@ async function attemptRemoval(getResist) {
 
 if (args[0] === "each" && lastArg.efData.disabled === false) {
     if (args[4] === "opt") {
-        let player = await playerForActor(token?.actor);
+        let player = await playerForActor(tactor);
         let socket = socketlib.registerModule("user-socket-functions");
         let attempt = false;
-        attempt = await socket.executeAsUser("useDialog", player.id, { title: `Use action to attempt to remove ${condition}`, content: `` });
+        attempt = await socket.executeAsUser("useDialog", player.id, { title: `Use action to attempt to remove ${condition}?`, content: `` });
         if (attempt) {
             attemptRemoval();
         }
