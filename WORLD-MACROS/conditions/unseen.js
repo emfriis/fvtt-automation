@@ -8,10 +8,12 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
     workflow.targets.forEach(target => {
         if (!hasDisadv && (!game.modules.get('conditional-visibility')?.api?.canSee(workflow.token, target) || !_levels?.advancedLosTestVisibility(workflow.token, target))) {
             workflow.disadvantage = true;
+            console.warn("unseen disadvantage applied");
             hasDisadv = true;
         };
         if (!hasAdv && (!game.modules.get('conditional-visibility')?.api?.canSee(target, workflow.token) || !_levels?.advancedLosTestVisibility(target, workflow.token))) {
             workflow.advantage = true;
+            console.warn("unseen advantage applied");
             hasAdv = true;
         };
     });

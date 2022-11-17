@@ -51,7 +51,7 @@ if (args[0] === "on" || args[0] === "each") {
         await tactor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
         return;
     };
-    const damageDice = `${typeof args[1] === "int" ? 1 + Math.floor((args[1] + 1) / 6) : 1 + Math.floor((args[2] + 1) / 6)}d8`;
+    const damageDice = `${parseInt(args[1]) !== NaN ? 1 + Math.floor((parseInt(args[1]) + 1) / 6) : 1 + Math.floor((parseInt(args[2]) + 1) / 6)}d8`;
     const damageType = "fire";
     const saveDC = args[3];
     const saveType = "dex";
