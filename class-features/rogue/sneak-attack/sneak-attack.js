@@ -2,7 +2,7 @@
 // requires MIDI-QOL
 
 try {
-    if (!["mwak","rwak"].includes(args[0].itemData.data.actionType)) return {}; // weapon attack
+    if (!["mwak","rwak"].includes(args[0].itemData.data.actionType) || args[0].disadvantage) return {}; // weapon attack
     if (args[0].itemData.data.actionType === "mwak" && !args[0].itemData.data.properties?.fin) 
       return {}; // ranged or finesse
     if (args[0].hitTargets.length < 1) return {};
@@ -35,7 +35,7 @@ try {
              t.actor?.uuid !== args[0].actorUuid && // not me
              t.id !== target.id && // not the target
              t.actor?.data.data.attributes?.hp?.value > 0 && // not dead or unconscious
-			 !t.actor.effects.find(i => i.data.label === "Incapacitated") && // not incapacitated
+			      !t.actor.effects.find(i => i.data.label === "Incapacitated" || i.data.label === "Unconscious") && // not incapacitated
              t.data.disposition !== target.data.disposition && // not an ally
              MidiQOL.getDistance(t, target, false) <= 5 // close to the target
          );
