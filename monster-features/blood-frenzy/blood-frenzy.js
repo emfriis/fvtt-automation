@@ -8,19 +8,6 @@ let target = canvas.tokens.get(args[0].targets[0].id ?? args[0].targets[0]._id);
 if (!target) return;
 
 if (target.actor.data.data.attributes.hp.value < target.actor.data.data.attributes.hp.max) {
-	const effectData = {
-		changes: [
-			{
-				key: "flags.midi-qol.advantage.attack.all",
-				mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-				value: 1,
-				priority: 20,
-			}
-		],
-		disabled: false,
-		flags: { dae: { specialDuration: ["1Attack"] } },
-		icon: args[0].item.img,
-		label: `${args[0].item.name} Advantage`,
-	};
-	await actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+	const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
+    attackWorkflow.advantage = true;
 };

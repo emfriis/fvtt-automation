@@ -29,7 +29,7 @@ try {
         t.actor?.uuid !== args[0].actorUuid && // not me
         t.actor.uuid !== target.actor.uuid && // not the target
         t.actor.data.data.attributes?.hp.value > 0 && // not dead or unconscious
-		!t.actor.effects.find(i => i.data.label === "Incapacitated" || i.data.label === "Unconscious") && // not incapacitated
+        !(t.actor?.effects.find(i => i.data.label === "Incapacitated" || i.data.label === "Unconscious" || i.data.label === "Paralyzed" || i.data.label === "Petrified")) && // not incapacitated
         t.data.disposition !== target.data.disposition && // not an ally
         MidiQOL.getDistance(t, target, false) <= 5 // close to the target
       );

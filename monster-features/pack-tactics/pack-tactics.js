@@ -15,7 +15,7 @@ let nearbyEnemy = canvas.tokens.placeables.filter(t => {
 		t.actor?.uuid !== args[0].actorUuid && // not me
 		t.actor?.id !== target.actor?.id && // not the target
 		t.actor?.data.data.attributes?.hp?.value > 0 && // not dead or unconscious
-		!(t.actor?.effects.find(i => i.data.label === "Incapacitated")) && // not incapacitated
+		!(t.actor?.effects.find(i => i.data.label === "Incapacitated" || i.data.label === "Unconscious" || i.data.label === "Paralyzed" || i.data.label === "Petrified")) && // not incapacitated
 		t.data.disposition === token.data.disposition && // an ally
 		MidiQOL.getDistance(t, target, false) <= 5 // close to the target
 	);
@@ -24,19 +24,6 @@ let nearbyEnemy = canvas.tokens.placeables.filter(t => {
 isPack = nearbyEnemy.length > 0;
 
 if (isPack) {
-	const effectData = {
-		changes: [
-			{
-				key: "flags.midi-qol.advantage.attack.all",
-				mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-				value: 1,
-				priority: 20,
-			}
-		],
-		disabled: false,
-		flags: { dae: { specialDuration: ["1Attack"] } },
-		icon: args[0].item.img,
-		label: `${args[0].item.name} Advantage`,
-	};
-	await actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+	const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
+    attackWorkflow.advantage = true;
 };

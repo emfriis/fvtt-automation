@@ -9,7 +9,7 @@ if (args[0].tag === "OnUse" && ["mwak","rwak","msak","rsak"].includes(args[0].it
         MidiQOL.getDistance(t, token, false) <= 5 && // close to the target
         t.actor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data?.equipped) && // shield equipped
         t.actor.data.data.attributes.hp.value > 0 && // not dead or unconscious
-        !(t.actor.effects.find(i => i.data.label === "Incapacitated")) // not incapacitated
+        !(t.actor?.effects.find(i => i.data.label === "Incapacitated" || i.data.label === "Unconscious" || i.data.label === "Paralyzed" || i.data.label === "Petrified")) // not incapacitated
     );
     if (nearbyShield) {
         const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
