@@ -27,17 +27,17 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                             setProperty(nextWorkflow, "item.data.flags.midi-qol.noProvokeReaction", false);
                         }
                     });
-                };
+                }
                 Hooks.once("midi-qol.preDamageRoll", nextWorkflow => {
                     if (workflow.uuid === nextWorkflow.uuid) {
                         workflow?.hitTargets.delete(t);
-                    };
+                    }
                 });
                 if (workflow.attackRoll.total >= miAC) {
                     let effect = t.actor.effects.find(i => i.data.label === "Mirror Image");
                     t.actor.deleteEmbeddedDocuments("ActiveEffect", [effect.id]);
-                };
-            };
+                }
+            }
         });
     } catch(err) {
         console.error(`mirror image macro error`, err);

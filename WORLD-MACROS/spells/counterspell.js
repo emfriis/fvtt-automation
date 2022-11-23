@@ -12,7 +12,7 @@ async function playerForActor(actor) {
 	if (!user) user = game.users?.players.find(p => p.active && actor.data.permission[p.id ?? ""] === CONST.ENTITY_PERMISSIONS.OWNER);
 	if (!user) user = game.users?.find(p => p.isGM && p.active);
 	return user;
-};
+}
 
 const fileSource = "jb2a.impact.004.blue";
 const fileRanged = "jb2a.energy_strands.range.standard.blue";
@@ -23,8 +23,8 @@ async function sequencerEffect(source, target) {
         new Sequence().effect().file(fileSource).atLocation(source).scaleToObject(1.5).sound().file(fileSound).play();
         new Sequence().effect().file(fileRanged).atLocation(source).stretchTo(target).play();
         new Sequence().wait(1250).effect().file(fileTarget).atLocation(target).scaleToObject(3).play();
-    };
-};
+    }
+}
 
 Hooks.on("midi-qol.preambleComplete", async (workflow) => {
     try {
@@ -70,7 +70,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                             return false;
                         } else {
                             workflow.countered = true;
-                        };
+                        }
                     } else {
                         let rollOptions = { chatMessage: true, fastForward: true };
                         let roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "abil", targetUuid: token.actor?.uuid, ability: (token.actor.data.data.attributes?.spellcasting), options: rollOptions });
@@ -81,12 +81,12 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                                 return false;
                             } else {
                                 workflow.countered = true;  
-                            };
-                        };
-                    };
-                };
-            };
-        };
+                            }
+                        }
+                    }
+                }
+            }
+        }
     } catch(err) {
         console.error(`counterspell macro error`, err);
     }

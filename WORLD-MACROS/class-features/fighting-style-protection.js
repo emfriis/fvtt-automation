@@ -1,4 +1,4 @@
-// fs: protection world macro
+// fighting style: protection world macro
 // uses handler of user-socket-functions - "useDialog"
 
 if (!game.modules.get("midi-qol")?.active || !game.modules.get("conditional-visibility")?.active || !game.modules.get("levels")?.active || !_levels || !game.modules.get("perfect-vision")?.active) throw new Error("requisite module(s) missing");
