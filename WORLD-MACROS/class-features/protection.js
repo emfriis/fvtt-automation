@@ -13,33 +13,37 @@ async function playerForActor(actor) {
 }
 
 Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
-    if (!workflow?.token || !workflow?.targets || !["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) return;
-    let protTokens = await canvas.tokens.placeables.filter(t => {
-        let token = (
-            t?.actor && // exists
-            t?.document.uuid !== workflow.token.document.uuid && // not attacker
-            t?.actor.items.find(i => i.data.name === "Fighting Style: Protection") && // has feature
-            t?.actor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data.equipped) && // shield equipped
-            !t?.actor.effects.find(e => e.data.label === "Reaction" || e.data.label === "Incapacitated") && // can react
-            (game.modules.get('conditional-visibility')?.api?.canSee(t, workflow.token) && _levels?.advancedLosTestVisibility(t, workflow.token)) // can see
-        );
-        return token;
-    });
-    if (protTokens.length === 0) return;
-    for (let t = 0; t < workflow.targets.size; t++) {
-        let token = Array.from(workflow.targets)[t];
-        if (!token?.actor) return;
-        for (let p = 0; p < protTokens.length; p++) {
-            let prot = protTokens[p];
-            if (MidiQOL.getDistance(prot, token, false) > 5 || prot.data.disposition === -token.data.disposition || prot.document.uuid === token.document.uuid) return;
-            let player = await playerForActor(prot?.actor);
-            let socket = socketlib.registerModule("user-socket-functions");
-            let useProtect = false;
-            useProtect = await socket.executeAsUser("useDialog", player.id, { title: `Fighting Style: Protection`, content: `Use your reaction to impose disadvantage on attack against ${token.name}?` });
-            if (useProtect) {
-                workflow.disadvantage = true;
-                if (game.combat) game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: prot.actor.uuid });
-            };
-        };
-    };
+    try {
+        if (!workflow?.token || !workflow?.targets || !["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) return;
+        let protTokens = await canvas.tokens.placeables.filter(t => {
+            let token = (
+                t?.actor && // exists
+                t?.document.uuid !== workflow.token.document.uuid && // not attacker
+                t?.actor.items.find(i => i.data.name === "Fighting Style: Protection") && // has feature
+                t?.actor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data.equipped) && // shield equipped
+                !t?.actor.effects.find(e => e.data.label === "Reaction" || e.data.label === "Incapacitated") && // can react
+                (game.modules.get('conditional-visibility')?.api?.canSee(t, workflow.token) && _levels?.advancedLosTestVisibility(t, workflow.token)) // can see
+            );
+            return token;
+        });
+        if (protTokens.length === 0) return;
+        for (let t = 0; t < workflow.targets.size; t++) {
+            let token = Array.from(workflow.targets)[t];
+            if (!token?.actor) return;
+            for (let p = 0; p < protTokens.length; p++) {
+                let prot = protTokens[p];
+                if (MidiQOL.getDistance(prot, token, false) > 5 || prot.data.disposition === -token.data.disposition || prot.document.uuid === token.document.uuid) return;
+                let player = await playerForActor(prot?.actor);
+                let socket = socketlib.registerModule("user-socket-functions");
+                let useProtect = false;
+                useProtect = await socket.executeAsUser("useDialog", player.id, { title: `Fighting Style: Protection`, content: `Use your reaction to impose disadvantage on attack against ${token.name}?` });
+                if (useProtect) {
+                    workflow.disadvantage = true;
+                    if (game.combat) game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: prot.actor.uuid });
+                }
+            }
+        }
+    } catch(err) {
+        console.error(`fighting style: protection macro error`, err);
+    }
 });

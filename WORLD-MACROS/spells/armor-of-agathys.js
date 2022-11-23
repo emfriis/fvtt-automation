@@ -31,18 +31,22 @@ async function applyDamage(source, target) {
 };
 
 Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
-    if (!workflow?.actor) return;
-    workflow?.hitTargets.forEach(async (t) => {
-        if (!t?.actor || !t.actor.effects.find(i => i.data.label === "Armor of Agathys")) return;
-        if (["mwak","msak"].includes(workflow.item.data.data.actionType) && MidiQOL.getDistance(t, workflow.token, false) <= 10) {
-            await applyDamage(t, workflow?.token);
-        };
-        workflow?.damageList.forEach(async (d) => {
-            if (d.tokenId !== t.id || d.newTempHP === d.oldTempHP) return;
-            if (d.newTempHP < 1 || d.newTempHP > d.oldTempHP) {
-                let effect = t.actor.effects.find(i => i.data.label === "Armor of Agathys");
-                t.actor.deleteEmbeddedDocuments("ActiveEffect", [effect.id]);
+    try {
+        if (!workflow?.actor) return;
+        workflow?.hitTargets.forEach(async (t) => {
+            if (!t?.actor || !t.actor.effects.find(i => i.data.label === "Armor of Agathys")) return;
+            if (["mwak","msak"].includes(workflow.item.data.data.actionType) && MidiQOL.getDistance(t, workflow.token, false) <= 10) {
+                await applyDamage(t, workflow?.token);
             };
+            workflow?.damageList.forEach(async (d) => {
+                if (d.tokenId !== t.id || d.newTempHP === d.oldTempHP) return;
+                if (d.newTempHP < 1 || d.newTempHP > d.oldTempHP) {
+                    let effect = t.actor.effects.find(i => i.data.label === "Armor of Agathys");
+                    t.actor.deleteEmbeddedDocuments("ActiveEffect", [effect.id]);
+                }
+            });
         });
-    });
+    } catch(err) {
+        console.error(`armor of agathys macro error`, err);
+    }
 });
