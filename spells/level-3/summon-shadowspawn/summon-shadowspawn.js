@@ -16,11 +16,46 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
                 mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
                 value: summonUuid,
                 priority: 20,
-            },
+            }
         ];
         await ef.update({ changes: changes.concat(ef.data.changes) });
-    };
-};
+    }
+    let type = await new Promise((resolve, reject) => {
+        new Dialog({
+            title: "Summon Shadowspawn",
+            content: "Choose an emotion",
+            buttons: {
+                Fury: {
+                    label: "Fury",
+                    callback: async () => {resolve("fear")},
+                },
+                Despair: {
+                    label: "Despair",
+                    callback: async () => {resolve("despair")},
+                },
+                Fear: {
+                    label: "Fear",
+                    callback: async () => {resolve("fear")},
+                },
+            },
+            default: "Fury",
+            close: () => {resolve(false)}
+        }).render(true);
+    });
+    if (!type) return;
+    let itemData;
+    switch (type) {
+        case "fury":
+            itemData = {}
+            break;
+        case "despair":
+            itemData = {}
+            break;
+        case "fear":
+            itemData = {}
+    }
+    await spawnedTokenDoc.actor.createEmbeddedDocuments("Item", [itemData]);
+}
 
 if (args[0] === "on") {
     let updates = {
@@ -46,9 +81,9 @@ if (args[0] === "on") {
                 "Chilling Rend": {
                     "data.attackBonus": bonus,
                     "data.damage.parts": [[`1d12 + 3 + ${spellLevel}`, "cold"]]
-                },
-            },
-        },
-    };
+                }
+            }
+        }
+    }
     await warpgate.spawn("Shadow Spirit", updates, { post: postWarp }, {});
-};
+}
