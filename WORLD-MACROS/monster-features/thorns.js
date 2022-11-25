@@ -1,16 +1,23 @@
 // thorns world macro
+// flag syntax range(int[range]),damageDice(str[rollable]),damageType(str[damage]),saveDC(str["none"] or int[dc]),saveType(str["none" or abil]),saveDamage(str["none" or "nodam" or "halfdam"]),magicEffect(str["none" or "magiceffect"])
 
 if (!game.modules.get("midi-qol")?.active) throw new Error("requisite module(s) missing");
 
-async function applyDamage(tokenUuid, actor, damageDice, damageType) {
+async function applyDamage(tokenUuid, actor, damageDice, damageType, saveDC, saveType, saveDamage, magicEffect) {
     const itemData = {
         name: `${damageType.charAt(0).toUpperCase() + damageType.slice(1)} Damage`,
         img: "icons/skills/melee/strike-slashes-orange.webp",
         type: "feat",
+        "flags.midiProperties": {
+            magiceffect: (magicEffect === "magiceffect"),
+            nodam: (saveDamage === "nodam"),
+            halfdam: (saveDamage === "halfdam")
+        },
         data: {
             "activation.type": "none",
-            actionType: "other",
+            actionType: (saveDC === "none" ? "other" : "save"),
             damage: { parts: [[damageDice, damageType]] },
+            save: { dc: (saveDC === "none" ? null : parseInt(saveDC)), ability: (saveType === "none" ? null : saveType), scaling: "flat" },
             target: { value: null, width: null, units: null, type: "creature" },
         }
     }
@@ -24,9 +31,9 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
         if (!workflow?.actor) return;
         workflow?.hitTargets.forEach(async (t) => {
             if (!t?.actor || !t.actor.data.flags["midi-qol"]?.thorns) return;
-            if (["mwak","msak"].includes(workflow.item.data.data.actionType) && MidiQOL.getDistance(t, workflow.token, false) <= 5) {
-                const thorns = t.actor.data.flags["midi-qol"].thorns.split(",");
-                await applyDamage(workflow?.tokenUuid, t.actor, thorns[0], thorns[1]);
+            const thorns = t.actor.data.flags["midi-qol"].thorns.split(",");
+            if (["mwak","msak"].includes(workflow.item.data.data.actionType) && MidiQOL.getDistance(t, workflow.token, false) <= parseInt(thorns[0])) {
+                await applyDamage(workflow?.tokenUuid, t.actor, thorns[1], thorns[2], thorns[3], thorns[4], thorns[5], thorns[6]);
             }
         });
     } catch(err) {
