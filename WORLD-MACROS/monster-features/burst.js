@@ -3,8 +3,6 @@
 
 if (!game.modules.get("midi-qol")?.active) throw new Error("requisite module(s) missing");
 
-
-
 async function applyDamage(actor, token, range, damageDice, damageType, saveDC, saveType, saveDamage, magicEffect) {
     const itemData = {
         name: `${damageType.charAt(0).toUpperCase() + damageType.slice(1)} Burst`,
