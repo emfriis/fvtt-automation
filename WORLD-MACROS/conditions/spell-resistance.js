@@ -1,5 +1,7 @@
 // spell resistance world macro
 
+if (!game.modules.get("midi-qol")?.active) throw new Error("requisite module(s) missing");
+
 Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
     try {
         if (!workflow?.actor || workflow?.item.type !== "spell" || workflow.item.data.data.actionType !== save) return;

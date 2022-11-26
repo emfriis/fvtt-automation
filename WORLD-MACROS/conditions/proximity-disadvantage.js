@@ -1,5 +1,7 @@
 // proximity world macro
 
+if (!game.modules.get("midi-qol")?.active) throw new Error("requisite module(s) missing");
+
 Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
     try {
         if (!workflow?.token || !["rwak","rsak"].includes(workflow.item.data.data.actionType)) return;
