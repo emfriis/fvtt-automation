@@ -1,5 +1,4 @@
 // sanctuary world macro
-// bases dc off sanctuary spell item ability
 
 if (!game.modules.get("midi-qol")?.active || !game.modules.get("conditional-visibility")?.active || !game.modules.get("levels")?.active || !_levels) throw new Error("requisite module(s) missing");
 
