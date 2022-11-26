@@ -17,7 +17,7 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
             if (!isAttack && !isHarmSpell) continue;
             const item = await fromUuid(ef.data.origin);
             const parent = item?.parent;
-            const dc = 8 + parent.data.data.attributes.prof + parent.data.data.abilities[`${item.data.data.ability}`].mod;
+            const dc = parent.data.data.attributes.spelldc;
             const rollOptions = { chatMessage: true, fastForward: true };
             const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "save", targetUuid: workflow.actor.uuid, ability: "wis", options: rollOptions });
             if (game.dice3d) game.dice3d.showForRoll(roll);

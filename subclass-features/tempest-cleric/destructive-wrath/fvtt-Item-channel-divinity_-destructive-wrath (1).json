@@ -61,7 +61,8 @@
     "recharge": {
       "value": null,
       "charged": false
-    }
+    },
+    "attunement": null
   },
   "effects": [
     {
@@ -111,7 +112,7 @@
           "onlyOnce": false
         }
       },
-      "tint": "",
+      "tint": null,
       "selectedKey": "flags.midi-qol.onUseMacroName"
     }
   ],
@@ -145,8 +146,8 @@
       }
     },
     "scene-packer": {
-      "hash": "940520fb9d229f0d36ec1d75cf0841759f80db7a",
-      "sourceId": "Item.DdO6b9ZZhB6Q0Fgw"
+      "hash": "9beee214adcdff2b8236c77964323bbe69b03c14",
+      "sourceId": "Item.F9btJcU4TkmFMJYs"
     },
     "rest-recovery": {
       "data": {
