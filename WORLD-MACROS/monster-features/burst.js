@@ -34,7 +34,7 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
         if (!workflow?.actor) return;
         workflow?.damageList?.forEach(async (d) => {
             const tokenOrActor = await fromUuid(d.actorUuid);
-            const actor = tokenOrActor.actor ? tokenOrActor.actor : actor;
+            const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
             const token = canvas.tokens.get(d.tokenId);
             if (!actor || !actor.data.flags["midi-qol"]?.burst) return;
             if (d.oldHP !== 0 && d.newHP === 0 && actor.data.data.attributes.hp.value === 0) {
