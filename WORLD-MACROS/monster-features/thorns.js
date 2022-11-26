@@ -8,10 +8,12 @@ async function applyDamage(tokenUuid, actor, damageDice, damageType, saveDC, sav
         name: `${damageType.charAt(0).toUpperCase() + damageType.slice(1)} Damage`,
         img: "icons/skills/melee/strike-slashes-orange.webp",
         type: "feat",
-        "flags.midiProperties": {
-            magiceffect: (magicEffect === "magiceffect" ? true : false),
-            nodam: (saveDamage === "nodam" ? true : false),
-            halfdam: (saveDamage === "halfdam" ? true : false)
+        flags: {
+            midiProperties: {
+                magiceffect: (magicEffect === "magiceffect" ? true : false),
+                nodam: (saveDamage === "nodam" ? true : false),
+                halfdam: (saveDamage === "halfdam" ? true : false)
+            }
         },
         data: {
             "activation.type": "none",

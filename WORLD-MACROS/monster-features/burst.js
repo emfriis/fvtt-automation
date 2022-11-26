@@ -10,10 +10,12 @@ async function applyDamage(actor, token, range, damageDice, damageType, saveDC, 
         name: `${damageType.charAt(0).toUpperCase() + damageType.slice(1)} Burst`,
         img: "systems/dnd5e/icons/skills/yellow_15.jpg",
         type: "feat",
-        "flags.midiProperties": {
-            magiceffect: (magicEffect === "magiceffect" ? true : false),
-            nodam: (saveDamage === "nodam" ? true : false),
-            halfdam: (saveDamage === "halfdam" ? true : false)
+        flags: {
+            midiProperties: {
+                magiceffect: (magicEffect === "magiceffect" ? true : false),
+                nodam: (saveDamage === "nodam" ? true : false),
+                halfdam: (saveDamage === "halfdam" ? true : false)
+            }
         },
         data: {
             "activation.type": "none",
