@@ -32,7 +32,7 @@ async function applyDamage(actor, token, range, damageDice, damageType, saveDC, 
 Hooks.on("midi-qol.RollComplete", async (workflow) => {
     try {
         if (!workflow?.actor) return;
-        workflow?.damageList.forEach(async (d) => {
+        workflow?.damageList?.forEach(async (d) => {
             const tokenOrActor = await fromUuid(d.actorUuid);
             const actor = tokenOrActor.actor ? tokenOrActor.actor : actor;
             const token = canvas.tokens.get(d.tokenId);

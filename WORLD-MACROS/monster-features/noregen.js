@@ -14,6 +14,6 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
             if (!noRegenTypes) continue;
         } 
     } catch(err) {
-        console.error(`undead fortitude macro error`, err);
+        console.error(`no regen macro error`, err);
     }
 });

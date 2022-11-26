@@ -66,7 +66,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                     let level = counterCast?.itemLevel;
                     if (level >= workflow?.itemLevel) {
                         if (workflow.item.name !== "Counterspell") {
-                            if (workflow?.templateId && canvas.scene.templates.contents.find(i => i.id === workflow.tempateId)) canvas.scene.deleteEmbeddedDocuments('MeasuredTemplate', [workflow.tempateId]);
+                            if (workflow?.templateId) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow.templateId]);
                             return false;
                         } else {
                             workflow.countered = true;
@@ -77,7 +77,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                         if (game.dice3d) game.dice3d.showForRoll(roll);
                         if (roll.total >= workflow?.itemLevel + 10) {
                             if (workflow.item.name !== "Counterspell") {
-                                if (workflow?.templateId && canvas.scene.templates.contents.find(i => i.id === workflow.tempateId)) canvas.scene.deleteEmbeddedDocuments('MeasuredTemplate', [workflow.tempateId]);
+                                if (workflow?.templateId) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow.templateId]);
                                 return false;
                             } else {
                                 workflow.countered = true;  
