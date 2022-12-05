@@ -47,7 +47,6 @@ if (args[3] === "save") {
             changes: [{ key: "flags.midi-qol.advantage.ability.save.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, }],
             disabled: false,
             flags: { dae: { specialDuration: ["isSave"] } },
-            icon: args[0].item.img,
             label: "Damage Save Advantage",
         }
         await targetActor.createEmbeddedDocuments("ActiveEffect", [effectData]);
