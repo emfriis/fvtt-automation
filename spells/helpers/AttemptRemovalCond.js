@@ -1,5 +1,14 @@
 // macro.itemMacro, values : dc(int) abil(string) type(str) auto/opt(str)
 
+async function playerForActor(actor) {
+	if (!actor) return undefined;
+	let user;
+	if (actor.hasPlayerOwner) user = game.users?.find(u => u.data.character === actor?.id && u.active);
+	if (!user) user = game.users?.players.find(p => p.active && actor?.data.permission[p.id ?? ""] === CONST.ENTITY_PERMISSIONS.OWNER);
+	if (!user) user = game.users?.find(p => p.isGM && p.active);
+	return user;
+}
+
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
@@ -59,24 +68,26 @@ async function playerForActor(actor) {
 async function attemptRemoval(getResist) {
     const dc = args[1];
     const abil = args[2];
-    const type = args[3]; // can be "abil", "save", or "skill"
+    const type = args[3]; 
+    const player = await playerForActor(tactor);
     const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
-    const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: type, targetUuid: tactor.uuid, ability: abil, options: rollOptions });
+    const roll = await MidiQOL.socket().executeAsUser("rollAbility", player.id, { request: type, targetUuid: tactor.uuid, ability: abil, options: rollOptions });
     if (game.dice3d) game.dice3d.showForRoll(roll);
     if (roll.total >= dc) {
         let ef = tactor.effects.find(i => i.data === lastArg.efData);
 		if (ef) await tactor.deleteEmbeddedDocuments("ActiveEffect", [ef.id]);
+        ChatMessage.create({ content: `The afflicted creature passes the roll and removes the ${condition} condition.` });
     } else {
-        if (roll.total < dc) ChatMessage.create({ content: `${tactor.name} fails the roll and still has the ${condition} condition.` });
+        if (roll.total < dc) ChatMessage.create({ content: `The afflicted creature fails the roll and still has the ${condition} condition.` });
     }
 }
 
 if (args[0] === "each" && lastArg.efData.disabled === false) {
     if (args[4] === "opt") {
-        let player = await playerForActor(tactor);
-        let socket = socketlib.registerModule("user-socket-functions");
+        const player = await playerForActor(tactor);
+        const socket = socketlib.registerModule("user-socket-functions");
         let attempt = false;
-        attempt = await socket.executeAsUser("useDialog", player.id, { title: `Use action to attempt to remove ${condition}?`, content: `` });
+        if (socket) attempt = await socket.executeAsUser("useDialog", player.id, { title: `Use action to attempt to remove ${condition}?`, content: `` });
         if (attempt) {
             attemptRemoval();
         }
