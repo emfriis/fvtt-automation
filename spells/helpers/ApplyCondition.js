@@ -6,8 +6,8 @@
 // [4] - condition name (string: i.e., "Prone", "Stunned")
 // [5] - duration seconds (int: i.e, 60, 600, ... or "null")
 // [6] - duration special (string: i.e., "isDamaged", "1Attack", ... or "null")
-// [7] - magic effect (string: "magiceffect" or EMPTY)
-// [8] - spell effect (string: "spelleffect" or EMPTY)
+// [7] - magic effect (string: "magiceffect" or "no" or EMPTY)
+// [8] - spell effect (string: "spelleffect" or "no" or EMPTY)
 // [9] - save dc (int: i.e., 10, 15, ... or EMPTY)
 // [10] - save type (string: i.e., "dex", "wis", ... or EMPTY)
 // [11] - attempt removal data (string: i.e., "" or EMPTY)
@@ -73,41 +73,9 @@ if (args[3] === "save") {
 	} else if (args[7] === "magiceffect") {
         resist.push("Magic Resilience", "Magic Resistance");
 	}
-	const getResist = targetActor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
+	const getResist = targetActor.items.find(i => resist.includes(i.name)) || targetActor.effects.find(i => resist.includes(i.data.label));
 	if (getResist) {
-        const effectData = {
-            changes: [{ key: "flags.midi-qol.advantage.ability.save.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, }],
-            disabled: false,
-            flags: { dae: { specialDuration: ["isSave"] } },
-            icon: args[0].item.img,
-            label: `${args[4]} Save Advantage`,
-        };
-        await targetActor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+        
 	}
 }
 
-const itemData = {
-    name: `${args[4].charAt(0).toUpperCase() + args[4].slice(1)}`,
-    img: "icons/svg/aura.svg",
-    type: "feat",
-	effects: [
-		{
-			changes: [{ key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Convenient Effect: ${args[4]}`, priority: 20, }],
-            disabled: false,
-			duration: { seconds: (parseInt(args[5]).isNaN ? null : parseInt(args[5])) },
-            flags: { dae: { specialDuration: [args[6]] } },
-            label: args[4],
-		}
-	],
-    data: {
-        "activation.type": "none",
-        actionType: args[3],
-        save: { dc: args[9], ability: args[10], scaling: "flat" },
-    }
-}
-if (args[7] === "magiceffect") itemData.flags.midiProperties.magiceffect = true;
-if (args[8] === "spelleffect") itemData.flags.midiProperties.spelleffect = true;
-if (args[11]) itemData.effects[0].changes.push({ key: "Macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `AttemptRemoval ${args[11].replace(",", " ")}`, priority: 20, });
-const item = new CONFIG.Item.documentClass(itemData, { parent: sourceUuid });
-const options = { showFullCard: false, createWorkflow: true, configureDialog: false, targetUuids: [targetUuid] };
-await MidiQOL.completeItemRoll(item, options);
