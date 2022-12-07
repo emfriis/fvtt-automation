@@ -72,7 +72,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 }
 
                 // no regen
-                if (tactor.data.flags["midi-qol"].noregen) {
+                if (tactor.data.flags["midi-qol"].noregen && attackWorkflow[d].appliedDamage !== 0) {
                     try {
                         console.warn("No Regen activated");
                         let noRegenTypes = tactor.data.flags["midi-qol"]?.noregen?.split(",");
