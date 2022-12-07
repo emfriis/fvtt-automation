@@ -71,7 +71,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
 			  }
 		        await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
 			  console.warn("Full Cover used");
-                } else if (calculatedCover >= 75) {
+                } else if (calculatedCover >= 65) {
 		        const effectData = {
 			      changes: [
 				    { key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 5, priority: 20, },
@@ -82,7 +82,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
 			  }
 		        await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
 			  console.warn("3/4 Cover used");
-		    } else if (calculatedCover >= 50) {
+		    } else if (calculatedCover >= 40) {
 		        const effectData = {
 			      changes: [
 			          { key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 2, priority: 20, },
@@ -135,8 +135,8 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                 try {
                     console.warn("Ranged Proximity activated");
                     const nearbyEnemy = canvas.tokens.placeables.find(p => 
-                    p?.actor && // exists
-                    (p.actor.data.data.details?.type?.value?.length > 2 || p.actor.data.data.details?.race?.length > 2) && // is a creature
+                        p?.actor && // exists
+                        (p.actor.data.data.details?.type?.value?.length > 2 || p.actor.data.data.details?.race?.length > 2) && // is a creature
                         p.document.uuid !== workflow.token.document.uuid && // not the attacker
                         p.document.uuid !== workflow.token.document.uuid && // not the target
                         !p.actor.effects.find(i => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].some(j => i.data.label.includes(j))) && // not incapacitated
@@ -202,14 +202,14 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
             if (!workflow.disadvantage) {
                 try {
                     console.warn("Fighting Style Protection activated");
-                    let protTokens = await canvas.tokens.placeables.filter(async p =>
+                    let protTokens = await canvas.tokens.placeables.filter(p =>
                         p?.actor && // exists
                         p.document.uuid !== workflow.token.document.uuid && // not attacker
                         p.document.uuid !== token.document.uuid && // not target
                         p.actor.items.find(i => i.data.name === "Fighting Style: Protection") && // has feature
                         p.actor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data.equipped) && // shield equipped
                         !p.actor.effects.find(e => e.data.label === "Reaction" || e.data.label === "Incapacitated") && // can react
-                        await canSee(workflow.token, token) // can see 
+                        canSee(workflow.token, token) // can see attacker
                     );
                     for (let p = 0; p < protTokens.length; p++) {
                         let prot = protTokens[p];
@@ -221,7 +221,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                             if (useProtect) {
                                 workflow.disadvantage = true;
                                 if (game.combat) game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: prot.actor.uuid });
-                        console.warn("Fighting Style Protection used");
+                                console.warn("Fighting Style Protection used");
                             }
                         }
                     }
