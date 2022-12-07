@@ -87,7 +87,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                                             label: "No Regen",
                                             icon: "icons/skills/wounds/blood-cells-vessel-red-orange.webp"
                                         }
-                                        await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+                                        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                                     }
                                 }
                             }

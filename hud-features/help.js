@@ -48,7 +48,7 @@ if (args[0].macroPass === "preambleComplete") {
             label: "Help",
             icon: "icons/svg/upgrade.svg"
         };
-        await tactorTarget.createEmbeddedDocuments("ActiveEffect", [effectData]);
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
     } else if (helpType === "attack") {
         const targets = await canvas.tokens.placeables.filter((t) =>
             (t.document.uuid !== token.document.uuid) &&
@@ -144,24 +144,13 @@ if (args[0].macroPass === "preambleComplete") {
             label: "Help",
             icon: "icons/svg/upgrade.svg"
         };
-        await tactorTarget.createEmbeddedDocuments("ActiveEffect", [effectData]);
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
     };
 } else if (args[0].macroPass === "preAttackRoll") {
     if (!["mwak","rwak","msak","rsak"].includes(args[0].item.data.actionType)) return;
     if (!tactor.data.flags["midi-qol"]?.help?.includes(tactorTarget.uuid)) return;
-    
-    const effectData = {
-        changes: [
-            { key: `flags.midi-qol.advantage.attack.all`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20 },
-        ],
-        origin: args[0].uuid,
-        flags: {
-            "dae": { specialDuration: ["1Attack"] },
-        },
-        disabled: false,
-        label: "Help Advantage"
-    };
-    await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+    const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
+    attackWorkflow.advantage = true;
     const ef = tactor.effects.find(i => i.data.label === "Help" && i.data.changes.find(e => e.value.includes(tactorTarget.uuid)));
     if (ef) await tactor.deleteEmbeddedDocuments("ActiveEffect", [ef.id]);
 };

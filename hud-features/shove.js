@@ -44,7 +44,7 @@ if (args[0].tag === "OnUse") {
                 disabled: false,
                 label: "Prone",
             }
-            await target.createEmbeddedDocuments("ActiveEffect", [effectData]);
+			await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.uuid, effects: [effectData] });
         }
         ChatMessage.create({ content: "The attacker wins the contest and shoves the target." });
 	} else {

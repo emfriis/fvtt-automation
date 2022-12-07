@@ -44,7 +44,7 @@ if (args[0].tag === "OnUse") {
             label: "Grappled",
 			flags: { dae: { macroRepeat: "startEveryTurn" } }
 		}
-        await target.createEmbeddedDocuments("ActiveEffect", [effectData]);
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.uuid, effects: [effectData] });
         ChatMessage.create({ content: "The attacker wins the contest and grapples the target." });
 	} else {
         ChatMessage.create({ content: "The attacker loses the contest." });
