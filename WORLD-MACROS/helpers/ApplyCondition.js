@@ -5,29 +5,30 @@
 // [2] - condition application type (string: "other" or "save")
 // [3] - condition name (string: i.e., "Prone", "Stunned")
 // [4] - save dc (int: i.e., 10, 15, ...)
-// [5] - save type (string: i.e., "dex", "wis", ...
-// [6] - duration seconds (int: i.e, 60, 600, ... or "no" or EMPTY)
-// [7] - duration special (string: i.e., "isDamaged", "1Attack", ... or "no" or EMPTY)
-// [8] - magic effect (string: "magiceffect" or "no" or EMPTY)
-// [9] - spell effect (string: "spelleffect" or "no" or EMPTY)
-// [10] - attempt removal data (string: i.e., "10,save,con,auto", "12,abil,str,opt", ... or EMPTY)
-// [11] - attempt removal timing (string: i.e., "startEveryTurn" or "endEveryTurn" or EMPTY)
-// [12] - on/off override (string: "on", "off", or EMPTY)
-
-async function playerForActor(actor) {
-	if (!actor) return undefined;
-	let user;
-	if (actor.hasPlayerOwner) user = game.users?.find(u => u.data.character === actor?.id && u.active);
-	if (!user) user = game.users?.players.find(p => p.active && actor?.data.permission[p.id ?? ""] === CONST.ENTITY_PERMISSIONS.OWNER);
-	if (!user) user = game.users?.find(p => p.isGM && p.active);
-	return user;
-}
+// [5] - save type (string: i.e., "dex", "wis", ...)
+// [6] - duration seconds (int: i.e, 60, 600, ... or "" or EMPTY)
+// [7] - duration special (string: i.e., "isDamaged", "1Attack", ... or "" or EMPTY)
+// [8] - magic effect (string: "magiceffect" or "" or EMPTY)
+// [9] - spell effect (string: "spelleffect" or "" or EMPTY)
+// [10] - attempt removal data (string: i.e., "10,save,con,auto", "12,abil,str,opt", ... or "" or EMPTY)
+// [11] - attempt removal timing (string: i.e., "startEveryTurn" or "endEveryTurn" or "" or EMPTY)
+// [12] - origin uuid (string: [uuid] or "" or EMPTY)
+// [13] - on/off override (string: "on", "off", or "" or EMPTY)
 
 try {
-    if (args[0] === "on" && args[12] !== "on") return;
-    if (args[0] === "off" && args[12] !== "off") return;
-
     const lastArg = args[args.length - 1];
+    
+    async function playerForActor(actor) {
+        if (!actor) return undefined;
+        let user;
+        if (actor.hasPlayerOwner) user = game.users?.find(u => u.data.character === actor?.id && u.active);
+        if (!user) user = game.users?.players.find(p => p.active && actor?.data.permission[p.id ?? ""] === CONST.ENTITY_PERMISSIONS.OWNER);
+        if (!user) user = game.users?.find(p => p.isGM && p.active);
+        return user;
+    }
+
+    if (args[0] === "on" && args[13] !== "on") return;
+    if (args[0] === "off" && args[13] !== "off") return;
 
     let targetUuid;
     if (args[1] === "self") {
@@ -84,7 +85,7 @@ try {
         const targetPlayer = await playerForActor(targetActor);
         const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
         const roll = await MidiQOL.socket().executeAsUser("rollAbility", targetPlayer.id, { request: "save", targetUuid: targetActor.uuid, ability: args[5], options: rollOptions }); 
-        
+        if (game.dice3d) game.dice3d.showForRoll(roll);
         if (roll.total < args[4]) {
             const effectData = {
                 changes: [
@@ -92,6 +93,7 @@ try {
                 ],
                 duration: null,
                 disabled: false,
+                origin: (args[12] ?? null),
                 flags: { dae: { macroRepeat: null, specialDuration: null } }
             }
             if (args[6]) effectData.duration = { seconds: args[6] };

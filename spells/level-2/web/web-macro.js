@@ -15,12 +15,12 @@ if (args[0] === "on" || args[0] === "each") {
     };
     const saveDC = args[1];
     if (!saveDC) return;
-    if (!tactor.effects.find(i => i.data.label === "Restrained")) {
+    if (!tactor.effects.find(e => e.data.label === "Restrained" && e.data.origin === lastArg.efData.origin)) {
         const applyCondition = game.macros.find(m => m.name === "ApplyCondition");
-        if (applyCondition) await applyCondition.execute("ApplyCondition", lastArg.tokenUuid, "save", "Restrained", saveDC, "dex", "", "", "magiceffect", "spelleffect", `${saveDC},abil,str,opt`, "startEveryTurn");
+        if (applyCondition) await applyCondition.execute("ApplyCondition", lastArg.tokenUuid, "save", "Restrained", saveDC, "dex", "", "", "magiceffect", "spelleffect", `${saveDC},abil,str,opt`, "startEveryTurn", lastArg.efData.origin);
     }
 } else if (args[0] === "off") {
-    let effect = tactor.effects.find(i => i.data.label === "Restrained");
+    let effect = tactor.effects.find(e => e.data.label === "Restrained" && e.data.origin === lastArg.efData.origin);
     if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
 };
 
