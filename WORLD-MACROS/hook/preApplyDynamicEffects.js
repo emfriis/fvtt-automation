@@ -17,6 +17,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
             for (let a = 0; a < attackWorkflow.length; a++) {
                 let token = await fromUuid(attackWorkflow[a].tokenUuid);
                 let tactor = token.actor ? token.actor : token;
+		    if (!tactor) continue;
 
                 // undead fortitude
                 if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.items.find(i => i.name === "Undead Fortitude")) {

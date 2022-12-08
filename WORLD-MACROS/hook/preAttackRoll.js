@@ -22,83 +22,56 @@ async function canSee(token, target) {
     return canSee;
 }
 
-async function calculateCover(sourceToken, targetToken) {
-    const sourceHeight = sourceToken.losHeight;
-    const baseZ = targetToken.data.elevation;
-    const targetHeight = targetToken.losHeight == baseZ ? baseZ+0.001 : targetToken.losHeight;
-    const sourcePov = {  x: sourceToken.center.x, y: sourceToken.center.y, z: sourceHeight, };
-    const precision = 5;
-    let volPercent = 0;
-    let collisionTestPoints = [];
-    for (let zC = baseZ; zC <= targetHeight; zC += (targetHeight - baseZ) / precision) {
-        for (let yC = targetToken.y; yC <= targetToken.y + targetToken.h; yC += targetToken.h / precision) {
-            for (let xC = targetToken.x; xC <= targetToken.x + targetToken.w; xC += targetToken.w / precision) {
-                collisionTestPoints.push({ x: xC, y: yC, z: zC });
-            }
-        }
-    }
-
-    for (let point of collisionTestPoints) {
-        if (_levels.testCollision(sourcePov, point, "sight")) volPercent++;
-    }
-
-    let calculatedCover = (volPercent * 100) / collisionTestPoints.length;
-
-    return calculatedCover;
-}
-
 Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
     try {
         if (!["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) return;
+
+	  // ranged proximity
+        if (!workflow.disadvantage && ["rwak","rsak"].includes(workflow.item.data.data.actionType)) {
+            try {
+                console.warn("Ranged Proximity activated");
+                const nearbyEnemy = canvas.tokens.placeables.find(p => 
+                    p?.actor && // exists
+                    (p.actor.data.data.details?.type?.value?.length > 2 || p.actor.data.data.details?.race?.length > 2) && // is a creature
+                    p.document.uuid !== workflow.token.document.uuid && // not the attacker
+                    p.document.uuid !== workflow.token.document.uuid && // not the target
+                    !p.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label)) && // not incapacitated
+                    p.data.disposition !== workflow.token.data.disposition && // not an ally
+                    p.data.disposition !== 0 && // not neutral
+                    MidiQOL.getDistance(p, workflow.token, false) <= 5 // within 5 feet
+                );
+                if (nearbyEnemy) {
+                    workflow.disadvantage = true;
+                    console.warn("Ranged Proximity used");
+                }
+            } catch (err) {
+                console.error("Ranged Proximity error", err);
+            }
+        }
+
+	  // frightened
+        if (!workflow.disadvantage && workflow.actor.effects.find(e => e.data.label === "Frightened") && workflow.actor.data.flags["midi-qol"].fear) {
+            try {
+                console.warn("Frightened activated");
+                const seeFear = canvas.tokens.placeables.find(async p => 
+                    p?.actor && // exists
+                    workflow.actor.data.flags["midi-qol"].fear.includes(p.actor.uuid) && // is fear source
+                    await canSee(workflow.token, p) // can see los
+                );
+                if (seeFear) {
+                    workflow.disadvantage = true;
+                    console.warn("Frightened used");
+                }
+            } catch (err) {
+                console.error("Frightened error", err);
+            }
+        }
+
         const targets = Array.from(workflow.targets);
         for (let t = 0; t < targets.length; t++) {
             let token = targets[t];
             let tactor = token.actor;
             if (!tactor) continue;
-
-		//cover
-		try {
-                console.warn("Cover activated");
-                const calculatedCover = await calculateCover(workflow.token, token);
-		    if (calculatedCover >= 99) {
-                    const effectData = {
-                    changes: [
-                        { key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 20, },
-                    ],
-                        disabled: false,
-                    label: "Full Cover",
-                    flags: { dae: { specialDuration: "isAttacked" } }
-			  }
-              await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-			  console.warn("Full Cover used");
-                    } else if (calculatedCover >= 65) {
-                    const effectData = {
-                    changes: [
-                        { key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 5, priority: 20, },
-                    ],
-                        disabled: false,
-                    label: "Three Quarters Cover",
-                    flags: { dae: { specialDuration: "isAttacked" } }
-                }
-                await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                console.warn("3/4 Cover used");
-		    } else if (calculatedCover >= 40) {
-                const effectData = {
-                    changes: [
-                        { key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 2, priority: 20, },
-                    ],
-                    disabled: false,
-                    label: "Half Cover",
-                    flags: { dae: { specialDuration: "isAttacked" } }
-                }
-                await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                console.warn("1/2 Cover used");
-		    }
-            } catch (err) {
-                console.error("Cover error", err);
-            }
-
-            // advantage
 
             // attacker unseen
             if (!workflow.advantage) {
@@ -114,8 +87,6 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                 }
             }
 
-            // disadvantage
-
             // target unseen
             if (!workflow.disadvantage) {
                 try {
@@ -127,47 +98,6 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                     }
                 } catch (err) {
                     console.error("Target Unseen error", err);
-                }
-            }
-
-            // ranged proximity
-            if (!workflow.disadvantage && ["rwak","rsak"].includes(workflow.item.data.data.actionType)) {
-                try {
-                    console.warn("Ranged Proximity activated");
-                    const nearbyEnemy = canvas.tokens.placeables.find(p => 
-                        p?.actor && // exists
-                        (p.actor.data.data.details?.type?.value?.length > 2 || p.actor.data.data.details?.race?.length > 2) && // is a creature
-                        p.document.uuid !== workflow.token.document.uuid && // not the attacker
-                        p.document.uuid !== workflow.token.document.uuid && // not the target
-                        !p.actor.effects.find(i => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].some(j => i.data.label.includes(j))) && // not incapacitated
-                        p.data.disposition !== workflow.token.data.disposition && // not an ally
-                        p.data.disposition !== 0 && // not neutral
-                        MidiQOL.getDistance(p, workflow.token, false) <= 5 // within 5 feet
-                    );
-                    if (nearbyEnemy) {
-                        workflow.disadvantage = true;
-                        console.warn("Ranged Proximity used");
-                    }
-                } catch (err) {
-                    console.error("Ranged Proximity error", err);
-                }
-            }
-
-            // frightened
-            if (!workflow.disadvantage && workflow.actor.effects.find(e => e.data.label === "Frightened") && workflow.actor.data.flags["midi-qol"].fear) {
-                try {
-                    console.warn("Frightened activated");
-                    const seeFear = canvas.tokens.placeables.find(async p => 
-                        p?.actor && // exists
-                        workflow.actor.data.flags["midi-qol"].fear.includes(p.actor.uuid) && // is fear source
-                        await canSee(workflow.token, p) // can see los
-                    );
-                    if (seeFear) {
-                        workflow.disadvantage = true;
-                        console.warn("Frightened used");
-                    }
-                } catch (err) {
-                    console.error("Frightened error", err);
                 }
             }
 
@@ -208,7 +138,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                         p.document.uuid !== token.document.uuid && // not target
                         p.actor.items.find(i => i.data.name === "Fighting Style: Protection") && // has feature
                         p.actor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data.equipped) && // shield equipped
-                        !p.actor.effects.find(e => e.data.label === "Reaction" || e.data.label === "Incapacitated") && // can react
+                        !p.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].inludes(e.data.label)) && // can react
                         canSee(workflow.token, token) // can see attacker
                     );
                     for (let p = 0; p < protTokens.length; p++) {
