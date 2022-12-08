@@ -79,7 +79,6 @@ try {
     }
     await sourceActor.createEmbeddedDocuments("Item", [itemData]);
     let item = await sourceActor.items.find(i => i.name === itemData.name);
-    console.warn(item);
     let options = { targetUuids: [targetUuid] };
     await MidiQOL.completeItemRoll(item, options);
     await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);

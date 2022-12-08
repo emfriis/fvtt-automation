@@ -13,7 +13,7 @@ const template = canvas.templates.placeables.find(i => i.data.flags?.ActiveAuras
         if (VolumetricTemplates) {
             const templateTargets = VolumetricTemplates.compute3Dtemplate(template);
             if (templateTargets && !templateTargets.includes(lastArg.tokenId)) {
-                await tactor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.effectId]);
+                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
                 return;
             };
         };
@@ -27,8 +27,8 @@ const template = canvas.templates.placeables.find(i => i.data.flags?.ActiveAuras
         }];
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: effectData });
     } else if (args[0] === "off") { // leaving aura vertically requires manual effect removal
-        let blind = tactor.effects.find(i => i.data.label === "Fog Cloud Vision" && i.data.origin === lastArg.uuid);
-        if (blind) await tactor.deleteEmbeddedDocuments("ActiveEffect", [blind.id]);
+        let effect = tactor.effects.find(i => i.data.label === "Fog Cloud Vision" && i.data.origin === lastArg.uuid);
+        if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
     };
 })();
 
