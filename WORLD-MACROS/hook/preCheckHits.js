@@ -95,16 +95,16 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                 try {
                     console.warn("Mirror Image activated");
                     const senses = workflow.actor.data.data.attributes.senses;
-                    if (Math.max(-1, senses.blindsight, senses.tremorsense, senses.truesight) >= MidiQOL.getDistance(workflow.token, token, false) && await canSee(workflow.token, token)) {
+                    if (!(Math.max(-1, senses.blindsight, senses.tremorsense, senses.truesight) >= MidiQOL.getDistance(workflow.token, token, false)) && await canSee(workflow.token, token)) {
                         let images = tactor.effects.filter(i => i.data.label === "Mirror Image").length;
                         let dc = images === 3 ? 6 : mirrorImage === 2 ? 8 : mirrorImage === 1 ? 11 : 9999;
                         let ac = 10 + tactor.data.data.abilities.dex.mod;
-                        const roll = new Roll("1d20").evaluate();
+                        const roll = new Roll(`1d20`).evaluate({ async: false });
                         if (game.dice3d) game.dice3d.showForRoll(roll);
                         if (roll.total >= dc) {
                             if (workflow.attackRoll.total >= ac) {
                                 let effect = tactor.effects.find(i => i.data.label === "Mirror Image");
-                                tactor.deleteEmbeddedDocuments("ActiveEffect", [effect.id]);
+                                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                             }
                         }
                         console.warn("Mirror Image used");

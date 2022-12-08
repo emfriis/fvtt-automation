@@ -151,6 +151,6 @@ if (args[0].macroPass === "preambleComplete") {
     if (!tactor.data.flags["midi-qol"]?.help?.includes(tactorTarget.uuid)) return;
     const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
     attackWorkflow.advantage = true;
-    const ef = tactor.effects.find(i => i.data.label === "Help" && i.data.changes.find(e => e.value.includes(tactorTarget.uuid)));
-    if (ef) await tactor.deleteEmbeddedDocuments("ActiveEffect", [ef.id]);
+    const effect = tactor.effects.find(i => i.data.label === "Help" && i.data.changes.find(e => e.value.includes(tactorTarget.uuid)));
+    if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
 };

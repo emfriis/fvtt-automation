@@ -77,8 +77,8 @@ if (args[0] === "each") {
 	const targetRoll = await MidiQOL.socket().executeAsUser("rollAbility", targetPlayer.id, { request: "skill", targetUuid: target.uuid, ability: skillType, options: { chatMessage: true, fastForward: true } });
 	
 	if (targetRoll.total > sourceRoll.total) {
-		let ef = target.effects.find(i => i.data === lastArg.efData);
-		if (ef) await target.deleteEmbeddedDocuments("ActiveEffect", [ef.id]);
+		let effect = target.effects.find(i => i.data === lastArg.efData);
+		if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: target.uuid, effects: [effect.id] });
         ChatMessage.create({ content: "The grappled creature wins the contest and removes the grappled condition." });
 	} else if (targetRoll.total <= sourceRoll.total) {
         ChatMessage.create({ content: "The grappled creature loses the contest." });

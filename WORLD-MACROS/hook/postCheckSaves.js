@@ -35,7 +35,7 @@ Hooks.on("midi-qol.postCheckSaves", async (workflow) => {
                         let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
                             if (workflowNext.uuid === workflow.uuid) {
                                         const effect = token.actor?.effects.find(i => i.data.label === "Shield Master Damage Reduction");
-                                        await tactor.deleteEmbeddedDocuments("ActiveEffect", [effect.id]);
+                                        await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                                 Hooks.off("midi-qol.preApplyDynamicEffects", hook);
                             }
                         });

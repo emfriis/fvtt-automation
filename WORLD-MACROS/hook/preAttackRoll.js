@@ -106,9 +106,10 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                 try {
                     console.warn("Protection from Evil and Good activated");
                     const types = ["aberration", "celestial", "elemental", "fey", "fiends", "undead"];
-                        if (!types.some(type => (workflow.actor.data.data.details?.type?.value || "").toLowerCase().includes(type) || (workflow.actor.data.data.details?.race || "").toLowerCase().includes(type))) continue;
-                    workflow.disadvantage = true;
-                    console.warn("Protection from Evil and Good used");	
+                    if (types.some(type => (workflow.actor.data.data.details?.type?.value || "").toLowerCase().includes(type) || (workflow.actor.data.data.details?.race || "").toLowerCase().includes(type))) {
+                        workflow.disadvantage = true;
+                        console.warn("Protection from Evil and Good used");	
+                    }
                 } catch(err) { 
                         console.error("Protection from Evil and Good error", err);
                     }	
@@ -119,7 +120,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                 try {
                     console.warn("Blur activated");
                     const senses = workflow.actor.data.data.attributes.senses;
-                    if (Math.max(-1, senses.blindsight, senses.tremorsense, senses.truesight) >= MidiQOL.getDistance(workflow.token, token, false) && await canSee(workflow.token, token)) {
+                    if (!(Math.max(-1, senses.blindsight, senses.tremorsense, senses.truesight) >= MidiQOL.getDistance(workflow.token, token, false)) && await canSee(workflow.token, token)) {
                         workflow.disadvantage = true;
                         console.warn("Blur used");	
                     }

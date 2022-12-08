@@ -63,8 +63,8 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                                 if (useFeat) {
                                 tactor.update({"data.attributes.hp.value" : 1});
                                     featItem.update({"data.uses.value" : featItem.data.data.uses.value - 1});
-                                    let uncon = tactor.effects.find(i => i.data.label === "Unconscious");
-                                    if (uncon) await tactor.deleteEmbeddedDocuments("ActiveEffect", [uncon.id]);
+                                    let effect = tactor.effects.find(i => i.data.label === "Unconscious");
+                                    if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                             console.warn("Relentless Endurance used");
                                 }
                     } catch(err) {
