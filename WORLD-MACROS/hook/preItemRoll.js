@@ -50,7 +50,7 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                 try {
                     console.warn("Sanctuary activated");
                     const isAttack = ["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType);
-                    const isHarmSpell = workflow.item.data.type === "spell" && ["action", "bonus", "reaction", "reactionDamaged", "reactionManual"].includes(workflow.item.data.data.activation.type) && workflow.item.data.data.target.type === "creature" && workflow.token.data.disposition !== token.data.disposition;
+                    const isHarmSpell = workflow.item.data.type === "spell" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(workflow.item.data.data.activation.type) && workflow.item.data.data.target.type === "creature" && workflow.token.data.disposition !== token.data.disposition;
                     if (isAttack || isHarmSpell) {
                         const item = await fromUuid(ef.data.origin);
                         const parent = item?.parent;

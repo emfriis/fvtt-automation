@@ -10,9 +10,11 @@
 // [7] - save dc (int: i.e., 10, 15, ... or EMPTY)
 // [8] - save type (string: i.e., "dex", "wis", ... or EMPTY)
 // [9] - save damage (string: "fulldam", "halfdam", "nodam", or EMPTY)
+// [10] - on/off override (string: "on", "off", or EMPTY)
 
 try {
-    if (args[0] === "on" || args[0] === "off") return;
+    if (args[0] === "on" && args[10] !== "on") return;
+    if (args[0] === "off" && args[10] !== "off") return;
 
     const lastArg = args[args.length - 1];
 

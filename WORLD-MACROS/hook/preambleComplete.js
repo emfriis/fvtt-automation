@@ -33,7 +33,7 @@ async function counterSequence(source, target) {
 Hooks.on("midi-qol.preambleComplete", async (workflow) => {
     try { 
 	    // counterspell
-	    if (workflow.item.data.type === "spell" && ["action", "bonus", "reaction", "reactionDamaged", "reactionManual"].includes(workflow.item.data.data.activation.type)) {
+	    if (workflow.item.data.type === "spell" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(workflow.item.data.data.activation.type)) {
             try {
 		    console.warn("Counterspell activated");
             const components = workflow.item.data.data?.components;

@@ -105,7 +105,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         console.warn("Thorns activated");
                         const thorns = tactor.data.flags["midi-qol"].thorns.split(",");
                             if (["mwak","msak"].includes(workflow.item.data.data.actionType) && MidiQOL.getDistance(token, workflow.token, false) <= parseInt(thorns[0])) {
-                            const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
+                                const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
                                 if (applyDamage) await applyDamage.execute("ApplyDamage", tactor.uuid, workflow.tokenUuid, thorns[1], thorns[2], thorns[3], thorns[4], thorns[5], thorns[6]);
                             }
                     } catch (err) {
