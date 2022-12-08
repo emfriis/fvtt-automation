@@ -37,7 +37,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
             try {
 		    console.warn("Counterspell activated");
             const components = workflow.item.data.data?.components;
-            if (components.verbal || components.somatic || components.material) {
+            if (components.vocal || components.somatic || components.material) {
                 let counterTokens = await canvas.tokens.placeables.filter(p => {
                     let item = p.actor.items.find(i => 
                         i.name === "Counterspell" && 
@@ -47,15 +47,16 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                             ((i.data.data.preparation.mode === "atwill" || i.data.data.preparation.mode === "innate") && (i.data.data.uses?.value > 0 || !i.data.data.uses?.max))
                         )
                     );
-                    let token = (
+                    let counterToken = (
                         p?.actor && // exists
                         item && // has item
-                        p.document.uuid !== workflow.token.document.uuid && // not caster
+                        p.actor.uuid !== workflow.token.actor.uuid && // not caster
                         p.data.disposition !== workflow.token.data.disposition && // not friendly
                         !p.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].includes(e.data.label)) && // can react
-                        MidiQOL.getDistance(t, workflow.token, false) <= 60 && // in range
+                        MidiQOL.getDistance(p, workflow.token, false) <= 60 && // in range
                         canSee(p, workflow.token) // can see
                     );
+                    return counterToken;
             	});
            		for (let c = 0; c < counterTokens.length; c++) {
                     let token = counterTokens[c];

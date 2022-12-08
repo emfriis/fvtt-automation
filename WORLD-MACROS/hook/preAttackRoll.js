@@ -133,15 +133,18 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
             if (!workflow.disadvantage) {
                 try {
                     console.warn("Fighting Style Protection activated");
-                    let protTokens = await canvas.tokens.placeables.filter(p =>
-                        p?.actor && // exists
-                        p.document.uuid !== workflow.token.document.uuid && // not attacker
-                        p.document.uuid !== token.document.uuid && // not target
-                        p.actor.items.find(i => i.data.name === "Fighting Style: Protection") && // has feature
-                        p.actor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data.equipped) && // shield equipped
-                        !p.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].inludes(e.data.label)) && // can react
-                        canSee(workflow.token, token) // can see attacker
-                    );
+                    let protTokens = await canvas.tokens.placeables.filter(p => {
+                        let protToken = (
+                            p?.actor && // exists
+                            p.actor.uuid !== workflow.token.actor.uuid && // not attacker
+                            p.actor.uuid !== token.actor.uuid && // not target
+                            p.actor.items.find(i => i.data.name === "Fighting Style: Protection") && // has feature
+                            p.actor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data.equipped) && // shield equipped
+                            !p.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].includes(e.data.label)) && // can react
+                            canSee(p, workflow.token) // can see attacker
+                        );
+                        return protToken;
+                        });
                     for (let p = 0; p < protTokens.length; p++) {
                         let prot = protTokens[p];
                         if (MidiQOL.getDistance(prot, token, false) <= 5 && prot.data.disposition === token.data.disposition && prot.document.uuid !== token.document.uuid) {
