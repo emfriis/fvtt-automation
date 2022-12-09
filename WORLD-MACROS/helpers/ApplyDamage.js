@@ -36,7 +36,7 @@ try {
     const targetTokenOrActor = await fromUuid(targetUuid);
     const targetActor = targetTokenOrActor.actor ? targetTokenOrActor.actor : targetTokenOrActor;
 
-    if (args[3] === "save") {
+    if (args[7]) {
         let resist = [];
         if (args[4].toLowerCase === "poison") resist.push("Dwarven Resilience", "Duergar Resilience", "Stout Resilience", "Poison Resilience");
         if (args[6] === "spelleffect") {
@@ -72,8 +72,8 @@ try {
             activation: {
                 type: "none"
             },
-            actionType: (isNaN(parseInt(args[7])) ? "other" : "save"),
-            damage: { parts: [[`${args[3]}[${args[4]}]`, args[4]]] },
+            actionType: (args[7] ? "other" : "save"),
+            damage: { parts: [[args[3] + `[${args[4]}]`, args[4]]] },
             save: { dc: args[7], ability: args[8], scaling: "flat" },
         }
     }
