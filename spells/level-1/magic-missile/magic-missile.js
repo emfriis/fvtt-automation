@@ -33,22 +33,22 @@ let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
         await workflow.actor.createEmbeddedDocuments("Item", [itemData]);
         const attackItem = workflow.actor.items.find(i => i.name === workflow.item.name && i.data.data.activation.type === "none");
 
-        function applyAttack(targetUuid) {
+        async function applyAttack(targetUuid) {
             let rollOptions = { targetUuids: [targetUuid], showFullCard: false };
-            MidiQOL.completeItemRoll(attackItem, rollOptions);
+            await MidiQOL.completeItemRoll(attackItem, rollOptions);
         };
 
         function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
         if (targets.length === 1) {
             for (i = 0; i < attacks; i++) {
-                await wait(1000);
-                applyAttack(targets[0].document.uuid);
+                await wait(500);
+                await applyAttack(targets[0].document.uuid);
             }
         } else if (targets.length === attacks) {
             for (i = 0; i < targets.length; i++) {
-                await wait(1000);
-                applyAttack(targets[i].document.uuid);
+                await wait(500);
+                await applyAttack(targets[i].document.uuid);
             }
         } else if (targets.length > 1) {
             let targetContent = "";
@@ -81,8 +81,8 @@ let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
                                 let attackNum = Number(target.value);
                                 if (attackNum) {
                                     for (i = 0; i < attackNum; i++) {
-                                        await wait(1000);
-                                        applyAttack(target.name);
+                                        await wait(500);
+                                        await applyAttack(target.name);
                                     };
                                 };
                             };
@@ -93,7 +93,6 @@ let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
             }).render(true);
         };
         Hooks.off("midi-qol.preDamageRoll", hook);
-        await wait(500);
         await workflow.actor.deleteEmbeddedDocuments("Item", [attackItem.id]);
         return false;
     }
