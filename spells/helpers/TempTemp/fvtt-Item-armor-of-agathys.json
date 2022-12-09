@@ -93,9 +93,9 @@
       "_id": "Sqcq4t3PMrs7lZBZ",
       "changes": [
         {
-          "key": "flags.midi-qol.agathys",
+          "key": "flags.midi-qol.thorns",
           "mode": 5,
-          "value": "@spellLevel",
+          "value": "15,@damage,cold,magiceffect,spelleffect",
           "priority": "20"
         },
         {
@@ -116,7 +116,7 @@
       "flags": {
         "dae": {
           "selfTarget": false,
-          "stackable": "none",
+          "stackable": "noneName",
           "durationExpression": "",
           "macroRepeat": "none",
           "specialDuration": [],
@@ -142,7 +142,7 @@
           "onlyOnce": false
         }
       },
-      "tint": "",
+      "tint": null,
       "selectedKey": [
         "__",
         "macro.itemMacro"
@@ -232,7 +232,7 @@
         "author": "ckiTPzlaPztdkjV6",
         "img": "icons/svg/dice-target.svg",
         "scope": "global",
-        "command": "// temp temp\n    // args[1] => @damage value of temp added\n\n    const lastArg = args[args.length - 1];\n    const tokenOrActor = await fromUuid(lastArg.actorUuid);\n    const tactor = tokenOrActor.actor ?? tokenOrActor;\n\n    \n    if (args[0].tag === \"OnUse\" && args[0].macroPass === \"preDamageApplication\") {\n        let tempAdd = 0;\n        lastArg.damageDetail.forEach(async (d) => {\n            if (d.type === \"temphp\") tempAdd += d.damage;\n        });\n        if (tempAdd > tactor.data.data.attributes.hp.temp) DAE.setFlag(tactor, \"tempTempSource\", lastArg.uuid);\n    };\n\n    if (args[0] === \"on\") {\n        if (tactor.data.data.attributes.hp.temp === 0) {\n            await tactor.update({ \"data.attributes.hp.temp\": args[1] });\n        };\n    };\n\n    if (args[0] === \"off\") {\n        console.warn(lastArg);\n        let flag = await DAE.getFlag(tactor, \"tempTempSource\");\n        if (flag && flag == lastArg.efData.origin) {\n            await tactor.update({ \"data.attributes.hp.temp\": 0 });\n        };\n    };",
+        "command": "// temp temp\n    // args[1] => @damage value of temp added\n\n    const lastArg = args[args.length - 1];\n    const tokenOrActor = await fromUuid(lastArg.actorUuid);\n    const tactor = tokenOrActor.actor ?? tokenOrActor;\n\n    \n    if (args[0].tag === \"OnUse\" && args[0].macroPass === \"preDamageApplication\") {\n        let tempAdd = 0;\n        lastArg.damageDetail.forEach(async (d) => {\n            if (d.type === \"temphp\") tempAdd += d.damage;\n        });\n        if (tempAdd > tactor.data.data.attributes.hp.temp) DAE.setFlag(tactor, \"tempTempSource\", lastArg.uuid);\n    };\n\n    if (args[0] === \"on\") {\n        if (tactor.data.data.attributes.hp.temp === 0) {\n            await tactor.update({ \"data.attributes.hp.temp\": args[1] });\n        };\n    };\n\n    if (args[0] === \"off\") {\n        let flag = await DAE.getFlag(tactor, \"tempTempSource\");\n        if (flag && flag == lastArg.efData.origin) {\n            await tactor.update({ \"data.attributes.hp.temp\": 0 });\n        };\n    };",
         "folder": null,
         "sort": 0,
         "permission": {
@@ -249,14 +249,17 @@
       }
     },
     "scene-packer": {
-      "sourceId": "Item.oNZCo09FjVMC6uWj",
-      "hash": "378a0dde7cc941f3095b124df04cebc995e9fecb"
+      "sourceId": "Item.YOBldEl86G5Abo3Z",
+      "hash": "002406e62d87765bdb4210995e36d29d18e22186"
     },
     "exportSource": {
       "world": "dnd5e",
       "system": "dnd5e",
       "coreVersion": "9.280",
       "systemVersion": "1.6.3"
+    },
+    "cf": {
+      "id": "temp_bo019z0gcv"
     }
   }
 }

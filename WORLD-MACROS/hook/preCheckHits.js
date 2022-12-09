@@ -53,22 +53,18 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                 console.warn("Cover activated");
                 const calculatedCover = await calculateCover(workflow.token, token);
                 if (calculatedCover >= 99) {
-                        const effectData = {
-                        changes: [
-                            { key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 20, },
-                        ],
-                            disabled: false,
+                    const effectData = {
+                        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 20, },],
+                        disabled: false,
                         label: "Full Cover",
                         flags: { dae: { specialDuration: "isAttacked" } }
-                }
-                await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                console.warn("Full Cover used");
-                        } else if (calculatedCover >= 65) {
-                        const effectData = {
-                        changes: [
-                            { key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 5, priority: 20, },
-                        ],
-                            disabled: false,
+                    }
+                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                    console.warn("Full Cover used");
+                } else if (calculatedCover >= 65) {
+                    const effectData = {
+                        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 5, priority: 20, },],
+                        disabled: false,
                         label: "Three Quarters Cover",
                         flags: { dae: { specialDuration: "isAttacked" } }
                     }
@@ -76,9 +72,7 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                     console.warn("3/4 Cover used");
                 } else if (calculatedCover >= 40) {
                     const effectData = {
-                        changes: [
-                            { key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 2, priority: 20, },
-                        ],
+                        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 2, priority: 20, },],
                         disabled: false,
                         label: "Half Cover",
                         flags: { dae: { specialDuration: "isAttacked" } }

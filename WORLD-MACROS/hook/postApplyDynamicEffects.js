@@ -29,7 +29,7 @@ async function applyBurst(actor, token, range, damageDice, damageType, saveDC, s
 Hooks.on("midi-qol.postApplyDynamicEffects", async (workflow) => {
     try {
         let attackWorkflow;
-        if (workflow.damageList) attackWorkflow = workflow.damageList.map((d) => ({ tokenUuid: d.tokenUuid, appliedDamage: d.appliedDamage, newHP: d.newHP, oldHP: d.oldHP, damageDetail: d.damageDetail }));
+        if (workflow.damageList) attackWorkflow = workflow.damageList.map((d) => ({ tokenUuid: d.tokenUuid, appliedDamage: d.appliedDamage, newHP: d.newHP, oldHP: d.oldHP, newTemp: d.newTemp, oldTemp: d.oldTemp, damageDetail: d.damageDetail }));
         if (attackWorkflow) {
             for (let a = 0; a < attackWorkflow.length; a++) {
                 let token = await fromUuid(attackWorkflow[a].tokenUuid);
@@ -45,6 +45,22 @@ Hooks.on("midi-qol.postApplyDynamicEffects", async (workflow) => {
 				        console.warn("Burst used");
                     } catch(err) {
                         console.error("Burst error", err);
+                    }
+                }
+
+                // fall prone
+                if (tactor.data.data.attributes.hp.value === 0 || tactor.effects.find(e => e.data.label === "Unconscious")) {
+                    try {
+                        console.warn("Fall Prone activated");
+				        const effectData = {
+                            changes: [{ key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Prone", priority: 20, },],
+                            disabled: false,
+                            label: "Prone",
+                        }
+                        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+				        console.warn("Fall Prone used");
+                    } catch(err) {
+                        console.error("Fall Prone error", err);
                     }
                 }
 		    }

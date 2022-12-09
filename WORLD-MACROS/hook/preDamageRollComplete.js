@@ -18,10 +18,12 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                         label: "Magic Missile Negation",
                     };
                     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                    let hook = Hooks.on("midi-qol.damageRollComplete", async (workflowNext) => {
-                        const effect = tactor.effects.find(e => e.data.label === "Magic Missile Negation");
-                        await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
-                        Hooks.off("midi-qol.damageRollComplete", hook);
+                    let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                        if (workflow.uuid === workflowNext.uuid) {
+                            const effect = tactor.effects.find(e => e.data.label === "Magic Missile Negation");
+                            await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                            Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                        }
                     });
                     console.warn("Shield used");
                 } catch (err) {

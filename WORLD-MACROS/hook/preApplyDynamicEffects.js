@@ -12,7 +12,7 @@ function playerForActor(actor) {
 Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
 	try {
         let attackWorkflow;
-        if (workflow.damageList) attackWorkflow = workflow.damageList.map((d) => ({ tokenUuid: d.tokenUuid, appliedDamage: d.appliedDamage, newHP: d.newHP, oldHP: d.oldHP, damageDetail: d.damageDetail }));
+        if (workflow.damageList) attackWorkflow = workflow.damageList.map((d) => ({ tokenUuid: d.tokenUuid, appliedDamage: d.appliedDamage, newHP: d.newHP, oldHP: d.oldHP, newTemp: d.newTemp, oldTemp: d.oldTemp, damageDetail: d.damageDetail }));
         if (attackWorkflow) {
             for (let a = 0; a < attackWorkflow.length; a++) {
                 let token = await fromUuid(attackWorkflow[a].tokenUuid);
@@ -110,6 +110,20 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                             }
                     } catch (err) {
                         console.error("Thorns error", err);
+                    }
+                }
+
+                // armor of agathys
+                if (tactor.effects.find(e => e.data.label === "Armor of Agathys")) {
+                    try {
+                        console.warn("Armor of Agathys activated");
+                        if (tactor.data.data.attributes.hp.temp === 0 || (attackWorkflow[a].newTemp > attackWorkflow[a].oldTemp)) {
+                            let effect = tactor.effects.find(e => e.data.label === "Armor of Agathys");
+                            if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                            console.warn("Armor of Agathys used");
+                        }
+                    } catch(err) {
+                        console.error("Armor of Agathys error", err);
                     }
                 }
             }

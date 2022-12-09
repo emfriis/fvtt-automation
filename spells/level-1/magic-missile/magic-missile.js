@@ -12,9 +12,14 @@
             type: "feat",
             flags: {
                 "midi-qol": {
-                    onUseMacroName: null, 
-                },
+                    onUseMacroName: null 
+                }
             },
+            data: {
+                activation: {
+                    type: "none"
+                }
+            }
         },
     );
     const attackItem = new CONFIG.Item.documentClass(itemCopy, { parent: tactor });

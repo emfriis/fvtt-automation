@@ -105,7 +105,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
         	if (!tactor) continue;
 
             // shield
-            if (workflow.item.name === "Magic Missile" && workflow.item.data.data.activation.type === "action" && tactor.items.find(i => i.name === "Shield" && i.type === "spell")) {
+            if (workflow.item.name === "Magic Missile" && workflow.item.data.data.activation.type === "action" && tactor.items.find(i => i.name === "Shield" && i.type === "spell") && !tactor.effects.find(e => e.data.label === "Shield")) {
                 try {
                     console.warn("Shield activated");
                     const shieldItem = tactor.items.find(i => 
