@@ -8,6 +8,9 @@ if (args[0].targets.length > attacks) {
 }
 
 let hook = Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
+
+    const targets = Array.from(workflow.targets);
+
     if (itemUuid === workflow.uuid) {
 
         const itemData = mergeObject(
@@ -36,28 +39,26 @@ let hook = Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
 
         async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
-        if (workflow.targets.size === 1) {
-            workflow.targets.forEach( async target => {
-                for (i = 0; i < attacks; i++) {
-                    await wait(500);
-                    await applyAttack(target.document.uuid);
-                }
-            });
-        } else if (workflow.targets.size === attacks) {
-            workflow.targets.forEach( async target => {
+        if (targets.length === 1) {
+            for (i = 0; i < attacks; i++) {
                 await wait(500);
-                await applyAttack(target.document.uuid);
-            });
-        } else if (lastArg.targets.length > 1) {
+                await applyAttack(targets[0].document.uuid);
+            }
+        } else if (targets.length === attacks) {
+            for (i = 0; i < targets.length; i++) {
+                await wait(500);
+                await applyAttack(targets[i].document.uuid);
+            }
+        } else if (targets.length > 1) {
             let targetContent = "";
-            workflow.targets.forEach( async target => {
+            for (i = 0; i < targets.length; i++) {
                 targetContent += `
                 <tr>
-                    <td><img src="${target.data.img}" style="border:0px; width: 100px; height:100px;"></td>
-                    <td><input type="num" id="target" min="1" max="${Math.ceil(attacks / workflow.targets.size)}" uuid="${target.document.uuid}"></td>
+                    <td><img src="${targets[i].data.img}" style="border:0px; width: 100px; height:100px;"></td>
+                    <td><input type="num" id="target" min="1" max="${Math.ceil(attacks / targets.length)}" name="${targets[i].document.uuid}"></td>
                 </tr>
                 `;
-            });
+            }
             let content = `<p>You have currently <b>${attacks}</b> total ${workflow.item.name} attacks.</p><form class="flexcol"><table width="100%"><tbody><tr><th>Target</th><th>Number Attacks</th></tr>${targetContent}</tbody></table></form>`;   
             await new Dialog({
                 title: workflow.item.name,
@@ -80,7 +81,8 @@ let hook = Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                                 if (attackNum) {
                                     for (i = 0; i < attackNum; i++) {
                                         await wait(500);
-                                        await applyAttack(target.uuid);
+                                        console.error(target.name)
+                                        await applyAttack(target.name);
                                     };
                                 };
                             };
