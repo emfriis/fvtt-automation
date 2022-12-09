@@ -1,6 +1,6 @@
 // preRollAbilityTest
 
-async function canSee(token, target) {
+function canSee(token, target) {
 	let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target);
     let canSeeLos = _levels?.advancedLosTestVisibility(token, target);
     let canSeeLight = true;

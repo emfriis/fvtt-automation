@@ -1,6 +1,6 @@
 // preambleComplete
 
-async function playerForActor(actor) {
+function playerForActor(actor) {
 	if (!actor) return undefined;
 	let user;
 	if (actor.hasPlayerOwner) user = game.users.find(u => u.data.character === actor.id && u.active);
@@ -9,20 +9,20 @@ async function playerForActor(actor) {
 	return user;
 }
 
-async function canSee(token, target) {
-	let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target);
-    let canSeeLos = _levels?.advancedLosTestVisibility(token, target);
+function canSee(token, target) {
+    let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target);
+    let canSeeLOS = _levels?.advancedLosTestVisibility(token, target);
     let canSeeLight = true;
     let inLight = _levels?.advancedLOSCheckInLight(target);
     if (!inLight) {
         let vision = Math.min((token.data.flags["perfect-vision"].sightLimit ? token.data.flags["perfect-vision"].sightLimit : 9999), Math.max(token.data.dimSight, token.data.brightSight));
-        if (vision < MidiQOL.getDistance(token, target, false)) canSeeLight = false;
+	  if (vision < MidiQOL.getDistance(token, target, false)) canSeeLight = false;
     }
-    let canSee = canSeeCV && canSeeLos && canSeeLight;
+    let canSee = canSeeCV && canSeeLOS && canSeeLight;
     return canSee;
 }
 
-async function counterSequence(source, target) {
+function counterSequence(source, target) {
     if (game.modules.get("sequencer").active && hasProperty(Sequencer.Database.entries, "jb2a")) {
         new Sequence().effect().file("jb2a.impact.004.blue").atLocation(source).scaleToObject(1.5).sound().file("https://assets.forge-vtt.com/630fc11845b0e419bee903cd/combat-sound-fx/magic/effect/dispel-1.ogg").play();
         new Sequence().effect().file("jb2a.energy_strands.range.standard.blue").atLocation(source).stretchTo(target).play();
@@ -38,44 +38,33 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
 		    console.warn("Counterspell activated");
             const components = workflow.item.data.data?.components;
             if (components.vocal || components.somatic || components.material) {
-                let counterTokens = await canvas.tokens.placeables.filter(p => {
-                    let item = p.actor.items.find(i => 
-                        i.name === "Counterspell" && 
-                        i.type === "spell" &&
-                        (
-                            ((i.data.data.preparation?.prepared || i.data.data.preparation.mode === "always" || i.data.data.preparation.mode === "pact") && Object.keys(p.actor.data.data.spells).find(i => (p.actor.data.data.spells.pact?.level >= 3 && p.actor.data.data.spells.pact?.value > 0) || (i !== "pact" && parseInt(i.slice(-1)) >= 3 && p.actor.data.data.spells[i]?.value > 0))) ||
-                            ((i.data.data.preparation.mode === "atwill" || i.data.data.preparation.mode === "innate") && (i.data.data.uses?.value > 0 || !i.data.data.uses?.max))
-                        )
-                    );
-                    let counterToken = (
+                let counterTokens = canvas.tokens.placeables.filter(p =>
                         p?.actor && // exists
-                        item && // has item
+                        p.actor.items.find(i => i.name === "Counterspell" && i.type === "spell") && // has item
                         p.actor.uuid !== workflow.token.actor.uuid && // not caster
                         p.data.disposition !== workflow.token.data.disposition && // not friendly
                         !p.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].includes(e.data.label)) && // can react
                         MidiQOL.getDistance(p, workflow.token, false) <= 60 && // in range
                         canSee(p, workflow.token) // can see
-                    );
-                    return counterToken;
-            	});
+            	);
            		for (let c = 0; c < counterTokens.length; c++) {
                     let token = counterTokens[c];
                     let player = await playerForActor(token?.actor);
-                    let socket = socketlib.registerModule("user-socket-functions");
-                    let useCounter = false;
-                    if (socket && player) useCounter = await socket.executeAsUser("useDialog", player.id, { title: `Counterspell`, content: `Use your reaction to cast Counterspell?` });
-                    if (useCounter) {
-                    let counterItem = token.actor.items.find(i => 
+			  let counterItem = token.actor.items.find(i => 
                         i.name === "Counterspell" && 
                         i.type === "spell" &&
                         (       
                             ((i.data.data.preparation?.prepared || i.data.data.preparation.mode === "always" || i.data.data.preparation.mode === "pact") && Object.keys(p.actor.data.data.spells).find(i => (p.actor.data.data.spells.pact?.level >= 3 && p.actor.data.data.spells.pact?.value > 0) || (i !== "pact" && parseInt(i.slice(-1)) >= 3 && p.actor.data.data.spells[i]?.value > 0))) ||
                             ((i.data.data.preparation.mode === "atwill" || i.data.data.preparation.mode === "innate") && (i.data.data.uses?.value > 0 || !i.data.data.uses?.max))
                         )
-				    );
+			  );
+                    let socket = socketlib.registerModule("user-socket-functions");
+                    let useCounter = false;
+                    if (socket && player && counterItem) useCounter = await socket.executeAsUser("useDialog", player.id, { title: `Counterspell`, content: `Use your reaction to cast Counterspell?` });
+                    if (useCounter) {
                     let options = { targetUuids: [workflow.tokenUuid] };
                     let counterCast = false;
-                    if (counterItem.uuid && options) counterCast = await socket.executeAsUser("midiItemRoll", player.id, { itemUuid: counterItem.uuid, options: options});
+                    if (options) counterCast = await socket.executeAsUser("midiItemRoll", player.id, { itemUuid: counterItem.uuid, options: options});
                     if (counterCast && counterCast?.itemLevel && !counterCast?.countered) {
                         counterSequence(token, workflow.token);
                         let level = counterCast.itemLevel;
@@ -127,7 +116,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                             ((i.data.data.preparation.mode === "atwill" || i.data.data.preparation.mode === "innate") && (i.data.data.uses?.value > 0 || !i.data.data.uses?.max))
                         )
                     );
-                    const canReaction = !tactor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].inludes(e.data.label));
+                    const canReaction = !tactor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].includes(e.data.label));
                     if (shieldItem && canReaction) {
                         let player = await playerForActor(tactor);
                         let socket = socketlib.registerModule("user-socket-functions");

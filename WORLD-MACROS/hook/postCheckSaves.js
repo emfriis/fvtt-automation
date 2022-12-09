@@ -1,6 +1,6 @@
 // postCheckSaves
 
-async function playerForActor(actor) {
+function playerForActor(actor) {
 	if (!actor) return undefined;
 	let user;
 	if (actor.hasPlayerOwner) user = game.users?.find(u => u.data.character === actor?.id && u.active);
