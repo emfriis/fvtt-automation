@@ -4,6 +4,7 @@
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+
 if (args[0].tag === "OnUse" && args[0].item.type === "spell" && args[0].spellLevel > 0 && args[0].item.data.damage.parts.length > 0) {
     const validTypes = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
     if (!validTypes.some(type => args[0].item.data.damage.parts[0][1]?.toLowerCase() === type)) return;
@@ -17,6 +18,7 @@ if (args[0].tag === "OnUse" && args[0].item.type === "spell" && args[0].spellLev
         }
     });
     if (optionTypes.length === 0) return;
+
     const optionContent = optionTypes.map((o) => { return `<option value="${o}">${CONFIG.DND5E.damageTypes[o]}</option>` })
     const content = `
         <div class="form-group">
@@ -46,6 +48,7 @@ if (args[0].tag === "OnUse" && args[0].item.type === "spell" && args[0].spellLev
     });
     let type = await dialog;
     if (!type) return;
+
     const workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
     workflow.defaultDamageType = type;
     const parts = workflow.item.data.data.damage.parts;
@@ -53,11 +56,19 @@ if (args[0].tag === "OnUse" && args[0].item.type === "spell" && args[0].spellLev
         part[0] = part[0].replace(/\[(.*)\]/g, `[${type}]`);
         part[1] = type;
     });
-    let hook = Hooks.on("midi-qol.RollComplete", async workflowNext => {
+    
+    let hook1 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
         if (workflowNext.uuid === args[0].uuid) {
             const workflowItem = await fromUuid(workflow.item.uuid);
             workflowItem.update({ "data.data.damage.parts" : parts });
-            Hooks.off("midi-qol.RollComplete", hook);
+            Hooks.off("midi-qol.RollComplete", hook1);
+        }
+    });
+    let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+        if (workflowNext.uuid === args[0].uuid) {
+            const workflowItem = await fromUuid(workflow.item.uuid);
+            workflowItem.update({ "data.data.damage.parts" : parts });
+            Hooks.off("midi-qol.preItemRoll", hook2);
         }
     });
 }

@@ -28,29 +28,30 @@ let hook = Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                 data: {
                     activation: {
                         type: "none"
-                    }
+                    },
+                    damage: { parts: [[workflow.item.data.data.damage.parts[0][0], workflow.item.data.data.damage.parts[0][1]]] }
                 }
             },
         );
         await workflow.actor.createEmbeddedDocuments("Item", [itemData]);
         const attackItem = workflow.actor.items.find(i => i.name === workflow.item.name && i.data.data.activation.type === "none");
 
-        async function applyAttack(targetUuid) {
+        function applyAttack(targetUuid) {
             let rollOptions = { targetUuids: [targetUuid], showFullCard: false };
             MidiQOL.completeItemRoll(attackItem, rollOptions);
         };
 
-        async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+        function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
         if (targets.length === 1) {
             for (i = 0; i < attacks; i++) {
-                await wait(500);
-                await applyAttack(targets[0].document.uuid);
+                await wait(1000);
+                applyAttack(targets[0].document.uuid);
             }
         } else if (targets.length === attacks) {
             for (i = 0; i < targets.length; i++) {
-                await wait(500);
-                await applyAttack(targets[i].document.uuid);
+                await wait(1000);
+                applyAttack(targets[i].document.uuid);
             }
         } else if (targets.length > 1) {
             let targetContent = "";
@@ -83,9 +84,8 @@ let hook = Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                                 let attackNum = Number(target.value);
                                 if (attackNum) {
                                     for (i = 0; i < attackNum; i++) {
-                                        await wait(500);
-                                        console.error(target.name)
-                                        await applyAttack(target.name);
+                                        await wait(1000);
+                                        applyAttack(target.name);
                                     };
                                 };
                             };
