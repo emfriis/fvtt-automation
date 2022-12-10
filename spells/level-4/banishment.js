@@ -1,12 +1,17 @@
+// banioshment
+// macro.itemacro.gm
+// grant all damage immunity
+
 const lastArg = args[args.length - 1];
 const target = await fromUuid(lastArg.tokenUuid);
 
 if (args[0] === "on") {
   await target.update({hidden : true}); // hide targeted token
-  ChatMessage.create({content: "target was banished"});
+  ChatMessage.create({content: "Target was banished"});
 
 }
+
 if (args[0]=== "off") {
   await target.update({hidden : false}); // unhide token
-  ChatMessage.create({content: "banished target returned"});
+  ChatMessage.create({content: "Banished target returned"});
 }

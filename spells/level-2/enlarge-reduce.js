@@ -42,30 +42,12 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
 async function reSize(flavour) {
     const originalSizeType = tactor.data.data.traits.size;
     const sizeTypes = {
-        grg: {
-            enlarge: "grg",
-            reduce: "huge",
-        },
-        huge: {
-            enlarge: "grg",
-            reduce: "lg",
-        },
-        lg: {
-            enlarge: "huge",
-            reduce: "med",
-        },
-        med: {
-            enlarge: "lg",
-            reduce: "sm",
-        },
-        sm: {
-            enlarge: "med",
-            reduce: "tiny",
-        },
-        tiny: {
-            enlarge: "sm",
-            reduce: "tiny",
-        },
+        grg: { enlarge: "grg", reduce: "huge", },
+        huge: { enlarge: "grg", reduce: "lg", },
+        lg: { enlarge: "huge", reduce: "med", },
+        med: { enlarge: "lg", reduce: "sm", },
+        sm: { enlarge: "med", reduce: "tiny", },
+        tiny: { enlarge: "sm", reduce: "tiny", },
     }
     const originalSize = parseInt(token?.data?.width);
     const types = {
@@ -107,21 +89,19 @@ async function reSize(flavour) {
         },
     ];
     const effect = tactor.effects.find((e) => e.data.label === lastArg.efData.label);
-    if (effect) await effect.update({ changes: changes.concat(effect.data.changes) });
-  }
+    if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, changes: changes.concat(effect.data.changes) }] });
+}
 
 if (args[0] === "on") {
-    new Dialog({
-        title: "Enlarge or Reduce",
-        buttons: {
-            one: {
-                label: "Enlarge",
-                callback: async () => await reSize("enlarge"),
-            },
-            two: {
-                label: "Reduce",
-                callback: async () => await reSize("reduce"),
-            },
-        },
-    }).render(true);
+    const sourceItem = await fromUuid(lastArg.efData.origin);
+    const sourceActor = sourceItem.parent;
+    let player = await playerForActor(sourceActor);
+    let socket = socketlib.registerModule("user-socket-functions");
+    let reduce = false;
+    if (player && socket) reduce = await socket.executeAsUser("useDialog", player.id, { title: `Enlarge/Reduce`, content: `Reduce instead of Enlarge?` });
+    if (reduce) {
+        await reSize("reduce");
+    } else {
+        await reSize("enlarge");
+    }
 }
