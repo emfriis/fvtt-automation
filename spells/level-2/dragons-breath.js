@@ -42,18 +42,18 @@ if (args[0].tag === "OnUse") {
     const target = lastArg.targets[0]?.actor;
     const spellLevel = lastArg.spellLevel;
     const spellDC = tactor.data.data.attributes.spelldc;
-    let effectData = [{
+    let effectData = {
         label: item.name,
         icon: item.img,
         changes: [
-            { key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `${type} ${spellLevel} ${spellDC}`, priority: 20 },
+            { key: `macro.itemMacro.GM`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `${type} ${spellLevel} ${spellDC}`, priority: 20 },
         ],
         origin: lastArg.uuid,
         duration: { seconds: item.data.duration.value * 60 },
         disabled: false,
         flags: { dae: { itemData: item } , core: { statusId: "Dragon's Breath" }},
-    }];
-    await target.createEmbeddedDocuments("ActiveEffect", effectData);
+    }
+    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.uuid, effects: [effectData] });
 }
 
 if (args[0] === "on") {

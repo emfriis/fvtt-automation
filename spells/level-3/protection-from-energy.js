@@ -1,6 +1,7 @@
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
-const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+
 const content = `
 <style>
   .protEnergy .form-group {
@@ -78,35 +79,46 @@ const content = `
   </div>
 </form>
 `;
-if (args[0] === "on") {
-  new Dialog({
-    title: 'Choose a damage type',
+
+if (args[0].tag === "OnUse") {
+  const tokenOrActorTarget = await fromUuid(lastArg.targetUuids[0]);
+  const tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
+  const gameRound = game.combat ? game.combat.round : 0;
+  const durationType = lastArg.item.data.duration.units;
+  const duration = durationType === "second" ? lastArg.item.data.duration.value * 6 : durationType === "minute" ? lastArg.item.data.duration.value * 10 : durationType === "hour" ? lastArg.item.data.duration.value * 600 : lastArg.item.data.duration.value;
+  
+  await new Dialog({
+    title: 'Choose a Damage Type:',
     content: content,
     buttons: {
       yes: {
         icon: '<i class="fas fa-check"></i>',
-        label: 'Protect!',
+        label: 'Protect',
         callback: async (html) => {
           const element = $("input[type='radio'][name='type']:checked").val();
-          const effect = targetActor.effects.find((e) => e.data.label === lastArg.efData.label);
-          const changes = [
-            {
-              key: "data.traits.dr.value",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              priority: 30,
-              value: element,
-            },
-          ];
-          await effect.update({ changes: changes.concat(effect.data.changes) });
-          await DAE.setFlag(targetActor, "protectionFromEnergySpell", element);
-          ChatMessage.create({ content: `${targetActor.name} gains resistance to ${element}` });
+          const effectData = {
+            changes: [
+                {
+                  key: "data.traits.dr.value",
+                  mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                  priority: 30,
+                  value: element,
+                }
+            ],
+            disabled: false,
+            icon: lastArg.item.img,
+            label: `${lastArg.item.name}: ${element.charAt(0).toUpperCase() + element.slice(1)} Resistance`,
+            duration: { rounds: duration, startRound: gameRound, startTime: game.time.worldTime },
+          };
+          await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
+          let conc = tactor.effects.find(i => i.data.label === "Concentrating");
+          if (conc) {
+            let concUpdate = await getProperty(tactor.data.flags, "midi-qol.concentration-data.targets");
+            await concUpdate.push({ tokenUuid: tokenOrActorTarget.uuid, actorUuid: tactorTarget.uuid });
+            await tactor.setFlag("midi-qol", "concentration-data.targets", concUpdate);
+          }
         }
       },
     },
   }).render(true, {width: 400});
-}
-if (args[0] === "off") {
-  const element = DAE.getFlag(targetActor, 'protectionFromEnergySpell');
-  await DAE.unsetFlag(targetActor, 'protectionFromEnergySpell');
-  ChatMessage.create({ content: `${targetActor.name} loses resistance to ${element}` });
 }
