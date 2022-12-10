@@ -11,13 +11,39 @@ function playerForActor(actor) {
 
 Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
 	try {
+
+        const targets = Array.from(workflow.targets);
+        for (let t = 0; t < targets.length; t++) {
+            let token = targets[t];
+            let tactor = token.actor;
+		    if (!tactor) continue;
+
+            // thorns 
+            // range(int[range]),damageDice(str[rollable]),damageType(str[damage]),magicEffect(str["magiceffect"] or null),spellEffect(str["magiceffect"] or null),saveDC(int[dc] or null),saveType(str[abil] or null),saveDamage(str["nodam","halfdam","fulldam"] or null)
+            if (tactor.data.flags["midi-qol"].thorns && ["mwak","msak"].includes(workflow.item.data.data.actionType) && workflow.hitTargets.has(token)) {
+                try {
+                    console.warn("Thorns activated");
+                    const effects = tactor.effects.filter(e => e.data.changes.find(c => c.key === "flags.midi-qol.thorns"));
+                    for (let e = 0; e < effects.length; e++) {
+                        const thorns = effects[e].data.changes.find(c => c.key === "flags.midi-qol.thorns").value.split(",");
+                        if (MidiQOL.getDistance(token, workflow.token, false) <= parseInt(thorns[0])) {
+                            const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
+                            if (applyDamage) await applyDamage.execute("ApplyDamage", tactor.uuid, workflow.tokenUuid, thorns[1], thorns[2], thorns[3], thorns[4], thorns[5], thorns[6]);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Thorns error", err);
+                }
+            }
+        }
+
         let attackWorkflow;
         if (workflow.damageList) attackWorkflow = workflow.damageList.map((d) => ({ tokenUuid: d.tokenUuid, appliedDamage: d.appliedDamage, newHP: d.newHP, oldHP: d.oldHP, newTemp: d.newTemp, oldTemp: d.oldTemp, damageDetail: d.damageDetail }));
         if (attackWorkflow) {
             for (let a = 0; a < attackWorkflow.length; a++) {
                 let token = await fromUuid(attackWorkflow[a].tokenUuid);
                 let tactor = token.actor ? token.actor : token;
-		    if (!tactor) continue;
+		        if (!tactor) continue;
 
                 // undead fortitude
                 if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.items.find(i => i.name === "Undead Fortitude")) {
@@ -95,21 +121,6 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         }
                     } catch (err) {
                         console.error("No Regen error", err);
-                    }
-                }
-
-                // thorns 
-                // range(int[range]),damageDice(str[rollable]),damageType(str[damage]),magicEffect(str["magiceffect"] or null),spellEffect(str["magiceffect"] or null),saveDC(int[dc] or null),saveType(str[abil] or null),saveDamage(str["nodam","halfdam","fulldam"] or null)
-                if (tactor.data.flags["midi-qol"].thorns && ["mwak","msak"].includes(workflow.item.data.data.actionType) && workflow.hitTargets.has(token)) {
-                    try {
-                        console.warn("Thorns activated");
-                        const thorns = tactor.data.flags["midi-qol"].thorns.split(",");
-                            if (MidiQOL.getDistance(token, workflow.token, false) <= parseInt(thorns[0])) {
-                                const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
-                                if (applyDamage) await applyDamage.execute("ApplyDamage", tactor.uuid, workflow.tokenUuid, thorns[1], thorns[2], thorns[3], thorns[4], thorns[5], thorns[6]);
-                            }
-                    } catch (err) {
-                        console.error("Thorns error", err);
                     }
                 }
 
