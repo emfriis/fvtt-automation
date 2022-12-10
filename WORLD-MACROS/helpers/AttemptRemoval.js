@@ -1,4 +1,4 @@
-// macro.itemMacro, values : dc(int) abil(string) type(str) auto/opt(str)
+// macro.itemMacro, values : dc(int) abil/save(string) type(string) auto/opt(string)
 
 try {
     const lastArg = args[args.length - 1];

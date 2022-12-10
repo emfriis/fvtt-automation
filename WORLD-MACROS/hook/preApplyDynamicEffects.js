@@ -73,7 +73,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 }
 
                 // no regen
-                if (tactor.data.flags["midi-qol"].noregen && attackWorkflow[a].appliedDamage !== 0) {
+                if (tactor.data.flags["midi-qol"].noregen && attackWorkflow[a].appliedDamage > 0) {
                     try {
                         console.warn("No Regen activated");
                         let noRegenTypes = tactor.data.flags["midi-qol"]?.noregen?.split(",");
@@ -100,11 +100,11 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
 
                 // thorns 
                 // range(int[range]),damageDice(str[rollable]),damageType(str[damage]),magicEffect(str["magiceffect"] or null),spellEffect(str["magiceffect"] or null),saveDC(int[dc] or null),saveType(str[abil] or null),saveDamage(str["nodam","halfdam","fulldam"] or null)
-                if (tactor.data.flags["midi-qol"].thorns) {
+                if (tactor.data.flags["midi-qol"].thorns && ["mwak","msak"].includes(workflow.item.data.data.actionType) && workflow.hitTargets.has(token)) {
                     try {
                         console.warn("Thorns activated");
                         const thorns = tactor.data.flags["midi-qol"].thorns.split(",");
-                            if (["mwak","msak"].includes(workflow.item.data.data.actionType) && MidiQOL.getDistance(token, workflow.token, false) <= parseInt(thorns[0])) {
+                            if (MidiQOL.getDistance(token, workflow.token, false) <= parseInt(thorns[0])) {
                                 const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
                                 if (applyDamage) await applyDamage.execute("ApplyDamage", tactor.uuid, workflow.tokenUuid, thorns[1], thorns[2], thorns[3], thorns[4], thorns[5], thorns[6]);
                             }
@@ -124,6 +124,77 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         }
                     } catch(err) {
                         console.error("Armor of Agathys error", err);
+                    }
+                }
+
+                // damaged attempt removal
+                // spelldc,abil/save,type,advantage
+                if (tactor.data.flags["midi-qol"].damagedattemptremoval && attackWorkflow[a].appliedDamage > 0) {
+                    try {
+                        console.warn("Damaged Attempt Removal activated");
+                        const effects = tactor.effects.filter(e => e.data.changes.find(c => c.key === "flags.midi-qol.damagedattemptremoval"));
+                        for (let e = 0; e < effects.length; e++) {
+                            const removalData = effects[e].data.changes.find(c => c.key === "flags.midi-qol.damagedattemptremoval").value.split(",");
+                            const condition = effects[e].data.label;
+                            const origin = await fromUuid(effects[e].data.origin);
+                            let getResist = false;
+                            if (removalData[1] === "save" && removalData[3] !== "advantage") {
+                                let resist = [];
+                                switch(condition) {
+                                    case "Blinded":
+                                        resist.push("Blindness Resilience");
+                                        break;
+                                    case "Charmed": 
+                                        resist.push("Fey Ancestry", "Duergar Reslience", "Charm Resilience");
+                                        break;
+                                    case "Deafened":
+                                        resist.push("Deafness Resilience");
+                                        break;
+                                    case "Frightened":
+                                        resist.push("Brave", "Fear Resilience");
+                                        break;
+                                    case "Grappled":
+                                        resist.push("Grapple Resilience");
+                                        break;
+                                    case "Incapacitated":
+                                        resist.push("Incapacitation Resilience");
+                                        break;
+                                    case "Paralyzed":
+                                        resist.push("Duergar Resilience", "Paralysis Resilience");
+                                        break;
+                                    case "Poisoned":
+                                        resist.push("Dwarven Resilience", "Duergar Resilience", "Stout Resilience", "Poison Resilience");
+                                        break;
+                                    case "Prone":
+                                        resist.push("Sure-Footed", "Prone Resilience");
+                                        break;
+                                    case "Restrained":
+                                        resist.push("Restraint Resilience");
+                                        break;
+                                    case "Stunned":
+                                        resist.push("Stun Resilience");
+                                }
+                                if (origin?.data?.type === "spell") {
+                                    resist.push("Spell Resilience", "Spell Resistance", "Magic Resilience", "Magic Resistance");
+                                } else if (origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect) {
+                                    resist.push("Magic Resilience", "Magic Resistance");
+                                }
+                                getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
+                            }
+                            const player = await playerForActor(tactor);
+                            const rollOptions = getResist || removalData[3] === "advantage" ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
+                            const roll = await MidiQOL.socket().executeAsUser("rollAbility", player.id, { request: removalData[1], targetUuid: tactor.uuid, ability: removalData[2], options: rollOptions }); 
+                            if (game.dice3d) game.dice3d.showForRoll(roll);
+                            if (roll.total >= removalData[0]) {
+                                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effects[e].id] });
+                                ChatMessage.create({ content: `The afflicted creature passes the roll and removes the ${condition} condition.` });
+                            } else {
+                                if (roll.total < removalData[0]) ChatMessage.create({ content: `The afflicted creature fails the roll and still has the ${condition} condition.` });
+                            }
+                            console.warn("Damaged Attempt Removal used");
+                        }
+                    } catch(err) {
+                        console.error("Damaged Attempt Removal error", err);
                     }
                 }
             }

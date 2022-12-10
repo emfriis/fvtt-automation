@@ -37,7 +37,7 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
 		        if (!tactor) continue;
 
                 // burst
-                if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.data.flags["midi-qol"].burst) {
+                if (tactor.data.flags["midi-qol"].burst && tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0) {
                     try {
                         console.warn("Burst activated");
 				        const burst = actor.data.flags["midi-qol"].burst.split(",");
@@ -49,7 +49,7 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                 }
 
                 // fall prone
-                if (tactor.data.data.attributes.hp.value === 0 || tactor.effects.find(e => e.data.label === "Unconscious")) {
+                if ((tactor.data.data.attributes.hp.value === 0 || tactor.effects.find(e => e.data.label === "Unconscious")) && !tactor.effects.find(e => e.data.label === "Prone")) {
                     try {
                         console.warn("Fall Prone activated");
 				        const effectData = {
