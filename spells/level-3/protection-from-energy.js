@@ -107,16 +107,16 @@ if (args[0].tag === "OnUse") {
             ],
             disabled: false,
             icon: lastArg.item.img,
-            label: `${lastArg.item.name}: ${element.charAt(0).toUpperCase() + element.slice(1)} Resistance`,
+            label: lastArg.item.name,
             duration: { rounds: duration, startRound: gameRound, startTime: game.time.worldTime },
+            flags: {
+              protectionFromEnergy: true,
+            },
           };
           await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
-          let conc = tactor.effects.find(i => i.data.label === "Concentrating");
-          if (conc) {
-            let concUpdate = await getProperty(tactor.data.flags, "midi-qol.concentration-data.targets");
-            await concUpdate.push({ tokenUuid: tokenOrActorTarget.uuid, actorUuid: tactorTarget.uuid });
-            await tactor.setFlag("midi-qol", "concentration-data.targets", concUpdate);
-          }
+          const effect = tactorTarget.effects.find(e => e.data.flags.protectionFromEnergy);
+          const conc = tactor.effects.find(i => i.data.label === "Concentrating");
+          if (conc && effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: conc.id, changes: [{ key: `flags.dae.deleteUuid`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: effect.uuid, priority: 20 }].concat(conc.data.changes) }] });
         }
       },
     },
