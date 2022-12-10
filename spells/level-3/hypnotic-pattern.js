@@ -34,7 +34,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0) {
                 icon: args[0].item.img,
                 label: `${args[0].item.name} Save Advantage`,
             };
-            await tactorTarget.createEmbeddedDocuments("ActiveEffect", [effectData]);
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targetActor.uuid, effects: [effectData] });
         }
     }
 }

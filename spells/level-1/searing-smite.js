@@ -5,6 +5,8 @@ const lastArg = args[args.length - 1];
 const tokenD = canvas.tokens.get(lastArg.tokenId);
 const actorD = tokenD.actor;
 const gameRound = game.combat ? game.combat.round : 0;
+const durationType = lastArg.item.data.duration.units;
+const duration = durationType === "second" ? lastArg.item.data.duration.value * 6 : durationType === "minute" ? lastArg.item.data.duration.value * 10 : durationType === "hour" ? lastArg.item.data.duration.value * 600 : lastArg.item.data.duration.value;
 
 if (lastArg.tag === "OnUse") {
     let itemD = lastArg.item;
@@ -18,7 +20,7 @@ if (lastArg.tag === "OnUse") {
         ],
         origin: lastArg.uuid,
         disabled: false,
-        duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },
+        duration: { rounds: duration, startRound: gameRound, startTime: game.time.worldTime },
         flags: {
             "dae": { itemData: itemD, specialDuration: ["1Hit"] }
         },
@@ -48,7 +50,6 @@ if (lastArg.tag === "DamageBonus") {
             "dae": { itemData: spellItem.data, token: target.actor.uuid }
         },
         disabled: false,
-        duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },
         icon: spellItem.img,
         label: itemName
     }];

@@ -137,27 +137,8 @@ if(args[0].tag === "OnUse"){
     const targetToken = await fromUuid(lastArg.tokenUuid);
     const sourceItem = await fromUuid(lastArg.efData.flags.origin);
     const caster = sourceItem.parent;
-    const casterToken = canvas.tokens.placeables.find((t) => t.actor?.uuid === caster.uuid);
-    const damageRoll = await new Roll(`${lastArg.efData.flags.cantripDice}d8[${damageType}]`).evaluate({ async: true });
-    if (game.dice3d) game.dice3d.showForRoll(damageRoll);
-    const workflowItemData = duplicate(sourceItem.data);
-    workflowItemData.data.target = { value: 1, units: "", type: "creature" };
-    workflowItemData.name = "Booming Blade: Movement Damage";
-
-    await new MidiQOL.DamageOnlyWorkflow(
-      caster,
-      casterToken.data,
-      damageRoll.total,
-      damageType,
-      [targetToken],
-      damageRoll,
-      {
-        flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
-        itemCardId: "new",
-        itemData: workflowItemData,
-        isCritical: false,
-      }
-    );
+    let applyDamage = game.macros.find(m => m.name === "ApplyDamage");
+    if (applyDamage) await applyDamage.execute("ApplyDamage", caster.uuid, lastArg.tokenUuid, `${lastArg.efData.flags.cantripDice}d8`, "thunder", "magiceffect", "spelleffect");
     sequencerEffect(targetToken, sequencerFile, sequencerScale);
   }
 }

@@ -1,8 +1,8 @@
 // absorb elements
 
 const lastArg = args[args.length - 1];
-const tokenD = canvas.tokens.get(lastArg.tokenId);
-const actorD = tokenD.actor;
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 if (args[0].tag === "OnUse") {
     const itemD = lastArg.item;
@@ -62,7 +62,7 @@ if (args[0].tag === "OnUse") {
         disabled: false,
         flags: { dae: { specialDuration: ["turnStartSource"], itemData: itemD } , core: { statusId: "Absorb Elements" }},
     }]
-    await actorD.createEmbeddedDocuments("ActiveEffect", effectData);
+    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
 }
 
 if (args[0] === "off" && lastArg["expiry-reason"] === "times-up:duration-special") {
@@ -81,13 +81,13 @@ if (args[0] === "off" && lastArg["expiry-reason"] === "times-up:duration-special
         duration: {turns: 1, startTime: game.time.worldTime, startRound: gameRound },
         flags: { dae: { specialDuration: ["1Attack:mwak"] } },
     }]
-    await actorD.createEmbeddedDocuments("ActiveEffect", effectData);
+    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
 }
 
 if (args[0].tag === "DamageBonus") {
     if (!["mwak"].includes(lastArg.item.data.actionType)) return;
-    let type = getProperty(actorD.data.flags, "midi-qol.absorbType");
-    let level = getProperty(actorD.data.flags, "midi-qol.absorbLevel");
+    let type = getProperty(tactor.data.flags, "midi-qol.absorbType");
+    let level = getProperty(tactor.data.flags, "midi-qol.absorbLevel");
     const diceMult = args[0].isCritical ? level * 2 : level;
     return { damageRoll: `${diceMult}d6[${type}]`, flavor: `(Absorb Elements (${CONFIG.DND5E.damageTypes[type]}))` };
 }

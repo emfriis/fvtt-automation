@@ -1,4 +1,4 @@
-// shocking grasp WIP
+// shocking grasp
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
@@ -11,21 +11,8 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "preAttackRoll") {
 		let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
 		let isMetal = tactorTarget.items.find(i => i.type == "equipment" && i.data.data.equipped && (i.data.data.armor.type == "heavy" || i.data.data.armor.type == "medium") && !i.data.name.toLowerCase().includes("hide"));
 		if (isMetal) {
-			const effectData = {
-				changes: [
-					{
-						key: "flags.midi-qol.advantage.attack.msak",
-						mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-						value: 1,
-						priority: 20,
-					}
-				],
-				disabled: false,
-				flags: { dae: { specialDuration: ["1Attack"] } },
-				icon: args[0].item.img,
-				label: `${args[0].item.name} Advantage`,
-			};
-			await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+			const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
+    		attackWorkflow.advantage = true;
 		}
 	}
 }

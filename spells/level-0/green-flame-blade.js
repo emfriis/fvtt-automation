@@ -245,31 +245,15 @@ async function attackNearby(originToken, ignoreIds) {
     buttons: {
       Choose: {
         label: "Choose",
-        callback: async (html) => {
+        callback: async () => {
           const selectedId = $("input[type='radio'][name='target']:checked").val();
           const targetToken = canvas.tokens.get(selectedId);
           const sourceItem = await fromUuid(lastArg.efData.flags.origin);
+          const caster = sourceItem.parent;
           const mod = caster.data.data.abilities[sourceItem.abilityMod].mod;
-          const damageRoll = await new Roll(`${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`).evaluate({ async: true });
-          if (game.dice3d) game.dice3d.showForRoll(damageRoll);
-          const workflowItemData = duplicate(sourceItem.data);
-          workflowItemData.data.target = { value: 1, units: "", type: "creature" };
-          workflowItemData.name = "Green Flame Blade: Secondary Damage";
-
-          await new MidiQOL.DamageOnlyWorkflow(
-            caster,
-            casterToken.data,
-            damageRoll.total,
-            damageType,
-            [targetToken],
-            damageRoll,
-            {
-              flavor: `(${CONFIG.DND5E.damageTypes[damageType]})`,
-              itemCardId: "new",
-              itemData: workflowItemData,
-              isCritical: false,
-            }
-          );
+          const damageDice = `${lastArg.efData.flags.cantripDice - 1}d8[${damageType}] + ${mod}`;
+          let applyDamage = game.macros.find(m => m.name === "ApplyDamage");
+          if (applyDamage) await applyDamage.execute("ApplyDamage", caster.uuid, targetToken.document.uuid, damageDice, "fire", "magiceffect", "spelleffect");
           sequencerEffect(targetToken, originToken);
         },
       },
