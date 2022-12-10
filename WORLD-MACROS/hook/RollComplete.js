@@ -1,4 +1,4 @@
-// postApplyDynamicEffects
+// RollComplete
 
 async function applyBurst(actor, token, range, damageDice, damageType, saveDC, saveType, saveDamage, magicEffect) {
     const itemData = {
@@ -26,7 +26,7 @@ async function applyBurst(actor, token, range, damageDice, damageType, saveDC, s
     await MidiQOL.completeItemRoll(item, options);
 };
 
-Hooks.on("midi-qol.postApplyDynamicEffects", async (workflow) => {
+Hooks.on("midi-qol.RollComplete", async (workflow) => {
     try {
         let attackWorkflow;
         if (workflow.damageList) attackWorkflow = workflow.damageList.map((d) => ({ tokenUuid: d.tokenUuid, appliedDamage: d.appliedDamage, newHP: d.newHP, oldHP: d.oldHP, newTemp: d.newTemp, oldTemp: d.oldTemp, damageDetail: d.damageDetail }));
@@ -66,6 +66,6 @@ Hooks.on("midi-qol.postApplyDynamicEffects", async (workflow) => {
 		    }
         }
     } catch(err) {
-        console.error("postApplyDynamicEffects Error", err);
+        console.error("RollComplete Error", err);
     }
 });
