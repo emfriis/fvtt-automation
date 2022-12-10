@@ -60,7 +60,7 @@ if (lastArg.tag === "DamageBonus") {
         const resist = ["Brave", "Fear Resilience"];
         const getResist = tactorTarget.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));
         const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
-        const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "save", targetUuid: tactorTarget.uuid, ability: "wis", options: rollOptions });
+        const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "abil", targetUuid: tactorTarget.uuid, ability: "wis", options: rollOptions });
         if (game.dice3d) game.dice3d.showForRoll(roll);
         if (roll.total < spellDC) {
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: effectData });
