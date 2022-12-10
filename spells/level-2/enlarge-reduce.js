@@ -3,6 +3,15 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const token = canvas.tokens.get(lastArg.tokenId);
 
+function playerForActor(actor) {
+	if (!actor) return undefined;
+	let user;
+	if (actor.hasPlayerOwner) user = game.users?.find(u => u.data.character === actor?.id && u.active);
+	if (!user) user = game.users?.players.find(p => p.active && actor?.data.permission[p.id ?? ""] === CONST.ENTITY_PERMISSIONS.OWNER);
+	if (!user) user = game.users?.find(p => p.isGM && p.active);
+	return user;
+}
+
 // ItemMacro beforeSave 
 
 // beforeSave on save type save
@@ -25,7 +34,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
                 icon: args[0].item.img,
                 label: `${args[0].item.name} Save Auto Fail`,
             };
-            await tactorTarget.createEmbeddedDocuments("ActiveEffect", [effectData]);
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
         }
     }
 }
