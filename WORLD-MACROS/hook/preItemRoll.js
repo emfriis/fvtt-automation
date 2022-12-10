@@ -39,11 +39,49 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
             }
         }
 
+        // range check premable
+        let range;
+        let longRange;
+        if (workflow.token && [null, "", "creature", "ally", "enemy"].includes(workflow.item.data.data.target.type) && ["ft", "touch"].includes(workflow.item.data.data.range.units)) {
+            try {
+                console.warn("Range Check Preamble Activated");
+                range = workflow.item.data.data.range.value ? workflow.item.data.data.range.value : 5;
+                longRange = workflow.item.data.data.range.long ? workflow.item.data.data.range.long : 0;
+                if (workflow.actor.data.flags.rangeBonus) {
+                    if (workflow.actor.data.flags.rangeBonus && ["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) range += workflow.actor.data.flags.rangeBonus[workflow.item.data.data.actionType];
+                }
+                if (longRange && workflow.actor.data.flags["midi-qol"].sharpShooter && workflow.item.data.data.actionType === "rwak") range = longRange;
+                if (workflow.actor.data.flags["midi-qol"].spellSniper && workflow.item.data.data.actionType === "rsak") range *= 2;
+                if (workflow.actor.data.flags["midi-qol"].distantSpell && workflow.item.type === "spell" && workflow.item.data.data.range.units !== "touch") range *= 2;
+                console.warn("Range Check Preamble used");
+            } catch (err) {
+                console.error("Range Check Preamble error", err);
+            }
+        }
+
 	    const targets = Array.from(workflow.targets);
         for (let t = 0; t < targets.length; t++) {
         	const token = targets[t];
 	  	    let tactor = token?.actor;
         	if (!tactor) continue;
+
+            // range check
+            if (range && workflow.token && [null, "", "creature", "ally", "enemy"].includes(workflow.item.data.data.target.type) && workflow.item.data.data.range.units === "ft") {
+                try {
+                    console.warn("Range Check Activated");
+                    const distance = MidiQOL.getDistance(workflow.token, token, false);
+                    if (distance > range && distance > longRange) {
+                        ui.notifications.warn("Target(s) not within range");
+                        console.warn("Range Check used");
+                        return false;
+                    } else if (distance > range && distance <= longRange) {
+                        workflow.disadvantage = true;
+                        console.warn("Range Check used");
+                    }
+                } catch (err) {
+                    console.error("Range Check error", err);
+                }
+            }
 
             // sanctuary
             if (tactor.effects.find(e => e.data.label === "Sanctuary")) {

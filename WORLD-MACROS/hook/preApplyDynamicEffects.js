@@ -99,10 +99,10 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 }
 
                 // no regen
-                if (tactor.data.flags["midi-qol"].noregen && attackWorkflow[a].appliedDamage > 0) {
+                if (tactor.data.flags["midi-qol"].noRegen && attackWorkflow[a].appliedDamage > 0) {
                     try {
                         console.warn("No Regen activated");
-                        let noRegenTypes = tactor.data.flags["midi-qol"]?.noregen?.split(",");
+                        let noRegenTypes = tactor.data.flags["midi-qol"]?.noRegen?.split(",");
                         if (noRegenTypes) {
                             let damageDetail = attackWorkflow[a].damageDetail;
                             for (let d = 0; d < damageDetail?.length; d++) {
@@ -143,9 +143,9 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 if (tactor.data.flags["midi-qol"].damagedattemptremoval && attackWorkflow[a].appliedDamage > 0) {
                     try {
                         console.warn("Damaged Attempt Removal activated");
-                        const effects = tactor.effects.filter(e => e.data.changes.find(c => c.key === "flags.midi-qol.damagedattemptremoval"));
+                        const effects = tactor.effects.filter(e => e.data.changes.find(c => c.key === "flags.midi-qol.damagedAttemptRemoval"));
                         for (let e = 0; e < effects.length; e++) {
-                            const removalData = effects[e].data.changes.find(c => c.key === "flags.midi-qol.damagedattemptremoval").value.split(",");
+                            const removalData = effects[e].data.changes.find(c => c.key === "flags.midi-qol.damagedAttemptRemoval").value.split(",");
                             const condition = effects[e].data.label;
                             const origin = await fromUuid(effects[e].data.origin);
                             let getResist = false;

@@ -49,39 +49,41 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
             if (!tactor) continue;
 
             //cover
-            try {
-                console.warn("Cover activated");
-                const calculatedCover = await calculateCover(workflow.token, token);
-                if (calculatedCover >= 99) {
-                    const effectData = {
-                        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 20, },],
-                        disabled: false,
-                        label: "Full Cover",
-                        flags: { dae: { specialDuration: "isAttacked" } }
+            if (!(workflow.item.data.data.actionType === "rwak" && workflow.actor.data.flags["midi-qol"].sharpShooter)) {
+                try {
+                    console.warn("Cover activated");
+                    const calculatedCover = await calculateCover(workflow.token, token);
+                    if (calculatedCover >= 99) {
+                        const effectData = {
+                            changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 20, },],
+                            disabled: false,
+                            label: "Full Cover",
+                            flags: { dae: { specialDuration: "isAttacked" } }
+                        }
+                        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                        console.warn("Full Cover used");
+                    } else if (calculatedCover >= 65) {
+                        const effectData = {
+                            changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 5, priority: 20, },],
+                            disabled: false,
+                            label: "Three Quarters Cover",
+                            flags: { dae: { specialDuration: "isAttacked" } }
+                        }
+                        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                        console.warn("3/4 Cover used");
+                    } else if (calculatedCover >= 40) {
+                        const effectData = {
+                            changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 2, priority: 20, },],
+                            disabled: false,
+                            label: "Half Cover",
+                            flags: { dae: { specialDuration: "isAttacked" } }
+                        }
+                        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                        console.warn("1/2 Cover used");
                     }
-                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                    console.warn("Full Cover used");
-                } else if (calculatedCover >= 65) {
-                    const effectData = {
-                        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 5, priority: 20, },],
-                        disabled: false,
-                        label: "Three Quarters Cover",
-                        flags: { dae: { specialDuration: "isAttacked" } }
-                    }
-                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                    console.warn("3/4 Cover used");
-                } else if (calculatedCover >= 40) {
-                    const effectData = {
-                        changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 2, priority: 20, },],
-                        disabled: false,
-                        label: "Half Cover",
-                        flags: { dae: { specialDuration: "isAttacked" } }
-                    }
-                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                    console.warn("1/2 Cover used");
+                } catch (err) {
+                    console.error("Cover error", err);
                 }
-            } catch (err) {
-                console.error("Cover error", err);
             }
 
             // mirror image
