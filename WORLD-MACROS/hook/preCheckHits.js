@@ -48,7 +48,7 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
             let tactor = token.actor;
             if (!tactor) continue;
 
-            //cover
+            // cover
             if (!(workflow.item.data.data.actionType === "rwak" && workflow.actor.data.flags["midi-qol"].sharpShooter)) {
                 try {
                     console.warn("Cover activated");

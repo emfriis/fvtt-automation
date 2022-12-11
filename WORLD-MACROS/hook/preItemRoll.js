@@ -39,7 +39,7 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
             }
         }
 
-        // range check premable
+        // range check preamble
         let range;
         let longRange;
         if (workflow.token && [null, "", "creature", "ally", "enemy"].includes(workflow.item.data.data.target.type) && ["ft", "touch"].includes(workflow.item.data.data.range.units)) {
@@ -47,7 +47,7 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                 console.warn("Range Check Preamble Activated");
                 range = workflow.item.data.data.range.value ? workflow.item.data.data.range.value : 5;
                 longRange = workflow.item.data.data.range.long ? workflow.item.data.data.range.long : 0;
-                if (workflow.actor.data.flags["midi-qol"].rangeBonus[workflow.item.data.data.actionType] && ["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) {
+                if (["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType) && workflow.actor.data.flags["midi-qol"].rangeBonus && workflow.actor.data.flags["midi-qol"].rangeBonus[workflow.item.data.data.actionType]) {
                     const bonus = workflow.actor.data.flags["midi-qol"].rangeBonus[workflow.item.data.data.actionType]?.split("+")?.reduce((accumulator, current) => Number(accumulator) + Number(current));
                     range += bonus;
                     if (longRange) longRange += bonus;
@@ -68,7 +68,7 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
         	if (!tactor) continue;
 
             // range check
-            if (range && workflow.token && [null, "", "creature", "ally", "enemy"].includes(workflow.item.data.data.target.type) && workflow.item.data.data.range.units === "ft") {
+            if (range && workflow.token && [null, "", "creature", "ally", "enemy"].includes(workflow.item.data.data.target.type) && ["ft", "touch"].includes(workflow.item.data.data.range.units)) {
                 try {
                     console.warn("Range Check Activated");
                     const distance = MidiQOL.getDistance(workflow.token, token, false);
