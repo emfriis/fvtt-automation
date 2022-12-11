@@ -47,13 +47,15 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                 console.warn("Range Check Preamble Activated");
                 range = workflow.item.data.data.range.value ? workflow.item.data.data.range.value : 5;
                 longRange = workflow.item.data.data.range.long ? workflow.item.data.data.range.long : 0;
-                if (workflow.actor.data.flags.rangeBonus) {
-                    if (workflow.actor.data.flags.rangeBonus && ["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) range += workflow.actor.data.flags.rangeBonus[workflow.item.data.data.actionType];
+                if (workflow.actor.data.flags["midi-qol"].rangeBonus[workflow.item.data.data.actionType] && ["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) {
+                    const bonus = workflow.actor.data.flags["midi-qol"].rangeBonus[workflow.item.data.data.actionType]?.split("+")?.reduce((accumulator, current) => Number(accumulator) + Number(current));
+                    range += bonus;
+                    if (longRange) longRange += bonus;
                 }
                 if (longRange && workflow.actor.data.flags["midi-qol"].sharpShooter && workflow.item.data.data.actionType === "rwak") range = longRange;
                 if (workflow.actor.data.flags["midi-qol"].spellSniper && workflow.item.data.data.actionType === "rsak") range *= 2;
                 if (workflow.actor.data.flags["midi-qol"].distantSpell && workflow.item.type === "spell" && workflow.item.data.data.range.units !== "touch") range *= 2;
-                console.warn("Range Check Preamble used");
+                console.warn("Range Check Preamble used", range);
             } catch (err) {
                 console.error("Range Check Preamble error", err);
             }
@@ -74,7 +76,7 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                         ui.notifications.warn("Target(s) not within range");
                         console.warn("Range Check used");
                         return false;
-                    } else if (distance > range && distance <= longRange) {
+                    } else if (!workflow.disadvantage && distance > range && distance <= longRange && ["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) {
                         workflow.disadvantage = true;
                         console.warn("Range Check used");
                     }
