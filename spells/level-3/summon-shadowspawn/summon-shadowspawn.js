@@ -25,9 +25,9 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
         icon: "icons/creatures/magical/spirit-undead-winged-ghost.webp"
     }
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: spawnedTokenDoc.actor.uuid, effects: [effectData] });
-    let despairItem = spawnedTokenDoc.actor.items.find(i.name === "Weight of Sorrow");
-    let fearItem = spawnedTokenDoc.actor.items.find(i.name === "Shadow Stealth");
-    let furyItem = spawnedTokenDoc.actor.items.find(i.name === "Terror Frenzy");
+    let despairItem = spawnedTokenDoc.actor.items.find(i => i.name === "Weight of Sorrow");
+    let fearItem = spawnedTokenDoc.actor.items.find(i => i.name === "Shadow Stealth");
+    let furyItem = spawnedTokenDoc.actor.items.find(i => i.name === "Terror Frenzy");
     await new Promise((resolve, reject) => {
         new Dialog({
             title: "Summon Shadowspawn",
