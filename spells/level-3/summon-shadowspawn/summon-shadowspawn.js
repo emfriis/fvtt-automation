@@ -79,7 +79,7 @@ if (args[0] === "on") {
         },
         embedded: {
             Item: {
-                "Chilling Rend": {
+                "Chilling Touch": {
                     "data.attackBonus": bonus - 3,
                     "data.damage.parts": [[`1d12 + 3 + ${spellLevel}`, "cold"]]
                 }
