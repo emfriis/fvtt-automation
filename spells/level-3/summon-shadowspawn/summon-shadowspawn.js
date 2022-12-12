@@ -11,17 +11,15 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     let summonUuid = spawnedTokenDoc.uuid;
     if (ef) {
         let changes = [
-            {
-                key: "flags.dae.deleteUuid",
-                mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-                value: summonUuid,
-                priority: 20,
-            }
+            { key: "flags.dae.deleteUuid", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: summonUuid, priority: 20, }
         ];
         await ef.update({ changes: changes.concat(ef.data.changes) });
     }
     let effectData = {
-        changes: [{ key: "flags.parent", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.uuid, priority: 20, }],
+        changes: [
+            { key: "flags.parent", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.uuid, priority: 20, },
+            { key: `data.attributes.spelldc`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.data.data.attributes.spelldc, priority: 20 },
+        ],
         label: "Summon Shadowspawn",
         disabled: false,
         icon: "icons/creatures/magical/spirit-undead-winged-ghost.webp"
@@ -82,7 +80,7 @@ if (args[0] === "on") {
         embedded: {
             Item: {
                 "Chilling Rend": {
-                    "data.attackBonus": bonus,
+                    "data.attackBonus": bonus - 3,
                     "data.damage.parts": [[`1d12 + 3 + ${spellLevel}`, "cold"]]
                 }
             }
