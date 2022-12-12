@@ -1,4 +1,4 @@
-// summoon shadowspawn
+// summon shadowspawn
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
@@ -20,41 +20,44 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
         ];
         await ef.update({ changes: changes.concat(ef.data.changes) });
     }
-    let type = await new Promise((resolve, reject) => {
+    let effectData = {
+        changes: [{ key: "flags.parent", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.uuid, priority: 20, }],
+        label: "Summon Shadowspawn",
+        disabled: false,
+        icon: "icons/creatures/magical/spirit-undead-winged-ghost.webp"
+    }
+    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: spawnedTokenDoc.actor.uuid, effects: [effectData] });
+    let despairItem = spawnedTokenDoc.actor.items.find(i.name === "Weight of Sorrow");
+    let fearItem = spawnedTokenDoc.actor.items.find(i.name === "Shadow Stealth");
+    let furyItem = spawnedTokenDoc.actor.items.find(i.name === "Terror Frenzy");
+    await new Promise((resolve, reject) => {
         new Dialog({
             title: "Summon Shadowspawn",
             content: "Choose an emotion",
             buttons: {
                 Fury: {
                     label: "Fury",
-                    callback: async () => {resolve("fear")},
+                    callback: async () => {
+                        await spawnedTokenDoc.actor.deleteEmbeddedDocuments("Item", [despairItem.id, fearItem.id]);
+                    },
                 },
                 Despair: {
                     label: "Despair",
-                    callback: async () => {resolve("despair")},
+                    callback: async () => {
+                        await spawnedTokenDoc.actor.deleteEmbeddedDocuments("Item", [furyItem.id, fearItem.id]);
+                    },
                 },
                 Fear: {
                     label: "Fear",
-                    callback: async () => {resolve("fear")},
+                    callback: async () => {
+                        await spawnedTokenDoc.actor.deleteEmbeddedDocuments("Item", [despairItem.id, furyItem.id]);
+                    },
                 },
             },
             default: "Fury",
             close: () => {resolve(false)}
         }).render(true);
     });
-    if (!type) return;
-    let itemData;
-    switch (type) {
-        case "fury":
-            itemData = {}
-            break;
-        case "despair":
-            itemData = {}
-            break;
-        case "fear":
-            itemData = {}
-    }
-    await spawnedTokenDoc.actor.createEmbeddedDocuments("Item", [itemData]);
 }
 
 if (args[0] === "on") {
@@ -85,5 +88,5 @@ if (args[0] === "on") {
             }
         }
     }
-    await warpgate.spawn("Shadow Spirit", updates, { post: postWarp }, {});
+    await warpgate.spawn("Summon Shadowspawn", updates, { post: postWarp }, {});
 }
