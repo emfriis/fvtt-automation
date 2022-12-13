@@ -57,7 +57,7 @@ if (lastArg.tag === "DamageBonus") {
     }];
 
     if (conc) {
-        const resist = ["Brave", "Fear Resilience"];
+        const resist = ["Brave", "Fear Resilience", "Magic Resistance", "Magic Resilience", "Spell Resistance", "Spell Resilience"];
         const getResist = tactorTarget.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));
         const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
         const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "abil", targetUuid: tactorTarget.uuid, ability: "wis", options: rollOptions });
