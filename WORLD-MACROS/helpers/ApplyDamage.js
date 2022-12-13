@@ -84,14 +84,18 @@ try {
     await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
 } catch (err) {
     console.error("ApplyDamage error", err);
-    let sourceUuid;
-    if (args[1] === "self") {
-        sourceUuid = lastArg.actorUuid;
-    } else {
-        sourceUuid = args[1];
+    try {
+        let sourceUuid;
+        if (args[1] === "self") {
+            sourceUuid = lastArg.actorUuid;
+        } else {
+            sourceUuid = args[1];
+        }
+        let sourceTokenOrActor = await fromUuid(sourceUuid);
+        let sourceActor = sourceTokenOrActor.actor ? sourceTokenOrActor.actor : sourceTokenOrActor;
+        let item = await sourceActor.items.find(i => i.name === `${args[4].charAt(0).toUpperCase() + args[4].slice(1)} Damage`);
+        await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
+    } catch (err) {
+        console.error("ApplyDamage error Cleanup error", err);
     }
-    let sourceTokenOrActor = await fromUuid(sourceUuid);
-    let sourceActor = sourceTokenOrActor.actor ? sourceTokenOrActor.actor : sourceTokenOrActor;
-    let item = await sourceActor.items.find(i => i.name === `${args[4].charAt(0).toUpperCase() + args[4].slice(1)} Damage`);
-    await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
 }
