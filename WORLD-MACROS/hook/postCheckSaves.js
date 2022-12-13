@@ -18,7 +18,7 @@ Hooks.on("midi-qol.postCheckSaves", async (workflow) => {
 		    if (!tactor) continue;
 
             // shield master
-            if (workflow.item.data.data.save.ability === "dex" && workflow.item.data.flags.midiProperties.halfdam && tactor.items.find(i => i.data.name === "Shield Master") && tactor.items.find(i => i.data.data?.armor.type === "shield" && i.data.data?.equipped) && !tactor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].inludes(e.data.label))) {
+            if (workflow.item.data.data.save.ability === "dex" && workflow.item.data.flags.midiProperties.halfdam && tactor.items.find(i => i.data.name === "Shield Master") && tactor.items.find(i => i.data.data?.armor.type === "shield" && i.data.data?.equipped) && !tactor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].inludes(e.data.label)) && !workflow.failedSaves.has(token)) {
                 try {
                     console.warn("Shield Master activated");
                     let player = await playerForActor(token.actor);
