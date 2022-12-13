@@ -18,7 +18,7 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
 		    if (!tactor) continue;
 
             // spell resistance
-            if (workflow.item.data.type === "spell" && workflow.item.data.data.actionType === "save" && (tactor.effects.find(e => ["Spell Resilience", "Spell Resistance"].includes(e.data.label)) || tactor.items.find(i => ["Spell Resilience", "Spell Resistance"].includes(i.name)))) {
+            if (workflow.item.data.type === "spell" && workflow.item.data.data.actionType === "save" && (tactor.effects.find(e => ["Magic Resistance", "Magic Resilience", "Spell Resilience", "Spell Resistance"].includes(e.data.label)) || tactor.items.find(i => ["Magic Resistance", "Magic Resilience", "Spell Resilience", "Spell Resistance"].includes(i.name)))) {
                 try {
                     const effectData = {
                         changes: [ { key: "flags.midi-qol.advantage.ability.save.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, } ],

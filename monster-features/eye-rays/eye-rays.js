@@ -1,12 +1,27 @@
-// eye rays (beholder)
-// on use pre item roll
+// eye ray
+// on use macro
 
 const lastArg = args[args.length - 1];
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-const roll = new Roll(`1d10`).evaluate({ async: false });
-if (game.dice3d) game.dice3d.showForRoll(roll);
-
-let rayData;
-
-
-const itemData = mergeObject(duplicate(sourceItem.data), rayData);
+switch (Math.floor((Math.random() * 4) + 1)) {
+    case 1:
+        let itemP = tactor.items.find(i => i.name === "Paralyzing Ray");
+        await MidiQOL.completeItemRoll(itemP, { targetUuids: args[0].targetUuids });
+        break;
+    case 2:
+        let itemF = tactor.items.find(i => i.name === "Fear Ray");
+        await MidiQOL.completeItemRoll(itemF, { targetUuids: args[0].targetUuids });
+        break;
+    case 3:
+        let itemE = tactor.items.find(i => i.name === "Enervation Ray");
+        await MidiQOL.completeItemRoll(itemE, { targetUuids: args[0].targetUuids });
+        break;
+    case 4:
+        let itemD = tactor.items.find(i => i.name === "Disintegration Ray");
+        await MidiQOL.completeItemRoll(itemD, { targetUuids: args[0].targetUuids });
+        break;
+    default:
+        console.warn(`No Eye Ray Selected`);
+}
