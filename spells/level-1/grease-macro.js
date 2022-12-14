@@ -7,9 +7,12 @@ const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const template = canvas.templates.placeables.find(i => i.data.flags?.ActiveAuras?.IsAura[0]?.data?.origin === lastArg.efData.origin);
-  
+
+function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+
 if ((args[0] === "on" || args[0] === "each") && !tactor.effects.find(i => i.data.label === "Prone")) {
     if (token?.data?.elevation > template?.data?.flags?.levels?.elevation + 5 || token?.data?.elevation + token?.losHeight < template?.data?.flags?.levels?.elevation) {
+        await wait (500);
         await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
         return;
     };

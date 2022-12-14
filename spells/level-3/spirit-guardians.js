@@ -21,5 +21,5 @@ if (args[0] === "on" && args[1] !== lastArg.actorUuid && lastArg.tokenId === gam
   if (applyDamage) await applyDamage.execute("ApplyDamage", args[1], lastArg.tokenUuid, damageDice, damageType, "magiceffect", "spelleffect", saveDC, saveType, "halfdam");
   
   await wait (500);
-  await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.efData._id] });
+  await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
 };

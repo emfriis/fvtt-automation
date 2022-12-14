@@ -8,11 +8,14 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const template = canvas.templates.placeables.find(i => i.data.flags?.ActiveAuras?.IsAura[0]?.data?.origin === lastArg.efData.origin);
 
+function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+
 (async () => {
     if (args[0] === "on") {
         if (VolumetricTemplates) {
             const templateTargets = VolumetricTemplates.compute3Dtemplate(template);
             if (templateTargets && !templateTargets.includes(lastArg.tokenId)) {
+                await wait(500);
                 await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
                 return;
             };
