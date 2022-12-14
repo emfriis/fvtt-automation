@@ -33,7 +33,7 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
             }
 
             // shield master
-            if (workflow.item.data.data.save.ability === "dex" && targets.size === 1 && tactor.items.find(i => i.data.name === "Shield Master") && tactor.items.find(i => i.data.data?.armor.type === "shield" && i.data.data?.equipped) && !tactor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].inludes(e.data.label))) {
+            if (workflow.item.data.data?.save?.ability === "dex" && targets.length === 1 && tactor.items.find(i => i.data.name === "Shield Master") && tactor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data?.equipped) && !tactor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label))) {
                 try {
                     console.warn("Shield Master activated");
                     const effectData = {
@@ -50,6 +50,6 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
 		    }
         }
     } catch(err) {
-        console.error("posCheckSaves error", err);
+        console.error("preCheckSaves error", err);
     }
 });
