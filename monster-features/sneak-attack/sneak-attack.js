@@ -1,10 +1,7 @@
 // sneak attack
-// requires MIDI-QOL
 
 try {
     if (!["mwak","rwak"].includes(args[0].itemData.data.actionType) || args[0].disadvantage) return {}; // weapon attack
-    if (args[0].itemData.data.actionType === "mwak" && !args[0].itemData.data.properties?.fin) 
-      return {}; // ranged or finesse
     if (args[0].hitTargets.length < 1) return {};
     token = canvas.tokens.get(args[0].tokenId);
     actor = token.actor;
@@ -26,10 +23,11 @@ try {
     if (!isAdv) {
       nearbyEnemy = canvas.tokens.placeables.find(t => 
         t.actor &&
+        !(t.actor.data.data.details?.type?.value?.length < 3) && // is a creature
         t.actor?.uuid !== args[0].actorUuid && // not me
         t.actor.uuid !== target.actor.uuid && // not the target
         t.actor.data.data.attributes?.hp.value > 0 && // not dead or unconscious
-        !(t.actor?.effects.find(e => ["Incapacitated", "Unconscious", "Paralyzed", "Petrified", "Stunned"].includes(e.data.label))) && // not incapacitated
+        !(t.actor?.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label))) && // not incapacitated
         t.data.disposition === token.data.disposition && // an ally of the attacker
         MidiQOL.getDistance(t, target, false) <= 5 // close to the target
       );

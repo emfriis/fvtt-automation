@@ -1,5 +1,4 @@
 // sneak attack
-// requires MIDI-QOL
 
 try {
     if (!["mwak","rwak"].includes(args[0].itemData.data.actionType) || args[0].disadvantage) return {}; // weapon attack
@@ -31,15 +30,16 @@ try {
     if (!isSneak) {
       foundEnemy = false;
       let nearbyEnemy = canvas.tokens.placeables.filter(t => {
-        let nearby = (t.actor &&
-             t.actor?.uuid !== args[0].actorUuid && // not me
-             t.id !== target.id && // not the target
-             t.actor?.data.data.attributes?.hp?.value > 0 && // not dead or unconscious
-             !(e => ["Incapacitated", "Unconscious", "Paralyzed", "Petrified", "Stunned"].includes(e.data.label)) && // not incapacitated
-             t.data.disposition === token.data.disposition && // an ally of the attacker
-             MidiQOL.getDistance(t, target, false) <= 5 // close to the target
-         );
-        foundEnemy = foundEnemy || (nearby && t.data.disposition === -target.data.disposition)
+        let nearby = (
+          t.actor &&
+          !(t.actor.data.data.details?.type?.value?.length < 3) && // is a creature
+          t.actor?.uuid !== args[0].actorUuid && // not me
+          t.actor.uuid !== target.actor.uuid && // not the target
+          t.actor.data.data.attributes?.hp.value > 0 && // not dead or unconscious
+          !(t.actor?.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label))) && // not incapacitated
+          t.data.disposition === token.data.disposition && // an ally of the attacker
+          MidiQOL.getDistance(t, target, false) <= 5 // close to the target
+        );
         return nearby;
       });
       isSneak = nearbyEnemy.length > 0;
