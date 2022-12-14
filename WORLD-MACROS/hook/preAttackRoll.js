@@ -32,7 +32,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                 console.warn("Ranged Proximity activated");
                 const nearbyEnemy = canvas.tokens.placeables.find(p => 
                     p?.actor && // exists
-                    (p.actor.data.data.details?.type?.value?.length > 2 || p.actor.data.data.details?.race?.length > 2) && // is a creature
+                    !(p.actor.data.data.details?.type?.value?.length < 3) && // is a creature
                     p.document.uuid !== workflow.token.document.uuid && // not the attacker
                     p.document.uuid !== workflow.token.document.uuid && // not the target
                     !p.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label)) && // not incapacitated

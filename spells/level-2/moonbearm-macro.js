@@ -16,6 +16,18 @@ if (args[0] === "on") {
         await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
         return;
     }
+
+    let isShapechanger = tactor.data.data.details?.type?.subtype?.toLowerCase() === "shapechanger";
+    if (isShapechanger) {
+        const effectData = {
+            changes: [{ key: "flags.midi-qol.disadvantage.ability.save.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, }],
+            disabled: false,
+            flags: { dae: { specialDuration: ["isSave"] } },
+            label: `Moonbeam Save Disadvantage`,
+        };
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+    }
+
     let applyDamage = game.macros.find(m => m.name === "ApplyDamage");
     if (applyDamage) await applyDamage.execute("ApplyDamage", lastArg.actorUuid, lastArg.tokenUuid, `${args[1]}d10`, "radiant", "magiceffect", "spelleffect", args[2], "con", "halfdam");
     

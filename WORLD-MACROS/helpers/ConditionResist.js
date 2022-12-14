@@ -13,14 +13,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
         let getResist = tactorTarget.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));
         if (getResist) {
             const effectData = {
-                changes: [
-                    {
-                        key: "flags.midi-qol.advantage.ability.save.all",
-                        mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-                        value: 1,
-                        priority: 20,
-                    }
-                ],
+                changes: [{ key: "flags.midi-qol.advantage.ability.save.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, }],
                 disabled: false,
                 flags: { dae: { specialDuration: ["isSave"] } },
                 icon: args[0].item.img,

@@ -12,6 +12,7 @@ let isPack = false;
 let nearbyEnemy = canvas.tokens.placeables.filter(t => {
 	let nearby = (
 		t.actor &&
+		!(p.actor.data.data.details?.type?.value?.length < 3) && // is a creature
 		t.actor?.uuid !== args[0].actorUuid && // not me
 		t.actor?.uuid !== target.actor?.uuid && // not the target
 		t.actor?.data.data.attributes?.hp?.value > 0 && // not dead or unconscious
