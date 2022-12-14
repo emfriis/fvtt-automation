@@ -32,7 +32,7 @@ if (args[0] === "each") {
             label: `${caster.name} Stench Immunity`,
             origin: args[0].uuid,
             disabled: false,
-            flags: { dae: { specialDuration: ["LongRest"] } },
+            flags: { dae: { specialDuration: ["longRest"] } },
             changes: [
                 { key: `flags.midi-qol.stenchImmunity`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: caster.name, priority: 20 },
             ]

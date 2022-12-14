@@ -12,6 +12,8 @@
 // [9] - save damage (string: "fulldam", "halfdam", "nodam", or EMPTY)
 // [10] - on/off override (string: "on", "off", or EMPTY)
 
+function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+
 try {
     if (args[0] === "on" && args[10] !== "on") return;
     if (args[0] === "off" && args[10] !== "off") return;
@@ -81,6 +83,7 @@ try {
     let item = await sourceActor.items.find(i => i.name === itemData.name);
     let options = { targetUuids: [targetUuid] };
     await MidiQOL.completeItemRoll(item, options);
+    await wait(500);
     await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
 } catch (err) {
     console.error("ApplyDamage error", err);
@@ -93,6 +96,7 @@ try {
         }
         let sourceTokenOrActor = await fromUuid(sourceUuid);
         let sourceActor = sourceTokenOrActor.actor ? sourceTokenOrActor.actor : sourceTokenOrActor;
+        await wait(500);
         let item = await sourceActor.items.find(i => i.name === `${args[4].charAt(0).toUpperCase() + args[4].slice(1)} Damage`);
         await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
     } catch (err) {
