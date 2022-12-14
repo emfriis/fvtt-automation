@@ -1,6 +1,6 @@
 // attempt removal macro
 // execute as gm
-// values : dc(int) abil/save(string) type(string) auto/opt(string)
+// values : dc(int) type(string) abil/save(string) auto/opt(string)
 
 try {
     const lastArg = args[args.length - 1];
