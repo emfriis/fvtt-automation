@@ -1,4 +1,5 @@
 // blinding smite
+// on use
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 const lastArg = args[args.length - 1];

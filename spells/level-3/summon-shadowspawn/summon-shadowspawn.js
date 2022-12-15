@@ -1,4 +1,5 @@
 // summon shadowspawn
+// effect itemacro
 
 const lastArg = args[args.length - 1];
 const token = canvas.tokens.get(lastArg.tokenId);

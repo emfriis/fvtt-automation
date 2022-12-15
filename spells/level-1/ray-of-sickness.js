@@ -1,3 +1,6 @@
+// ray of sickness
+// on use pre saves
+
 const lastArg = args[args.length - 1];
 
 if (args[0].tag === "OnUse" && lastArg.hitTargetUuids.length > 0) {
@@ -21,7 +24,7 @@ if (args[0].tag === "OnUse" && lastArg.hitTargetUuids.length > 0) {
                 icon: args[0].item.img,
                 label: `${args[0].item.name} Save Advantage`,
             };
-            await tactorTarget.createEmbeddedDocuments("ActiveEffect", [effectData]);
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
         }
     }
 }

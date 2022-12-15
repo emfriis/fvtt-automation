@@ -1,6 +1,7 @@
-// banioshment
-// macro.itemacro.gm
-// grant all damage immunity
+// banishment
+// effect itemacro
+
+// set hidden and maybe set massive negative elevation ???
 
 const lastArg = args[args.length - 1];
 const target = await fromUuid(lastArg.tokenUuid);

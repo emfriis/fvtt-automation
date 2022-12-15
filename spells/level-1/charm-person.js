@@ -1,4 +1,5 @@
 // charm person
+// on use pre saves
 
 const lastArg = args[args.length - 1];
 
@@ -24,7 +25,7 @@ if (args[0].tag === "OnUse") {
 				icon: args[0].item.img,
 				label: `${args[0].item.name} Save Advantage`,
 			};
-			await targetActor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+			await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
 		}
 	}
 }

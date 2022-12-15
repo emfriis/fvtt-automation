@@ -1,4 +1,6 @@
 // shocking grasp
+// on use pre attack
+// on use post effects
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);

@@ -1,4 +1,5 @@
 // haste
+// effect itemacro
 
 if(args[0] === "off") {
 	const lastArg = args[args.length - 1];

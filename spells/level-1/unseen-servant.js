@@ -1,5 +1,5 @@
 // unseen servant
-// on use post active effects
+// effect itemacro
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
@@ -21,8 +21,10 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     };
 };
 
-let updates = {
-    token: { "name": `Unseen Servant (${tactor.name})` },
-    actor: { "name": `Unseen Servant (${tactor.name})` }
-};
-await warpgate.spawn("Unseen Servant", updates, { post: postWarp }, {});
+if (args[0] === "on") {
+    let updates = {
+        token: { "name": `Unseen Servant (${tactor.name})` },
+        actor: { "name": `Unseen Servant (${tactor.name})` }
+    };
+    await warpgate.spawn("Unseen Servant", updates, { post: postWarp }, {});
+}

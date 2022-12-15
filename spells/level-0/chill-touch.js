@@ -1,6 +1,6 @@
 // chill touch
+// on use post effects
 
-async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 const lastArg = args[args.length - 1];
 if (lastArg.hitTargets.length === 0) return {};
 const target = canvas.tokens.get(lastArg.hitTargets[0].id);

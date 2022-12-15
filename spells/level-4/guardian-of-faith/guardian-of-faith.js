@@ -1,9 +1,12 @@
 // guardian of faith
+// effect itemacro
 
 const lastArg = args[args.length - 1];
 const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+
+function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
 async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     let ef = tactor.effects.find(i => i.data.label === "Guardian of Faith");
@@ -14,6 +17,7 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
         ];
         await ef.update({ changes: changes.concat(ef.data.changes) });
     }
+    await wait(100);
     let effectData1 = {
         changes: [
             { key: "flags.parent", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.uuid, priority: 20, },

@@ -1,11 +1,11 @@
 // maximilian's earthen grasp
-// on use post active effects
+// effect itemacro
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
 async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     let ef = tactor.effects.find(i => i.data.label === "Maximilian's Earthen Grasp");
@@ -21,9 +21,7 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
         ];
         await ef.update({ changes: changes.concat(ef.data.changes) });
     };
-    await wait(500);
-    const summon = await fromUuid(summonUuid);
-    const summonActor = summon.actor;
+    await wait(100);
     let effectData = [{
         changes: [
             { key: `data.attributes.spelldc`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.data.data.attributes.spelldc, priority: 20 },
@@ -31,11 +29,13 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
         disabled: false,
         label: "Spell DC",
     }];
-    await summonActor.createEmbeddedDocuments("ActiveEffect", effectData);
+    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: spawnedTokenDoc.actor.uuid, effects: [effectData] });
 };
 
-let updates = {
-    token: { "name": `Earthen Hand (${tactor.name})` },
-    actor: { "name": `Earthen Hand (${tactor.name})` },
-};
-await warpgate.spawn("Earthen Hand", updates, { post: postWarp }, {});
+if (args[0] === "on") {
+    let updates = {
+        token: { "name": `Earthen Hand (${tactor.name})` },
+        actor: { "name": `Earthen Hand (${tactor.name})` },
+    };
+    await warpgate.spawn("Earthen Hand", updates, { post: postWarp }, {});
+}

@@ -1,3 +1,6 @@
+// entangle
+// on use pre saves
+
 const lastArg = args[args.length - 1];
 let tokenOrActor = await fromUuid(lastArg.actorUuid);
 let tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
@@ -23,7 +26,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0) {
                 icon: args[0].item.img,
                 label: `${args[0].item.name} Save Advantage`,
             };
-            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
         }
     }
 }

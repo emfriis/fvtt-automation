@@ -1,5 +1,5 @@
 // awakened spellbook
-// onusemacroname preambleComplete
+// effect on use post targeting
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);

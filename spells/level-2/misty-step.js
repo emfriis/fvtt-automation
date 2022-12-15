@@ -1,4 +1,5 @@
 // misty step
+// on use
 // Credit to Auto Animations for the macro
 
 const sourceToken = canvas.tokens.get(args[0]?.tokenId);

@@ -1,4 +1,5 @@
 // magic missile
+// on use before damage
 
 const itemUuid = args[0].uuid;
 const attacks = args[0].spellLevel + 2;

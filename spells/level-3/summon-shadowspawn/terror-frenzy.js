@@ -1,4 +1,5 @@
 // terror frenzy
+// effect on use pre attack
 
 if (args[0].targets.length < 1 || !["mwak", "rwak", "msak", "rsak"].includes(args[0].itemData.data.actionType) || args[0].macroPass != "preAttackRoll") return;
 token = canvas.tokens.get(args[0].tokenId);

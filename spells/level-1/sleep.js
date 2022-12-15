@@ -1,7 +1,6 @@
-// based on @ccjmk and @crymic macro for sleep. Gets targets and ignores those who are immune to sleep.
-// uses convinient effects
-// Midi-qol "On Use"
-// Item Damage 5d8 "No Damage"
+// sleep
+// on use pre effects
+// item damage 5d8 "No Damage"
 
 const sleepHp = await args[0].damageTotal;
 const condition = "Unconscious";

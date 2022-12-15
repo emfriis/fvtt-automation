@@ -1,4 +1,5 @@
 // ice knife
+// on use
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);

@@ -1,4 +1,5 @@
 // green-flame blade
+// on use
 
 const lastArg = args[args.length - 1];
 

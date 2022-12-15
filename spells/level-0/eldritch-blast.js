@@ -1,4 +1,5 @@
 // eldritch blast
+// on use pre attack
 
 const tokenOrActor = await fromUuid(args[0].tokenUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;

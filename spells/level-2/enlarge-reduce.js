@@ -1,3 +1,7 @@
+// enlarge reduce
+// on use pre saves
+// effect itemacro
+
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
@@ -12,9 +16,6 @@ function playerForActor(actor) {
 	return user;
 }
 
-// ItemMacro beforeSave 
-
-// beforeSave on save type save
 if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPass === "preSave") {
     for (let i = 0; i < lastArg.targetUuids.length; i++) {
         let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);

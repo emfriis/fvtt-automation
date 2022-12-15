@@ -1,4 +1,6 @@
 // hypnotic pattern
+// on use pre saves
+// effect itemacro
 
 const lastArg = args[args.length - 1];
 const target = await fromUuid(lastArg.actorUuid);

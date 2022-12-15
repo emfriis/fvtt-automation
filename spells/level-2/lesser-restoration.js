@@ -1,4 +1,5 @@
 // lesser restoration
+// on use
 
 if (args[0].tag === "OnUse" && args[0].targetUuids.length > 0) {
     const tokenOrActorTarget = await fromUuid(args[0].targetUuids[0]);

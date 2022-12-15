@@ -1,4 +1,5 @@
 // steel wind strike
+// on use pre attack
 
 const itemUuid = args[0].uuid;
 const attacks = args[0].spellLevel;
