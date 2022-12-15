@@ -1,6 +1,6 @@
 // spirit guardians
 // data.attributes.movement.all - /2
-// macro.itemMacro - @token @spellLevel @attributes.spelldc @data.details.alignment
+// macro.itemMacro - @actorUuid @spellLevel @attributes.spelldc @data.details.alignment
 // aura - enemies, 15ft, check height, apply effect, only apply current turn, only once per turn
 
 const lastArg = args[args.length - 1];

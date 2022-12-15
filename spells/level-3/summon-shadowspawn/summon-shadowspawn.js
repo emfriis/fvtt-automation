@@ -1,6 +1,7 @@
 // summon shadowspawn
 
 const lastArg = args[args.length - 1];
+const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const spellLevel = args[1];
@@ -60,7 +61,10 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
 
 if (args[0] === "on") {
     let updates = {
-        token: { "name": `Shadow Spirit (${tactor.name})` },
+        token: { 
+            "name": `Shadow Spirit (${tactor.name})`, 
+            "disposition": token.data.disposition,
+        },
         actor: { 
             "name": `Shadow Spirit (${tactor.name})`, 
             "data": { 
