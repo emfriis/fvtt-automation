@@ -13,16 +13,16 @@ function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); });
 (async () => {
     if (args[0] === "on") {
         if (token?.data?.elevation > template?.data?.flags?.levels?.elevation + 5 || token?.data?.elevation + token?.losHeight < template?.data?.flags?.levels?.elevation) {
-            await wait(500);
+            await wait(100);
             await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
             return;
         };
 
-        await wait(500);
+        await wait(100);
         const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
         if (applyDamage) await applyDamage.execute("ApplyDamage", lastArg.actorUuid, lastArg.tokenUuid, "2d4", "piercing", "magiceffect", "spelleffect");
         
-        await wait(500);
+        await wait(100);
         await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
     }; 
 })();

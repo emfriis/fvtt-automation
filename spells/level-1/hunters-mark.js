@@ -1,5 +1,4 @@
 // hunter's mark
-// needs hook for args[0] === "each" to reapply mark
 
 if (args[0].hitTargets.length === 0) return;
 if (args[0].tag === "OnUse") {

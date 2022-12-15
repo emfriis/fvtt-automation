@@ -41,13 +41,13 @@ if (args[0].tag === "OnUse" && args[0].failedSaveUuids.length > 0) {
 	});
 	suggestion = await dialog;
 	
-	const ef = await tactorTarget.effects.find(i => i.data.label === "Suggestion" && i.parent === tactor);
+	const effect = await tactorTarget.effects.find(i => i.data.label === "Suggestion" && i.parent === tactor);
     const changes = [
         { key: "flags.midi-qol.suggestion", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: suggestion, priority: 20 },
         { key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "", priority: 20 },
     ];
-	if (ef) {
-        ef.update({ changes : changes });
+	if (effect) {
+        await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, changes: changes.concat(effect.data.changes) }] });
     }
 }
 

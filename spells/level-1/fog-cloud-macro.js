@@ -15,7 +15,7 @@ function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); });
         if (VolumetricTemplates) {
             const templateTargets = VolumetricTemplates.compute3Dtemplate(template);
             if (templateTargets && !templateTargets.includes(lastArg.tokenId)) {
-                await wait (500);
+                await wait (100);
                 await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
                 return;
             };
@@ -23,7 +23,7 @@ function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); });
         const senses = tactor.data.data.attributes.senses;
         let visionRange = Math.max(senses.blindsight, senses.tremorsense, 0);
         const effectData = [{
-            changes: [{ key: "ATL.flags.perfect-vision.sightLimit", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 99 - visionRange, value: `[[Math.max(@attributes.senses.blindsight, @attributes.senses.tremorsense, 0)]]`, }, ],
+            changes: [{ key: "ATL.flags.perfect-vision.sightLimit", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 99 - visionRange, value: visionRange, }, ],
             origin: lastArg.uuid,
             disabled: false,
             label: "Fog Cloud Vision",

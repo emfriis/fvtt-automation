@@ -17,6 +17,7 @@ if (args[0].tag === "OnUse") {
     })
     let type;
     if (options.length === 0) {
+        // RETURN SPELL SLOT
         return ui.notifications.error(`The spell fizzles, No elemental damage found`);
     } else if (options.length === 1) {
         type = options[0];

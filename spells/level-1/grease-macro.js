@@ -12,7 +12,7 @@ function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); });
 
 if ((args[0] === "on" || args[0] === "each") && !tactor.effects.find(i => i.data.label === "Prone")) {
     if (token?.data?.elevation > template?.data?.flags?.levels?.elevation + 5 || token?.data?.elevation + token?.losHeight < template?.data?.flags?.levels?.elevation) {
-        await wait (500);
+        await wait (100);
         await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
         return;
     };
