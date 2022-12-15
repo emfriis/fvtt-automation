@@ -1,5 +1,5 @@
 // moonbeam
-// macro.execute - Moonbeam @spellLevel @attributes.spelldc
+// macro.execute - Moonbeam @item.level @attributes.spelldc
 // aura - all, apply effect, only apply during current turn, only trigger once per turn
 
 const lastArg = args[args.length - 1];
@@ -28,8 +28,12 @@ if (args[0] === "on") {
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
     }
 
+    let damageDice = `${args[1]}d10`;
+    if (!damageDice) return;
+    
+    await wait(500);
     let applyDamage = game.macros.find(m => m.name === "ApplyDamage");
-    if (applyDamage) await applyDamage.execute("ApplyDamage", lastArg.actorUuid, lastArg.tokenUuid, `${args[1]}d10`, "radiant", "magiceffect", "spelleffect", args[2], "con", "halfdam");
+    if (applyDamage) await applyDamage.execute("ApplyDamage", lastArg.actorUuid, lastArg.tokenUuid, damageDice, "radiant", "magiceffect", "spelleffect", args[2], "con", "halfdam");
     
     await wait (500);
     await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });

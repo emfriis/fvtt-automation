@@ -16,10 +16,14 @@ if (args[0] === "on" || args[0] === "each") {
         await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
         return;
     }
+
     let cantripDice = await args[1] !== "undefined" ? `${1 + Math.floor((args[1] + 1) / 6)}d8` : args[2] !== "undefined" ? `${1 + Math.floor((args[2] + 1) / 6)}d8` : undefined; 
-    if (!cantripDice);
+    if (!cantripDice) return;
+
+    await wait (500);
     let applyDamage = game.macros.find(m => m.name === "ApplyDamage");
     if (applyDamage) await applyDamage.execute("ApplyDamage", lastArg.actorUuid, lastArg.tokenUuid, cantripDice, "fire", "magiceffect", "spelleffect", args[3], "dex", "nodam");
+    
     await wait (500);
     await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
 }
