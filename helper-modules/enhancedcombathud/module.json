@@ -1,0 +1,110 @@
+{
+  "name": "enhancedcombathud",
+  "title": "Argon - Combat HUD",
+  "description": "It's Magic",
+  "systems": ["dnd5e"],
+  "version": "0.1",
+  "author": "theripper93, Mouse0270",
+  "authors": [
+      {
+          "name": "theripper93",
+          "email": "tsplab@gmail.com",
+          "url": "https://www.patreon.com/theripper93"
+      }, {
+        "name": "Mouse0270",
+        "email": "",
+        "url": "https://www.patreon.com/mouse0270",
+        "discord": "mouse0270#0270"
+      }
+  ],
+  "languages": [
+      {
+          "lang": "de",
+          "name": "Deutsch",
+          "path": "languages/de.json"
+      },
+      {
+          "lang": "en",
+          "name": "English",
+          "path": "languages/en.json"
+      },
+      {
+          "lang": "es",
+          "name": "Español",
+          "path": "languages/es.json"
+      },
+      {
+          "lang": "fr",
+          "name": "Français",
+          "path": "languages/fr.json"
+      },
+      {
+        "lang": "it",
+        "name": "Italiano",
+        "path": "languages/it.json"
+    },
+    {
+      "lang": "ja",
+      "name": "日本語",
+      "path": "languages/ja.json"
+    },
+    {
+        "lang": "pt-br",
+        "name": "Português (Brasil)",
+        "path": "languages/pt-br.json"
+    },
+    {
+        "lang": "ru",
+        "name": "Русский",
+        "path": "languages/ru.json"
+    },
+    {
+        "lang": "ko",
+        "name": "한국어",
+        "path": "languages/ko.json"
+    },
+    {
+        "lang": "cn",
+        "name": "中文",
+        "path": "languages/cn.json"
+    }
+  ],
+  "scripts": [
+      "./scripts/main.js",
+      "./scripts/config.js",
+      "./scripts/ExtendedCombatHud.js",
+      "./scripts/items.js"
+  ],
+  "styles": [
+      "./styles/ECH.css",
+      "./styles/CombatHUD.css",
+      "./styles/ActionHUD.css",
+      "./styles/PortraitHUD.css",
+      "./styles/Tooltip.css",
+      "./styles/highjacked-window.css",
+      "./styles/theme.css"
+  ],
+  "packs": [
+    {
+        "name": "argonmacros",
+        "label": "Argon Combat HUD Macros",
+        "path": "packs/macros.db",
+        "entity": "Macro",
+        "module": "enhancedcombathud"
+    }
+  ],
+  "minimumCoreVersion": "9",
+  "compatibleCoreVersion": "9",
+  "url": "",
+  "manifest": "",
+  "download": "",
+  "socket":true,
+  "dependencies": [
+    {
+        "name": "colorsettings"
+    },
+    {
+        "name": "lib-wrapper"
+    }
+  ]
+}

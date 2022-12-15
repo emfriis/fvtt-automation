@@ -11,16 +11,22 @@ function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); });
 
 if (args[0] === "on") {
     let sourceToken = canvas.tokens.get(args[1]);
-    if (!sourceToken || token.data.disposition === sourceToken.data.disposition || tactor.getFlag("midi-qol", "guardianTime") === `${game.combat.id}-${game.combat.round + game.combat.turn /100}`) return;
-    await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: lastArg.effectId, flags: { dae: { specialDuration: "isMoved" } } }] });
+    if (!sourceToken || token.data.disposition === sourceToken.data.disposition) return;
+    await wait(100);
+    await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: lastArg.effectId, flags: { dae: { specialDuration: ["isMoved"] } } }] });
 }
 
 if (args[0] === "off" && lastArg["expiry-reason"] === "midi-qol:isMoved") {
     let sourceToken = canvas.tokens.get(args[1]);
-    if (!sourceToken || MidiQOL.getDistance(sourceToken, token, false) > 10) return;
-    let item;
-    if (sourceToken.actor) item = sourceToken.actor.items.find(i => i.name === "Guardian of Faith Attack");
-    let options = { targetUuids: [lastArg.tokenUuid] };
-    if (item) await MidiQOL.completeItemRoll(item, options);
-    tactor.setFlag("midi-qol", "guardianTime", `${game.combat.id}-${game.combat.round + game.combat.turn /100}`);
+    if (!sourceToken) return;
+    if (tactor.getFlag("midi-qol", "guardianTime") !== `${game.combat.id}-${game.combat.round + game.combat.turn /100}` && MidiQOL.getDistance(sourceToken, token, false) <= 10) {
+        let item;
+        if (sourceToken.actor) item = sourceToken.actor.items.find(i => i.name === "Guardian of Faith Attack");
+        let options = { targetUuids: [lastArg.tokenUuid] };
+        if (item) await MidiQOL.completeItemRoll(item, options);
+        tactor.setFlag("midi-qol", "guardianTime", `${game.combat.id}-${game.combat.round + game.combat.turn /100}`);
+    } else if (MidiQOL.getDistance(sourceToken, token, false) <= 15) {
+        await wait(100);
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [lastArg.efData] });
+    }
 }
