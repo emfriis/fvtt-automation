@@ -17,7 +17,16 @@ if (args[0].tag === "OnUse") {
     })
     let type;
     if (options.length === 0) {
-        // RETURN SPELL SLOT
+        let slotLevel = tactor.data.data.spells[`spell${spellLevel}`].max > tactor.data.data.spells[`spell${spellLevel}`].value ? `spell${spellLevel}` : tactor.data.data.spells.pact.level === spellLevel && tactor.data.data.spells.pact.max > tactor.data.data.spells.pact.value ? pact : null;
+        if (slotLevel) {
+            let actorData = duplicate(tactor.data._source);
+            actorData.data.spells[`${slotLevel}`].value = actorData.data.spells[`${slotLevel}`].value + 1;
+            await tactor.update(actorData);
+        }
+        let reaction = tactor.effects.find(e => e.data.label === "Reaction");
+        if (reaction) {
+            await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [reaction.id] });
+        }
         return ui.notifications.error(`The spell fizzles, No elemental damage found`);
     } else if (options.length === 1) {
         type = options[0];
