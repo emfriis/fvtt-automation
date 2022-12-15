@@ -1,6 +1,6 @@
 // guardian of faith aura
-// GuardianOfFaith @actorUuid @attributes.spelldc
-// ignore self, check height, disable while hidden, apply effect, once per turn
+// GuardianOfFaith @token
+// ignore self, check height, apply effect
 
 const lastArg = args[args.length - 1];
 const token =  await fromUuid(lastArg.tokenUuid);
@@ -9,20 +9,18 @@ const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
-if (args[0] === "off") {
-    let source = await fromUuid(lastArg.origin);
-    console.warn(source.parent);
-    if (!source.parent.uuid || lastArg.actorUuid === source.parent.uuid) return;
-    let applyDamage = game.macros.find(m => m.name === "ApplyDamage");
-    if (applyDamage) await applyDamage.execute("ApplyDamage", source.parent.uuid, lastArg.tokenUuid, "20", "radiant", "magiceffect", "spelleffect", args[1], "dex", "halfdam");
-    
-    await wait (500);
-    await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: lastArg.actorUuid, effects: [lastArg.effectId] });
+if (args[0] === "on") {
+    let sourceToken = canvas.tokens.get(args[1]);
+    if (!sourceToken || token.data.disposition === sourceToken.data.disposition || tactor.getFlag("midi-qol", "guardianTime") === `${game.combat.id}-${game.combat.round + game.combat.turn /100}`) return;
+    await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: lastArg.effectId, flags: { dae: { specialDuration: "isMoved" } } }] });
 }
 
-if (args[0].tag === "OnUse" && args[0].macroPass === "preActiveEffects") {
-    console.warn(args);
-    if (args[0].item.data.damage.parts && args[0].item.data.damage.parts[0][1] === "radiant") {
-        console.warn("in");
-    }
+if (args[0] === "off" && lastArg["expiry-reason"] === "midi-qol:isMoved") {
+    let sourceToken = canvas.tokens.get(args[1]);
+    if (!sourceToken || MidiQOL.getDistance(sourceToken, token, false) > 10) return;
+    let item;
+    if (sourceToken.actor) item = sourceToken.actor.items.find(i => i.name === "Guardian of Faith Attack");
+    let options = { targetUuids: [lastArg.tokenUuid] };
+    if (item) await MidiQOL.completeItemRoll(item, options);
+    tactor.setFlag("midi-qol", "guardianTime", `${game.combat.id}-${game.combat.round + game.combat.turn /100}`);
 }

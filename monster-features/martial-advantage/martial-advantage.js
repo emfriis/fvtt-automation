@@ -23,6 +23,7 @@ try {
       let nearbyAlly = canvas.tokens.placeables.filter(t => {
         let nearby = (
           t.actor &&
+          !(t.actor.data.data.details?.type?.value?.length < 3) && // is a creature
           t.actor?.uuid !== args[0].actorUuid && // not me
           t.actor?.id !== target.actor?.id && // not the target
           t.actor?.data.data.attributes?.hp?.value > 0 && // not dead or unconscious
