@@ -1,4 +1,6 @@
 // piercer
+// effect on use pre damage
+// effect on use post damage
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 const lastArg = args[args.length - 1];
@@ -19,7 +21,7 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preDamageRoll") {
         disabled: false,
         label: "Piercer Damage Bonus"
     }];
-    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: effectData });
+    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
 }
 
 if (args[0].tag === "OnUse" && args[0].macroPass === "postDamageRoll") {

@@ -45,6 +45,43 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 let tactor = token.actor ? token.actor : token;
 		        if (!tactor) continue;
 
+                // rage
+                if (attackWorkflow[a].appliedDamage > 0 && tactor.effects.find(e => e.data.label === "Rage")) {
+                    try {
+                        console.warn("Rage activated");
+                        const rollData = tactor.getRollData();
+                        const barbarian = rollData?.classes?.barbarian?.levels;
+                        if (barbarian && barbarian < 15) {
+                            if (!tactor.data.flags["midi-qol"].rageDamaged) await tactor.setFlag("midi-qol", "rageDamaged", 1);
+                        } 
+                        if (barbarian && barbarian >= 11 && tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0) {
+                            const relentlessDC = getProperty(tactor.data.flags, "midi-qol.relentlessDC") ?? 10;
+                            let player = await playerForActor(tactor);
+                            let socket;
+                            if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
+                            let useFeat = false;
+                            if (game.modules.get("user-socket-functions").active) useFeat = await socket.executeAsUser("useDialog", player.id, { title: `Relentless Rage`, content: `Use Relentless Rage to survive grievous wounds?` });
+                            if (useFeat) {
+                                tactor.update({"data.attributes.hp.value" : 1});
+                                let relentless = tactor.effects.find(i => i.data.label === "Relentless Rage DC");
+                                if (relentless) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [relentless.id] });
+                                const effectData2 = {
+                                    changes: [{ key: "flags.midi-qol.relentlessDC", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: `${relentlessDC + 5}`, priority: 20 }],
+                                    disabled: false,
+                                    flags: { dae: { specialDuration: ["shortRest", "longRest"] } },
+                                    label: "Relentless Rage DC",
+                                };
+                                await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData2] });
+                                let effect = tactor.effects.find(i => i.data.label === "Unconscious");
+                                if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                                console.warn("Relentless Rage used");
+                            }
+                        }
+                    } catch(err) {
+                        console.error("Rage error", err);
+                    }
+                }   
+
                 // undead fortitude
                 if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.items.find(i => i.name === "Undead Fortitude")) {
                     try {
@@ -82,17 +119,17 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         console.warn("Relentless Endurance activated");
                         let featItem = await tactor.items.find(i => i.name === "Relentless Endurance");
                         let player = await playerForActor(tactor);
-                                let socket;
-                                if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
-                                let useFeat = false;
-                                if (game.modules.get("user-socket-functions").active) useFeat = await socket.executeAsUser("useDialog", player.id, { title: `Relentless Endurance`, content: `Use Relentless Endurance to survive grievous wounds?` });
-                                if (useFeat) {
-                                tactor.update({"data.attributes.hp.value" : 1});
-                                    featItem.update({"data.uses.value" : featItem.data.data.uses.value - 1});
-                                    let effect = tactor.effects.find(i => i.data.label === "Unconscious");
-                                    if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                        let socket;
+                        if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
+                        let useFeat = false;
+                        if (game.modules.get("user-socket-functions").active) useFeat = await socket.executeAsUser("useDialog", player.id, { title: `Relentless Endurance`, content: `Use Relentless Endurance to survive grievous wounds?` });
+                        if (useFeat) {
+                        tactor.update({"data.attributes.hp.value" : 1});
+                            featItem.update({"data.uses.value" : featItem.data.data.uses.value - 1});
+                            let effect = tactor.effects.find(i => i.data.label === "Unconscious");
+                            if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                             console.warn("Relentless Endurance used");
-                                }
+                        }
                     } catch(err) {
                         console.error("Relentless Endurance error", err);
                     }
@@ -140,7 +177,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
 
                 // damaged attempt removal
                 // spelldc,abil/save,type,advantage
-                if (tactor.data.flags["midi-qol"].damagedattemptremoval && attackWorkflow[a].appliedDamage > 0) {
+                if (tactor.data.flags["midi-qol"].damagedAttemptRemoval && attackWorkflow[a].appliedDamage > 0) {
                     try {
                         console.warn("Damaged Attempt Removal activated");
                         const effects = tactor.effects.filter(e => e.data.changes.find(c => c.key === "flags.midi-qol.damagedAttemptRemoval"));

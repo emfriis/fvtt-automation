@@ -1,3 +1,6 @@
+// thrown weapon fighting
+// damage bonus
+
 if (args[0].tag === "DamageBonus" && args[0].hitTargets.length > 0) {
 	if (!["rwak", "mwak"].includes(args[0].item.data.actionType) || !args[0].itemData.data.properties?.thr) return {}; // thrown weapon attack
 	const token = canvas.tokens.get(args[0].tokenId);

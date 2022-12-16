@@ -1,3 +1,6 @@
+// two weapon fighting
+// on use
+
 const lastArg = args[args.length - 1];
 
 function weaponAttack(caster, sourceItemData, origin, target) {

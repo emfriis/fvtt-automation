@@ -1,4 +1,5 @@
 // dueling
+// damage bonus
 
 const tokenOrActor = await fromUuid(args[0].actorUuid);
 const tactor = tokenOrActor.actor ?? tokenOrActor;
