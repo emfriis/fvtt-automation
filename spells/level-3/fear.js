@@ -1,5 +1,4 @@
 // fear
-// on use pre save
 // effect itemacro
 
 const lastArg = args[args.length - 1];
@@ -15,7 +14,7 @@ function canSee(token, target) {
     let inLight = _levels?.advancedLOSCheckInLight(target);
     if (!inLight) {
         let vision = Math.min((token.data.flags["perfect-vision"].sightLimit ? token.data.flags["perfect-vision"].sightLimit : 9999), Math.max(token.data.dimSight, token.data.brightSight));
-	  if (vision < MidiQOL.getDistance(token, target, false)) canSeeLight = false;
+	    if (vision < MidiQOL.getDistance(token, target, false)) canSeeLight = false;
     }
     let canSee = canSeeCV && canSeeLOS && canSeeLight;
     return canSee;
@@ -37,27 +36,7 @@ async function attemptRemoval(getResist) {
 
 if (args[0] === "each" && lastArg.efData.disabled === false) {
     if (token && sourceToken && !canSee(token, sourceToken)) { 
-        const resist = ["Brave", "Fear Resilience", "Magic Resistance", "Magic Resilience", "Spell Resistance", "Spell Resilience"];
-        const getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
+        const getResist = tactor.data.flags["midi-qol"]?.resilience?.frightened || tactor.data.flags["midi-qol"]?.spellResistance || tactor.data.flags["midi-qol"]?.magicResistance?.all || tactor.data.flags["midi-qol"]?.magicResistance?.wis;
         attemptRemoval(getResist);
-    }
-}
-
-if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPass === "preSave") {
-    const resist = ["Brave", "Fear Resilience"];
-    for (let i = 0; i < lastArg.targetUuids.length; i++) {
-        let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
-        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-        let getResist = tactorTarget.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));
-        if (getResist) {
-            const effectData = {
-                changes: [{ key: "flags.midi-qol.advantage.ability.save.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, }],
-                disabled: false,
-                flags: { dae: { specialDuration: ["isSave"] } },
-                icon: args[0].item.img,
-                label: `${args[0].item.name} Save Advantage`,
-            };
-            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
-        }
     }
 }

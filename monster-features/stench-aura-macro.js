@@ -10,8 +10,7 @@ if (getProperty(tactor.data.flags, "midi-qol.stenchImmunity")?.includes(caster.n
 if (args[0] === "each") {
     const targetUuid = lastArg.actorUuid;
     const dc = 10;
-    const resist = ["Dwarven Resilience", "Duergar Resilience", "Stout Resilience", "Poison Resilience"];
-    let getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
+    const getResist = tactor.data.flags["midi-qol"]?.resilience?.poisoned;
     const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
     const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "save", targetUuid: targetUuid, ability: "con", options: rollOptions });
     if (game.dice3d) game.dice3d.showForRoll(roll);
