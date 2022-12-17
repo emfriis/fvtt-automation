@@ -201,49 +201,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                             const condition = effects[e].data.label;
                             const origin = await fromUuid(effects[e].data.origin);
                             let getResist = false;
-                            if (removalData[1] === "save" && removalData[3] !== "advantage") {
-                                let resist = [];
-                                switch(condition) {
-                                    case "Blinded":
-                                        resist.push("Blindness Resilience");
-                                        break;
-                                    case "Charmed": 
-                                        resist.push("Fey Ancestry", "Duergar Reslience", "Charm Resilience");
-                                        break;
-                                    case "Deafened":
-                                        resist.push("Deafness Resilience");
-                                        break;
-                                    case "Frightened":
-                                        resist.push("Brave", "Fear Resilience");
-                                        break;
-                                    case "Grappled":
-                                        resist.push("Grapple Resilience");
-                                        break;
-                                    case "Incapacitated":
-                                        resist.push("Incapacitation Resilience");
-                                        break;
-                                    case "Paralyzed":
-                                        resist.push("Duergar Resilience", "Paralysis Resilience");
-                                        break;
-                                    case "Poisoned":
-                                        resist.push("Dwarven Resilience", "Duergar Resilience", "Stout Resilience", "Poison Resilience");
-                                        break;
-                                    case "Prone":
-                                        resist.push("Sure-Footed", "Prone Resilience");
-                                        break;
-                                    case "Restrained":
-                                        resist.push("Restraint Resilience");
-                                        break;
-                                    case "Stunned":
-                                        resist.push("Stun Resilience");
-                                }
-                                if (origin?.data?.type === "spell") {
-                                    resist.push("Spell Resilience", "Spell Resistance", "Magic Resilience", "Magic Resistance");
-                                } else if (origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect) {
-                                    resist.push("Magic Resilience", "Magic Resistance");
-                                }
-                                getResist = tactor.items.find(i => resist.includes(i.name)) || tactor.effects.find(i => resist.includes(i.data.label));
-                            }
+                            if (removalData[1] === "save") getResist = tactor.data.flags["midi-qol"]?.resilience[condition.toLowerCase()] || ((origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect) && (targetActor.data.flags["midi-qol"]?.magicResistance.all || targetActor.data.flags["midi-qol"]?.magicResistance[args[2]])) || ((origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect) && targetActor.data.flags["midi-qol"].spellResistance);
                             const player = await playerForActor(tactor);
                             const rollOptions = getResist || removalData[3] === "advantage" ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
                             const roll = await MidiQOL.socket().executeAsUser("rollAbility", player.id, { request: removalData[1], targetUuid: tactor.uuid, ability: removalData[2], options: rollOptions }); 
