@@ -35,6 +35,17 @@ Hooks.on("Actor5e.preRollSkill", async (actor, rollData, abilityId) => {
                 console.error("Frightened error", err);
             }
         }
+
+        // remarkable athlete
+        if (actor.data.flags["midi-qol"].remarkableAthlete && ["ath", "acr", "slt", "ste"].includes(abilityId) && !actor.data.data.skills[abilityId].proficient) {
+            try {
+                console.warn("Remarkable Athelete activated");
+                rollData.parts.push(`${Math.ceil(actor.data.data.attributes.prof / 2)}`);
+                console.warn("Remarkable Athelete used");
+            } catch(err) {
+                console.error("Remarkable Athelete error", err);
+            }
+        }
     } catch (err) {
         console.error("preRollSkill error", err);
     }

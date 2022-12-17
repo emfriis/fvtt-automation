@@ -37,23 +37,13 @@ Hooks.on("Actor5e.preRollAbilityTest", async (actor, rollData, abilityId) => {
         }
 
         // remarkable athlete
-        if (actor.data.flags["midi-qol"].remarkableAthlete) {
+        if (actor.data.flags["midi-qol"].remarkableAthlete && ["con", "dex", "str"].includes(abilityId)) {
             try {
-                console.warn("Frightened activated");
-                const token = actor?.token ?? canvas.tokens.placeables.find(t => t.actor.uuid === actor?.uuid);
-                if (token) {
-                    const seeFear = canvas.tokens.placeables.find(async p => 
-                        p?.actor && // exists
-                        actor.data.flags["midi-qol"].fear.includes(p.actor.uuid) && // is fear source
-                        await canSee(workflow.token, p) // can see los
-                    );
-                    if (seeFear) {
-                        rollData.disadvantage = true;
-                        console.warn("Frightened used");
-                    }
-                }
+                console.warn("Remarkable Athelete activated");
+                rollData.parts.push(`${Math.ceil(actor.data.data.attributes.prof / 2)}`);
+                console.warn("Remarkable Athelete used");
             } catch(err) {
-                console.error("Frightened error", err);
+                console.error("Remarkable Athelete error", err);
             }
         }
     } catch (err) {
