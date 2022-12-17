@@ -1,13 +1,12 @@
 // divine smite
-// requires MIDI-QOL
+// damage bonus
 
 try {
 
-    if (!["mwak"].includes(args[0].itemData.data.actionType)) return {}; // melee weapon attack
-    if (args[0].hitTargets.length < 1) return {};
+    if (!["mwak"].includes(args[0].item.data.actionType)) return; // melee weapon attack
     token = canvas.tokens.get(args[0].tokenId);
     actor = token.actor;
-    if (!actor || !token || args[0].hitTargets.length < 1) return {};
+    if (!actor || !token || args[0].hitTargets.length < 1) return;
     let target = canvas.tokens.get(args[0].hitTargets[0].id ?? args[0].hitTargets[0]._id);
     if (!target) console.error("No target for Divine Smite found");
     

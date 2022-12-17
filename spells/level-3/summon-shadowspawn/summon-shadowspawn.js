@@ -12,9 +12,7 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     let ef = tactor.effects.find(i => i.data.label === "Summon Shadowspawn");
     let summonUuid = spawnedTokenDoc.uuid;
     if (ef) {
-        let changes = [
-            { key: "flags.dae.deleteUuid", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: summonUuid, priority: 20, }
-        ];
+        let changes = [{ key: "flags.dae.deleteUuid", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: summonUuid, priority: 20, }];
         await ef.update({ changes: changes.concat(ef.data.changes) });
     }
     let effectData = {
