@@ -43,7 +43,7 @@ if (args[0].tag === "OnUse") {
         `;
         let dialog = new Promise((resolve, reject) => {
             new Dialog({
-                title: "Absorb Elements: Choose a damage type to resist",
+                title: "Absorb Elements: Choose a Damage Type",
                 content,
                 buttons: {
                     Ok: {

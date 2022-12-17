@@ -38,72 +38,28 @@ try {
     }
     const targetTokenOrActor = await fromUuid(targetUuid);
     const targetActor = targetTokenOrActor.actor ? targetTokenOrActor.actor : targetTokenOrActor;
-
-    if (args[2] === "save") {
-        let resist = [];
-        switch(args[3]) {
-            case "Blinded":
-                resist.push("Blindness Resilience");
-                break;
-            case "Charmed": 
-                resist.push("Fey Ancestry", "Duergar Reslience", "Charm Resilience");
-                break;
-            case "Deafened":
-                resist.push("Deafness Resilience");
-                break;
-            case "Frightened":
-                resist.push("Brave", "Fear Resilience");
-                break;
-            case "Grappled":
-                resist.push("Grapple Resilience");
-                break;
-            case "Incapacitated":
-                resist.push("Incapacitation Resilience");
-                break;
-            case "Paralyzed":
-                resist.push("Duergar Resilience", "Paralysis Resilience");
-                break;
-            case "Poisoned":
-                resist.push("Dwarven Resilience", "Duergar Resilience", "Stout Resilience", "Poison Resilience");
-                break;
-            case "Prone":
-                resist.push("Sure-Footed", "Prone Resilience");
-                break;
-            case "Restrained":
-                resist.push("Restraint Resilience");
-                break;
-            case "Stunned":
-                resist.push("Stun Resilience");
+    const getResist = targetActor.data.flags["midi-qol"]?.resilience[args[3].toLowerCase()] || (args[8] === "magiceffect" && (targetActor.data.flags["midi-qol"]?.magicResistance.all || targetActor.data.flags["midi-qol"]?.magicResistance[args[5]])) || (args[9] === "spelleffect" && targetActor.data.flags["midi-qol"].spellResistance);
+    const targetPlayer = await playerForActor(targetActor);
+    const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
+    const roll = await MidiQOL.socket().executeAsUser("rollAbility", targetPlayer.id, { request: "save", targetUuid: targetActor.uuid, ability: args[5], options: rollOptions }); 
+    if (game.dice3d) game.dice3d.showForRoll(roll);
+    if (roll.total < args[4]) {
+        const effectData = {
+            changes: [
+                { key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Convenient Effect: ${args[3]}`, priority: 20, }
+            ],
+            duration: null,
+            disabled: false,
+            origin: (args[12] ?? null),
+            flags: { dae: { macroRepeat: null, specialDuration: null } }
         }
-        if (args[9] === "spelleffect") {
-            resist.push("Spell Resilience", "Spell Resistance", "Magic Resilience", "Magic Resistance");
-        } else if (args[8] === "magiceffect") {
-            resist.push("Magic Resilience", "Magic Resistance");
+        if (args[6]) effectData.duration = { seconds: args[6] };
+        if (args[7]) effectData.flags.dae.specialDuration = args[7];
+        if (args[10]) {
+            effectData.changes.push({ key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `AttemptRemoval ${args[10].replaceAll(",", " ")}`, priority: 20, });
+            if (args[11]) effectData.flags.dae.macroRepeat = args[11];
         }
-        const getResist = targetActor.items.find(i => resist.includes(i.name)) || targetActor.effects.find(i => resist.includes(i.data.label));
-
-        const targetPlayer = await playerForActor(targetActor);
-        const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
-        const roll = await MidiQOL.socket().executeAsUser("rollAbility", targetPlayer.id, { request: "save", targetUuid: targetActor.uuid, ability: args[5], options: rollOptions }); 
-        if (game.dice3d) game.dice3d.showForRoll(roll);
-        if (roll.total < args[4]) {
-            const effectData = {
-                changes: [
-                    { key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Convenient Effect: ${args[3]}`, priority: 20, }
-                ],
-                duration: null,
-                disabled: false,
-                origin: (args[12] ?? null),
-                flags: { dae: { macroRepeat: null, specialDuration: null } }
-            }
-            if (args[6]) effectData.duration = { seconds: args[6] };
-            if (args[7]) effectData.flags.dae.specialDuration = args[7];
-            if (args[10]) {
-                effectData.changes.push({ key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `AttemptRemoval ${args[10].replaceAll(",", " ")}`, priority: 20, });
-                if (args[11]) effectData.flags.dae.macroRepeat = args[11];
-            }
-            await targetActor.createEmbeddedDocuments("ActiveEffect", [effectData]);
-        }
+        await targetActor.createEmbeddedDocuments("ActiveEffect", [effectData]);
     }
 } catch (err) {
     console.error("ApplyCondition error", err);

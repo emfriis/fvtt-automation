@@ -35,28 +35,6 @@ try {
     } else {
         targetUuid = args[2];
     }
-    const targetTokenOrActor = await fromUuid(targetUuid);
-    const targetActor = targetTokenOrActor.actor ? targetTokenOrActor.actor : targetTokenOrActor;
-
-    if (args[7]) {
-        let resist = [];
-        if (args[4].toLowerCase === "poison") resist.push("Dwarven Resilience", "Duergar Resilience", "Stout Resilience", "Poison Resilience");
-        if (args[6] === "spelleffect") {
-            resist.push("Spell Resilience", "Spell Resistance", "Magic Resilience", "Magic Resistance");
-        } else if (args[5] === "magiceffect") {
-            resist.push("Magic Resilience", "Magic Resistance");
-        }
-        const getResist = targetActor.items.find(i => resist.includes(i.name)) || targetActor.effects.find(i => resist.includes(i.data.label));
-        if (getResist) {
-            const effectData = {
-                changes: [{ key: "flags.midi-qol.advantage.ability.save.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, }],
-                disabled: false,
-                flags: { dae: { specialDuration: ["isSave"] } },
-                label: "Damage Save Advantage",
-            }
-            await targetActor.createEmbeddedDocuments("ActiveEffect", [effectData]);
-        }
-    }
 
     const itemData = {
         name: `${args[4].charAt(0).toUpperCase() + args[4].slice(1)} Damage`,

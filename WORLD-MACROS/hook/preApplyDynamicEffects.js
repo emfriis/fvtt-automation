@@ -175,6 +175,21 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                     }
                 }
 
+                // elemental bane
+                if (tactor.data.flags["midi-qol"].elementalBane && attackWorkflow[a].appliedDamage > 0 && !tactor.data.data.traits.di.value.includes(tactor.data.flags["midi-qol"].elementalBane?.toLowerCase())) {
+                    try {
+                        console.warn("Elemental Bane activated");
+                        if (game.combat && tactor.data.flags["midi-qol"].baneTime !== `${game.combat.id}-${game.combat.round + game.combat.turn / 100}` && attackWorkflow[a].damageDetail.find(d => Array.isArray(d) && d[0].type === tactor.data.flags["midi-qol"].elementalBane?.toLowerCase())) {
+                            await tactor.setFlag("midi-qol", "baneTime", `${game.combat.id}-${game.combat.round + game.combat.turn / 100}`);
+                            const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
+                            if (applyDamage) await applyDamage.execute("ApplyDamage", tactor.uuid, token.uuid, "2d6", tactor.data.flags["midi-qol"].elementalBane?.toLowerCase(), "magiceffect", "spelleffect");
+                            console.warn("Elemental Bane used");
+                        }
+                    } catch(err) {
+                        console.error("Elemental Bane error", err);
+                    }
+                }
+
                 // damaged attempt removal
                 // spelldc,abil/save,type,advantage
                 if (tactor.data.flags["midi-qol"].damagedAttemptRemoval && attackWorkflow[a].appliedDamage > 0) {
