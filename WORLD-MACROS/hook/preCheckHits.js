@@ -87,7 +87,7 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
             }
 
             // mirror image
-            if (tactor.effects.find(e => e.data.label === "Mirror Image")) {
+            if (tactor.data.flags["midi-qol"].mirrorImage) {
                 try {
                     console.warn("Mirror Image activated");
                     const senses = workflow.actor.data.data.attributes.senses;

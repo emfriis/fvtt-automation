@@ -86,7 +86,7 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
             }
 
             // sanctuary
-            if (tactor.effects.find(e => e.data.label === "Sanctuary")) {
+            if (tactor.data.flags["midi-qol"].sanctuary) {
                 try {
                     console.warn("Sanctuary activated");
                     const isAttack = ["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType);

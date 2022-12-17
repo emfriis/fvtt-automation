@@ -3,7 +3,7 @@
 Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
     try {
         // danger sense
-        if (!rollData.advantage && actor.effects.find(e => e.data.label === "Danger Sense") && !actor.effects.find(e => ["Blinded", "Deafened", "Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label))) {
+        if (abilityId === "dex" && !rollData.advantage && actor.data.flags["midi-qol"].dangerSense && !actor.effects.find(e => ["Blinded", "Deafened", "Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label))) {
             try {
                 console.warn("Danger Sense activated");
                 rollData.advantage = true;

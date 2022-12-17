@@ -34,8 +34,8 @@ if (nearbyAllyGoblins.length < 1) {
     ui.notifications.warn("No nearby Goblins found");
     return;
 } else if (nearbyAllyGoblins.length === 1) {
-    attackWorkflow?.targets.delete(token);
     attackWorkflow?.targets.add(nearbyAllyGoblins[0]);
+    attackWorkflow?.targets.delete(token);
     let hook = Hooks.on("midi-qol.preDamageRoll", workflow => {
         if (workflow.uuid === attackWorkflow.uuid) {
             workflow?.hitTargets.delete(token);
@@ -109,8 +109,8 @@ let dialog = new Promise(async (resolve, reject) => {
                 callback: async () => {
                     const selectedId = $("input[type='radio'][name='target']:checked").val();
                     const newTarget = canvas.tokens.get(selectedId);
-                    attackWorkflow?.targets.delete(token);
                     attackWorkflow?.targets.add(newTarget);
+                    attackWorkflow?.targets.delete(token);
                     let hook = Hooks.on("midi-qol.preDamageRoll", workflow => {
                         if (workflow.uuid === attackWorkflow.uuid) {
                             workflow?.hitTargets.delete(token);

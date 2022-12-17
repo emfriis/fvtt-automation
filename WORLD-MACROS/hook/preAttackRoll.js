@@ -50,7 +50,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
         }
 
 	  // frightened
-        if (!workflow.disadvantage && workflow.actor.effects.find(e => e.data.label === "Frightened") && workflow.actor.data.flags["midi-qol"].fear) {
+        if (!workflow.disadvantage && workflow.actor.data.flags["midi-qol"].fear) {
             try {
                 console.warn("Frightened activated");
                 const seeFear = canvas.tokens.placeables.find(async p => 
@@ -102,7 +102,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
             }
 
             // protection from evil and good
-            if (!workflow.disadvantage && tactor.effects.find(e => e.data.label === "Protection from Evil and Good")) {
+            if (!workflow.disadvantage && tactor.data.flags["midi-qol"].protectionFromEvilAndGood) {
                 try {
                     console.warn("Protection from Evil and Good activated");
                     const types = ["aberration", "celestial", "elemental", "fey", "fiends", "undead"];
@@ -116,7 +116,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
             }
 
             // blur
-            if (!workflow.disadvantage && tactor.effects.find(e => e.data.label === "Blur")) {
+            if (!workflow.disadvantage && tactor.data.flags["midi-qol"].blur) {
                 try {
                     console.warn("Blur activated");
                     const senses = workflow.actor.data.data.attributes.senses;
@@ -137,7 +137,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                             p?.actor && // exists
                             p.actor.uuid !== workflow.token.actor.uuid && // not attacker
                             p.actor.uuid !== token.actor.uuid && // not target
-                            p.actor.items.find(i => i.data.name === "Fighting Style: Protection") && // has feature
+                            p.actor.data.flags["midi-qol"].protection && // has feature
                             p.actor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data.equipped) && // shield equipped
                             !p.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].includes(e.data.label)) && // can react
                             canSee(p, workflow.token) // can see attacker

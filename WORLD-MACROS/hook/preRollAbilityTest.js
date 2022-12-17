@@ -16,7 +16,28 @@ function canSee(token, target) {
 Hooks.on("Actor5e.preRollAbilityTest", async (actor, rollData, abilityId) => {
     try {
         // frightened
-        if (!rollData.disadvantage && actor.effects.find(e => e.data.label === "Frightened") && actor.data.flags["midi-qol"].fear) {
+        if (!rollData.disadvantage && actor.data.flags["midi-qol"].fear) {
+            try {
+                console.warn("Frightened activated");
+                const token = actor?.token ?? canvas.tokens.placeables.find(t => t.actor.uuid === actor?.uuid);
+                if (token) {
+                    const seeFear = canvas.tokens.placeables.find(async p => 
+                        p?.actor && // exists
+                        actor.data.flags["midi-qol"].fear.includes(p.actor.uuid) && // is fear source
+                        await canSee(workflow.token, p) // can see los
+                    );
+                    if (seeFear) {
+                        rollData.disadvantage = true;
+                        console.warn("Frightened used");
+                    }
+                }
+            } catch(err) {
+                console.error("Frightened error", err);
+            }
+        }
+
+        // remarkable athlete
+        if (actor.data.flags["midi-qol"].remarkableAthlete) {
             try {
                 console.warn("Frightened activated");
                 const token = actor?.token ?? canvas.tokens.placeables.find(t => t.actor.uuid === actor?.uuid);

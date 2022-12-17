@@ -83,7 +83,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 }   
 
                 // undead fortitude
-                if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.items.find(i => i.name === "Undead Fortitude")) {
+                if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.data.flags["midi-qol"].undeadFortitude) {
                     try {
                         console.warn("Undead Fortitude activated");
                             if (!attackWorkflow[a].damageDetail.find(d => Array.isArray(d) && d[0].type === "radiant") && !workflow.isCritical) {
@@ -98,11 +98,11 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                     }
 
                 // relentless
-                if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.items.find(i => i.name === "Relentless")) {
+                if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.data.flags["midi-qol"].relentless) {
                     try {
                         console.warn("Relentless activated");
                         let featItem = await tactor.items.find(i => i.name === "Relentless");
-                        let damageThreshold = Math.ceil(tactor.data.data.details?.cr * 2 + 6);
+                        let damageThreshold = parseInt(tactor.data.flags["midi-qol"].relentless) ?? Math.ceil(tactor.data.data.details?.cr * 2 + 6);
                             if (featItem && featItem.data.data.uses.value && featItem.data.data.uses.value > 0 && damageThreshold && attackWorkflow[a].appliedDamage <= damageThreshold) {
                                 tactor.update({"data.attributes.hp.value" : 1});
                                 featItem.update({"data.uses.value" : featItem.data.data.uses.value - 1});
@@ -114,7 +114,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 }
 
                 // relentless endurance
-                if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.items.find(i => i.name === "Relentless Endurance")) {
+                if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.data.flags["midi-qol"].relentlessEndurance) {
                     try {
                         console.warn("Relentless Endurance activated");
                         let featItem = await tactor.items.find(i => i.name === "Relentless Endurance");
@@ -162,7 +162,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 }
 
                 // armor of agathys
-                if (tactor.effects.find(e => e.data.label === "Armor of Agathys")) {
+                if (tactor.data.flags["midi-qol"].armorOfAgathys) {
                     try {
                         console.warn("Armor of Agathys activated");
                         if (tactor.data.data.attributes.hp.temp === 0 || (attackWorkflow[a].newTemp > attackWorkflow[a].oldTemp)) {
