@@ -38,7 +38,7 @@ try {
     }
     const targetTokenOrActor = await fromUuid(targetUuid);
     const targetActor = targetTokenOrActor.actor ? targetTokenOrActor.actor : targetTokenOrActor;
-    const getResist = targetActor.data.flags["midi-qol"]?.resilience[args[3].toLowerCase()] || (args[8] === "magiceffect" && (targetActor.data.flags["midi-qol"]?.magicResistance.all || targetActor.data.flags["midi-qol"]?.magicResistance[args[5]])) || (args[9] === "spelleffect" && targetActor.data.flags["midi-qol"].spellResistance);
+    const getResist = targetActor.data.flags["midi-qol"]?.resilience[args[3].toLowerCase()] || (args[8] === "magiceffect" && targetActor.data.flags["midi-qol"]?.magicResistance && (targetActor.data.flags["midi-qol"]?.magicResistance?.all || targetActor.data.flags["midi-qol"]?.magicResistance[args[5]])) || (args[9] === "spelleffect" && targetActor.data.flags["midi-qol"].spellResistance);
     const targetPlayer = await playerForActor(targetActor);
     const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
     const roll = await MidiQOL.socket().executeAsUser("rollAbility", targetPlayer.id, { request: "save", targetUuid: targetActor.uuid, ability: args[5], options: rollOptions }); 
@@ -51,7 +51,7 @@ try {
             duration: null,
             disabled: false,
             origin: (args[12] ?? null),
-            flags: { dae: { macroRepeat: null, specialDuration: null } }
+            flags: { dae: { macroRepeat: null, specialDuration: null }, magiceffect: args[8] ?? false, spelleffect: args[9] ?? false, }
         }
         if (args[6]) effectData.duration = { seconds: args[6] };
         if (args[7]) effectData.flags.dae.specialDuration = args[7];

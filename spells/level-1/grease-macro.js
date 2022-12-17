@@ -16,8 +16,11 @@ if ((args[0] === "on" || args[0] === "each") && !tactor.effects.find(i => i.data
         await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
         return;
     };
-    const applyCondition = game.macros.find(m => m.name === "ApplyCondition");
-    if (applyCondition) await applyCondition.execute("ApplyCondition", lastArg.tokenUuid, "save", "Prone", args[1], "dex", "", "", "magiceffect", "spelleffect");
+    if (!args[1]) return;
+    if (!tactor.effects.find(e => e.data.label === "Prone")) {
+        const applyCondition = game.macros.find(m => m.name === "ApplyCondition");
+        if (applyCondition) await applyCondition.execute("ApplyCondition", lastArg.tokenUuid, "save", "Prone", args[1], "dex", "", "", "magiceffect", "spelleffect");
+    }
 };
 
 /*
