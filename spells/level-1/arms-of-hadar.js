@@ -10,7 +10,7 @@ if (args[0].tag == "OnUse") {
             let targetToken = await fromUuid(targetUuid);
             let targetActor = targetToken.actor ?? targetToken._actor;
             const hasEffectApplied = await game.dfreds.effectInterface.hasEffectApplied("Reaction", targetUuid );
-            if (!hasEffectApplied) {
+            if (!hasEffectApplied && game.combat) {
                 game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: targetActor.uuid });
             }
         }

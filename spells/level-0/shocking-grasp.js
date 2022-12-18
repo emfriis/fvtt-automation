@@ -25,7 +25,7 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
 		let tokenOrActorTarget = await fromUuid(targetUuid);
 		let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
 		const hasEffectApplied = await game.dfreds.effectInterface.hasEffectApplied("Reaction", targetUuid );
-		if (!hasEffectApplied) {
+		if (!hasEffectApplied && game.combat) {
 			game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: tactorTarget.uuid });
 		}
 	}
