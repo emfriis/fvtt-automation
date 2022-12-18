@@ -44,7 +44,7 @@ if (lastArg.tag === "DamageBonus") {
     let effectData = [{
         changes: [
             { key: `macro.execute`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `AttemptRemoval ${spellDC} wis abil opt`, priority: 20 },
-            { key: `flags.midi-qol.fear`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: lastArg.actorUuid, priority: 20 },
+            { key: `flags.midi-qol.fear`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: lastArg.tokenId, priority: 20 },
             { key: `flags.dae.deleteUuid`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: conc.uuid, priority: 20 }
         ],
         origin: spellUuid,

@@ -27,6 +27,10 @@ async function applyBurst(actor, token, range, damageDice, damageType, saveDC, s
 };
 
 Hooks.on("midi-qol.RollComplete", async (workflow) => {
+
+    let socket;
+    if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
+
     try {
         let attackWorkflow;
         if (workflow.damageList) attackWorkflow = workflow.damageList.map((d) => ({ tokenUuid: d.tokenUuid, appliedDamage: d.appliedDamage, newHP: d.newHP, oldHP: d.oldHP, newTemp: d.newTemp, oldTemp: d.oldTemp, damageDetail: d.damageDetail }));
@@ -40,13 +44,12 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                 if (tactor.data.flags["midi-qol"].wildShape && tactor.isPolymorphed && tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0) {
                     try {
                         console.warn("Wild Shape activated");
-                        let socket;
-                        if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
                         const ogTokenOrActor = await fromUuid(tactor.data.flags["midi-qol"].wildShape);
                         const ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
-                        if (attackWorkflow[a].appliedDamage && attackWorkflow[a].appliedDamage > attackWorkflow[a].oldHP) await socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
+                        if (socket && attackWorkflow[a].appliedDamage && attackWorkflow[a].appliedDamage > attackWorkflow[a].oldHP)  await socket.executeAsGM("updateActor", { actorUuid: ogTactor.uuid, updates: {"data.attributes.hp.value" : ogTactor.data.data.attributes.hp.value + attackWorkflow[a].oldHP - attackWorkflow[a].appliedDamage} });
 				        const wildShape = tactor.effects.find(e => e.data.label === "Wild Shape");
                         if (wildShape) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [wildShape.id] });
+                        tactor = ogTactor;
 				        console.warn("Wild Shape used");
                     } catch(err) {
                         console.error("Wild Shape error", err);

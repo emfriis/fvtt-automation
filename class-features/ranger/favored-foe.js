@@ -9,7 +9,7 @@ try {
     if (args[0].tag !== "DamageBonus" || !["mwak","rwak"].includes(args[0].item.data.actionType) || lastArg.hitTargetUuids.length === 0) return;
     const tokenOrActorTarget = await fromUuid(lastArg.hitTargetUuids[0]);
     const tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-    if (!tactorTarget.data.flags["midi-qol"].favoredFoe?.includes(tactor.uuid)) {
+    if (!tactorTarget.data.flags["midi-qol"].favoredFoe?.includes(lastArg.tokenId)) {
         const item = tactor.items.find(i => i.name === "Favored Foe");
         if (!item || !item.data.data.uses.value) return;
         let dialog = new Promise((resolve, reject) => {
@@ -38,7 +38,7 @@ try {
             label: "Favored Foe Mark",
             icon: "icons/magic/perception/eye-ringed-glow-angry-small-red.webp",
             changes: [
-                { key: `flags.midi-qol.favoredFoe`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: tactor.uuid, priority: 20 },
+                { key: `flags.midi-qol.favoredFoe`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: lastArg.tokenId, priority: 20 },
             ],
             origin: item.uuid,
             disabled: false,

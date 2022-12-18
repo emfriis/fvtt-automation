@@ -11,13 +11,13 @@ async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms
 
 try {
     if (args[0].tag === "OnUse") {
+
         const actorData = tactor.getRollData();
         const classLevel = actorData.details.cr ?? actorData.classes.druid.levels;
         let druidCR = classLevel > 7 ? 1 : classLevel > 3 ? 0.5 : 0.25;
         const maxFly = classLevel > 7 ? 9999 : 0;
         const maxSwim = classLevel > 3 ? 9999 : 0;
         const circleForms = tactor.items.find(i => i.name === "Circle Forms");
-        const combatWildShape = tactor.items.find(i => i.name === "Combat Wild Shape");
         const primalStrike = tactor.items.find(i => i.name === "Primal Strike");
         if (circleForms) druidCR = classLevel > 5 ? Math.floor(classLevel / 3) : 1;
 
@@ -45,12 +45,44 @@ try {
                         await wait(2000);
                         let findPoly = await game.actors.find(i => i.name === `${tactor.name} (${findToken.name})`);
                         await canvas.scene.updateEmbeddedDocuments("Token", [{ "_id": getToken._id, "displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, "mirrorX": getToken.mirrorX, "mirrorY": getToken.mirrorY, "rotation": getToken.rotation, "elevation": getToken.elevation }]);
-                        
+
                         // primal strike
                         if (primalStrike) {
                             let weapons = findPoly.items.filter((i) => i.data.type === "weapon");
                             weapons.forEach((weapon) => { weapon.update({ "data.properties.mgc": true }) });
                         }
+
+                        // revert wild shape
+                        let wildShapeRevert = [{
+                            "name": "Wild Shape (Revert)",
+                            "type": "feat",
+                            "img": "icons/creatures/mammals/elk-moose-marked-green.webp",
+                            "data": {
+                                "description": { "value": "<p class=\"compendium-hr\">Starting at 2nd level, you can use your action to magically assume the shape of a beast that you have seen before. You can use this feature twice. You regain expended uses when you finish a short or long rest.</p>" },
+                                "activation": { "type": "bonus", "cost": 1 },
+                                "target": { "type": "self" },
+                                "actionType": "util",
+                                "requirements": "Druid 2"
+                            },
+                            "flags": {
+                                "itemacro": {
+                                    "macro": {
+                                        "data": {
+                                            "_id": null,
+                                            "name": "Wild Shape (Revert)",
+                                            "type": "script",
+                                            "scope": "global",
+                                            "command": "const tokenOrActor = await fromUuid(args[0].actorUuid);\nconst tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\nawait tactor.deleteEmbeddedDocuments(`ActiveEffect`, [tactor.effects.find(e => e.data.label === `Wild Shape`).id]);",
+                                        }
+                                    }
+                                },
+                                "midi-qol": {
+                                    "onUseMacroName": "[postActiveEffects]ItemMacro",
+                                    "effectActivation": false
+                                }
+                            }
+                        }];
+                        await findPoly.createEmbeddedDocuments("Item", wildShapeRevert);
 
                         // update spells
                         let keys = Object.keys(tactor.data.data.spells);
@@ -67,39 +99,45 @@ try {
                         // remove existing vision effects
                         await findPoly.deleteEmbeddedDocuments("ActiveEffect", removeEffects);
 
-                        // reload vision effects
-                        const visionEffects = findPoly.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)));
-                        await findPoly.deleteEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.id));
-                        await findPoly.createEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.data));
-                        
                         // remove duplicate effects
                         findPoly.effects.forEach(async effect => {
                             if (findPoly.effects.find(e => e.uuid !== effect.uuid && e.data.label === effect.data.label && e.data.origin.includes(tactor.uuid))) await findPoly.deleteEmbeddedDocuments("ActiveEffect", [effect.id]); 
                         });
+
+                        // reload vision effects
+                        const visionEffects = findPoly.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)));
+                        await findPoly.deleteEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.id));
+                        await findPoly.createEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.data));
 
                         // create removal effect
                         const effectData = {
                             label: "Wild Shape",
                             icon: "icons/creatures/mammals/elk-moose-marked-green.webp",
                             changes: [
-                                { key: `flags.midi-qol.wildShape`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.uuid, priority: 20 },
                                 { key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: ``, priority: 20 },
                             ],
                             origin: item.uuid,
                             disabled: false,
-                            duration: { seconds: classLevel * 3600, startTime: game.time.worldTime },
+                            duration: { seconds: Math.floor(classLevel / 2) * 3600, startTime: game.time.worldTime },
                             flags: { "dae": { itemData: lastArg.item, token: tactor.uuid, } },
                         }
                         await findPoly.createEmbeddedDocuments("ActiveEffect", [effectData]);
+
+                        // set wild shape flags
+                        await findPoly.setFlag("midi-qol", "wildShape", tactor.uuid);
+                        await findPoly.setFlag("midi-qol", "wildShapeEffects", findPoly.effects.map(e => e.id));
                     }
                 }
             },
             default: "change"
         }).render(true);
+
     } else if (args[0] === "off") {
 
-        // get concentration data
-        const concData = tactor.effects.find(e => e.data.label === "Concentrating")?.data;
+        // get transformation data
+        let wildShape = tactor.getFlag("midi-qol", "wildShape");
+        let wildShapeEffects = tactor.getFlag("midi-qol", "wildShapeEffects");
+        let newEffectsData = tactor.effects.filter(e => !e.data.flags?.ActiveAuras?.IsAura && !wildShapeEffects?.includes(e.id) && !(e.data.label === "Unconscious" && !e.data.origin)).map(e => e.data);
         const concFlag = tactor.data.flags["midi-qol"]["concentration-data"];
 
         // get spells data
@@ -117,24 +155,25 @@ try {
         if (tactor.isPolymorphed) await tactor.revertOriginalForm();
         await wait(500);
 
-        const ogTokenOrActor = await fromUuid(lastArg.efData.flags.dae.token);
+        // get original actor
+        const ogTokenOrActor = await fromUuid(wildShape);
         const ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
 
+        // add new effects
+        newEffectsData.forEach(async effectData => {
+            await Object.assign(effectData?.document?.parent, ogTactor);
+            await ogTactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+        });
+
         // update concentration
-        const conc = tactor.data.effects.find(e => e.data.label === "Concentrating");
-        if (concData) {
-            if (!conc) await ogTactor.createEmbeddedDocuments("ActiveEffect", [concData]);
-            if (concFlag) await ogTactor.setFlag("midi-qol", "concentration-data", concFlag);
-        } else {
-            if (conc) await ogTactor.deleteEmbeddedDocuments("ActiveEffect", [conc.id]);
-        }
+        if (concFlag) await ogTactor.setFlag("midi-qol", "concentration-data", concFlag);
 
         // update spells
         await ogTactor.update(spellUpdates);
 
         // update feat item uses
         ogTactor.items.forEach(async item => {
-            let match = featUses.find(f => f.name === item.name)
+            let match = featUses.find(f => f.name === item.name);
             if (match) {
                 await item.update({ "data.uses": match.uses });
             }  
@@ -144,6 +183,7 @@ try {
         const visionEffects = ogTactor.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)));
         await ogTactor.deleteEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.id));
         await ogTactor.createEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.data));
+
     }
 } catch (err) {
     console.error("Wild Shape macro error", err);

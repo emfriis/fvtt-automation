@@ -6,8 +6,8 @@ const lastArg = args[args.length - 1];
 if (args[0] === "each") {
     const sourceItem = await fromUuid(lastArg.efData.origin)
     const sourceActor = sourceItem.parent;
-    const sourceParentUuid = sourceActor.data.flags.parent;
-    if (lastArg.actorUuid === args[1] || lastArg.actorUuid === sourceParentUuid) return;
+    const sourceParentId = sourceActor.data.flags.parent;
+    if (lastArg.actorUuid === args[1] || lastArg.tokenId === sourceParentId) return;
     let effectData = {
         changes: [{ key: "data.attributes.movement.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "-20", priority: 20, }],
         label: "Weight of Sorrow",

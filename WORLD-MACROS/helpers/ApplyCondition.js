@@ -30,18 +30,18 @@ try {
     if (args[0] === "on" && args[13] !== "on") return;
     if (args[0] === "off" && args[13] !== "off") return;
 
-    let targetUuid;
+    let targetId;
     if (args[1] === "self") {
-        targetUuid = lastArg.tokenUuid;
+        targetUuid = lastArg.tokenId;
     } else {
-        targetUuid = args[1];
+        targetId = args[1];
     }
-    const targetTokenOrActor = await fromUuid(targetUuid);
-    const targetActor = targetTokenOrActor.actor ? targetTokenOrActor.actor : targetTokenOrActor;
-    const getResist = targetActor.data.flags["midi-qol"]?.resilience[args[3].toLowerCase()] || (args[8] === "magiceffect" && targetActor.data.flags["midi-qol"]?.magicResistance && (targetActor.data.flags["midi-qol"]?.magicResistance?.all || targetActor.data.flags["midi-qol"]?.magicResistance[args[5]])) || (args[9] === "spelleffect" && targetActor.data.flags["midi-qol"].spellResistance);
-    const targetPlayer = await playerForActor(targetActor);
+    const targetToken = canvas.tokens.get(targetId)
+    const targetTactor = targetToken.actor;
+    const getResist = targetTactor.data.flags["midi-qol"]?.resilience[args[3].toLowerCase()] || (args[8] === "magiceffect" && targetTactor.data.flags["midi-qol"]?.magicResistance && (targetTactor.data.flags["midi-qol"]?.magicResistance?.all || targetTactor.data.flags["midi-qol"]?.magicResistance[args[5]])) || (args[9] === "spelleffect" && targetTactor.data.flags["midi-qol"].spellResistance);
+    const targetPlayer = await playerForActor(targetTactor);
     const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
-    const roll = await MidiQOL.socket().executeAsUser("rollAbility", targetPlayer.id, { request: "save", targetUuid: targetActor.uuid, ability: args[5], options: rollOptions }); 
+    const roll = await MidiQOL.socket().executeAsUser("rollAbility", targetPlayer.id, { request: "save", targetUuid: targetTactor.uuid, ability: args[5], options: rollOptions }); 
     if (game.dice3d) game.dice3d.showForRoll(roll);
     if (roll.total < args[4]) {
         const effectData = {
@@ -59,7 +59,7 @@ try {
             effectData.changes.push({ key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `AttemptRemoval ${args[10].replaceAll(",", " ")}`, priority: 20, });
             if (args[11]) effectData.flags.dae.macroRepeat = args[11];
         }
-        await targetActor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+        await targetTactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
     }
 } catch (err) {
     console.error("ApplyCondition error", err);

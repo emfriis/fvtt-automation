@@ -24,7 +24,7 @@ try {
         const ability = args[2];
         const type = args[3];
         let getResist = false;
-        if (type === "save") getResist = targetActor.data.flags["midi-qol"]?.resilience[condition.toLowerCase()] || ((origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect) && targetActor.data.flags["midi-qol"]?.magicResistance && (targetActor.data.flags["midi-qol"]?.magicResistance?.all || targetActor.data.flags["midi-qol"]?.magicResistance[args[2]])) || ((origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect) && targetActor.data.flags["midi-qol"].spellResistance);
+        if (type === "save") getResist = (tactor.data.flags["midi-qol"]?.resilience && tactor.data.flags["midi-qol"]?.resilience[condition.toLowerCase()]) || ((origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect) && tactor.data.flags["midi-qol"]?.magicResistance && (tactor.data.flags["midi-qol"]?.magicResistance?.all || tactor.data.flags["midi-qol"]?.magicResistance[args[2]])) || ((origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect) && tactor.data.flags["midi-qol"].spellResistance);
         let options = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true }
         let attempt = false;
         if (args[4] === "opt") {

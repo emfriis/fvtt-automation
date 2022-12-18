@@ -1,8 +1,8 @@
 // apply damage macro
 // execute as gm
 // args: 
-// [1] - source actorUuid (string: [actorUuid] or "self")
-// [2] - target tokenUuid (string: [tokenUuid] or "self")
+// [1] - source tokenId (string: [tokenId] or "self")
+// [2] - target tokenId (string: [tokenId] or "self")
 // [3] - damage rollable (string: i.e., "2d6", "5", ...)
 // [4] - damage type (string: i.e., "cold", "fire", ...)
 // [5] - magic effect (string: "magiceffect" or "no" or EMPTY)
@@ -20,21 +20,23 @@ try {
 
     const lastArg = args[args.length - 1];
 
-    let sourceUuid;
+    let sourceId;
     if (args[1] === "self") {
-        sourceUuid = lastArg.actorUuid;
+        sourceId = lastArg.tokenId;
     } else {
-        sourceUuid = args[1];
+        sourceId = args[1];
     }
-    const sourceTokenOrActor = await fromUuid(sourceUuid);
-    const sourceActor = sourceTokenOrActor.actor ? sourceTokenOrActor.actor : sourceTokenOrActor;
+    const sourceToken = canvas.tokens.get(sourceId);
+    const sourceTactor = sourceToken.actor;
 
-    let targetUuid;
+    let targetId;
     if (args[2] === "self") {
-        targetUuid = lastArg.tokenUuid;
+        targetId = lastArg.tokenId;
     } else {
-        targetUuid = args[2];
+        targetId = args[2];
     }
+    const targetToken = canvas.tokens.get(targetId);
+    const targetUuid = targetToken.document.uuid;
 
     const itemData = {
         name: `${args[4].charAt(0).toUpperCase() + args[4].slice(1)} Damage`,
@@ -57,8 +59,8 @@ try {
             save: { dc: args[7], ability: args[8], scaling: "flat" },
         }
     }
-    await sourceActor.createEmbeddedDocuments("Item", [itemData]);
-    let item = await sourceActor.items.find(i => i.name === itemData.name);
+    await sourceTactor.createEmbeddedDocuments("Item", [itemData]);
+    let item = await sourceTactor.items.find(i => i.name === itemData.name);
     let options = { targetUuids: [targetUuid] };
     await MidiQOL.completeItemRoll(item, options);
     await wait(500);
@@ -66,17 +68,17 @@ try {
 } catch (err) {
     console.error("ApplyDamage error", err);
     try {
-        let sourceUuid;
+        let sourceId;
         if (args[1] === "self") {
-            sourceUuid = lastArg.actorUuid;
+            sourceId = lastArg.tokenId;
         } else {
-            sourceUuid = args[1];
+            sourceId = args[1];
         }
-        let sourceTokenOrActor = await fromUuid(sourceUuid);
-        let sourceActor = sourceTokenOrActor.actor ? sourceTokenOrActor.actor : sourceTokenOrActor;
+        const sourceToken = canvas.tokens.get(sourceId);
+        const sourceTactor = sourceToken.actor;
         await wait(500);
-        let item = await sourceActor.items.find(i => i.name === `${args[4].charAt(0).toUpperCase() + args[4].slice(1)} Damage`);
-        await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
+        let item = await sourceTactor.items.find(i => i.name === `${args[4].charAt(0).toUpperCase() + args[4].slice(1)} Damage`);
+        await sourceTactor.deleteEmbeddedDocuments("Item", [item.id]);
     } catch (err) {
         console.error("ApplyDamage error Cleanup error", err);
     }

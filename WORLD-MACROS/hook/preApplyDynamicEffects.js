@@ -12,6 +12,9 @@ function playerForActor(actor) {
 Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
 	try {
 
+        let socket;
+        if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
+
         const targets = Array.from(workflow.targets);
         for (let t = 0; t < targets.length; t++) {
             let token = targets[t];
@@ -28,7 +31,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         const thorns = effects[e].data.changes.find(c => c.key === "flags.midi-qol.thorns").value.split(",");
                         if (MidiQOL.getDistance(token, workflow.token, false) <= parseInt(thorns[0])) {
                             const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
-                            if (applyDamage) await applyDamage.execute("ApplyDamage", tactor.uuid, workflow.tokenUuid, thorns[1], thorns[2], thorns[3], thorns[4], thorns[5], thorns[6]);
+                            if (applyDamage) await applyDamage.execute("ApplyDamage", token.id, workflow.tokenId, thorns[1], thorns[2], thorns[3], thorns[4], thorns[5], thorns[6]);
                         }
                     }
                 } catch (err) {
@@ -57,10 +60,8 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         if (barbarian && barbarian >= 11 && tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0) {
                             const relentlessDC = getProperty(tactor.data.flags, "midi-qol.relentlessDC") ?? 10;
                             let player = await playerForActor(tactor);
-                            let socket;
-                            if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
                             let useFeat = false;
-                            if (game.modules.get("user-socket-functions").active) useFeat = await socket.executeAsUser("useDialog", player.id, { title: `Relentless Rage`, content: `Use Relentless Rage to survive grievous wounds?` });
+                            if (socket) useFeat = await socket.executeAsUser("useDialog", player.id, { title: `Relentless Rage`, content: `Use Relentless Rage to survive grievous wounds?` });
                             if (useFeat) {
                                 await socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
                                 let relentless = tactor.effects.find(i => i.data.label === "Relentless Rage DC");
@@ -89,9 +90,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                             if (!attackWorkflow[a].damageDetail.find(d => Array.isArray(d) && d[0].type === "radiant") && !workflow.isCritical) {
                                 const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "save", targetUuid: tactor.uuid, ability: "con", options: { chatMessage: true, fastForward: true } });
                                 if (game.dice3d) game.dice3d.showForRoll(roll);
-                                let socket;
-                                if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
-                                await socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
+                                if (socket) await socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
                                 if (roll.total >= attackWorkflow[a].appliedDamage + 5) tactor.update({"data.attributes.hp.value" : 1});
                             console.warn("Undead Fortitude used");
                         }
@@ -106,11 +105,9 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         console.warn("Relentless activated");
                         let featItem = await tactor.items.find(i => i.name === "Relentless");
                         let damageThreshold = parseInt(tactor.data.flags["midi-qol"].relentless) ?? Math.ceil(tactor.data.data.details?.cr * 2 + 6);
-                            if (featItem && featItem.data.data.uses.value && featItem.data.data.uses.value > 0 && damageThreshold && attackWorkflow[a].appliedDamage <= damageThreshold) {
-                                let socket;
-                                if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
-                                await socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
-                                await socket.executeAsGM("updateItem", { actorUuid: featItem.uuid, updates: {"data.uses.value" : featItem.data.data.uses.value - 1} });
+                        if (featItem && featItem.data.data.uses.value && featItem.data.data.uses.value > 0 && damageThreshold && attackWorkflow[a].appliedDamage <= damageThreshold) {
+                            if (socket) await socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
+                            if (socket) await socket.executeAsGM("updateItem", { actorUuid: featItem.uuid, updates: {"data.uses.value" : featItem.data.data.uses.value - 1} });
                             console.warn("Relentless used");
                         }
                     } catch(err) {
@@ -124,13 +121,11 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         console.warn("Relentless Endurance activated");
                         let featItem = await tactor.items.find(i => i.name === "Relentless Endurance");
                         let player = await playerForActor(tactor);
-                        let socket;
-                        if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
                         let useFeat = false;
-                        if (game.modules.get("user-socket-functions").active) useFeat = await socket.executeAsUser("useDialog", player.id, { title: `Relentless Endurance`, content: `Use Relentless Endurance to survive grievous wounds?` });
+                        if (socket) useFeat = await socket.executeAsUser("useDialog", player.id, { title: `Relentless Endurance`, content: `Use Relentless Endurance to survive grievous wounds?` });
                         if (useFeat) {
-                            await socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
-                            await socket.executeAsGM("updateItem", { actorUuid: featItem.uuid, updates: {"data.uses.value" : featItem.data.data.uses.value - 1} });
+                            if (socket) await socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
+                            if (socket) await socket.executeAsGM("updateItem", { actorUuid: featItem.uuid, updates: {"data.uses.value" : featItem.data.data.uses.value - 1} });
                             let effect = tactor.effects.find(i => i.data.label === "Unconscious");
                             if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                             console.warn("Relentless Endurance used");
@@ -187,7 +182,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         if (game.combat && tactor.data.flags["midi-qol"].baneTime !== `${game.combat.id}-${game.combat.round + game.combat.turn / 100}` && attackWorkflow[a].damageDetail.find(d => Array.isArray(d) && d[0].type === tactor.data.flags["midi-qol"].elementalBane?.toLowerCase())) {
                             await tactor.setFlag("midi-qol", "baneTime", `${game.combat.id}-${game.combat.round + game.combat.turn / 100}`);
                             const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
-                            if (applyDamage) await applyDamage.execute("ApplyDamage", tactor.uuid, token.uuid, "2d6", tactor.data.flags["midi-qol"].elementalBane?.toLowerCase(), "magiceffect", "spelleffect");
+                            if (applyDamage) await applyDamage.execute("ApplyDamage", tactor?.token?.id, token.id, "2d6", tactor.data.flags["midi-qol"].elementalBane?.toLowerCase(), "magiceffect", "spelleffect");
                             console.warn("Elemental Bane used");
                         }
                     } catch(err) {

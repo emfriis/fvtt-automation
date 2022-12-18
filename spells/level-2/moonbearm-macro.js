@@ -33,7 +33,7 @@ if (args[0] === "on") {
     
     await wait(100);
     let applyDamage = game.macros.find(m => m.name === "ApplyDamage");
-    if (applyDamage) await applyDamage.execute("ApplyDamage", lastArg.actorUuid, lastArg.tokenUuid, damageDice, "radiant", "magiceffect", "spelleffect", args[2], "con", "halfdam");
+    if (applyDamage) await applyDamage.execute("ApplyDamage", lastArg.tokenId, lastArg.tokenId, damageDice, "radiant", "magiceffect", "spelleffect", args[2], "con", "halfdam");
     
     await wait (100);
     await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });

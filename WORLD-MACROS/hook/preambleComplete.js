@@ -32,6 +32,10 @@ function counterSequence(source, target) {
 
 Hooks.on("midi-qol.preambleComplete", async (workflow) => {
     try { 
+
+        let socket;
+        if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
+
 	    // counterspell
 	    if (workflow.item.data.type === "spell" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(workflow.item.data.data.activation.type)) {
             try {
@@ -50,15 +54,14 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
            		for (let c = 0; c < counterTokens.length; c++) {
                     let token = counterTokens[c];
                     let player = await playerForActor(token?.actor);
-			  let counterItem = token.actor.items.find(i => 
+			        let counterItem = token.actor.items.find(i => 
                         i.name === "Counterspell" && 
                         i.type === "spell" &&
                         (       
                             ((i.data.data.preparation?.prepared || i.data.data.preparation.mode === "always" || i.data.data.preparation.mode === "pact") && Object.keys(p.actor.data.data.spells).find(i => (p.actor.data.data.spells.pact?.level >= 3 && p.actor.data.data.spells.pact?.value > 0) || (i !== "pact" && parseInt(i.slice(-1)) >= 3 && p.actor.data.data.spells[i]?.value > 0))) ||
                             ((i.data.data.preparation.mode === "atwill" || i.data.data.preparation.mode === "innate") && (i.data.data.uses?.value > 0 || !i.data.data.uses?.max))
                         )
-			  );
-                    let socket = socketlib.registerModule("user-socket-functions");
+			        );
                     let useCounter = false;
                     if (socket && player && counterItem) useCounter = await socket.executeAsUser("useDialog", player.id, { title: `Counterspell`, content: `Use your reaction to cast Counterspell?` });
                     if (useCounter) {
