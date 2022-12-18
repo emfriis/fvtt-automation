@@ -8,10 +8,10 @@ try {
 	const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 	const tokenOrActorTarget = await fromUuid(args[0].hitTargetUuids[0]);
     const tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-	const die = tactor.data.data.scale["battle-master"]["combat-superiority-die"].slice(1);
-    let superiority = Object.keys(tactor.data.data.resources).find(r => tactor.data.data.resources[`${r}`].label === "Combat Superiority");
+	const die = tactor.data.data.scale["battle-master"]["combat-superiority-die"];
+    let item = tactor.items.find(i => i.name === "Combat Superiority");
 	
-	if (die && superiority && tactor.data.data.resources[superiority].value > 0) {
+	if (die && item && item.data.data.uses.value) {
 		let dialog = new Promise((resolve, reject) => {
 			new Dialog({
 			title: "Trip Attack: Usage Configuration",
@@ -19,7 +19,7 @@ try {
 			<form id="use-form">
 				<p>` + game.i18n.format("DND5E.AbilityUseHint", {name: "Maneuvers: Trip Attack", type: "feature"}) + `</p>
 				<p>Use a Superiority Die to use Trip Attack?</p>
-				<p>(` + superiority.value + ` Superiority Die Remaining)</p>
+				<p>(` + item.data.data.uses.value + ` Superiority Die Remaining)</p>
 			</form>
 			`,
 			buttons: {
@@ -42,13 +42,11 @@ try {
 		
 		if (!maneuver) return {};
 		
-		if (tactor.data.data.resources[superiority].value < 1) {
+		if (!item || !item.data.data.uses.value) {
 			ui.notifications.warn("Trip Attack: No Superiority Die Remaining");
 			return;
 		} else {
-			let actorData = duplicate(tactor.data._source);
-    		actorData.data.resources[superiority].value = actorData.data.resources[superiority].value - 1;
-    		await tactor.update(actorData);
+			item.update({"data.uses.value" : item.data.data.uses.value - 1});
 		}
 		
 		let canProne = tactorTarget.data.data.traits.size !== "grg" && tactorTarget.data.data.traits.size !== "huge";
@@ -57,10 +55,9 @@ try {
 			const strDC = 8 + rollData.attributes.prof + rollData.abilities.str.mod;
 			const dexDC = 8 + rollData.attributes.prof + rollData.abilities.dex.mod;
 			const saveDC = strDC > dexDC ? strDC : dexDC;
-            const resist = ["Sure-Footed", "Prone Resilience"];
-            const getResist = tactorTarget.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));
+            const getResist = tactorTarget.data.flags["midi-qol"]?.resilience?.prone;
             const ability = "str";
-            const rollOptions = getResist ? { request: "save", targetUuid: tactorTarget.uuid, ability: ability, advantage: true } : { request: "save", targetUuid: tactorTarget.uuid, ability: ability };
+            const rollOptions = getResist ? { request: "save", targetUuid: tactorTarget.uuid, ability: ability, options: { advantage: true } } : { request: "save", targetUuid: tactorTarget.uuid, ability: ability };
 			let roll = await MidiQOL.socket().executeAsGM("rollAbility", rollOptions);
             if (game.dice3d) game.dice3d.showForRoll(roll);
 			if (roll.total < saveDC) {

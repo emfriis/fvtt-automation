@@ -11,7 +11,7 @@ try {
     const tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
     if (!tactorTarget.data.flags["midi-qol"].favoredFoe?.includes(tactor.uuid)) {
         const item = tactor.items.find(i => i.name === "Favored Foe");
-        if (!item || !item.data.data.uses.value || item.data.data.uses.value === 0) return;
+        if (!item || !item.data.data.uses.value) return;
         let dialog = new Promise((resolve, reject) => {
             new Dialog({
                 title: "Favored Foe: Mark the Target?",
@@ -38,7 +38,7 @@ try {
             label: "Favored Foe Mark",
             icon: "icons/magic/perception/eye-ringed-glow-angry-small-red.webp",
             changes: [
-                { key: `flags.midi-qol.favoredFoe`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.uuid, priority: 20 },
+                { key: `flags.midi-qol.favoredFoe`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: tactor.uuid, priority: 20 },
             ],
             origin: item.uuid,
             disabled: false,

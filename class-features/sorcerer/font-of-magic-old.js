@@ -11,7 +11,7 @@ const resourceValues = Object.values(actorD.data.data.resources);
 const resourceTable = mergeObject(resourceList, resourceValues);
 const abilityName = "Sorcery Points";
 const findResourceSlot = resourceTable.find(i => i.label.toLowerCase() === abilityName.toLowerCase());
-if (!findResourceSlot) return ui.notifications.error(`<strong>REQUIRED</strong>: Please add "<strong>${abilityName}</strong>" as one of your <strong>Resources</strong>.`);
+if(!findResourceSlot) return ui.notifications.error(`<strong>REQUIRED</strong>: Please add "<strong>${abilityName}</strong>" as one of your <strong>Resources</strong>.`);
 const resourceSlot = findResourceSlot.name;
 const resourceConversion = { spell1: 2, spell2: 3, spell3: 5, spell4: 6, spell5: 7 };
 const sorcSpend = { 1: 2, 2: 3, 3: 5, 4: 6, 5: 7 };
