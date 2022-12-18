@@ -17,7 +17,7 @@ let hook = Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
         const itemData = mergeObject(
             duplicate(workflow.item.data),
             {
-                type: "feat",
+                //type: "feat",
                 flags: {
                     "midi-qol": {
                         onUseMacroName: null
