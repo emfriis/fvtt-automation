@@ -4,7 +4,7 @@
 try {
 
 	if (args[0].tag !== "DamageBonus" || args[0].itemData.data.actionType !== "mwak" || args[0].hitTargets.length === 0) return;
-	const tokenOrActor = await fromUuid(args[0].tokenUuid);
+	const tokenOrActor = await fromUuid(args[0].actorUuid);
 	const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 	const tokenOrActorTarget = await fromUuid(args[0].hitTargetUuids[0]);
     const tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;

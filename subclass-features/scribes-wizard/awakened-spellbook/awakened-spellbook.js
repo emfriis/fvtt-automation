@@ -59,15 +59,15 @@ if (args[0].tag === "OnUse" && args[0].item.type === "spell" && args[0].spellLev
     
     let hook1 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
         if (workflowNext.uuid === args[0].uuid) {
-            const workflowItem = await fromUuid(workflow.item.uuid);
-            workflowItem.update({ "data.data.damage.parts" : parts });
+            workflow.item.update({ "data.data.damage.parts" : parts });
             Hooks.off("midi-qol.RollComplete", hook1);
+            Hooks.off("midi-qol.preItemRoll", hook2);
         }
     });
     let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
         if (workflowNext.uuid === args[0].uuid) {
-            const workflowItem = await fromUuid(workflow.item.uuid);
-            workflowItem.update({ "data.data.damage.parts" : parts });
+            workflow.item.update({ "data.data.damage.parts" : parts });
+            Hooks.off("midi-qol.RollComplete", hook1);
             Hooks.off("midi-qol.preItemRoll", hook2);
         }
     });
