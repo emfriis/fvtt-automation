@@ -17,8 +17,7 @@ let effectData = {
     icon: "icons/magic/unholy/hand-claw-fire-blue.webp",
     origin: lastArg.uuid,
     disabled: false,
-    flags: { dae: { itemData: itemD } },
-    duration: { rounds: itemD.data.duration.value, seconds: spellSeconds, startRound: gameRound, startTime: game.time.worldTime },
+    flags: { dae: { itemData: itemD, specialDuration: ["turnEndSource"] } },
     changes: undeadDis
 };
 let checkEffect = target.actor.effects.find(i => i.data.label === effectName);

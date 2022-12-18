@@ -54,7 +54,7 @@ try {
             flags: { dae: { macroRepeat: null, specialDuration: null }, magiceffect: args[8] ?? false, spelleffect: args[9] ?? false, }
         }
         if (args[6]) effectData.duration = { seconds: args[6] };
-        if (args[7]) effectData.flags.dae.specialDuration = args[7];
+        if (args[7]) effectData.flags.dae.specialDuration = [args[7]];
         if (args[10]) {
             effectData.changes.push({ key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `AttemptRemoval ${args[10].replaceAll(",", " ")}`, priority: 20, });
             if (args[11]) effectData.flags.dae.macroRepeat = args[11];
