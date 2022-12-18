@@ -36,6 +36,23 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                 let tactor = token.actor ? token.actor : token;
 		        if (!tactor) continue;
 
+                // wild shape
+                if (tactor.data.flags["midi-qol"].wildShape && tactor.isPolymorphed && tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0) {
+                    try {
+                        console.warn("Wild Shape activated");
+                        let socket;
+                        if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
+                        const ogTokenOrActor = await fromUuid(tactor.data.flags["midi-qol"].wildShape);
+                        const ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
+                        if (attackWorkflow[a].appliedDamage && attackWorkflow[a].appliedDamage > attackWorkflow[a].oldHP) await socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
+				        const wildShape = tactor.effects.find(e => e.data.label === "Wild Shape");
+                        if (wildShape) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [wildShape.id] });
+				        console.warn("Wild Shape used");
+                    } catch(err) {
+                        console.error("Wild Shape error", err);
+                    }
+                }
+
                 // burst
                 if (tactor.data.flags["midi-qol"].burst && tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0) {
                     try {

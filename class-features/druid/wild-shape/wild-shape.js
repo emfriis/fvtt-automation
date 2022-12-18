@@ -159,20 +159,7 @@ if ((args[0] === "on") && (!tactor.isPolymorphed)) {
                     let polyId = html.find('#beast')[0].value;
                     let findToken = getFolder.find(i => i.id === polyId);
                     const getToken = duplicate(target.data);
-                    if ((!(game.modules.get("jb2a_patreon")?.active) && !(game.modules.get("sequencer")?.active))) {
-                        await tactor.transformInto(findToken, { keepBio: true, keepClass: true, keepMental: true, mergeSaves: true, mergeSkills: true, transformTokens: true });
-                    } else {
-                        new Sequence()
-                            .effect()
-                            .atLocation(target)
-                            .file("jb2a.misty_step.01.green")
-                            .scaleToObject(1.5)
-                            .thenDo(async function () {
-                                await tactor.transformInto(findToken, { keepBio: true, keepClass: true, keepMental: true, mergeSaves: true, mergeSkills: true, transformTokens: true });
-                            })
-                            .play()
-                    }
-                    await wait(2000); // needs more time on forge servers than local servers - best to have at min 2000 ms
+                    await wait(2000);
                     let findPoly = await game.actors.find(i => i.name === `${tactor.name} (${findToken.name})`);
                     await canvas.scene.updateEmbeddedDocuments("Token", [{ "_id": getToken._id, "displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, "mirrorX": getToken.mirrorX, "mirrorY": getToken.mirrorY, "rotation": getToken.rotation, "elevation": getToken.elevation }]);
                     let wsRevert = findPoly.items.find(i => i.name === "Wild Shape (Revert)");

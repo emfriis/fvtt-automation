@@ -1,6 +1,25 @@
 try {
     let socket;
 
+    // updateActor
+    async function updateActor(...args) {
+        return new Promise(async (resolve, reject) => {
+            const tokenOrActor = await fromUuid(args[0]?.actorUuid);
+            const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+            await tactor.update(args[0]?.updates);
+            resolve(true); 
+        });
+    };
+
+    // updateItem
+    async function updateItem(...args) {
+        return new Promise(async (resolve, reject) => {
+            const item = await fromUuid(args[0]?.itemUuid);
+            await item.update(args[0]?.updates);
+            resolve(true); 
+        });
+    };
+
     // midiItemRoll, takes args itemUuid, and options; returns workflow data
     async function midiItemRoll(...args) {
         return new Promise(async (resolve, reject) => {
@@ -171,6 +190,8 @@ try {
 
     Hooks.once("socketlib.ready", () => {
         socket = socketlib.registerModule("user-socket-functions");
+        socket.register("updateActor", updateActor);
+        socket.register("updateItem", updateItem);
         socket.register("midiItemRoll", midiItemRoll);
         socket.register("useDialog", useDialog);
         socket.register("optionDialog", optionDialog);
