@@ -1,4 +1,5 @@
-// Use Midi-qol + Item Macro. That will trigger resouce consumption.
+// channel divinity harness divine power
+// on use
 
 let actorD = canvas.tokens.get(args[0].tokenId).actor;
 if (actorD.data.data.spells.spell1.max === 0) return ui.notifications.error(`No spell slots found on ${actorD.name}`);
