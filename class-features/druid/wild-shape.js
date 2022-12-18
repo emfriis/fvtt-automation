@@ -68,7 +68,7 @@ try {
                         await findPoly.deleteEmbeddedDocuments("ActiveEffect", removeEffects);
 
                         // reload vision effects
-                        const visionEffects = findPoly.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v))).map(i => i.data);
+                        const visionEffects = findPoly.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)));
                         await findPoly.deleteEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.id));
                         await findPoly.createEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.data));
                         
