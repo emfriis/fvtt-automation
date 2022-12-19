@@ -135,6 +135,50 @@ try {
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
             await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
 
+        } else if (metamagic === "extended") {
+        
+            let value = args[0].item.data.duration.value;
+            let efHook = Hooks.on("midi-qol.RollComplete", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
+                    let targets = Array.from(workflowNext.targets);
+                    for (let t = 0; t < targets.length; t++) {
+                        let token = targets[t];
+                        let tactor = token.actor;
+                        if (tactor) {
+                            let effects = tactor.effects.filter(e => e.data.origin === args[0].uuid);
+                            for (let e = 0; e < effects.length; e++) {
+                                effect = effects[e];
+                                if (effect && effect.data.label !== "Concentrating") await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, duration: { seconds: (effect.data.duration.seconds ? effect.data.duration.seconds * 2 : null), turns: (effect.data.duration.turns ? effect.data.duration.turns * 2 : null), rounds: (effect.data.duration.rounds ? effect.data.duration.rounds * 2 : null), startTime: effect.data.duration.startTime, startTurn: effect.data.duration.startTurn, startRound: effect.data.duration.startRound } }] });
+                            }
+                        }
+                    }
+                    Hooks.off("midi-qol.RollComplete", efHook);
+                }
+            });
+            let hook1 = Hooks.on("midi-qol.preambleComplete", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
+                    workflowNext.item.update({ "data.duration.value": value * 2 });
+                    Hooks.off("midi-qol.preambleComplete", hook1);
+                }
+            });
+            let hook2 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
+                    workflowNext.item.update({ "data.duration.value": value });
+                    Hooks.off("midi-qol.preambleComplete", hook1);
+                    Hooks.off("midi-qol.RollComplete", hook2);
+                    Hooks.off("midi-qol.preItemRoll", hook3);
+                }
+            });
+            let hook3 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
+                    workflowNext.item.update({ "data.duration.value": value });
+                    Hooks.off("midi-qol.preambleComplete", hook1);
+                    Hooks.off("midi-qol.RollComplete", hook2);
+                    Hooks.off("midi-qol.preItemRoll", hook3);
+                }
+            });
+            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
+
         } else if (metamagic === "quickened") {
 
             if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: tactor.uuid });
@@ -168,11 +212,11 @@ try {
             });
             let type = await typeDialog;
             if (!type) return;
-            let parts = item.data.data.damage.parts;
+            let parts = args[0].item.data.damage.parts;
             let hook1 = Hooks.on("midi-qol.preambleComplete", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid) {
-                    workflow.defaultDamageType = type;
-                    workflow.item.data.data.damage.parts.forEach(part => {
+                    workflowNext.defaultDamageType = type;
+                    workflowNext.item.data.data.damage.parts.forEach(part => {
                         if (!["acid", "cold", "fire", "lightning", "poison", "thunder"].includes(part[1].toLowerCase())) return;
                         part[0] = part[0].replace(/\[(.*)\]/g, `[${type}]`);
                         part[1] = type;
@@ -182,7 +226,7 @@ try {
             });
             let hook2 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid) {
-                    workflow.item.update({ "data.data.damage.parts": parts });
+                    workflowNext.item.update({ "data.damage.parts": parts });
                     Hooks.off("midi-qol.preambleComplete", hook1);
                     Hooks.off("midi-qol.RollComplete", hook2);
                     Hooks.off("midi-qol.preItemRoll", hook3);
@@ -190,7 +234,7 @@ try {
             });
             let hook3 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid) {
-                    workflow.item.update({ "data.data.damage.parts": parts });
+                    workflowNext.item.update({ "data.damage.parts": parts });
                     Hooks.off("midi-qol.preambleComplete", hook1);
                     Hooks.off("midi-qol.RollComplete", hook2);
                     Hooks.off("midi-qol.preItemRoll", hook3);
