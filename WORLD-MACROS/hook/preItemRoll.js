@@ -54,7 +54,10 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                 }
                 if (longRange && workflow.actor.data.flags["midi-qol"].sharpShooter && workflow.item.data.data.actionType === "rwak") range = longRange;
                 if (workflow.actor.data.flags["midi-qol"].spellSniper && workflow.item.data.data.actionType === "rsak") range *= 2;
-                if (workflow.actor.data.flags["midi-qol"].distantSpell && workflow.item.type === "spell" && workflow.item.data.data.range.units !== "touch") range *= 2;
+                if (workflow.item.type === "spell" && workflow.actor.items.find(i => i.name === "Metamagic: Distant Spell")) {
+                    if (workflow.item.data.data.range.units === "ft") range *= 2;
+                    if (workflow.item.data.data.range.units === "touch") range = 30;
+                }
                 console.warn("Range Check Preamble used", range);
             } catch (err) {
                 console.error("Range Check Preamble error", err);

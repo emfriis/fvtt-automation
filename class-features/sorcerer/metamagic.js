@@ -98,8 +98,6 @@ try {
         let metamagic = await dialog;
         if (!metamagic) return;
 
-        let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
-
         if (metamagic === "careful") {
 
             const effectData = {
@@ -124,6 +122,17 @@ try {
                 }).render(true);
             });
             await targeting;
+            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
+
+        } else if (metamagic === "distant") {
+        
+            const effectData = {
+                changes: [{ key: "flags.midi-qol.distantSpell", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, },],
+                disabled: false,
+                label: "Metamagic: Distant Spell",
+                flags: { dae: { specialDuration: ["1Spell"] } }
+            }
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
             await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
 
         } else if (metamagic === "quickened") {
@@ -159,6 +168,7 @@ try {
             });
             let type = await typeDialog;
             if (!type) return;
+            let parts = item.data.data.damage.parts;
             let hook1 = Hooks.on("midi-qol.preambleComplete", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid) {
                     workflow.defaultDamageType = type;
@@ -168,8 +178,6 @@ try {
                         part[1] = type;
                     });
                     Hooks.off("midi-qol.preambleComplete", hook1);
-                    Hooks.off("midi-qol.RollComplete", hook2);
-                    Hooks.off("midi-qol.preItemRoll", hook3);
                 }
             });
             let hook2 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
