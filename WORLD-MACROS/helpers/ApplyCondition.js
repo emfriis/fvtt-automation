@@ -36,9 +36,9 @@ try {
     } else {
         targetId = args[1];
     }
-    const targetToken = canvas.tokens.get(targetId)
+    const targetToken = canvas.tokens.get(targetId);
     const targetTactor = targetToken.actor;
-    const getResist = targetTactor.data.flags["midi-qol"]?.resilience[args[3].toLowerCase()] || (args[8] === "magiceffect" && targetTactor.data.flags["midi-qol"]?.magicResistance && (targetTactor.data.flags["midi-qol"]?.magicResistance?.all || targetTactor.data.flags["midi-qol"]?.magicResistance[args[5]])) || (args[9] === "spelleffect" && targetTactor.data.flags["midi-qol"].spellResistance);
+    const getResist = (targetTactor.data.flags["midi-qol"]?.resilience && targetTactor.data.flags["midi-qol"]?.resilience[condition.toLowerCase()]) || (args[8] === "magiceffect" && targetTactor.data.flags["midi-qol"]?.magicResistance && (targetTactor.data.flags["midi-qol"]?.magicResistance?.all || targetTactor.data.flags["midi-qol"]?.magicResistance[args[5]])) || (args[9] === "spelleffect" && targetTactor.data.flags["midi-qol"].spellResistance);
     const targetPlayer = await playerForActor(targetTactor);
     const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
     const roll = await MidiQOL.socket().executeAsUser("rollAbility", targetPlayer.id, { request: "save", targetUuid: targetTactor.uuid, ability: args[5], options: rollOptions }); 

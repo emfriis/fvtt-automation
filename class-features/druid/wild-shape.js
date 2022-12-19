@@ -42,7 +42,6 @@ try {
 
                         // transform
                         await tactor.transformInto(findToken, { keepBio: true, keepClass: true, keepMental: true, mergeSaves: true, mergeSkills: true, transformTokens: true });
-                        await wait(2000);
                         let findPoly = await game.actors.find(i => i.name === `${tactor.name} (${findToken.name})`);
                         await canvas.scene.updateEmbeddedDocuments("Token", [{ "_id": getToken._id, "displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, "mirrorX": getToken.mirrorX, "mirrorY": getToken.mirrorY, "rotation": getToken.rotation, "elevation": getToken.elevation }]);
 
@@ -101,7 +100,7 @@ try {
 
                         // remove duplicate effects
                         findPoly.effects.forEach(async effect => {
-                            if (findPoly.effects.find(e => e.uuid !== effect.uuid && e.data.label === effect.data.label && e.data.origin.includes(tactor.uuid))) await findPoly.deleteEmbeddedDocuments("ActiveEffect", [effect.id]); 
+                            if (findPoly.effects.find(e => e.uuid !== effect.uuid && e.data.label === effect.data.label && !e.data.origin.includes(findPoly.uuid))) await findPoly.deleteEmbeddedDocuments("ActiveEffect", [effect.id]); 
                         });
 
                         // reload vision effects
@@ -125,7 +124,7 @@ try {
 
                         // set wild shape flags
                         await findPoly.setFlag("midi-qol", "wildShape", tactor.uuid);
-                        await findPoly.setFlag("midi-qol", "wildShapeEffects", findPoly.effects.map(e => e.id));
+                        await findPoly.setFlag("midi-qol", "wildShapeEffects", findPoly.effects.filter(e => !e.data?.flags?.ActiveAuras?.applied).map(e => e.id));
                     }
                 }
             },
@@ -136,10 +135,9 @@ try {
 
         // get transformation data
         let wildShape = tactor.getFlag("midi-qol", "wildShape");
-        let wildShapeEffects = tactor.getFlag("midi-qol", "wildShapeEffects");
-        let newEffectsData = tactor.effects.filter(e => !e.data.flags?.ActiveAuras?.IsAura && !wildShapeEffects?.includes(e.id) && !(e.data.label === "Unconscious" && !e.data.origin)).map(e => e.data);
+        let wildShapeEffectsIds = tactor.getFlag("midi-qol", "wildShapeEffects");
+        let newEffectsData = tactor.effects.filter(e => !wildShapeEffectsIds.includes(e.id) && !(e.data.label === "Unconscious" && !e.data.origin)).map(e => e.data);
         const concFlag = tactor.data.flags["midi-qol"]["concentration-data"];
-
         // get spells data
         let keys = Object.keys(tactor.data.data.spells);
         let spellUpdates = keys.reduce((acc, values, i) => {
@@ -153,18 +151,25 @@ try {
 
         // revert transformation
         if (tactor.isPolymorphed) await tactor.revertOriginalForm();
-        await wait(500);
 
         // get original actor
         const ogTokenOrActor = await fromUuid(wildShape);
         const ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
 
         // add new effects
+        let oldEffectsOrigins = ogTactor.effects.map(e => e.data.origin);
         newEffectsData.forEach(async effectData => {
+            if (oldEffectsOrigins.includes(effectData.origin)) return;
             await Object.assign(effectData?.document?.parent, ogTactor);
             await ogTactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
         });
-
+        
+        // remove outdated auras
+        ogTactor.effects.forEach(async effect => {
+            console.warn(effect.data?.flags?.ActiveAura?.applied)
+            if (effect.data?.flags?.ActiveAuras?.applied && !newEffectsData.find(d => d.origin === effect.data.origin)) await ogTactor.deleteEmbeddedDocuments("ActiveEffect", [effect.id]);
+        });
+        
         // update concentration
         if (concFlag) await ogTactor.setFlag("midi-qol", "concentration-data", concFlag);
 
