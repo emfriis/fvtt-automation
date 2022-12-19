@@ -14,7 +14,7 @@ if (args[0].tag !== "OnUse" || lastArg.item.type !== "spell") return;
 try {
     const item = await fromUuid(lastArg.uuid);
     if (lastArg.macroPass === "preItemRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(item.data.data.activation.type)) {
-        
+
         let metamagicContent = "";
         let carefulItem = tactor.items.find(i => i.name === "Metamagic: Careful Spell");
         if (carefulItem && item.data.data.save?.dc && item.data.data.save?.ability) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="careful"><img src="${carefulItem.data.img}" style="border:0px; width: 50px; height:50px;">Careful Spell<br>(1 Sorcery Point)</label>`;
@@ -29,7 +29,7 @@ try {
         let subtleItem = tactor.items.find(i => i.name === "Metamagic: Subtle Spell");
         if (subtleItem && (item.data.data.components?.vocal || item.data.data.components?.somatic)) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="subtle"><img src="${subtleItem.data.img}" style="border:0px; width: 50px; height:50px;">Subtle Spell<br>(1 Sorcery Point)</label>`;
         let transmutedItem = tactor.items.find(i => i.name === "Metamagic: Transmuted Spell");
-        if (transmutedItem && item.data.data.damage?.parts?.length && !["healing", "temphp"].includes(item.data.data.damage.parts[0][1])) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="transmuted"><img src="${transmutedItem.data.img}" style="border:0px; width: 50px; height:50px;">Transmuted Spell<br>(1 Sorcery Point)</label>`;
+        if (transmutedItem && item.data.data.damage?.parts?.length && item.data.data.damage.parts.find(p => ["acid", "cold", "fire", "lightning", "poison", "thunder"].includes(p[1].toLowerCase()))) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="transmuted"><img src="${transmutedItem.data.img}" style="border:0px; width: 50px; height:50px;">Transmuted Spell<br>(1 Sorcery Point)</label>`;
         let twinnedItem = tactor.items.find(i => i.name === "Metamagic: Twinned Spell");
         if (twinnedItem && ["action", "bonus"].includes(item.data.data.activation.type) && ["ally", "creature", "enemy"].includes(item.data.data.target.type) && item.data.data.target.value === 1 && usesItem.data.data.uses.value >= Math.max(1, lastArg.spellLevel)) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="twinned"><img src="${twinnedItem.data.img}" style="border:0px; width: 50px; height:50px;">Twinned Spell (${Math.max(1, lastArg.spellLevel)}<br>Sorcery Point${Math.max(1, lastArg.spellLevel) > 1 ? "s" : ""})</label>`;
         if (metamagicContent === "") return;
@@ -98,7 +98,10 @@ try {
         let metamagic = await dialog;
         if (!metamagic) return;
 
+        let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
+
         if (metamagic === "careful") {
+
             const effectData = {
                 changes: [{ key: "flags.midi-qol.carefulSpell", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, },],
                 disabled: false,
@@ -109,7 +112,7 @@ try {
             let targeting =  new Promise(async (resolve, reject) => {
                 new Dialog({
                     title: "Metamagic: Careful Spell",
-                    content: `<p>Target any creatures you want to protect</p>`,
+                    content: `<p>Target any creatures you want to protect.<br>(Up to ${Math.max(1, tactor.data.data.abilities.cha.mod)} Creatures)</p>`,
                     buttons: {
                         Ok: {
                             label: "Ok",
@@ -122,13 +125,75 @@ try {
             });
             await targeting;
             await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
-        }
-        if (metamagic === "quickened") {
+
+        } else if (metamagic === "quickened") {
+
             if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: tactor.uuid });
             await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
-        }
-        if (metamagic === "twinned") {
+
+        } else if (metamagic === "transmuted") {
+
+            let options = ["acid", "cold", "fire", "lightning", "poison", "thunder"];
+            const optionContent = options.map((o) => { return `<option value="${o}">${CONFIG.DND5E.damageTypes[o]}</option>` })
+            const content = `
+            <div class="form-group">
+            <label>Damage Types: </label>
+            <select name="types"}>
+            ${optionContent}
+            </select>
+            </div>
+            `;
+            let typeDialog =  new Promise(async (resolve, reject) => {
+                new Dialog({
+                    title: "Metamagic: Transmuted Spell",
+                    content,
+                    buttons: {
+                        Ok: {
+                            label: "Ok",
+                            callback: (html) => {resolve(html.find("[name=types]")[0].value)},
+                        },
+                    },
+                    default: "Ok",
+                    close: () => { resolve(false) },
+                }).render(true);
+            });
+            let type = await typeDialog;
+            if (!type) return;
+            let hook1 = Hooks.on("midi-qol.preambleComplete", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
+                    workflow.defaultDamageType = type;
+                    workflow.item.data.data.damage.parts.forEach(part => {
+                        if (!["acid", "cold", "fire", "lightning", "poison", "thunder"].includes(part[1].toLowerCase())) return;
+                        part[0] = part[0].replace(/\[(.*)\]/g, `[${type}]`);
+                        part[1] = type;
+                    });
+                    Hooks.off("midi-qol.preambleComplete", hook1);
+                    Hooks.off("midi-qol.RollComplete", hook2);
+                    Hooks.off("midi-qol.preItemRoll", hook3);
+                }
+            });
+            let hook2 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
+                    workflow.item.update({ "data.data.damage.parts": parts });
+                    Hooks.off("midi-qol.preambleComplete", hook1);
+                    Hooks.off("midi-qol.RollComplete", hook2);
+                    Hooks.off("midi-qol.preItemRoll", hook3);
+                }
+            });
+            let hook3 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
+                    workflow.item.update({ "data.data.damage.parts": parts });
+                    Hooks.off("midi-qol.preambleComplete", hook1);
+                    Hooks.off("midi-qol.RollComplete", hook2);
+                    Hooks.off("midi-qol.preItemRoll", hook3);
+                }
+            });
+            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
+
+        } else if (metamagic === "twinned") {
+
             await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - Math.max(1, lastArg.spellLevel) });
+
         }
 
     } else if (lastArg.macroPass === "postDamageRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(item.data.data.activation.type)) {
