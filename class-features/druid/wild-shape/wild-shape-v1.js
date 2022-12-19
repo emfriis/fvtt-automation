@@ -26,8 +26,8 @@ try {
         const filteredFolder = getFolder.filter((i) => i.data.data.details.cr <= druidCR && i.data.data?.details?.type?.value.toLowerCase() == "beast" && i.data.data.attributes.movement.fly <= maxFly && i.data.data.attributes.movement.swim <= maxSwim);
         const folderContents = filteredFolder.reduce((acc, target) => acc += `<option value="${target.id}">${target.name} CR: ${target.data.data.details.cr}</option>`, ``);
         const content = `<p>Pick a beast</p><form><div class="form-group"><label for="beast">Beast:</label><select id="beast">${folderContents}</select></div></form>`;
-        const keepItems = tactor.items.filter(i => i.data.type === "feat" && !["blind sight", "darkvision", "tremorsense", "true sight"].some(v => i.name.toLowerCase().includes(v)) && i.name !== "Wild Shape").map(i => i.data);
-        const removeEffects = tactor.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v))).map(e => e.id);
+        const keepItems = tactor.items.filter(i => i.data.type === "feat" && !["blind sight", "darkvision", "tremorsense", "true sight"].includes(i.name.toLowerCase()) && i.name !== "Wild Shape").map(i => i.data);
+        const removeEffects = tactor.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].includes(e.data.label.toLowerCase())).map(e => e.id);
         new Dialog({
             title: "Wild Shape",
             content: content,
@@ -44,8 +44,6 @@ try {
                         await tactor.transformInto(findToken, { keepBio: true, keepClass: true, keepMental: true, mergeSaves: true, mergeSkills: true, transformTokens: true });
                         let findPoly = await game.actors.find(i => i.name === `${tactor.name} (${findToken.name})`);
                         await canvas.scene.updateEmbeddedDocuments("Token", [{ "_id": getToken._id, "displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, "mirrorX": getToken.mirrorX, "mirrorY": getToken.mirrorY, "rotation": getToken.rotation, "elevation": getToken.elevation }]);
-                        await findPoly.setFlag("midi-qol", "wildShape", tactor.uuid);
-                        await findPoly.setFlag("midi-qol", "wildShapeEffects", findToken.effects.map(e => e.data.label));
 
                         // primal strike
                         if (primalStrike) {
@@ -102,8 +100,13 @@ try {
 
                         // remove duplicate effects
                         findPoly.effects.forEach(async effect => {
-                            if (findPoly.effects.find(e => e.uuid !== effect.uuid && e.data.label === effect.data.label && e.data.origin.includes(tactor.uuid))) await findPoly.deleteEmbeddedDocuments("ActiveEffect", [effect.id]); 
+                            if (findPoly.effects.find(e => e.uuid !== effect.uuid && e.data.label === effect.data.label && !e.data.origin.includes(findPoly.uuid))) await findPoly.deleteEmbeddedDocuments("ActiveEffect", [effect.id]); 
                         });
+
+                        // reload vision effects
+                        const visionEffects = findPoly.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)));
+                        await findPoly.deleteEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.id));
+                        await findPoly.createEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.data));
 
                         // create removal effect
                         const effectData = {
@@ -119,11 +122,9 @@ try {
                         }
                         await findPoly.createEmbeddedDocuments("ActiveEffect", [effectData]);
 
-                        // reload vision effects
-                        await wait(100);
-                        const visionEffects = findPoly.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)));
-                        await findPoly.deleteEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.id));
-                        await findPoly.createEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.data));
+                        // set wild shape flags
+                        await findPoly.setFlag("midi-qol", "wildShape", tactor.uuid);
+                        await findPoly.setFlag("midi-qol", "wildShapeEffects", findPoly.effects.filter(e => !e.data?.flags?.ActiveAuras?.applied).map(e => e.id));
                     }
                 }
             },
@@ -134,10 +135,9 @@ try {
 
         // get transformation data
         let wildShape = tactor.getFlag("midi-qol", "wildShape");
-        let wildShapeEffects = tactor.getFlag("midi-qol", "wildShapeEffects");
-        let newEffects = tactor.effects.filter(e => !wildShapeEffects.includes(e.data.label) && !["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)) && !(e.data.label === "Unconscious" && !e.data.origin));
+        let wildShapeEffectsIds = tactor.getFlag("midi-qol", "wildShapeEffects");
+        let newEffectsData = tactor.effects.filter(e => !wildShapeEffectsIds.includes(e.id) && !(e.data.label === "Unconscious" && !e.data.origin)).map(e => e.data);
         const concFlag = tactor.data.flags["midi-qol"]["concentration-data"];
-        
         // get spells data
         let keys = Object.keys(tactor.data.data.spells);
         let spellUpdates = keys.reduce((acc, values, i) => {
@@ -145,7 +145,7 @@ try {
             acc[`data.spells.${values}.max`] = Object.values(tactor.data.data.spells)[i].max;
             return acc;
         }, {});
-        
+
         // get feat item uses data
         let featUses = tactor.items.filter(i => i.data.data.uses?.max).map(i => ({ uses: i.data.data.uses, name: i.name }));
 
@@ -157,17 +157,17 @@ try {
         const ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
 
         // add new effects
-        let conditions = ["Blinded", "Charmed", "Deafened", "Frightened", "Grappled", "Incapacitated", "Invisible", "Paralyzed", "Petrified", "Poisoned", "Restrained", "Stunned", "Unconscious"];
-        newEffects.forEach(async effect => {
-            if (ogTactor.effects.find(e => e.data.label === effect.data.label) && !conditions.includes(effect.data.label)) return;
-            await Object.assign(effect.data?.document?.parent, ogTactor);
-            await ogTactor.createEmbeddedDocuments("ActiveEffect", [effect.data]);
+        let oldEffectsOrigins = ogTactor.effects.map(e => e.data.origin);
+        newEffectsData.forEach(async effectData => {
+            if (oldEffectsOrigins.includes(effectData.origin)) return;
+            await Object.assign(effectData?.document?.parent, ogTactor);
+            await ogTactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
         });
         
-        // remove outdated effects
+        // remove outdated auras
         ogTactor.effects.forEach(async effect => {
-            if (["blind sight", "darkvision", "tremorsense", "true sight"].some(v => effect.data.label.toLowerCase().includes(v))) return;
-            if (!newEffects.find(e => e.data.label === effect.data.label)) await ogTactor.deleteEmbeddedDocuments("ActiveEffect", [effect.id]);
+            console.warn(effect.data?.flags?.ActiveAura?.applied)
+            if (effect.data?.flags?.ActiveAuras?.applied && !newEffectsData.find(d => d.origin === effect.data.origin)) await ogTactor.deleteEmbeddedDocuments("ActiveEffect", [effect.id]);
         });
         
         // update concentration
@@ -185,7 +185,6 @@ try {
         });
 
         // reload vision effects
-        await wait(100);
         const visionEffects = ogTactor.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)));
         await ogTactor.deleteEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.id));
         await ogTactor.createEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.data));

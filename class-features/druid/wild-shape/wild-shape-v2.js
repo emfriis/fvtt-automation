@@ -45,7 +45,6 @@ try {
                         let findPoly = await game.actors.find(i => i.name === `${tactor.name} (${findToken.name})`);
                         await canvas.scene.updateEmbeddedDocuments("Token", [{ "_id": getToken._id, "displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, "mirrorX": getToken.mirrorX, "mirrorY": getToken.mirrorY, "rotation": getToken.rotation, "elevation": getToken.elevation }]);
                         await findPoly.setFlag("midi-qol", "wildShape", tactor.uuid);
-                        await findPoly.setFlag("midi-qol", "wildShapeEffects", findToken.effects.map(e => e.data.label));
 
                         // primal strike
                         if (primalStrike) {
@@ -134,8 +133,7 @@ try {
 
         // get transformation data
         let wildShape = tactor.getFlag("midi-qol", "wildShape");
-        let wildShapeEffects = tactor.getFlag("midi-qol", "wildShapeEffects");
-        let newEffects = tactor.effects.filter(e => !wildShapeEffects.includes(e.data.label) && !["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)) && !(e.data.label === "Unconscious" && !e.data.origin));
+        let newEffects = tactor.effects.filter(e => !["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)) && !(e.data.label === "Unconscious" && !e.data.origin));
         const concFlag = tactor.data.flags["midi-qol"]["concentration-data"];
         
         // get spells data
@@ -157,9 +155,8 @@ try {
         const ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
 
         // add new effects
-        let conditions = ["Blinded", "Charmed", "Deafened", "Frightened", "Grappled", "Incapacitated", "Invisible", "Paralyzed", "Petrified", "Poisoned", "Restrained", "Stunned", "Unconscious"];
         newEffects.forEach(async effect => {
-            if (ogTactor.effects.find(e => e.data.label === effect.data.label) && !conditions.includes(effect.data.label)) return;
+            if (ogTactor.effects.find(e => e.data.label === effect.data.label)) return;
             await Object.assign(effect.data?.document?.parent, ogTactor);
             await ogTactor.createEmbeddedDocuments("ActiveEffect", [effect.data]);
         });
