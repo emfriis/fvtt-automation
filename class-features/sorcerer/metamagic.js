@@ -4,6 +4,8 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
+async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+
 const usesItem = tactor.items.find(i => i.name === "Sorcery Points");
 if (!usesItem || !usesItem.data.data.uses.value) return;
 
@@ -12,6 +14,7 @@ if (args[0].tag !== "OnUse" || lastArg.item.type !== "spell") return;
 try {
     const item = await fromUuid(lastArg.uuid);
     if (lastArg.macroPass === "preItemRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(item.data.data.activation.type)) {
+        
         let metamagicContent = "";
         let carefulItem = tactor.items.find(i => i.name === "Metamagic: Careful Spell");
         if (carefulItem && item.data.data.save?.dc && item.data.data.save?.ability) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="careful"><img src="${carefulItem.data.img}" style="border:0px; width: 50px; height:50px;">Careful Spell<br>(1 Sorcery Point)</label>`;
@@ -77,54 +80,59 @@ try {
         `;
         let dialog = new Promise(async (resolve, reject) => {
             new Dialog({
-                title: "Metamagic",
+                title: "Metamagic: Usage Configuration",
                 content,
                 buttons: {
                     Confirm: {
                         label: "Confirm",
                         callback: async () => {
                             let metamagic = $("input[type='radio'][name='metamagic']:checked").val();
-                            if (metamagic === "careful") {
-                                const effectData = {
-                                    changes: [{ key: "flags.midi-qol.carefulSpell", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, },],
-                                    disabled: false,
-                                    label: "Metamagic: Careful Spell",
-                                    flags: { dae: { specialDuration: ["1Spell"] } }
-                                }
-                                await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                                let targeting =  new Promise(async (resolve, reject) => {
-                                    new Dialog({
-                                        title: "Metamagic: Careful Spell",
-                                        content: `<p>Target any creatures you want to protect</p>`,
-                                        buttons: {
-                                            Ok: {
-                                                label: "Ok",
-                                                callback: () => {resolve(true)},
-                                            },
-                                        },
-                                        default: "Ok",
-                                        close: () => {resolve(false)}
-                                    }).render(true);
-                                });
-                                await targeting;
-                                await usesItem.update({ "data.uses.value": usesItem.data.data.value - 1 });
-                            }
-                            if (metamagic === "quickened") {
-                                if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: tactor.uuid });
-                                await usesItem.update({ "data.uses.value": usesItem.data.data.value - 1 });
-                            }
-                            if (metamagic === "twinned") {
-                                await usesItem.update({ "data.uses.value": usesItem.data.data.value - Math.max(1, lastArg.spellLevel) });
-                            }
-                            resolve(true);
+                            resolve(metamagic);
                         },
                     },
                 },
                 default: "Confirm",
+                close: async () => { resolve(false) },
             }).render(true);
         });
-        await dialog;
+        let metamagic = await dialog;
+        if (!metamagic) return;
+
+        if (metamagic === "careful") {
+            const effectData = {
+                changes: [{ key: "flags.midi-qol.carefulSpell", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, },],
+                disabled: false,
+                label: "Metamagic: Careful Spell",
+                flags: { dae: { specialDuration: ["1Spell"] } }
+            }
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+            let targeting =  new Promise(async (resolve, reject) => {
+                new Dialog({
+                    title: "Metamagic: Careful Spell",
+                    content: `<p>Target any creatures you want to protect</p>`,
+                    buttons: {
+                        Ok: {
+                            label: "Ok",
+                            callback: () => {resolve(true)},
+                        },
+                    },
+                    default: "Ok",
+                    close: () => { resolve(false) },
+                }).render(true);
+            });
+            await targeting;
+            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
+        }
+        if (metamagic === "quickened") {
+            if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: tactor.uuid });
+            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
+        }
+        if (metamagic === "twinned") {
+            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - Math.max(1, lastArg.spellLevel) });
+        }
+
     } else if (lastArg.macroPass === "postDamageRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(item.data.data.activation.type)) {
+        
         if (!(tactor.items.find(i => i.name === "Metamagic: Empowered Spell") && item.data.data.damage?.parts?.length && !["healing", "temphp"].includes(item.data.data.damage.parts[0][1]))) return;
 
     }
