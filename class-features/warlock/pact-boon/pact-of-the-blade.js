@@ -1,3 +1,5 @@
+// pact of the blade
+// effect itemacro
 // requires an item folder named Weapons with all applicable SRD weapons
 
 const lastArg = args[args.length - 1];
@@ -12,9 +14,6 @@ function valueLimit(val, min, max) {
   return val < min ? min : val > max ? max : val;
 }
 
-/**
- * Select for weapon
- */
 if (args[0] === "on") {
   const folderName = "Weapons";
   const getFolder = game.folders.getName(folderName).content;
@@ -24,8 +23,7 @@ if (args[0] === "on") {
   } else if (improved) {
     weapons = getFolder.filter((i) => i.data.type === "weapon");
   }
-  const weaponContents = weapons.reduce((acc, target) => acc += `<option value="${target.id}">${target.name}</option>`
-    , ``);
+  const weaponContents = weapons.reduce((acc, target) => acc += `<option value="${target.id}">${target.name}</option>`, ``);
   const content = `<p>Pick a weapon</p><form><div class="form-group"><label for="weapon">Weapon:</label><select id="weapon">${weaponContents}</select></div></form>`;
 
   new Dialog({
@@ -35,21 +33,19 @@ if (args[0] === "on") {
         label: `Ok`,
         callback: (html) => {
           let itemId = html.find('#weapon')[0].value;
-		  let weaponItem = getFolder.find(i => i.id === itemId);
+          let weaponItem = getFolder.find(i => i.id === itemId);
           let copyItem = duplicate(weaponItem);
-          DAE.setFlag(targetActor, "pactWeapon", {
-			name: "Pact "+copyItem.name,
-          });
+          DAE.setFlag(targetActor, "pactWeapon", { name: "Pact "+copyItem.name, });
           if (copyItem.data.attackBonus === "") copyItem.data.attackBonus = "0";
-		  if (copyItem.data.attackBonus === "0" && improved) {
-			copyItem.data.attackBonus += 1;
-			copyItem.data.damage.parts[0][0] += " + 1"
-			if (copyItem.data.damage.versatile !== "" && copyItem.data.damage.versatile !== null) copyItem.data.damage.versatile += " + 1";
-		  }
+          if (copyItem.data.attackBonus === "0" && improved) {
+            copyItem.data.attackBonus += 1;
+            copyItem.data.damage.parts[0][0] += " + 1"
+            if (copyItem.data.damage.versatile !== "" && copyItem.data.damage.versatile !== null) copyItem.data.damage.versatile += " + 1";
+          }
           if (hexWarrior) copyItem.data.ability = "cha";
-		  copyItem.name = "Pact " + copyItem.name;
-		  copyItem.data.equipped = true;
-		  copyItem.data.properties.proficient = true;
+          copyItem.name = "Pact " + copyItem.name;
+          copyItem.data.equipped = true;
+          copyItem.data.properties.proficient = true;
           targetActor.createEmbeddedDocuments("Item", [copyItem]);
         },
       },
@@ -60,7 +56,6 @@ if (args[0] === "on") {
   }).render(true);
 }
 
-//Delete weapon and unset flag.
 if (args[0] === "off") {
   const { name } = DAE.getFlag(targetActor, "pactWeapon");
   let weapon = targetActor.items.find(i => i.name === name);

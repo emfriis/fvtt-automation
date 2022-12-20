@@ -5,7 +5,7 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-if (args[0].tag === "OnUse" && args[0].item.type === "spell" && args[0].spellLevel > 0 && args[0].item.data.damage?.parts?.length > 0) {
+if (args[0].tag === "OnUse" && args[0].item.type === "spell" && args[0].spellLevel > 0 && args[0].item.data.damage?.parts?.length > 0 && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.data.activation.type)) {
     const validTypes = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
     if (!validTypes.some(type => args[0].item.data.damage.parts[0][1]?.toLowerCase() === type)) return;
     const optionTypes = [];

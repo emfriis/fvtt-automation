@@ -327,7 +327,7 @@ try {
 
         }
 
-    } else if (lastArg.macroPass === "postDamageRoll" && args[0].hitTargets.length && (!args[0].item.data.flags?.midiProperties?.nodam || args[0].failedSaves.length)) {
+    } else if (lastArg.macroPass === "postDamageRoll" && args[0].hitTargets.length) {
 
         if (!(tactor.items.find(i => i.name === "Metamagic: Empowered Spell") && args[0].item.data.damage?.parts?.length && !["healing", "temphp"].includes(args[0].item.data.damage.parts[0][1]))) return;
         let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);

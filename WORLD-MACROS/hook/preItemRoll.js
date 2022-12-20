@@ -39,6 +39,18 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
             }
         }
 
+        // combat action timing
+        if (game.combat && ["minute", "hour", "day"].includes(workflow.item.data.data.activation.type)) {
+            try {
+                console.warn("Combat Action Timing activated");
+                ui.notifications.warn(`${workflow.item.name} takes too long to use`);
+                console.warn("Combat Action Timing used");
+                return false;
+            } catch(err) {
+                console.error("Combat Action Timing error", err);
+            }
+        }
+
         // range check preamble
         let range;
         let longRange;
