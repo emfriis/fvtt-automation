@@ -418,19 +418,22 @@ try {
             let result = rerolls[r].result;
             let faces = rerolls[r].faces;
             let index = rerolls[r].index;
-            console.error("rollData", result, faces, index)
             let newRoll = new Roll(`1d${faces}`).evaluate({ async: false });
             if (game.dice3d) game.dice3d.showForRoll(newRoll);
-            let replaceRoll = workflow.damageRoll.dice[index].results.find(d => d.result == result && d.active);
-            console.error(workflow.damageRoll.dice[index].results)
-            console.error(replaceRoll)
+            let replaceRoll = workflow.damageRoll.dice[index].results.find(d => d.result == parseInt(result) && d.active);
             if (!replaceRoll) continue;
-            let replaceResult = replaceRoll.result;
-            replaceRoll.result = newRoll.total;
-            workflow.damageRoll.dice[index].total += newRoll.total - replaceResult;
-            workflow.damageRoll.dice[index]._total += newRoll.total - replaceResult;
-            workflow.damageRoll.total += newRoll.total - replaceResult;
-            workflow.damageRoll._total += newRoll.total - replaceResult;
+            replaceRoll.rerolled = true;
+            replaceRoll.active = false;
+            workflow.damageRoll.dice[index].results.push({ result: parseInt(newRoll.result), active: true });
+            let newSubTotal = parseInt(workflow.damageRoll.dice[index].total) + parseInt(newRoll.total) - parseInt(replaceRoll.result);
+            workflow.damageRoll.dice[index].total = newSubTotal;
+            workflow.damageRoll.dice[index]._total = newSubTotal;
+            workflow.damageRoll.dice[index].result = newSubTotal;
+            let newTotal = parseInt(workflow.damageRoll.total) + parseInt(newRoll.total) - parseInt(replaceRoll.result);
+            workflow.damageRoll.total = newTotal;
+            workflow.damageRoll._total = newTotal;
+            workflow.damageRoll.result = newTotal;
+            
             workflow.damageRollHTML = await workflow.damageRoll.render();
         }
         await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
