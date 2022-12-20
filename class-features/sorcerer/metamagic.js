@@ -327,38 +327,8 @@ try {
 
         }
 
-    } else if (lastArg.macroPass === "postAttackRoll" && ["msak","rsak"].includes(args[0].item.data.actionType) && usesItem.data.data.uses.value >= 2 && !args[0].advantage && !args[0].disadvantage) { // !!!WIP!!!
+    } else if (lastArg.macroPass === "postDamageRoll" && args[0].hitTargets.length && (!args[0].item.data.flags?.midiProperties?.nodam || args[0].failedSaves.length)) {
 
-	    if (!(tactor.items.find(i => i.name === "Metamagic: Seeking Spell"))) return;
-        if (args[0].attackRoll.total >= args[0].targets.map(t => t.actor.data.data.attributes.ac.value).reduce((prv, val) => { return (prv > val ? prv : val) })) return;
-        let seekingDialog =  new Promise(async (resolve, reject) => {
-                new Dialog({
-                    title: "Metamagic: Seeking Spell",
-                    content: `<p>Use Seeking Spell to reroll the Attack Roll? (2 Sorcery Points)<br>(${usesItem.data.data.uses.value} Sorcery Points Remaining)</p>`,
-                    buttons: {
-                        Ok: {
-                            label: "Ok",
-                            callback: () => {resolve(true)},
-                        },
-                    },
-                    default: "Ok",
-                    close: () => { resolve(false) },
-                }).render(true);
-            });
-            let seek = await seekingDialog;
-            if (!seek) return;
-            let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
-            let newRoll = new Roll(workflow.attackRoll.formula).evaluate({ async: false });
-            if (game.dice3d) game.dice3d.showForRoll(newRoll);
-            workflow.attackRoll.total = newRoll.total;
-            workflow.attackRoll._total = newRoll.total;
-            workflow.attackRollHTML = await workflow.attackRoll.render();
-
-            // RENDER NEW ATTACK ROLL AND ASSIGN TO WORKFLOW - NEED TO UPDATE attackRoll AND attackRollHTML
-            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 2 });
-
-    } else if (lastArg.macroPass === "postDamageRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.data.activation.type)) { // !!!WIP!!!
-        
         if (!(tactor.items.find(i => i.name === "Metamagic: Empowered Spell") && args[0].item.data.damage?.parts?.length && !["healing", "temphp"].includes(args[0].item.data.damage.parts[0][1]))) return;
         let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
         let dice = workflow.damageRoll.dice;
@@ -370,7 +340,7 @@ try {
                 die_content += `<label class='checkbox-label' for='die${d}${r}'>
                 <input type='checkbox' id='die${d}${r}' name='die' value='${results[r].result},${dice[d].faces},${d}'/>
                 <img src="icons/svg/d${workflow.damageRoll.dice[d].faces}-grey.svg" style="border:0px; width: 50px; height:50px;">
-                ${results[r].result} (${dice[d].flavor})
+                ${results[r].result} (1d${dice[d].faces} ${dice[d].flavor})
                 </label>
                 `;
             }
@@ -463,6 +433,7 @@ try {
             workflow.damageRoll._total += newRoll.total - replaceResult;
             workflow.damageRollHTML = await workflow.damageRoll.render();
         }
+        await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
 
     }
 } catch (err) {
