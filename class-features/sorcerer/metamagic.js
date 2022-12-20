@@ -284,7 +284,7 @@ try {
             let hook1 = Hooks.on("midi-qol.preambleComplete", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid) {
                     workflowNext.defaultDamageType = type;
-                    workflowNext.item.data.damage.parts.forEach(part => {
+                    workflowNext.item.data.data.damage.parts.forEach(part => {
                         if (!["acid", "cold", "fire", "lightning", "poison", "thunder"].includes(part[1].toLowerCase())) return;
                         part[0] = part[0].replace(/\[(.*)\]/g, `[${type}]`);
                         part[1] = type;
@@ -327,7 +327,7 @@ try {
 
         }
 
-    } else if (lastArg.macroPass === "postAttackRoll" && ["msak","rsak"].includes(args[0].item.data.actionType) && usesItem.data.data.uses.value >= 2) {
+    } else if (lastArg.macroPass === "postAttackRoll" && ["msak","rsak"].includes(args[0].item.data.actionType) && usesItem.data.data.uses.value >= 2 && !args[0].advantage && !args[0].disadvantage) { // !!!WIP!!!
 
 	    if (!(tactor.items.find(i => i.name === "Metamagic: Seeking Spell"))) return;
         if (args[0].attackRoll.total >= args[0].targets.map(t => t.actor.data.data.attributes.ac.value).reduce((prv, val) => { return (prv > val ? prv : val) })) return;
@@ -348,21 +348,30 @@ try {
             let seek = await seekingDialog;
             if (!seek) return;
             let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
+            let newRoll = new Roll(workflow.attackRoll.formula).evaluate({ async: false });
+            if (game.dice3d) game.dice3d.showForRoll(newRoll);
+            workflow.attackRoll.total = newRoll.total;
+            workflow.attackRoll._total = newRoll.total;
+            workflow.attackRollHTML = await workflow.attackRoll.render();
+
             // RENDER NEW ATTACK ROLL AND ASSIGN TO WORKFLOW - NEED TO UPDATE attackRoll AND attackRollHTML
             await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 2 });
 
-    } else if (lastArg.macroPass === "postDamageRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.data.activation.type)) {
+    } else if (lastArg.macroPass === "postDamageRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.data.activation.type)) { // !!!WIP!!!
         
         if (!(tactor.items.find(i => i.name === "Metamagic: Empowered Spell") && args[0].item.data.damage?.parts?.length && !["healing", "temphp"].includes(args[0].item.data.damage.parts[0][1]))) return;
         let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
-        let diceResults = workflow.damageRoll.dice[0].results;
+        let dice = workflow.damageRoll.dice;
         let die_content = "";
-        for (let i = 0; i < diceResults.length; i++) {
-            if (diceResults[i]?.rerolled) continue;
-            die_content += `<input type='checkbox' id='die${i}' name='die' value='${diceResults[i].result},${diceResults[i].formula}'/>
-            <label class='checkbox-label' for='die${i}'><img src="icons/svg/d${workflow.damageRoll.dice[0].faces}-grey.svg" style="border:0px; width: 50px; height:50px;">${diceResults[i].result}</label>
-            `;
-        };
+        for (let d = 0; d < dice.length; d++) {
+            let results = dice[d].results;
+            for (let r = 0; r < results.length; r++) {
+                if (results[r]?.rerolled) continue;
+                die_content += `<input type='checkbox' id='die${d}${r}' name='die' value='${results[r].result},${dice[d].faces},${d}'/>
+                <label for='die${d}${r}'><img src="icons/svg/d${workflow.damageRoll.dice[d].faces}-grey.svg" style="border:0px; width: 50px; height:50px;">${results[r].result}</label>
+                `;
+            }
+        }
         let content = `
             <style>
             .dice .form-group {
@@ -371,44 +380,24 @@ try {
                 width: 100%;
                 align-items: flex-start;
             }
-
-            .dice .checkbox-label {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                justify-items: center;
-                flex: 1 0 25%;
-                line-height: normal;
-            }
-
-            .dice .checkbox-label input {
-                display: none;
-            }
-
-            .dice img {
+            label {
                 border: 0px;
                 width: 50px;
                 height: 50px;
                 flex: 0 0 50px;
                 cursor: pointer;
             }
-
-            /* CHECKED STYLES */
-            .dice [type=radio]:checked + img {
-                outline: 2px solid #f00;
-            }
             </style>
             <form class="dice">
-        <div>
-            <p>Choose up to ${Math.max(1, tactor.data.data.abilities.cha.mod)} damage dice to reroll:</p>
-        </div>
-            <div class="form-group" id="dice-group">
-                ${die_content}
-            </div>
-        <div>
-            <p>(${usesItem.data.data.uses.value} Sorcery Points Remaining)</p>
-        </div>
+                <div>
+                    <p>Choose up to ${Math.max(1, tactor.data.data.abilities.cha.mod)} damage dice to reroll:</p>
+                </div>
+                <div class="form-group" id="dice-group">
+                    ${die_content}
+                </div>
+                <div>
+                    <p>(${usesItem.data.data.uses.value} Sorcery Points Remaining)</p>
+                </div>
             </form>
         `;
         let heightenedRerolls = await new Promise((resolve, reject) => {
@@ -419,12 +408,13 @@ try {
                     Ok: {
                         label: "Ok",
                         callback: async () => {
-                    let checked = [];
-                    $("input[type='checkbox'][name='die']:checked").each(function() { 
-                        let rollData = $(this).val.split(",");
-                        checked.push({ result: rollData[0], rollable: rollData[1] }); 
-                    });
-                    resolve(checked);
+                    let rerolls = [];
+                    let checked = $("input[type='checkbox'][name='die']:checked"); 
+                    for (let c; c < checked.length; c++) {
+                        let rollData = c.val.split(",");
+                        rerolls.push({ result: rollData[0], faces: rollData[1], index: rollData[2] }); 
+                    } 
+                    resolve(rerolls);
                 },
                     },
                     Cancel: {
