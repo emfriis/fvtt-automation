@@ -77,7 +77,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
             try {
 		    console.warn("Counterspell activated");
             const components = workflow.item.data.data?.components;
-            if (components.vocal || components.somatic || components.material) {
+            if ((components.vocal || components.somatic || components.material) && !(workflow.actor.data.flags["midi-qol"].subtleSpell && !components.material)) {
                 let counterTokens = canvas.tokens.placeables.filter(p =>
                         p?.actor && // exists
                         p.actor.items.find(i => i.name === "Counterspell" && i.type === "spell") && // has item

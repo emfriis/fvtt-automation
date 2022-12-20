@@ -18,16 +18,15 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
 		    if (!tactor) continue;
 
             // spell resistance
-            if ((workflow.item.data.type === "spell" || workflow.item.data.flags?.midiProperties?.spelleffect) && workflow.item.data.data.actionType === "save" && tactor.data.flags["midi-qol"].spellResistance) {
+            if ((workflow.item.data.type === "spell" || workflow.item.data.flags?.midiProperties?.spelleffect) && workflow.item.data.data.save.ability && workflow.item.data.data.save.dc && tactor.data.flags["midi-qol"].spellResistance) {
                 try {
                     console.warn("Spell Resistance activated");
-                    const effectData = {
-                        changes: [ { key: "flags.midi-qol.advantage.ability.save.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, } ],
-                        disabled: false,
-                        flags: { dae: { specialDuration: "isSave" } },
-                        label: "Spell Save Advantage"
-                    }
-                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                    let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
+                        if (actor === targets[0].actor && abilityId === workflow.item.data.data.save.ability) {
+                            rollData.advantage = true;
+                            Hooks.off("Actor5e.preRollAbilitySave", hook);
+                        }
+                    });
                     console.warn("Spell Resistance used");
                 } catch (err) {
                     console.error("Spell Resistance error", err);
@@ -43,15 +42,12 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
                     resilientCondition = workflow.item.data.effects.contents.find(e => resilience.includes(e.data.label.toLowerCase()) || e.data.changes.find(c => c.key === "StatusEffect" && resilience.find(r => c.value?.toLowerCase()?.includes(r))));
                     if (!resilientCondition) resilientDamage = workflow.item.data.data.damage.parts.find(p => resilience.includes(p[1]?.toLowerCase())) || resilience.find(r => workflow.item.data.data.formula?.toLowerCase()?.includes(r));
                     if (resilientCondition || resilientDamage) {
-                        const effectData = {
-                            changes: [ 
-                                { key: "flags.midi-qol.advantage.ability.save.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, },
-                            ],
-                            disabled: false,
-                            flags: { dae: { specialDuration: "isSave" } },
-                            label: "Resilience Save Advantage"
-                        }
-                        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                        let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
+                            if (actor === targets[0].actor && abilityId === workflow.item.data.data.save.ability) {
+                                rollData.advantage = true;
+                                Hooks.off("Actor5e.preRollAbilitySave", hook);
+                            }
+                        });
                         console.warn("Resilience used");
                     }
 
