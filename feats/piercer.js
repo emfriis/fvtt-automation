@@ -113,12 +113,19 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "postDamageRoll") {
     let newRoll = new Roll(`1d${workflow.damageRoll.dice[0].faces}`).evaluate({ async: false });
 	if (game.dice3d) game.dice3d.showForRoll(newRoll);
 
-    let replaceDie = workflow.damageRoll.dice[0].results.find(i => i.result == useReroll);
-    let replaceResult = replaceDie.result;
-    if (replaceDie) {
-        replaceDie.result = newRoll.total;
-        workflow.damageRoll.total = workflow.damageRoll.total + newRoll.total - replaceResult;
-        workflow.damageRoll._total = workflow.damageRoll._total + newRoll.total - replaceResult;
+    let replaceRoll = workflow.damageRoll.dice[0].results.find(i => i.result == parseInt(useReroll));
+    if (replaceRoll) {
+        replaceRoll.rerolled = true;
+        replaceRoll.active = false;
+        workflow.damageRoll.dice[0].results.push({ result: parseInt(newRoll.result), active: true });
+        let newSubTotal = parseInt(workflow.damageRoll.dice[0].total) + parseInt(newRoll.total) - parseInt(replaceRoll.result);
+        workflow.damageRoll.dice[0].total = newSubTotal;
+        workflow.damageRoll.dice[0]._total = newSubTotal;
+        workflow.damageRoll.dice[0].result = newSubTotal;
+        let newTotal = parseInt(workflow.damageRoll.total) + parseInt(newRoll.total) - parseInt(replaceRoll.result);
+        workflow.damageRoll.total = newTotal;
+        workflow.damageRoll._total = newTotal;
+        workflow.damageRoll.result = newTotal;
         workflow.damageRollHTML = await workflow.damageRoll.render();
     }
 
