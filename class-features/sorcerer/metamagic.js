@@ -367,26 +367,41 @@ try {
             let results = dice[d].results;
             for (let r = 0; r < results.length; r++) {
                 if (results[r]?.rerolled) continue;
-                die_content += `<input type='checkbox' id='die${d}${r}' name='die' value='${results[r].result},${dice[d].faces},${d}'/>
-                <label for='die${d}${r}'><img src="icons/svg/d${workflow.damageRoll.dice[d].faces}-grey.svg" style="border:0px; width: 50px; height:50px;">${results[r].result}</label>
+                die_content += `<label class='checkbox-label' for='die${d}${r}'>
+                <input type='checkbox' id='die${d}${r}' name='die' value='${results[r].result},${dice[d].faces},${d}'/>
+                <img src="icons/svg/d${workflow.damageRoll.dice[d].faces}-grey.svg" style="border:0px; width: 50px; height:50px;">
+                ${results[r].result} (${dice[d].flavor})
+                </label>
                 `;
             }
         }
         let content = `
-            <style>
-            .dice .form-group {
-                display: flex;
-                flex-wrap: wrap;
-                width: 100%;
-                align-items: flex-start;
-            }
-            label {
-                border: 0px;
-                width: 50px;
-                height: 50px;
-                flex: 0 0 50px;
-                cursor: pointer;
-            }
+        <style>
+        .dice .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            align-items: flex-start;
+        }
+        .dice .checkbox-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            justify-items: center;
+            flex: 1 0 25%;
+            line-height: normal;
+        }
+        .dice .check-label input {
+            display: none;
+        }
+        .dice img {
+            border: 0px;
+            width: 50px;
+            height: 50px;
+            flex: 0 0 50px;
+            cursor: pointer;
+        }
             </style>
             <form class="dice">
                 <div>
@@ -400,7 +415,7 @@ try {
                 </div>
             </form>
         `;
-        let heightenedRerolls = await new Promise((resolve, reject) => {
+        let empoweredRerolls = await new Promise((resolve, reject) => {
             new Dialog({
                 title: "Metamagic: Heightened Spell",
                 content,
@@ -408,14 +423,14 @@ try {
                     Ok: {
                         label: "Ok",
                         callback: async () => {
-                    let rerolls = [];
-                    let checked = $("input[type='checkbox'][name='die']:checked"); 
-                    for (let c; c < checked.length; c++) {
-                        let rollData = c.val.split(",");
-                        rerolls.push({ result: rollData[0], faces: rollData[1], index: rollData[2] }); 
-                    } 
-                    resolve(rerolls);
-                },
+                            let rerolls = [];
+                            let checked = $("input[type='checkbox'][name='die']:checked"); 
+                            for (let c = 0; c < checked.length; c++) {
+                                let rollData = checked[c].value.split(",");
+                                rerolls.push({ result: rollData[0], faces: rollData[1], index: rollData[2] }); 
+                            } 
+                            resolve(rerolls);
+                        },
                     },
                     Cancel: {
                         label: "Cancel",
@@ -426,19 +441,26 @@ try {
                 close: () => {resolve(false)}
             }).render(true);
         });
-        let rerolls = await heightenedRerolls;
+        let rerolls = await empoweredRerolls;
         if (!rerolls) return;
         if (rerolls.length > Math.max(1, tactor.data.data.abilities.cha.mod)) return ui.notifications.warn(`Too many dice selected (Maximum ${Math.max(1, tactor.data.data.abilities.cha.mod)})`);
 	    for (let r = 0; r < rerolls.length; r++) {
-            let rollData = rerolls[r];
-            let newRoll = new Roll(rollData.rollable).evaluate({ async: false });
+            let result = rerolls[r].result;
+            let faces = rerolls[r].faces;
+            let index = rerolls[r].index;
+            console.error("rollData", result, faces, index)
+            let newRoll = new Roll(`1d${faces}`).evaluate({ async: false });
             if (game.dice3d) game.dice3d.showForRoll(newRoll);
-            let replaceRoll = workflow.damageRoll.dice.find(diceData => diceData.results.find(d => d.result === rollData.total));
+            let replaceRoll = workflow.damageRoll.dice[index].results.find(d => d.result == result && d.active);
+            console.error(workflow.damageRoll.dice[index].results)
+            console.error(replaceRoll)
             if (!replaceRoll) continue;
-            let replaceResult = replaceDie.result;
-            replaceDie.result = newRoll.total;
-            workflow.damageRoll.total = workflow.damageRoll.total + newRoll.total - replaceResult;
-            workflow.damageRoll._total = workflow.damageRoll._total + newRoll.total - replaceResult;
+            let replaceResult = replaceRoll.result;
+            replaceRoll.result = newRoll.total;
+            workflow.damageRoll.dice[index].total += newRoll.total - replaceResult;
+            workflow.damageRoll.dice[index]._total += newRoll.total - replaceResult;
+            workflow.damageRoll.total += newRoll.total - replaceResult;
+            workflow.damageRoll._total += newRoll.total - replaceResult;
             workflow.damageRollHTML = await workflow.damageRoll.render();
         }
 
