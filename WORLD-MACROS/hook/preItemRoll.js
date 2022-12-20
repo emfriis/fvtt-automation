@@ -42,7 +42,7 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
         // range check preamble
         let range;
         let longRange;
-        if (workflow.token && [null, "", "creature", "ally", "enemy"].includes(workflow.item.data.data.target.type) && ["ft", "touch"].includes(workflow.item.data.data.range.units)) {
+        if (workflow.token && [null, "", "creature", "ally", "enemy"].includes(workflow.item.data.data.target.type) && ["ft", "touch"].includes(workflow.item.data.data.range.units) && !(["mwak","msak"].includes(workflow.item.data.data.actionType) && game.combat && game.combat?.current.tokenId !== workflow.tokenId)) {
             try {
                 console.warn("Range Check Preamble Activated");
                 range = workflow.item.data.data.range.value ? workflow.item.data.data.range.value : 5;

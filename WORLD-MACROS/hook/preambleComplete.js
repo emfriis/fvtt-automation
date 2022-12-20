@@ -37,7 +37,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
         if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
 
         // range check cleanup
-        if (workflow.token && [null, "", "creature", "ally", "enemy"].includes(workflow.item.data.data.target.type) && ["ft", "touch"].includes(workflow.item.data.data.range.units)) {
+        if (workflow.token && [null, "", "creature", "ally", "enemy"].includes(workflow.item.data.data.target.type) && ["ft", "touch"].includes(workflow.item.data.data.range.units) && !(["mwak","msak"].includes(workflow.item.data.data.actionType) && game.combat && game.combat?.current.tokenId !== workflow.tokenId)) {
             try {
                 console.warn("Range Check Cleanup Activated");
                 const needsCleanup = (workflow.actor.items.find(i => i.name === "Metamagic: Distant Spell"));
@@ -69,6 +69,18 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                 }
             } catch (err) {
                 console.error("Range Check Cleanup error", err);
+            }
+        }
+
+        // silence
+        if (workflow.item.data.type === "spell" && workflow.actor.data.flags["midi-qol"].silence && workflow.item.data.data?.components?.vocal && !workflow.actor.data.flags["midi-qol"].subtleSpell) {
+            try {
+              console.warn("Silence activated");
+              ui.notifications.warn("You cannot perform verbal spell components - the spell fails");
+              console.warn("Silence used");
+              return false;
+            } catch (err) {
+              console.error("Silence error", err);
             }
         }
 
