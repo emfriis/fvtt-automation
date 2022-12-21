@@ -64,7 +64,7 @@ try {
     let options = { targetUuids: [targetUuid] };
     await MidiQOL.completeItemRoll(item, options);
     await wait(500);
-    await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
+    await sourceTactor.deleteEmbeddedDocuments("Item", [item.id]);
 } catch (err) {
     console.error("ApplyDamage error", err);
     try {

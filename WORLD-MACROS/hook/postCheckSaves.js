@@ -11,7 +11,11 @@ function playerForActor(actor) {
 
 Hooks.on("midi-qol.postCheckSaves", async (workflow) => {
     try {
-	  const targets = Array.from(workflow.targets);
+
+        let socket;
+        if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
+	    
+        const targets = Array.from(workflow.targets);
         for (let t = 0; t < targets.length; t++) {
             let token = targets[t];
             let tactor = token.actor;
@@ -22,7 +26,6 @@ Hooks.on("midi-qol.postCheckSaves", async (workflow) => {
                 try {
                     console.warn("Shield Master activated");
                     let player = await playerForActor(token.actor);
-                    let socket = socketlib.registerModule("user-socket-functions");
                     let useShield = false;
                     if (player && socket) useShield = await socket.executeAsUser("useDialog", player.id, { title: `Shield Master`, content: `Use your reaction to reduce damage to zero?` });
                     if (useShield) {
