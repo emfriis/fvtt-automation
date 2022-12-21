@@ -53,7 +53,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                     try {
                         console.warn("Rage activated");
                         const rollData = tactor.getRollData();
-                        const barbarian = rollData?.classes?.barbarian?.levels;
+                        const barbarian = rollData.details?.cr ?? rollData?.classes?.barbarian?.levels;
                         if (barbarian && barbarian < 15) {
                             if (!tactor.data.flags["midi-qol"].rageDamaged) await tactor.setFlag("midi-qol", "rageDamaged", 1);
                         } 

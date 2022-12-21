@@ -7,7 +7,7 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.tokenUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const actorData = tactor.getRollData();
-const barbarian = actorData.classes?.barbarian?.levels;
+const barbarian = actorData.details?.cr ?? actorData.classes?.barbarian?.levels;
 if (!barbarian) return;
 
 if (args[0] === "each") {
