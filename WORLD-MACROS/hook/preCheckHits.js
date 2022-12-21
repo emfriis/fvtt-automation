@@ -18,7 +18,7 @@ function calculateCover(sourceToken, targetToken) {
     const baseZ = targetToken.data.elevation;
     const targetHeight = targetToken.losHeight == baseZ ? baseZ+0.001 : targetToken.losHeight;
     const sourcePov = {  x: sourceToken.center.x, y: sourceToken.center.y, z: sourceHeight, };
-    const precision = 5;
+    const precision = 10;
     let volPercent = 0;
     let collisionTestPoints = [];
     for (let zC = baseZ; zC <= targetHeight; zC += (targetHeight - baseZ) / precision) {
@@ -62,16 +62,16 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         console.warn("Full Cover used");
-                    } else if (calculatedCover >= 65) {
+                    } else if (calculatedCover >= 65 && !tactor.effects.find(e => e.data.label === "Three-Quarters Cover") && !tactor.effects.find(e => e.data.label === "Half Cover")) {
                         const effectData = {
                             changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 5, priority: 20, },],
                             disabled: false,
-                            label: "Three Quarters Cover",
+                            label: "Three-Quarters Cover",
                             flags: { dae: { specialDuration: ["isAttacked"] } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         console.warn("3/4 Cover used");
-                    } else if (calculatedCover >= 40) {
+                    } else if (calculatedCover >= 40 && !tactor.effects.find(e => e.data.label === "Three-Quarters Cover") && !tactor.effects.find(e => e.data.label === "Half Cover")) {
                         const effectData = {
                             changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 2, priority: 20, },],
                             disabled: false,
