@@ -49,7 +49,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
 		        if (!tactor) continue;
 
                 // rage
-                if (attackWorkflow[a].appliedDamage > 0 && tactor.effects.find(e => e.data.label === "Rage")) {
+                if (attackWorkflow[a].appliedDamage > 0 && tactor.data.flags["midi-qol"?.rage]) {
                     try {
                         console.warn("Rage activated");
                         const rollData = tactor.getRollData();

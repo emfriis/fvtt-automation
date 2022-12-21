@@ -68,19 +68,25 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                     }
                 }
 
-                // fall prone
-                if ((tactor.data.data.attributes.hp.value === 0 || tactor.effects.find(e => e.data.label === "Unconscious")) && !tactor.effects.find(e => e.data.label === "Prone")) {
+                // unconscious cleanup
+                if ((tactor.data.data.attributes.hp.value === 0 || tactor.effects.find(e => e.data.label === "Unconscious"))) {
                     try {
-                        console.warn("Fall Prone activated");
-				        const effectData = {
-                            changes: [{ key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Prone", priority: 20, },],
-                            disabled: false,
-                            label: "Prone",
+                        console.warn("Unconscious Cleanup activated");
+                        if (!tactor.effects.find(e => e.data.label === "Prone")) {
+                            const effectData = {
+                                changes: [{ key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Prone", priority: 20, },],
+                                disabled: false,
+                                label: "Prone",
+                            }
+                            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         }
-                        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-				        console.warn("Fall Prone used");
+                        if (tactor.data.flags["midi-qol"]?.rage) {
+                            let rage = tactor.effects.find(e => e.data.label === "Rage");
+                            if (rage) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [rage.id] });
+                        }
+				        console.warn("Unconscious Cleanup used");
                     } catch(err) {
-                        console.error("Fall Prone error", err);
+                        console.error("Unconscious Cleanup error", err);
                     }
                 }
 		    }
