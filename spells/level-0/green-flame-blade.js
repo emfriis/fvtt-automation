@@ -96,7 +96,7 @@ if (args[0].tag === "OnUse" && lastArg.targets.length === 1) {
                     }
                     weaponCopy.name = weaponItem.name + " [Green Flame Blade]";
                     const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: tactor });
-                    const options = { showFullCard: false, createWorkflow: true, configureDialog: true, targets: [lastArg.targetUuids[0]] };
+                    const options = { showFullCard: false, createWorkflow: true, configureDialog: true, targetUuids: [lastArg.targetUuids[0]] };
                     const workflow = await MidiQOL.completeItemRoll(attackItem, options);
                     if (!workflow.hitTargets.size) return;
                     let dialog =  new Promise(async (resolve, reject) => {

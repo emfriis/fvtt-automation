@@ -99,7 +99,7 @@ if (args[0].tag === "OnUse") {
                             };
                             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         }
-                        const options = { showFullCard: false, createWorkflow: true, configureDialog: true, targets: [lastArg.targetUuids[t]] };
+                        const options = { showFullCard: false, createWorkflow: true, configureDialog: true, targetUuids: [lastArg.targetUuids[t]] };
                         await MidiQOL.completeItemRoll(attackItem, options);
                     }
                 },
