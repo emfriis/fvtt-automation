@@ -21,7 +21,7 @@ if (args[0] === "each") {
 
 if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll" && barbarian < 15) {
 	if (["mwak", "rwak", "msak", "rsak"].includes(lastArg.itemData.data.actionType)) {
-		if (!tactor.data.flags["midi-qol"].rageAttacked) await tactor.setFlag("midi-qol", "rageAttacked", 1);
+		if (!tactor.data.flags["midi-qol"].rageAttacked) await tactor.setFlag("midi-qol", "rageAttacked", true);
 	}
 }
 

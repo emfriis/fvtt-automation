@@ -49,13 +49,14 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
 		        if (!tactor) continue;
 
                 // rage
-                if (attackWorkflow[a].appliedDamage > 0 && tactor.data.flags["midi-qol"?.rage]) {
+                if (attackWorkflow[a].appliedDamage > 0 && tactor.data.flags["midi-qol"]?.rage) {
                     try {
                         console.warn("Rage activated");
                         const rollData = tactor.getRollData();
                         const barbarian = rollData.details?.cr ?? rollData?.classes?.barbarian?.levels;
                         if (barbarian && barbarian < 15) {
-                            if (!tactor.data.flags["midi-qol"].rageDamaged) await tactor.setFlag("midi-qol", "rageDamaged", 1);
+                            if (!tactor.data.flags["midi-qol"]?.rageDamaged) await tactor.setFlag("midi-qol", "rageDamaged", true);
+                            console.warn("Rage Damaged used");
                         } 
                         if (barbarian && barbarian >= 11 && tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0) {
                             const relentlessDC = getProperty(tactor.data.flags, "midi-qol.relentlessDC") ?? 10;
