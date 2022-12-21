@@ -19,14 +19,11 @@ let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
             {
                 //type: "feat",
                 flags: {
-                    "midi-qol": {
-                        onUseMacroName: null
-                    }
+                    "midi-qol": { onUseMacroName: null }
                 },
                 data: {
-                    activation: {
-                        type: "none"
-                    },
+                    activation: { type: "none" },
+                    prerparation: { mode: "atwill" },
                     damage: { parts: [[workflow.item.data.data.damage.parts[0][0], workflow.item.data.data.damage.parts[0][1]]] }
                 }
             },

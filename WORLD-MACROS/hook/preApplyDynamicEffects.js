@@ -107,7 +107,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         let damageThreshold = parseInt(tactor.data.flags["midi-qol"].relentless) ?? Math.ceil(tactor.data.data.details?.cr * 2 + 6);
                         if (featItem && featItem.data.data.uses.value && featItem.data.data.uses.value > 0 && damageThreshold && attackWorkflow[a].appliedDamage <= damageThreshold) {
                             if (socket) await socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
-                            if (socket) await socket.executeAsGM("updateItem", { actorUuid: featItem.uuid, updates: {"data.uses.value" : featItem.data.data.uses.value - 1} });
+                            if (socket) await socket.executeAsGM("updateItem", { itemUuid: featItem.uuid, updates: {"data.uses.value" : featItem.data.data.uses.value - 1} });
                             console.warn("Relentless used");
                         }
                     } catch(err) {
@@ -122,10 +122,10 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         let featItem = await tactor.items.find(i => i.name === "Relentless Endurance");
                         let player = await playerForActor(tactor);
                         let useFeat = false;
-                        if (socket) useFeat = await socket.executeAsUser("useDialog", player.id, { title: `Relentless Endurance`, content: `Use Relentless Endurance to survive grievous wounds?` });
+                        if (featItem && featItem.data.data.uses.value && socket) useFeat = await socket.executeAsUser("useDialog", player.id, { title: `Relentless Endurance`, content: `Use Relentless Endurance to survive grievous wounds?` });
                         if (useFeat) {
                             if (socket) await socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
-                            if (socket) await socket.executeAsGM("updateItem", { actorUuid: featItem.uuid, updates: {"data.uses.value" : featItem.data.data.uses.value - 1} });
+                            if (socket) await socket.executeAsGM("updateItem", { itemUuid: featItem.uuid, updates: {"data.uses.value" : featItem.data.data.uses.value - 1} });
                             let effect = tactor.effects.find(i => i.data.label === "Unconscious");
                             if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                             console.warn("Relentless Endurance used");

@@ -25,11 +25,16 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll" && barbaria
 	}
 }
 
-if (args[0].tag == "DamageBonus" && lastArg.item.data.actionType === "mwak" && lastArg.item.abilityMod === "str") {
+if (args[0].tag == "DamageBonus" && lastArg.item.data.actionType === "mwak" && (lastArg.item.data.ability === "str" || lastArg.item.data.ability === "")) {
     const damageBonus = barbarian >= 16 ? "4" : barbarian >= 9 ? "3" : barbarian >= 1 ? "2" : "0";
 	const damageType = lastArg.item.data.damage.parts[0][1];
     return {damageRoll: `${damageBonus}[${damageType}]`, flavor: "Rage"};
 } 
+
+if (args[0] === "on") {
+	if (tactor.data.flags["midi-qol"].rageAttacked) await tactor.unsetFlag("midi-qol", "rageAttacked");
+	if (tactor.data.flags["midi-qol"].rageDamaged) await tactor.unsetFlag("midi-qol", "rageDamaged");
+}
 
 if (args[0] === "off") {
 	if (tactor.data.flags["midi-qol"].rageAttacked) await tactor.unsetFlag("midi-qol", "rageAttacked");
