@@ -23,7 +23,7 @@ let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
                 },
                 data: {
                     activation: { type: "none" },
-                    prerparation: { mode: "atwill" },
+                    preparation: { mode: "atwill" },
                     damage: { parts: [[workflow.item.data.data.damage.parts[0][0], workflow.item.data.data.damage.parts[0][1]]] }
                 }
             },
@@ -32,7 +32,7 @@ let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
         const attackItem = workflow.actor.items.find(i => i.name === workflow.item.name && i.data.data.activation.type === "none");
 
         async function applyAttack(targetUuid) {
-            let rollOptions = { targetUuids: [targetUuid], showFullCard: false };
+            let rollOptions = { targetUuids: [targetUuid], showFullCard: false, configureDialog: false };
             await MidiQOL.completeItemRoll(attackItem, rollOptions);
         };
 

@@ -5,7 +5,7 @@ const tokenOrActor = await fromUuid(args[0].actorUuid);
 const tactor = tokenOrActor.actor ?? tokenOrActor;
 
 if (args[0].tag === "OnUse" && args[0].hitTargets.length > 0) {
-    let item = tactor.items.find(i => i.name === "Channel Divinity (Cleric)");
+    let item = tactor.items.find(i => i.name.toLowerCase().includes("channel divinity"));
     if (!item || !item.data.data.uses.value) return;
     const workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
     if (!(["lightning", "thunder"].some(type => type === workflow.item.data.data.damage.parts[0][1].toLowerCase()))) return;
