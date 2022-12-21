@@ -30,6 +30,7 @@ try {
         const folderContents = filteredFolder.reduce((acc, target) => acc += `<option value="${target.id}">${target.name} CR: ${target.data.data.details.cr}</option>`, ``);
         const content = `<p>Pick a beast</p><form><div class="form-group"><label for="beast">Beast:</label><select id="beast">${folderContents}</select></div></form>`;
         const keepItems = tactor.items.filter(i => i.data.type === "feat" && !["blind sight", "darkvision", "tremorsense", "true sight"].some(v => i.name.toLowerCase().includes(v)) && i.name !== "Wild Shape").map(i => i.data);
+        const removeVisionEffects = tactor.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v))).map(e => e.id);
         new Dialog({
             title: "Wild Shape",
             content: content,
@@ -45,17 +46,21 @@ try {
                         // transform
                         let polyOptions = { keepBio: true, keepClass: true, keepMental: true, mergeSaves: true, mergeSkills: true, transformTokens: true }
                         await socket.executeAsGM("transformActor", { actorUuid: tactor.uuid, folderName: folderName, transformId: polyId, transformOptions: polyOptions });
+                        
+                        // post transform config
+                        await wait(100);
                         let findPoly = await game.actors.find(i => i.name === `${tactor.name} (${findToken.name})`);
+                        console.error(findPoly);
                         await canvas.scene.updateEmbeddedDocuments("Token", [{ "_id": getToken._id, "displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, "mirrorX": getToken.mirrorX, "mirrorY": getToken.mirrorY, "rotation": getToken.rotation, "elevation": getToken.elevation }]);
                         await findPoly.setFlag("midi-qol", "wildShape", tactor.uuid);
                         await findPoly.setFlag("midi-qol", "wildShapeEffects", findToken.effects.map(e => e.data.label));
-                        console.error(1)
+
                         // primal strike
                         if (primalStrike) {
                             let weapons = findPoly.items.filter((i) => i.data.type === "weapon");
                             weapons.forEach((weapon) => { weapon.update({ "data.properties.mgc": true }) });
                         }
-                        console.error(2)
+                        
                         // update spells
                         let keys = Object.keys(tactor.data.data.spells);
                         let spellUpdates = keys.reduce((acc, values, i) => {
@@ -64,15 +69,15 @@ try {
                             return acc;
                         }, {});
                         await findPoly.update(spellUpdates);
-                        console.error(3)
+                        
                         // create class/racial/other feat items
                         await findPoly.createEmbeddedDocuments("Item", keepItems);
-                        console.error(4)
+                        
                         // remove duplicate effects
                         findPoly.effects.forEach(async effect => {
-                            if (findPoly.effects.find(e => ((e.uuid !== effect.uuid && e.data.label === effect.data.label) || ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => effect.data.label.toLowerCase().includes(v))) && e.data.origin.includes(tactor.uuid))) await findPoly.deleteEmbeddedDocuments("ActiveEffect", [effect.id]); 
+                            if (findPoly.effects.find(e => e.uuid !== effect.uuid && e.data.label === effect.data.label && e.data.origin.includes(tactor.uuid))) await findPoly.deleteEmbeddedDocuments("ActiveEffect", [effect.id]); 
                         });
-                        console.error(5)
+                        
                         // create removal effect
                         const effectData = {
                             label: "Wild Shape",
@@ -86,7 +91,7 @@ try {
                             flags: { "dae": { itemData: lastArg.item, token: tactor.uuid, } },
                         }
                         await findPoly.createEmbeddedDocuments("ActiveEffect", [effectData]);
-                        console.error(6)
+                        
                         // revert wild shape
                         let wildShapeRevert = [{
                             "name": "Wild Shape (Revert)",
@@ -118,12 +123,12 @@ try {
                             }
                         }];
                         await findPoly.createEmbeddedDocuments("Item", wildShapeRevert);
-                        console.error(7)
+                        
                         // reload vision effects
                         await wait(100);
                         const visionEffects = findPoly.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)));
-                        await findPoly.deleteEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.id));
-                        await findPoly.createEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.data));
+                        await findPoly.deleteEmbeddedDocuments("ActiveEffect", visionEffects.filter(e => !removeVisionEffects.includes(e.id)).map(e => e.id));
+                        await findPoly.createEmbeddedDocuments("ActiveEffect", visionEffects.filter(e => !removeVisionEffects.includes(e.id)).map(e => e.data));
                     }
                 }
             },
