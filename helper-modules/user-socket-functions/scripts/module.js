@@ -11,6 +11,18 @@ try {
         });
     };
 
+    // transformActor
+    async function transformActor (...args) {
+        return new Promise(async (resolve, reject) => {
+            const tokenOrActor = await fromUuid(args[0]?.actorUuid);
+            const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+            const folderContents = game.folders.getName(args[0]?.folderName).content;
+            const transformTarget = folderContents.find(i => i.id === args[0]?.transformId);
+            await tactor.transformInto(transformTarget, args[0]?.transformOptions);
+            resolve(true); 
+        });
+    }
+
     // updateItem
     async function updateItem(...args) {
         return new Promise(async (resolve, reject) => {
@@ -191,6 +203,7 @@ try {
     Hooks.once("socketlib.ready", () => {
         socket = socketlib.registerModule("user-socket-functions");
         socket.register("updateActor", updateActor);
+        socket.register("transformActor", transformActor);
         socket.register("updateItem", updateItem);
         socket.register("midiItemRoll", midiItemRoll);
         socket.register("useDialog", useDialog);

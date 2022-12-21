@@ -9,6 +9,9 @@ const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
+let socket;
+if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
+
 try {
     if (args[0].tag === "OnUse") {
 
@@ -27,7 +30,6 @@ try {
         const folderContents = filteredFolder.reduce((acc, target) => acc += `<option value="${target.id}">${target.name} CR: ${target.data.data.details.cr}</option>`, ``);
         const content = `<p>Pick a beast</p><form><div class="form-group"><label for="beast">Beast:</label><select id="beast">${folderContents}</select></div></form>`;
         const keepItems = tactor.items.filter(i => i.data.type === "feat" && !["blind sight", "darkvision", "tremorsense", "true sight"].some(v => i.name.toLowerCase().includes(v)) && i.name !== "Wild Shape").map(i => i.data);
-        const removeEffects = tactor.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v))).map(e => e.id);
         new Dialog({
             title: "Wild Shape",
             content: content,
@@ -39,20 +41,52 @@ try {
                         let polyId = html.find('#beast')[0].value;
                         let findToken = getFolder.find(i => i.id === polyId);
                         const getToken = duplicate(token.data);
-
+                        
                         // transform
-                        await tactor.transformInto(findToken, { keepBio: true, keepClass: true, keepMental: true, mergeSaves: true, mergeSkills: true, transformTokens: true });
+                        let polyOptions = { keepBio: true, keepClass: true, keepMental: true, mergeSaves: true, mergeSkills: true, transformTokens: true }
+                        await socket.executeAsGM("transformActor", { actorUuid: tactor.uuid, folderName: folderName, transformId: polyId, transformOptions: polyOptions });
                         let findPoly = await game.actors.find(i => i.name === `${tactor.name} (${findToken.name})`);
                         await canvas.scene.updateEmbeddedDocuments("Token", [{ "_id": getToken._id, "displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, "mirrorX": getToken.mirrorX, "mirrorY": getToken.mirrorY, "rotation": getToken.rotation, "elevation": getToken.elevation }]);
                         await findPoly.setFlag("midi-qol", "wildShape", tactor.uuid);
                         await findPoly.setFlag("midi-qol", "wildShapeEffects", findToken.effects.map(e => e.data.label));
-
+                        console.error(1)
                         // primal strike
                         if (primalStrike) {
                             let weapons = findPoly.items.filter((i) => i.data.type === "weapon");
                             weapons.forEach((weapon) => { weapon.update({ "data.properties.mgc": true }) });
                         }
-
+                        console.error(2)
+                        // update spells
+                        let keys = Object.keys(tactor.data.data.spells);
+                        let spellUpdates = keys.reduce((acc, values, i) => {
+                            acc[`data.spells.${values}.value`] = Object.values(tactor.data.data.spells)[i].value;
+                            acc[`data.spells.${values}.max`] = Object.values(tactor.data.data.spells)[i].max;
+                            return acc;
+                        }, {});
+                        await findPoly.update(spellUpdates);
+                        console.error(3)
+                        // create class/racial/other feat items
+                        await findPoly.createEmbeddedDocuments("Item", keepItems);
+                        console.error(4)
+                        // remove duplicate effects
+                        findPoly.effects.forEach(async effect => {
+                            if (findPoly.effects.find(e => ((e.uuid !== effect.uuid && e.data.label === effect.data.label) || ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => effect.data.label.toLowerCase().includes(v))) && e.data.origin.includes(tactor.uuid))) await findPoly.deleteEmbeddedDocuments("ActiveEffect", [effect.id]); 
+                        });
+                        console.error(5)
+                        // create removal effect
+                        const effectData = {
+                            label: "Wild Shape",
+                            icon: "icons/creatures/mammals/elk-moose-marked-green.webp",
+                            changes: [
+                                { key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: ``, priority: 20 },
+                            ],
+                            origin: item.uuid,
+                            disabled: false,
+                            duration: { seconds: Math.floor(classLevel / 2) * 3600, startTime: game.time.worldTime },
+                            flags: { "dae": { itemData: lastArg.item, token: tactor.uuid, } },
+                        }
+                        await findPoly.createEmbeddedDocuments("ActiveEffect", [effectData]);
+                        console.error(6)
                         // revert wild shape
                         let wildShapeRevert = [{
                             "name": "Wild Shape (Revert)",
@@ -84,41 +118,7 @@ try {
                             }
                         }];
                         await findPoly.createEmbeddedDocuments("Item", wildShapeRevert);
-
-                        // update spells
-                        let keys = Object.keys(tactor.data.data.spells);
-                        let spellUpdates = keys.reduce((acc, values, i) => {
-                            acc[`data.spells.${values}.value`] = Object.values(tactor.data.data.spells)[i].value;
-                            acc[`data.spells.${values}.max`] = Object.values(tactor.data.data.spells)[i].max;
-                            return acc;
-                        }, {});
-                        await findPoly.update(spellUpdates);
-
-                        // create class/racial/other feat items
-                        await findPoly.createEmbeddedDocuments("Item", keepItems);
-                        
-                        // remove existing vision effects
-                        await findPoly.deleteEmbeddedDocuments("ActiveEffect", removeEffects);
-
-                        // remove duplicate effects
-                        findPoly.effects.forEach(async effect => {
-                            if (findPoly.effects.find(e => e.uuid !== effect.uuid && e.data.label === effect.data.label && e.data.origin.includes(tactor.uuid))) await findPoly.deleteEmbeddedDocuments("ActiveEffect", [effect.id]); 
-                        });
-
-                        // create removal effect
-                        const effectData = {
-                            label: "Wild Shape",
-                            icon: "icons/creatures/mammals/elk-moose-marked-green.webp",
-                            changes: [
-                                { key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: ``, priority: 20 },
-                            ],
-                            origin: item.uuid,
-                            disabled: false,
-                            duration: { seconds: Math.floor(classLevel / 2) * 3600, startTime: game.time.worldTime },
-                            flags: { "dae": { itemData: lastArg.item, token: tactor.uuid, } },
-                        }
-                        await findPoly.createEmbeddedDocuments("ActiveEffect", [effectData]);
-
+                        console.error(7)
                         // reload vision effects
                         await wait(100);
                         const visionEffects = findPoly.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)));

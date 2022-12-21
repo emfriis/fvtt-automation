@@ -23,7 +23,7 @@ Hooks.on("Actor5e.preRollSkill", async (actor, rollData, abilityId) => {
                 if (token) {
                     const seeFear = canvas.tokens.placeables.find(async p => 
                         p?.actor && // exists
-                        actor.data.flags["midi-qol"].fear.includes(p.actor.uuid) && // is fear source
+                        workflow.actor.data.flags["midi-qol"].fear.includes(p.id) && // is fear source
                         await canSee(workflow.token, p) // can see los
                     );
                     if (seeFear) {

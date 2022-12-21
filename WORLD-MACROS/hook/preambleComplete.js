@@ -90,7 +90,8 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
 		    console.warn("Counterspell activated");
             const components = workflow.item.data.data?.components;
             if ((components.vocal || components.somatic || components.material) && !(workflow.actor.data.flags["midi-qol"].subtleSpell && !components.material)) {
-                let counterTokens = canvas.tokens.placeables.filter(p =>
+                let counterTokens = canvas.tokens.placeables.filter(p => {
+                    let cToken = (
                         p?.actor && // exists
                         p.actor.items.find(i => i.name === "Counterspell" && i.type === "spell") && // has item
                         p.actor.uuid !== workflow.token.actor.uuid && // not caster
@@ -98,7 +99,9 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                         !p.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].includes(e.data.label)) && // can react
                         MidiQOL.getDistance(p, workflow.token, false) <= 60 && // in range
                         canSee(p, workflow.token) // can see
-            	);
+                    );
+                    return cToken;
+                });
            		for (let c = 0; c < counterTokens.length; c++) {
                     let token = counterTokens[c];
                     let player = await playerForActor(token?.actor);
