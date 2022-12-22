@@ -1,4 +1,7 @@
 // metamagic
+// effect on use pre item roll
+// effect on use pre attack roll
+// effect on use post damage roll
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
