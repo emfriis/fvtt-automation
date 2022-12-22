@@ -21,6 +21,7 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     let effectData1 = {
         changes: [
             { key: "flags.parent", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: lastArg.tokenId, priority: 20, },
+            { key: "ATL.disposition", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: token.data.disposition, priority: 20, },
             { key: "data.attributes.spelldc", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.data.data.attributes.spelldc, priority: 20 },
         ],
         label: "Guardian of Faith",

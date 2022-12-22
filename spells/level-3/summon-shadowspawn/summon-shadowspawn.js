@@ -6,7 +6,7 @@ const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const spellLevel = args[1];
-const bonus = tactor.data.data.attributes.prof + tactor.data.data.abilities[tactor.data.data.attributes.spellcasting].mod;
+const bonus = tactor.data.data.attributes.prof + tactor.data.data.abilities[tactor.data.data.attributes.spellcasting]?.mod ?? tactor.data.data.abilities.int.mod;
 
 async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     let ef = tactor.effects.find(i => i.data.label === "Summon Shadowspawn");
@@ -18,6 +18,7 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     let effectData = {
         changes: [
             { key: "flags.parent", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: lastArg.tokenId, priority: 20, },
+            { key: "ATL.disposition", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: token.data.disposition, priority: 20, },
             { key: `data.attributes.spelldc`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.data.data.attributes.spelldc, priority: 20 },
         ],
         label: "Summon Shadowspawn",
@@ -67,15 +68,13 @@ if (args[0] === "on") {
         actor: { 
             "name": `Shadow Spirit (${tactor.name})`, 
             "data": { 
-                "data": { 
-                    "attributes": {
-                        "hp": {
-                            "value": spellLevel * 15 - 10,
-                            "max": spellLevel * 15 - 10
-                        },
-                        "ac": {
-                            "value": 11 + spellLevel
-                        }
+                "attributes": {
+                    "hp": {
+                        "value": spellLevel * 15 - 10,
+                        "max": spellLevel * 15 - 10
+                    },
+                    "ac": {
+                        "value": 11 + spellLevel,
                     }
                 }
             }
@@ -83,8 +82,8 @@ if (args[0] === "on") {
         embedded: {
             Item: {
                 "Chilling Rend": {
-                    "data.attackBonus": bonus - 3,
-                    "data.damage.parts": [[`1d12 + 3 + ${spellLevel}`, "cold"]]
+                    "data.attackBonus": `${bonus - 3}`,
+                    "data.damage.parts": [[`1d12 + 3 + ${spellLevel}`, "cold"]],
                 }
             }
         }
