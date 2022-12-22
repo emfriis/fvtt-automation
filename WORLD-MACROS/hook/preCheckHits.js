@@ -95,7 +95,7 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                         let images = tactor.effects.filter(i => i.data.label === "Mirror Image").length;
                         let dc = images === 3 ? 6 : images === 2 ? 8 : images === 1 ? 11 : 9999;
                         let ac = 10 + tactor.data.data.abilities.dex.mod;
-                        const roll = new Roll(`1d20`).evaluate({ async: false });
+                        const roll = await new Roll(`1d20`).evaluate({ async: false });
                         if (game.dice3d) game.dice3d.showForRoll(roll);
                         if (roll.total >= dc) {
                             if (workflow.attackRoll.total >= ac) {

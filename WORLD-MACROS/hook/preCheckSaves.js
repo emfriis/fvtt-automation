@@ -64,7 +64,7 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
                         changes: [{ key: "data.bonuses.abilities.save", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 2, priority: 20, }],
                         disabled: false,
                         label: `Shield Master`,
-                        flags: { dae: { specialDuration: "isSave" } },
+                        flags: { dae: { specialDuration: ["isSave"] } },
                     };
                     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                     console.warn("Shield Master used");

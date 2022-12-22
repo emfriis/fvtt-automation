@@ -33,12 +33,13 @@ Hooks.on("midi-qol.postCheckSaves", async (workflow) => {
                             changes: [{ key: "data.traits.di.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, }],
                             disabled: false,
                             label: `Shield Master Damage Reduction`,
+                            flags: { dae: { specialDuration: "isDamaged" } },
                         };
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
                             if (workflowNext.uuid === workflow.uuid) {
-                                const effect = token.actor?.effects.find(i => i.data.label === "Shield Master Damage Reduction");
-                                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                                const effect = tactor.effects.find(i => i.data.label === "Shield Master Damage Reduction");
+                                if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                                 Hooks.off("midi-qol.preApplyDynamicEffects", hook);
                             }
                         });
