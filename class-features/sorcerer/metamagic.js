@@ -6,10 +6,18 @@ const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
-if (args[0].tag !== "OnUse" || lastArg.item.type !== "spell") return;
-
 const usesItem = tactor.items.find(i => i.name === "Sorcery Points");
 if (!usesItem || !usesItem.data.data.uses.value) return;
+
+if (args[0].tag !== "OnUse") {
+    let seekingEffect = tactor.effects.find(e => e.data.label === "Metamagic: Seeking Spell");
+    if (seekingEffect) {
+        await usesItem.update({ "data.uses.value": Math.max(0, usesItem.data.data.uses.value - 2) });
+        await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [seekingEffect.id] });
+    }
+}
+
+if (args[0].tag !== "OnUse" || lastArg.item.type !== "spell") return;
 
 try {
     if (lastArg.macroPass === "preItemRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.data.activation.type)) {
@@ -99,6 +107,7 @@ try {
 
         if (metamagic === "careful") {
 
+            // careful spell
             let carefulDialog =  new Promise(async (resolve, reject) => {
                 new Dialog({
                     title: "Metamagic: Careful Spell",
@@ -142,7 +151,7 @@ try {
                     Hooks.off("midi-qol.preItemRoll", hook3);
                 }
             });
-            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
+            await usesItem.update({ "data.uses.value": Math.max(0, usesItem.data.data.uses.value - 1) });
 
         } else if (metamagic === "distant") {
         
@@ -153,10 +162,11 @@ try {
                 flags: { dae: { specialDuration: ["1Spell"] } }
             }
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
+            await usesItem.update({ "data.uses.value": Math.max(0, usesItem.data.data.uses.value - 1) });
 
         } else if (metamagic === "extended") {
         
+            // extended spell
             let value = args[0].item.data.duration.value;
             let efHook = Hooks.on("midi-qol.RollComplete", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid) {
@@ -197,10 +207,11 @@ try {
                     Hooks.off("midi-qol.preItemRoll", hook3);
                 }
             });
-            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
+            await usesItem.update({ "data.uses.value": Math.max(0, usesItem.data.data.uses.value - 1) });
 
         } else if (metamagic === "heightened") {
 
+            // heightened spell
 		    let heightenedDialog =  new Promise(async (resolve, reject) => {
                 new Dialog({
                     title: "Metamagic: Heightened Spell",
@@ -245,15 +256,16 @@ try {
                     Hooks.off("midi-qol.preItemRoll", hook3);
                 }
             });
-            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 3 });
+            await usesItem.update({ "data.uses.value": Math.max(0, usesItem.data.data.uses.value - 3) });
 
 	    } else if (metamagic === "quickened") {
 
             if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: tactor.uuid });
-            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
+            await usesItem.update({ "data.uses.value": Math.max(0, usesItem.data.data.uses.value - 1) });
 
         } else if (metamagic === "transmuted") {
 
+            // transmuted spell
             let options = ["acid", "cold", "fire", "lightning", "poison", "thunder"];
             const optionContent = options.map((o) => { return `<option value="${o}">${CONFIG.DND5E.damageTypes[o]}</option>` })
             const content = `
@@ -308,10 +320,11 @@ try {
                     Hooks.off("midi-qol.preItemRoll", hook3);
                 }
             });
-            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
+            await usesItem.update({ "data.uses.value": Math.max(0, usesItem.data.data.uses.value - 1) });
 
         } else if (metamagic === "subtle") {
 
+            // subtle spell
             const effectData = {
                 changes: [{ key: "flags.midi-qol.subtleSpell", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, },],
                 disabled: false,
@@ -323,12 +336,32 @@ try {
 
 	    } else if (metamagic === "twinned") {
 
+            // twinned spell
             await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - Math.max(1, lastArg.spellLevel) });
 
         }
 
+    } else if (lastArg.macroPass === "preAttackRoll" && ["msak","rsak"].includes(lastArg.item.data.actionType)) {
+    
+        // seeking spell
+        if (!tactor.items.find(i => i.name === "Metamagic: Seeking Spell") || usesItem.data.data.uses.value < 2) return;
+        const effectData = {
+            changes: [
+                { key: "flags.midi-qol.optional.seekingSpell.count", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: 1, priority: 20, },
+                { key: "flags.midi-qol.optional.seekingSpell.label", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: "Metamagic: Seeking Spell", priority: 20, },
+                { key: "flags.midi-qol.optional.seekingSpell.attack.fail", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: "reroll", priority: 20, },
+                { key: "flags.midi-qol.optional.seekingSpell.macroToCall", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: "ItemMacro.Metamagic", priority: 20, },
+            ],
+            disabled: false,
+            flags: { dae: { specialDuration: ["1Attack", "1Spell"] } },
+            icon: "icons/magic/light/projectile-flare-blue.webp",
+            label: "Metamagic: Seeking Spell",
+        };
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+    
     } else if (lastArg.macroPass === "postDamageRoll" && args[0].hitTargets.length) {
 
+        // empowered spell
         if (!(tactor.items.find(i => i.name === "Metamagic: Empowered Spell") && args[0].item.data.damage?.parts?.length && !["healing", "temphp"].includes(args[0].item.data.damage.parts[0][1]))) return;
         let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
         let dice = workflow.damageRoll.dice;
@@ -436,7 +469,7 @@ try {
             
             workflow.damageRollHTML = await workflow.damageRoll.render();
         }
-        await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
+        await usesItem.update({ "data.uses.value": Math.max(0, usesItem.data.data.uses.value - 1) });
 
     }
 } catch (err) {
