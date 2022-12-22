@@ -16,15 +16,13 @@ if (args[0].tag === "OnUse" && lastArg.failedSaves.length > 0 && lastArg.macroPa
                 let effectData = {
                     changes: [{ key: `StatusEffect`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Unconscious", priority: 20 }],
                     disabled: false,
-                    duration: { seconds: 3600, startTime: game.time.worldTime },
                     flags: { dae: { specialDuration: ["isDamaged"] } },
-                    icon: args[0].item.img,
-                    label: `${args[0].item.name} Poison`,
-                    origin: args[0].uuid,
+                    origin: lastArg.uuid,
                 };
-                let effect2 = await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
-                let changes = [{ key: "flags.dae.deleteUuid", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: effect.uuid, priority: 20 }];
-                if (effect2 && changes) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactorTarget.uuid, updates: [{ _id: effect1.id, changes: changes.concat(effect1.data.changes) }] });
+                await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
+                let effect2 = tactorTarget.effects.find(i => i.data.label === "Unconscious" && i.data.origin === lastArg.uuid);
+                if (effect2) changes = [{ key: "flags.dae.deleteUuid", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: effect2.uuid, priority: 20 }];
+                if (changes) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactorTarget.uuid, updates: [{ _id: effect1.id, changes: changes.concat(effect1.data.changes) }] });
             };
         };
     };
