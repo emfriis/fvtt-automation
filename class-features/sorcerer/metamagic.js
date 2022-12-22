@@ -234,7 +234,7 @@ try {
             if (targets.length !== 1) return ui.notifications.warn("More than one target selected");
             let hook1 = Hooks.on("midi-qol.preCheckSaves", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid) {
-                    if (workflowNext.targets.has(targets[0])) {
+                    if (workflowNext.hitTargets.has(targets[0])) {
                         let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
                             if (actor === targets[0].actor && abilityId === args[0].item.data.save.ability) {
                                 rollData.disadvantage = true;
@@ -340,17 +340,17 @@ try {
 	    } else if (metamagic === "twinned") {
 
             // twinned spell
-            await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - Math.max(1, lastArg.spellLevel) });
+            await usesItem.update({ "data.uses.value": Math.max(1, usesItem.data.data.uses.value - lastArg.spellLevel) });
 
         }
 
     } else if (lastArg.macroPass === "preAttackRoll" && ["msak","rsak"].includes(lastArg.item.data.actionType)) {
-    
+        
         // seeking spell
         if (!tactor.items.find(i => i.name === "Metamagic: Seeking Spell") || usesItem.data.data.uses.value < 2) return;
         const effectData = {
             changes: [
-                { key: "flags.midi-qol.optional.seekingSpell.count", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: 1, priority: 20, },
+                { key: "flags.midi-qol.optional.seekingSpell.count", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: "every", priority: 20, },
                 { key: "flags.midi-qol.optional.seekingSpell.label", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: "Metamagic: Seeking Spell", priority: 20, },
                 { key: "flags.midi-qol.optional.seekingSpell.attack.fail", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: "reroll", priority: 20, },
                 { key: "flags.midi-qol.optional.seekingSpell.macroToCall", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: "ItemMacro.Metamagic", priority: 20, },
