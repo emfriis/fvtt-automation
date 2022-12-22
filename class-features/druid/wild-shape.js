@@ -194,8 +194,6 @@ try {
         const visionEffects = ogTactor.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)));
         await ogTactor.deleteEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.id));
         await ogTactor.createEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.data));
-
-        delete(tactor); // DELETE NEEDED
     }
 } catch (err) {
     console.error("Wild Shape macro error", err);
