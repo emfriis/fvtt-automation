@@ -98,6 +98,58 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                         const roll = await new Roll(`1d20`).evaluate({ async: false });
                         if (game.dice3d) game.dice3d.showForRoll(roll);
                         if (roll.total >= dc) {
+                            ChatMessage.create({ content: "The attack strikes a mirror image." });
+                            let hook1 = Hooks.on("midi-qol.preItemRoll", async (workflowNext) => {
+                                if (workflowNext.uuid === workflow.uuid) {
+                                    Hooks.off("midi-qol.preItemRoll", hook1);
+                                    Hooks.off("midi-qol.preDamageRoll", hook2);
+                                    Hooks.off("midi-qol.preCheckSaves", hook3);
+                                    Hooks.off("midi-qol.preApplyDynamicEffects", hook4);
+                                    Hooks.off("midi-qol.RollComplete", hook5);
+                                }
+                            });
+                            let hook2 = Hooks.on("midi-qol.preDamageRoll", async (workflowNext) => {
+                                if (workflowNext.uuid === workflow.uuid) {
+                                    if (workflow.targets.has(token)) workflow.targets.delete(token);
+                                    if (workflow.hitTargets.has(token)) workflow.hitTargets.delete(token);
+                                    Hooks.off("midi-qol.preItemRoll", hook1);
+                                    Hooks.off("midi-qol.preDamageRoll", hook2);
+                                    Hooks.off("midi-qol.preCheckSaves", hook3);
+                                    Hooks.off("midi-qol.preApplyDynamicEffects", hook4);
+                                    Hooks.off("midi-qol.RollComplete", hook5);
+                                }
+                            });
+                            let hook3 = Hooks.on("midi-qol.preCheckSaves", async (workflowNext) => {
+                                if (workflowNext.uuid === workflow.uuid) {
+                                    if (workflow.targets.has(token)) workflow.targets.delete(token);
+                                    if (workflow.hitTargets.has(token)) workflow.hitTargets.delete(token);
+                                    Hooks.off("midi-qol.preItemRoll", hook1);
+                                    Hooks.off("midi-qol.preDamageRoll", hook2);
+                                    Hooks.off("midi-qol.preCheckSaves", hook3);
+                                    Hooks.off("midi-qol.preApplyDynamicEffects", hook4);
+                                    Hooks.off("midi-qol.RollComplete", hook5);
+                                }
+                            });
+                            let hook4 = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                                if (workflowNext.uuid === workflow.uuid) {
+                                    if (workflow.targets.has(token)) workflow.targets.delete(token);
+                                    if (workflow.hitTargets.has(token)) workflow.hitTargets.delete(token);
+                                    Hooks.off("midi-qol.preItemRoll", hook1);
+                                    Hooks.off("midi-qol.preDamageRoll", hook2);
+                                    Hooks.off("midi-qol.preCheckSaves", hook3);
+                                    Hooks.off("midi-qol.preApplyDynamicEffects", hook4);
+                                    Hooks.off("midi-qol.RollComplete", hook5);
+                                }
+                            });
+                            let hook5 = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
+                                if (workflowNext.uuid === workflow.uuid) {
+                                    Hooks.off("midi-qol.preItemRoll", hook1);
+                                    Hooks.off("midi-qol.preDamageRoll", hook2);
+                                    Hooks.off("midi-qol.preCheckSaves", hook3);
+                                    Hooks.off("midi-qol.preApplyDynamicEffects", hook4);
+                                    Hooks.off("midi-qol.RollComplete", hook5);
+                                }
+                            });
                             if (workflow.attackRoll.total >= ac) {
                                 let effect = tactor.effects.find(i => i.data.label === "Mirror Image");
                                 await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
