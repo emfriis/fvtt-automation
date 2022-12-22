@@ -9,7 +9,7 @@ if (args[0].tag === "OnUse" && lastArg.failedSaves.length > 0 && lastArg.macroPa
     const workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
     for (let i = 0; i < workflow.saveDisplayData.length; i++) {
         let tactorTarget = workflow.saveDisplayData[i]?.target?.actor ? workflow.saveDisplayData[i]?.target?.actor : workflow.saveDisplayData[i]?.target;
-        let critFail = workflow.saveDisplayData[i]?.rollTotal < 9;
+        let critFail = workflow.saveDisplayData[i]?.rollTotal <= lastArg.item.data.data.save.dc - 5;
         if (critFail) {
             let effect1 = tactorTarget.effects.find(i => i.data.label === "Poisoned" && i.data.origin === lastArg.uuid);
             if (effect1 && !tactorTarget.data.data.traits.ci?.value.includes("poisoned")) {

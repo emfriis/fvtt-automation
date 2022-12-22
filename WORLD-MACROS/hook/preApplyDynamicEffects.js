@@ -202,7 +202,12 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                             const condition = effects[e].data.label;
                             const origin = await fromUuid(effects[e].data.origin);
                             let getResist = false;
-                            if (removalData[1] === "save") getResist = targetActor.data.flags["midi-qol"]?.resilience[condition.toLowerCase()] || ((origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect) && targetActor.data.flags["midi-qol"]?.magicResistance && (targetActor.data.flags["midi-qol"]?.magicResistance?.all || targetActor.data.flags["midi-qol"]?.magicResistance[args[2]])) || ((origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect) && targetActor.data.flags["midi-qol"].spellResistance);
+                            if (removalData[1] === "save") {
+                                let conditionResist = tactor.data.flags["midi-qol"]?.resilience && tactor.data.flags["midi-qol"]?.resilience[condition.toLowerCase()];
+                                let magicResist = (origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect) && ((tactor.data.flags["midi-qol"]?.magicResistance?.all && typeof(tactor.data.flags["midi-qol"]?.magicResistance?.all) !== "object") || tactor.data.flags["midi-qol"]?.magicResistance?.all[args[2]]);
+                                let spellResist = (origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect) && tactor.data.flags["midi-qol"].spellResistance;
+                                getResist = conditionResist || magicResist || spellResist;
+                            }
                             const player = await playerForActor(tactor);
                             const rollOptions = getResist || removalData[3] === "advantage" ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
                             const roll = await MidiQOL.socket().executeAsUser("rollAbility", player.id, { request: removalData[1], targetUuid: tactor.uuid, ability: removalData[2], options: rollOptions }); 

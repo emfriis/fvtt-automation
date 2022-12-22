@@ -1,4 +1,4 @@
-// fear
+// scare
 // effect itemacro
 
 const lastArg = args[args.length - 1];
@@ -20,9 +20,11 @@ function canSee(token, target) {
     return canSee;
 }
 
-async function attemptRemoval(getResist) {
+async function attemptRemoval(getVuln, getResist) {
     const saveDC = args[2];
-    const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
+    const rollOptions = { chatMessage: true, fastForward: true }
+    if (getVuln) rollOptions.disadvantage = true;
+    if (getResist) rollOptions.advantage = true;
     const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "save", targetUuid: lastArg.actorUuid, ability: "wis", options: rollOptions });
     if (game.dice3d) game.dice3d.showForRoll(roll);
     if (roll.total >= saveDC) {
@@ -35,8 +37,9 @@ async function attemptRemoval(getResist) {
 }
 
 if (args[0] === "each" && lastArg.efData.disabled === false) {
-    if (token && sourceToken && !canSee(token, sourceToken)) { 
-        const getResist = tactor.data.flags["midi-qol"]?.resilience?.frightened || tactor.data.flags["midi-qol"]?.spellResistance || (tactor.data.flags["midi-qol"]?.magicResistance?.all && typeof(tactor.data.flags["midi-qol"]?.magicResistance?.all) !== "object") || tactor.data.flags["midi-qol"]?.magicResistance?.wis;
-        attemptRemoval(getResist);
+    if (token && sourceToken) { 
+        const getVuln = canSee(token, sourceToken);
+        const getResist = tactor.data.flags["midi-qol"]?.resilience?.frightened || tactor.data.flags["midi-qol"]?.spellResistance || (tactor.data.flags["midi-qol"]?.magicResistance?.all && typeof(tactor.data.flags["midi-qol"]?.magicResistance?.all) !== "object") || tactor.data.flags["midi-qol"]?.magicResistance?.all?.wis;
+        attemptRemoval(getVuln, getResist);
     }
 }

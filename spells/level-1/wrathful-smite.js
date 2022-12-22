@@ -58,7 +58,7 @@ if (lastArg.tag === "DamageBonus") {
     }];
 
     if (conc) {
-        const getResist = tactor.data.flags["midi-qol"]?.resilience?.frightened || tactor.data.flags["midi-qol"]?.spellResistance || tactor.data.flags["midi-qol"]?.magicResistance?.all || tactor.data.flags["midi-qol"]?.magicResistance?.wis;
+        const getResist = tactor.data.flags["midi-qol"]?.resilience?.frightened || tactor.data.flags["midi-qol"]?.spellResistance || (tactor.data.flags["midi-qol"]?.magicResistance?.all && typeof(tactor.data.flags["midi-qol"]?.magicResistance?.all) !== "object") || tactor.data.flags["midi-qol"]?.magicResistance?.all?.wis;
         const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
         const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "abil", targetUuid: tactorTarget.uuid, ability: "wis", options: rollOptions });
         if (game.dice3d) game.dice3d.showForRoll(roll);
