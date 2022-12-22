@@ -23,6 +23,21 @@ try {
         });
     }
 
+    // revertTransformActor
+    async function reverTransformActor (...args) {
+        return new Promise(async (resolve, reject) => {
+            const tokenOrActor = await fromUuid(args[0]?.actorUuid);
+            const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+            if (tactor.isPolymorphed) { 
+                await tactor.revertOriginalForm();
+                game.actors.forEach(a => {
+                    if (a.uuid === tactor.uuid) a.delete();
+                });
+            }
+            resolve(true); 
+        });
+    }
+
     // updateItem
     async function updateItem(...args) {
         return new Promise(async (resolve, reject) => {
@@ -204,6 +219,7 @@ try {
         socket = socketlib.registerModule("user-socket-functions");
         socket.register("updateActor", updateActor);
         socket.register("transformActor", transformActor);
+        socket.register("revertTransformActor", reverTransformActor);
         socket.register("updateItem", updateItem);
         socket.register("midiItemRoll", midiItemRoll);
         socket.register("useDialog", useDialog);

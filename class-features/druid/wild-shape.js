@@ -140,7 +140,7 @@ try {
         // get transformation data
         let wildShape = tactor.getFlag("midi-qol", "wildShape");
         let wildShapeEffects = tactor.getFlag("midi-qol", "wildShapeEffects");
-        let newEffects = tactor.effects.filter(e => !wildShapeEffects.includes(e.data.label) && !["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)) && !(e.data.label === "Unconscious" && !e.data.origin));
+        let newEffects = tactor.effects.filter(e => !wildShapeEffects.includes(e.data.label) && !["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)) && !(e.data.label === "Unconscious" && !e.data.origin)).map(e => e.data);
         const concFlag = tactor.data.flags["midi-qol"]["concentration-data"];
         
         // get spells data
@@ -155,7 +155,7 @@ try {
         let featUses = tactor.items.filter(i => i.data.data.uses?.max).map(i => ({ uses: i.data.data.uses, name: i.name }));
 
         // revert transformation
-        if (tactor.isPolymorphed) await tactor.revertOriginalForm();
+        await socket.executeAsGM("revertTransformActor", { actorUuid: tactor.uuid });
 
         // get original actor
         const ogTokenOrActor = await fromUuid(wildShape);
@@ -163,10 +163,10 @@ try {
 
         // add new effects
         let conditions = ["Blinded", "Charmed", "Deafened", "Frightened", "Grappled", "Incapacitated", "Invisible", "Paralyzed", "Petrified", "Poisoned", "Restrained", "Stunned", "Unconscious"];
-        newEffects.forEach(async effect => {
-            if (ogTactor.effects.find(e => e.data.label === effect.data.label) && !conditions.includes(effect.data.label)) return;
-            await Object.assign(effect.data?.document?.parent, ogTactor);
-            await ogTactor.createEmbeddedDocuments("ActiveEffect", [effect.data]);
+        newEffects.forEach(async effectData => {
+            if (ogTactor.effects.find(e => e.data.label === effectData.label) && !conditions.includes(effectData.label)) return;
+            await Object.assign(effectData?.document?.parent, ogTactor);
+            await ogTactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
         });
         
         // remove outdated effects
@@ -195,6 +195,7 @@ try {
         await ogTactor.deleteEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.id));
         await ogTactor.createEmbeddedDocuments("ActiveEffect", visionEffects.map(e => e.data));
 
+        delete(tactor); // DELETE NEEDED
     }
 } catch (err) {
     console.error("Wild Shape macro error", err);
