@@ -70,6 +70,25 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
             }
         }
 
+        // underwater
+        if (!workflow.disadvantage && workflow.actor.data.flags["midi-qol"].underwater && ["mwak","rwak"].includes(workflow.item.data.data.actionType)) {
+            try {
+                console.warn("Underwater activated");
+                let mwakIgnore = ["dagger", "spear", "javelin", "trident", "shorsword"];
+                let rwakIgnore = ["crossbow", "dart", "net"];
+                if (workflow.item.data.data.actionType === "mwak" && !mwakIgnore.some(i => workflow.item.data.data.baseItem === i || workflow.item.name.toLowerCase().includes(i))) {
+                    workflow.disadvantage = true;
+                    console.warn("Underwater used");
+                }
+                if (workflow.item.data.data.actionType === "rwak" && !rwakIgnore.some(i => workflow.item.data.data.baseItem === i || workflow.item.name.toLowerCase().includes(i))) {
+                    workflow.disadvantage = true;
+                    console.warn("Underwater used");
+                }
+            } catch (err) {
+                console.error("Underwater error", err);
+            }
+        }
+
         const targets = Array.from(workflow.targets);
         for (let t = 0; t < targets.length; t++) {
             let token = targets[t];
@@ -101,6 +120,33 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                     }
                 } catch (err) {
                     console.error("Target Unseen error", err);
+                }
+            }
+
+            // underwater range check
+            if (workflow.actor.data.flags["midi-qol"].underwater && ["mwak","rwak"].includes(workflow.item.data.data.actionType)) {
+                try {
+                    console.warn("Underwater Range Check activated");
+                    let range = workflow.item.data.data.range.value ? workflow.item.data.data.range.value : 5;
+                    let longRange = workflow.item.data.data.range.long ? workflow.item.data.data.range.long : 0;
+                    if (["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType) && workflow.actor.data.flags["midi-qol"].rangeBonus && workflow.actor.data.flags["midi-qol"].rangeBonus[workflow.item.data.data.actionType]) {
+                        const bonus = workflow.actor.data.flags["midi-qol"].rangeBonus[workflow.item.data.data.actionType]?.split("+")?.reduce((accumulator, current) => Number(accumulator) + Number(current));
+                        range += bonus;
+                        if (longRange) longRange += bonus;
+                    }
+                    if (longRange && workflow.actor.data.flags["midi-qol"].sharpShooter && workflow.item.data.data.actionType === "rwak") range = longRange;
+                    if (workflow.actor.data.flags["midi-qol"].spellSniper && workflow.item.data.data.actionType === "rsak") range *= 2;
+                    if (workflow.actor.data.flags["midi-qol"].distantSpell && workflow.item.type === "spell") {
+                        if (workflow.item.data.data.range.units === "ft") range *= 2;
+                        if (workflow.item.data.data.range.units === "touch") range = 30;
+                    }
+                    const distance = MidiQOL.getDistance(workflow.token, token, false);
+                    if (range < distance) {
+                        console.warn("Underwater Range Check used");
+                        return false;
+                    }
+                } catch (err) {
+                    console.error("Underwater Range Check error", err);
                 }
             }
 
