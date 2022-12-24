@@ -40,7 +40,7 @@ try {
     const targetTactor = targetToken.actor;
     let conditionResist = targetTactor.data.flags["midi-qol"]?.resilience && targetTactor.data.flags["midi-qol"]?.resilience[condition.toLowerCase()];
     let magicResist = args[8] === "magiceffect" && ((targetTactor.data.flags["midi-qol"]?.magicResistance?.all && typeof(targetTactor.data.flags["midi-qol"]?.magicResistance?.all) !== "object") || targetTactor.data.flags["midi-qol"]?.magicResistance?.all[args[2]]);
-    let spellResist = args[9] === "magiceffect" && targetTactor.data.flags["midi-qol"].spellResistance;
+    let spellResist = args[9] === "spelleffect" && targetTactor.data.flags["midi-qol"]?.spellResistance?.save;
     const getResist = conditionResist || magicResist || spellResist;
     const targetPlayer = await playerForActor(targetTactor);
     const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };

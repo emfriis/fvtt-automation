@@ -15,7 +15,7 @@ Hooks.on("midi-qol.postCheckSaves", async (workflow) => {
         let socket;
         if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
 	    
-        const targets = Array.from(workflow.targets);
+        const targets = Array.from(workflow.hitTargets);
         for (let t = 0; t < targets.length; t++) {
             let token = targets[t];
             let tactor = token.actor;

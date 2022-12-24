@@ -36,7 +36,7 @@ async function attemptRemoval(getResist) {
 
 if (args[0] === "each" && lastArg.efData.disabled === false) {
     if (token && sourceToken && !canSee(token, sourceToken)) { 
-        const getResist = tactor.data.flags["midi-qol"]?.resilience?.frightened || tactor.data.flags["midi-qol"]?.spellResistance || (tactor.data.flags["midi-qol"]?.magicResistance?.all && typeof(tactor.data.flags["midi-qol"]?.magicResistance?.all) !== "object") || tactor.data.flags["midi-qol"]?.magicResistance?.wis;
+        const getResist = tactor.data.flags["midi-qol"]?.resilience?.frightened || tactor.data.flags["midi-qol"]?.spellResistance?.save || (tactor.data.flags["midi-qol"]?.magicResistance?.all && typeof(tactor.data.flags["midi-qol"]?.magicResistance?.all) !== "object") || tactor.data.flags["midi-qol"]?.magicResistance?.wis;
         attemptRemoval(getResist);
     }
 }

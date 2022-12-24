@@ -45,6 +45,7 @@ try {
         flags: {
             midiProperties: {
                 magiceffect: (args[5] === "magiceffect" ? true : false),
+                spelleffect: (args[6] === "spelleffect" ? true : false),
                 fulldam: (args[9] === "fulldam" ? true : false),
                 halfdam: (args[9] === "halfdam" ? true : false),
                 nodam: (args[9] === "nodam" ? true : false)

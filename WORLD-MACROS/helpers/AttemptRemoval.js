@@ -27,7 +27,7 @@ try {
         if (type === "save") {
             let conditionResist = tactor.data.flags["midi-qol"]?.resilience && tactor.data.flags["midi-qol"]?.resilience[condition.toLowerCase()];
             let magicResist = (origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect) && ((tactor.data.flags["midi-qol"]?.magicResistance?.all && typeof(tactor.data.flags["midi-qol"]?.magicResistance?.all) !== "object") || tactor.data.flags["midi-qol"]?.magicResistance?.all[args[2]]);
-            let spellResist = (origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect) && tactor.data.flags["midi-qol"].spellResistance;
+            let spellResist = (origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect) && tactor.data.flags["midi-qol"]?.spellResistance?.save;
             getResist = conditionResist || magicResist || spellResist;
         }
         let options = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true }

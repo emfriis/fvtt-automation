@@ -27,11 +27,34 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
         let socket;
         if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
 
-	    const targets = Array.from(workflow.targets);
+	    const targets = Array.from(workflow.hitTargets);
         for (let t = 0; t < targets.length; t++) {
         	const token = targets[t];
 	  	    let tactor = token?.actor;
         	if (!tactor) continue;
+
+            // spell resistance damage
+            if ((workflow.item.data.type === "spell" || workflow.item.data.flags?.midiProperties?.spelleffect) && tactor.data.flags["midi-qol"]?.spellResistance?.damage) {
+                try {
+                    console.warn("Spell Resistance Damage activated");
+                    const effectData = {
+                        changes: [{ key: "data.traits.dr.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, }],
+                        disabled: false,
+                        label: "Spell Damage Resistance",
+                    };
+                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                    let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                        if (workflow.uuid === workflowNext.uuid) {
+                            const effect = tactor.effects.find(e => e.data.label === "Spell Damage Resistance");
+                            await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                            Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                        }
+                    });
+                    console.warn("Spell Resistance Damage used");
+                } catch (err) {
+                    console.error("Spell Resistance Damage error", err);
+                }
+            }
 
             // shield
             if (workflow.item.name === "Magic Missile" && workflow.item.data.data.activation.type !== "action" && tactor.effects.find(e => e.data.label === "Shield")) {
@@ -57,7 +80,7 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
 	  	    }
 
             // fighting style interception
-            if (workflow.hitTargets.has(token) && ["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) {
+            if (["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) {
                 try {
                     console.warn("Fighting Style Interception activated");
                     let protTokens = await canvas.tokens.placeables.filter(p => {

@@ -15,7 +15,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
         let socket;
         if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
 
-        const targets = Array.from(workflow.targets);
+        const targets = Array.from(workflow.hitTargets);
         for (let t = 0; t < targets.length; t++) {
             let token = targets[t];
             let tactor = token.actor;
@@ -205,7 +205,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                             if (removalData[1] === "save") {
                                 let conditionResist = tactor.data.flags["midi-qol"]?.resilience && tactor.data.flags["midi-qol"]?.resilience[condition.toLowerCase()];
                                 let magicResist = (origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect) && ((tactor.data.flags["midi-qol"]?.magicResistance?.all && typeof(tactor.data.flags["midi-qol"]?.magicResistance?.all) !== "object") || tactor.data.flags["midi-qol"]?.magicResistance?.all[args[2]]);
-                                let spellResist = (origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect) && tactor.data.flags["midi-qol"].spellResistance;
+                                let spellResist = (origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect) && tactor.data.flags["midi-qol"]?.spellResistance?.save;
                                 getResist = conditionResist || magicResist || spellResist;
                             }
                             const player = await playerForActor(tactor);

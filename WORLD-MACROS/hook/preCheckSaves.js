@@ -11,25 +11,25 @@ function playerForActor(actor) {
 
 Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
     try {
-	    const targets = Array.from(workflow.targets);
+	    const targets = Array.from(workflow.hitTargets);
         for (let t = 0; t < targets.length; t++) {
             let token = targets[t];
             let tactor = token.actor;
 		    if (!tactor) continue;
 
-            // spell resistance
-            if ((workflow.item.data.type === "spell" || workflow.item.data.flags?.midiProperties?.spelleffect) && workflow.item.data.data.save.ability && workflow.item.data.data.save.dc && tactor.data.flags["midi-qol"].spellResistance) {
+            // spell resistance save
+            if ((workflow.item.data.type === "spell" || workflow.item.data.flags?.midiProperties?.spelleffect) && workflow.item.data.data.save.ability && workflow.item.data.data.save.dc && tactor.data.flags["midi-qol"]?.spellResistance?.save) {
                 try {
-                    console.warn("Spell Resistance activated");
+                    console.warn("Spell Resistance Save activated");
                     let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
-                        if (actor === targets[0].actor && abilityId === workflow.item.data.data.save.ability) {
+                        if (actor === tactor && abilityId === workflow.item.data.data.save.ability) {
                             rollData.advantage = true;
                             Hooks.off("Actor5e.preRollAbilitySave", hook);
                         }
                     });
-                    console.warn("Spell Resistance used");
+                    console.warn("Spell Resistance Save used");
                 } catch (err) {
-                    console.error("Spell Resistance error", err);
+                    console.error("Spell Resistance Save error", err);
                 }
             }
 
@@ -43,7 +43,7 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
                     if (!resilientCondition) resilientDamage = workflow.item.data.data.damage.parts.find(p => resilience.includes(p[1]?.toLowerCase())) || resilience.find(r => workflow.item.data.data.formula?.toLowerCase()?.includes(r));
                     if (resilientCondition || resilientDamage) {
                         let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
-                            if (actor === targets[0].actor && abilityId === workflow.item.data.data.save.ability) {
+                            if (actor === tactor && abilityId === workflow.item.data.data.save.ability) {
                                 rollData.advantage = true;
                                 Hooks.off("Actor5e.preRollAbilitySave", hook);
                             }
