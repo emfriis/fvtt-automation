@@ -33,9 +33,6 @@ function counterSequence(source, target) {
 Hooks.on("midi-qol.preambleComplete", async (workflow) => {
     try { 
 
-        let socket;
-        if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
-
         // range check cleanup
         if (workflow.token && [null, "", "creature", "ally", "enemy"].includes(workflow.item.data.data.target.type) && ["ft", "touch"].includes(workflow.item.data.data.range.units) && !(["mwak","msak"].includes(workflow.item.data.data.actionType) && game.combat && game.combat?.current.tokenId !== workflow.tokenId)) {
             try {
@@ -114,11 +111,11 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                         )
 			        );
                     let useCounter = false;
-                    if (socket && player && counterItem) useCounter = await socket.executeAsUser("useDialog", player.id, { title: `Counterspell`, content: `Use your reaction to cast Counterspell?` });
+                    if (player && counterItem) useCounter = await USF.socket.executeAsUser("useDialog", player.id, { title: `Counterspell`, content: `Use your reaction to cast Counterspell?` });
                     if (useCounter) {
                     let options = { targetUuids: [workflow.tokenUuid] };
                     let counterCast = false;
-                    if (options) counterCast = await socket.executeAsUser("midiItemRoll", player.id, { itemUuid: counterItem.uuid, options: options});
+                    if (options) counterCast = await USF.socket.executeAsUser("midiItemRoll", player.id, { itemUuid: counterItem.uuid, options: options});
                     if (counterCast && counterCast?.itemLevel && !counterCast?.countered) {
                         counterSequence(token, workflow.token);
                         let level = counterCast.itemLevel;
@@ -173,11 +170,10 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                     const canReaction = !tactor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].includes(e.data.label));
                     if (shieldItem && canReaction) {
                         let player = await playerForActor(tactor);
-                        let socket = socketlib.registerModule("user-socket-functions");
                         let useShield = false;
-                        if (socket && player) useShield = await socket.executeAsUser("useDialog", player.id, { title: `Magic Missile`, content: `Use your reaction to cast Shield?` });
+                        useShield = await USF.socket.executeAsUser("useDialog", player.id, { title: `Magic Missile`, content: `Use your reaction to cast Shield?` });
                         if (useShield) {
-                            if (shieldItem.uuid) await socket.executeAsUser("midiItemRoll", player.id, { itemUuid: shieldItem.uuid, options: {  } });
+                            if (shieldItem.uuid) await USF.socket.executeAsUser("midiItemRoll", player.id, { itemUuid: shieldItem.uuid, options: {  } });
                         }
                     }
                 } catch (err) {

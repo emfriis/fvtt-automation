@@ -26,9 +26,6 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
     try {
         if (!["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) return;
 
-        let socket;
-        if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
-
 	    // ranged proximity
         if (!workflow.disadvantage && ["rwak","rsak"].includes(workflow.item.data.data.actionType)) {
             try {
@@ -198,7 +195,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                     if (MidiQOL.getDistance(prot, token, false) <= 5 && prot.data.disposition === token.data.disposition && prot.document.uuid !== token.document.uuid) {
                         let player = await playerForActor(prot.actor);
                         let useProtect = false;
-                        if (socket) useProtect = await socket.executeAsUser("useDialog", player.id, { title: `Fighting Style: Protection`, content: `Use your reaction to impose disadvantage on attack against ${token.name}?` });
+                        useProtect = await USF.socket.executeAsUser("useDialog", player.id, { title: `Fighting Style: Protection`, content: `Use your reaction to impose disadvantage on attack against ${token.name}?` });
                         if (useProtect) {
                             workflow.disadvantage = true;
                             if (game.combat) game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: prot.actor.uuid });

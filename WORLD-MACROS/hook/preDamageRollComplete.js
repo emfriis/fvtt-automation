@@ -24,8 +24,6 @@ function canSee(token, target) {
 
 Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
     try {  
-        let socket;
-        if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
 
 	    const targets = Array.from(workflow.hitTargets);
         for (let t = 0; t < targets.length; t++) {
@@ -100,7 +98,7 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                         if (MidiQOL.getDistance(prot, token, false) <= 5 && prot.data.disposition === token.data.disposition && prot.document.uuid !== token.document.uuid) {
                             let player = await playerForActor(prot.actor);
                             let useProtect = false;
-                            if (socket) useProtect = await socket.executeAsUser("useDialog", player.id, { title: `Fighting Style: Interception`, content: `Use your reaction to reduce damage from attack against ${token.name}?` });
+                            useProtect = await USF.socket.executeAsUser("useDialog", player.id, { title: `Fighting Style: Interception`, content: `Use your reaction to reduce damage from attack against ${token.name}?` });
                             if (useProtect) {
                                 const effectData = {
                                     changes: [
