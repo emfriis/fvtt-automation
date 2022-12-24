@@ -47,6 +47,15 @@ try {
         });
     };
 
+    // deleteItem
+    async function deleteItem(...args) {
+        return new Promise(async (resolve, reject) => {
+            const item = await fromUuid(args[0]?.itemUuid);
+            await item.parent.deleteEmbeddedDocuments("Item", [item.uuid]);
+            resolve(true); 
+        });
+    };
+
     // midiItemRoll, takes args itemUuid, and options; returns workflow data
     async function midiItemRoll(...args) {
         return new Promise(async (resolve, reject) => {
@@ -216,14 +225,19 @@ try {
     }
 
     Hooks.once("socketlib.ready", () => {
-        socket = socketlib.registerModule("user-socket-functions");
+        socket = globalThis.socketlib.registerModule("user-socket-functions");
         socket.register("updateActor", updateActor);
         socket.register("transformActor", transformActor);
         socket.register("revertTransformActor", reverTransformActor);
         socket.register("updateItem", updateItem);
+        socket.register("deleteItem", deleteItem);
         socket.register("midiItemRoll", midiItemRoll);
         socket.register("useDialog", useDialog);
         socket.register("optionDialog", optionDialog);
         socket.register("spellUseDialog", spellUseDialog);
+    });
+
+    Hooks.once('ready', () => {
+        globalThis.USF = { socket: socketlib.registerModule("user-socket-functions") }
     });
 } catch (err) {}

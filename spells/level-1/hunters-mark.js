@@ -3,7 +3,7 @@
 if (args[0].hitTargets.length === 0) return;
 if (args[0].tag === "OnUse") {
   const targetUuid = args[0].hitTargets[0].uuid;
-  const tokenOrActor = await fromUuid(args[0].actorUuid);
+  const tokenOrActor = await fromUuid(args[0].tokenUuid);
   const caster = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
   const durationSeconds = args[0].item.level > 4 ? 86400 : args[0].item.level > 2 ? 28800 : 3600; 
 
