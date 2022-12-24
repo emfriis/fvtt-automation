@@ -51,7 +51,7 @@ try {
     async function deleteItem(...args) {
         return new Promise(async (resolve, reject) => {
             const item = await fromUuid(args[0]?.itemUuid);
-            await item.parent.deleteEmbeddedDocuments("Item", [item.uuid]);
+            await item.parent.deleteEmbeddedDocuments("Item", [item.id]);
             resolve(true); 
         });
     };

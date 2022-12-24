@@ -1,19 +1,19 @@
 // magic stone
 
 const lastArg = args[args.length - 1];
-console.log(lastArg);
-let tactor;
-if (lastArg.tokenId) tactor = canvas.tokens.get(lastArg.tokenId).actor;
-else tactor = game.actors.get(lastArg.actorId);
-const itemD = lastArg.efData.flags.dae.itemData;
-const atkMod = Number(args[1]) + Number(args[2]);
-const dmgMod = Number(args[1]);
+const tokenOrActor = await fromUuid(lastArg.tokenUuid);
+const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+
+const attackBonus = tactor.data.data.abilities[tactor.data.data.attributes.spellcasting ?? "int"].mod + tactor.data.data.attributes.prof;
+const damageBonus = tactor.data.data.abilities[tactor.data.data.attributes.spellcasting ?? "int"].mod;
 
 if (args[0] === "on") {
+    const flag = `${tactor.uuid}MagicStone${tactor.effects.filter(e => e.data.label === "Magic Stone").length}Time${game.world.time}`;
     let itemData = [{
-        "name": `Stone (${itemD.name})`,
+        "name": `Stone (${lastArg.efData.label})`,
         "type": "weapon",
-        "img": itemD.img,
+        "img": lastArg.efData.icon,
+        flags: { magicStone: flag },
         "data": {
             "description": {
                 "value": "<p>A magically imbued stone.</p>",
@@ -40,11 +40,11 @@ if (args[0] === "on") {
                 "autoDestroy": true
             },
             "actionType": "rsak",
-            "attackBonus": `${atkMod} - @mod`,
+            "attackBonus": `${attackBonus} - @mod`,
             "damage": {
                 "parts": [
                     [
-                        `1d6 + ${dmgMod} - @mod[bludgeoning]`,
+                        `1d6 + ${damageBonus} - @mod[bludgeoning]`,
                         "bludgeoning"
                     ]
                 ],
@@ -59,11 +59,15 @@ if (args[0] === "on") {
         }
     }];
     await tactor.createEmbeddedDocuments("Item", itemData);
-	ui.notifications.notify("You imbue 3 stones with magical force")
+	const effect = tactor.effects.find(e => e.data === lastArg.efData);
+    await effect.update({ "flags.magicStone": flag });
 }
 
 if (args[0] === "off") {
-    let items = tactor.data.items.find(i => i.name === `Stone (${itemD.name})` && i.type === "weapon");
-    if (items) await tactor.deleteEmbeddedDocuments('Item', [items.id]);
-	ui.notifications.notify("The stones' magic fades")
+    game.actors.forEach(actor => {
+        actor.items.forEach(item => {
+            if (!item.data.flags.magicStone || item.data.flags.magicStone !== lastArg.efData.flags.magicStone) return;
+            USF.socket.executeAsGM("deleteItem", { itemUuid: item.uuid });
+        });
+    });
 }
