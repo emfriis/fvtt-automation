@@ -12,7 +12,7 @@ let sleepTarget = [];
 for (let target of targets) {
     const findTarget = await canvas.tokens.get(target.id);
     const immuneType = findTarget.actor.data.type === "character" ? ["undead", "construct"].some(race => (findTarget.actor.data.data.details.race || "").toLowerCase().includes(race)) : ["undead", "construct"].some(value => (findTarget.actor.data.data.details.type.value || "").toLowerCase().includes(value));
-    const immuneCI = findTarget.actor.data.data.traits.ci.custom.includes("Sleep");
+    const immuneCI = findTarget.actor.effects.find((i) => i.data.label === "Fey Ancestry");
     const sleeping = findTarget.actor.effects.find((i) => i.data.label === condition);
     const targetHpValue = findTarget.actor.data.data.attributes.hp.value;
     if ((immuneType) || (immuneCI) || (sleeping)) {
@@ -31,7 +31,7 @@ for (let target of targets) {
             duration: { rounds: 10, seconds: 60, startRound: gameRound, startTime: game.time.worldTime },
             flags: { dae: { specialDuration: ["isDamaged"] } },
             changes: [
-              { key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Unconscious", priority: 20 },
+                { key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Unconscious", priority: 20 },
             ]
         };
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: findTarget.actor.uuid, effects: [effectData] });

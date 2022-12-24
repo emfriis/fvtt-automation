@@ -28,7 +28,7 @@ class VolumetricTemplates {
         tElevation = Math.round(
           cToken.data.elevation + (_levels.getTokenLOSheight(cToken) - cToken?.data?.elevation) * 0.8
         );
-        t._object.document
+        t._object?.document
           .setFlag("levels", "elevation", tElevation)
           .then(() => {
             t._object.draw();
