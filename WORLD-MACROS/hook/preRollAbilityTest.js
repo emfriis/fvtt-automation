@@ -13,7 +13,7 @@ function canSee(token, target) {
     return canSee;
 }
 
-Hooks.on("Actor5e.preRollAbilityTest", (actor, rollData, abilityId) => {
+Hooks.on("Actor5e.preRollAbilityTest", async (actor, rollData, abilityId) => {
     try {
         // frightened
         if (!rollData.disadvantage && actor.data.flags["midi-qol"].fear) {
