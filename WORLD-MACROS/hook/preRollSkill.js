@@ -13,7 +13,7 @@ function canSee(token, target) {
     return canSee;
 }
 
-Hooks.on("Actor5e.preRollSkill", async (actor, rollData, abilityId) => {
+Hooks.on("Actor5e.preRollSkill", (actor, rollData, abilityId) => {
     try {
         // frightened
         if (!rollData.disadvantage && actor.data.flags["midi-qol"].fear) {
@@ -24,7 +24,7 @@ Hooks.on("Actor5e.preRollSkill", async (actor, rollData, abilityId) => {
                     const seeFear = canvas.tokens.placeables.find(async p => 
                         p?.actor && // exists
                         workflow.actor.data.flags["midi-qol"].fear.includes(p.id) && // is fear source
-                        await canSee(workflow.token, p) // can see los
+                        canSee(workflow.token, p) // can see los
                     );
                     if (seeFear) {
                         rollData.disadvantage = true;
