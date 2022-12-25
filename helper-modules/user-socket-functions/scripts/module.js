@@ -9,7 +9,7 @@ try {
             await tactor.update(args[0]?.updates);
             resolve(true); 
         });
-    };
+    }
 
     // transformActor
     async function transformActor (...args) {
@@ -45,7 +45,7 @@ try {
             await item.update(args[0]?.updates);
             resolve(true); 
         });
-    };
+    }
 
     // deleteItem
     async function deleteItem(...args) {
@@ -54,7 +54,7 @@ try {
             await item.parent.deleteEmbeddedDocuments("Item", [item.id]);
             resolve(true); 
         });
-    };
+    }
 
     // midiItemRoll, takes args itemUuid, and options; returns workflow data
     async function midiItemRoll(...args) {
@@ -63,7 +63,7 @@ try {
             const workflow = await MidiQOL.completeItemRoll(item, args[0]?.options);
             resolve({ itemLevel: workflow?.itemLevel, countered: workflow?.countered }); // cant return actual workflow
         });
-    };
+    }
 
     // useDialog, takes args title, content, and timeout (optional); returns true or false
     async function useDialog(...args) {
@@ -91,7 +91,7 @@ try {
                 resolve(false);
             }, (args[0]?.timeout || 30) * 1000);
         });
-    };
+    }
 
     // optionDialog; takes args title, options (an array of objects with ids, imgs, and names), and timeout (optional); returns checked options's id
     async function optionDialog(...args) {
