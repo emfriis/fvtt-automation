@@ -64,7 +64,7 @@ try {
     let item = await sourceTactor.items.find(i => i.name === itemData.name);
     let options = { targetUuids: [targetUuid] };
     await MidiQOL.completeItemRoll(item, options);
-    await wait(500);
+    await wait(100);
     await sourceTactor.deleteEmbeddedDocuments("Item", [item.id]);
 } catch (err) {
     console.error("ApplyDamage error", err);
@@ -77,7 +77,7 @@ try {
         }
         const sourceToken = canvas.tokens.get(sourceId);
         const sourceTactor = sourceToken.actor;
-        await wait(500);
+        await wait(100);
         let item = await sourceTactor.items.find(i => i.name === `${args[4].charAt(0).toUpperCase() + args[4].slice(1)} Damage`);
         await sourceTactor.deleteEmbeddedDocuments("Item", [item.id]);
     } catch (err) {

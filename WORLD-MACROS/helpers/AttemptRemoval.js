@@ -59,7 +59,7 @@ try {
             await tactor.createEmbeddedDocuments("Item", [itemData]);
             let item = await tactor.items.find(i => i.name === itemData.name);
             let workflow = await MidiQOL.completeItemRoll(item, { chatMessage: true, fastForward: true });
-            await wait(500);
+            await wait(100);
             await tactor.deleteEmbeddedDocuments("Item", [item.id]);
             
             if (!workflow.failedSaves.has(token)) {
@@ -74,7 +74,7 @@ try {
         const lastArg = args[args.length - 1];
         const tokenOrActor = await fromUuid(lastArg.actorUuid);
         const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-        await wait(500);
+        await wait(100);
         const item = await tactor.items.find(i => i.name === lastArg.efData.label);
         await tactor.deleteEmbeddedDocuments("Item", [item.id]);
     } catch (err) {

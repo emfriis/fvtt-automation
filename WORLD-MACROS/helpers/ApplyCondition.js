@@ -1,7 +1,7 @@
 // apply condition macro
 // execute as gm
 // args: 
-// [1] - target tokenUuid (string: [tokenUuid] or "self")
+// [1] - target tokenId (string: [tokenUuid] or "self")
 // [2] - condition name (string: i.e., "Prone", "Stunned")
 // [3] - save dc (int: i.e., 10, 15, ...)
 // [4] - save type (string: i.e., "dex", "wis", ...)
@@ -24,7 +24,7 @@ try {
 
     let targetId;
     if (args[1] === "self") {
-        targetUuid = lastArg.tokenId;
+        targetId = lastArg.tokenId;
     } else {
         targetId = args[1];
     }
@@ -55,7 +55,7 @@ try {
     await targetTactor.createEmbeddedDocuments("Item", [itemData]);
     let item = await targetTactor.items.find(i => i.name === itemData.name);
     let workflow = await MidiQOL.completeItemRoll(item, { chatMessage: true, fastForward: true });
-    await wait(500);
+    await wait(100);
     await targetTactor.deleteEmbeddedDocuments("Item", [item.id]);
 
     if (workflow.failedSaves.has(targetToken)) {
@@ -82,7 +82,7 @@ try {
         }
         const targetToken = canvas.tokens.get(targetId);
         const targetTactor = targetToken.actor;
-        await wait(500);
+        await wait(100);
         let item = await targetTactor.items.find(i => i.name === `${args[2].charAt(0).toUpperCase() + args[2].slice(1)}`);
         await targetTactor.deleteEmbeddedDocuments("Item", [item.id]);
     } catch (err) {
