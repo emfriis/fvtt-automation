@@ -36,10 +36,10 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
             // resilience
             if (workflow.item.data.data.save.ability && workflow.item.data.data.save.dc && tactor.data.flags["midi-qol"].resilience) {
                 try {
-                    const resilience = Object.keys(tactor.data.flags["midi-qol"].resilience);
                     console.warn("Resilience activated");
+                    const resilience = Object.keys(tactor.data.flags["midi-qol"].resilience);
                     let resilientCondition, resilientDamage;
-                    resilientCondition = workflow.item.data.effects.contents.find(e => resilience.includes(e.data.label.toLowerCase()) || e.data.changes.find(c => c.key === "StatusEffect" && resilience.find(r => c.value?.toLowerCase()?.includes(r))));
+                    resilientCondition = resilience.includes(workflow.item.name.toLowerCase()) || workflow.item.data.effects.contents.find(e => resilience.includes(e.data.label.toLowerCase()) || e.data.changes.find(c => c.key === "StatusEffect" && resilience.find(r => c.value?.toLowerCase()?.includes(r))));
                     if (!resilientCondition) resilientDamage = workflow.item.data.data.damage.parts.find(p => resilience.includes(p[1]?.toLowerCase())) || resilience.find(r => workflow.item.data.data.formula?.toLowerCase()?.includes(r));
                     if (resilientCondition || resilientDamage) {
                         let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {

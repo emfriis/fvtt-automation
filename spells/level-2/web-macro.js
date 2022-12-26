@@ -19,7 +19,7 @@ if (args[0] === "on" || args[0] === "each") {
     if (!args[1]) return;
     if (!tactor.effects.find(e => e.data.label === "Restrained" && e.data.origin === lastArg.efData.origin)) {
         const applyCondition = game.macros.find(m => m.name === "ApplyCondition");
-        if (applyCondition) await applyCondition.execute("ApplyCondition", lastArg.tokenId, "save", "Restrained", args[1], "dex", "", "", "magiceffect", "spelleffect", `${args[1]},str,abil,opt`, "startEveryTurn", lastArg.efData.origin);
+        if (applyCondition) await applyCondition.execute("ApplyCondition", lastArg.tokenId, "Restrained", args[1], "dex", "", "", "magiceffect", "spelleffect", `${args[1]},str,abil,opt`, "startEveryTurn", lastArg.efData.origin);
     }
 } else if (args[0] === "off") {
     let effect = tactor.effects.find(e => e.data.label === "Restrained" && e.data.origin === lastArg.efData.origin);

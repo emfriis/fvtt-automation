@@ -12,7 +12,7 @@
 // [9] - save damage (string: "fulldam", "halfdam", "nodam", or EMPTY)
 // [10] - on/off override (string: "on", "off", or EMPTY)
 
-function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
 try {
     if (args[0] === "on" && args[10] !== "on") return;
@@ -55,7 +55,7 @@ try {
             activation: {
                 type: "none"
             },
-            actionType: (args[7] ? "other" : "save"),
+            actionType: (args[7] ? "save" : "other"),
             damage: { parts: [[args[3] + `[${args[4]}]`, args[4]]] },
             save: { dc: args[7], ability: args[8], scaling: "flat" },
         }

@@ -2,8 +2,11 @@
 // execute as gm
 // values : dc(int) type(string) abil/save(string) auto/opt(string)
 
+async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+
 try {
     const lastArg = args[args.length - 1];
+    const token = canvas.tokens.get(lastArg.tokenId);
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
@@ -18,36 +21,59 @@ try {
 
     if (args[0] === "each" && lastArg.efData.disabled === false) {
         const origin = await fromUuid(lastArg.efData.origin);
+        const magicEffect = origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect;
+        const spellEffect = origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect;
         const condition = lastArg.efData.label;
         const player = await playerForActor(tactor);
         const saveDC = args[1];
         const ability = args[2];
         const type = args[3];
-        let getResist = false;
-        if (type === "save") {
-            let conditionResist = tactor.data.flags["midi-qol"]?.resilience && tactor.data.flags["midi-qol"]?.resilience[condition.toLowerCase()];
-            let magicResist = (origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect) && ((tactor.data.flags["midi-qol"]?.magicResistance?.all && typeof(tactor.data.flags["midi-qol"]?.magicResistance?.all) !== "object") || tactor.data.flags["midi-qol"]?.magicResistance?.all[args[2]]);
-            let spellResist = (origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect) && tactor.data.flags["midi-qol"]?.spellResistance?.save;
-            getResist = conditionResist || magicResist || spellResist;
-        }
-        let options = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true }
         let attempt = false;
         if (args[4] === "opt") {
-            const socket = socketlib.registerModule("user-socket-functions");
-            if (socket) attempt = await socket.executeAsUser("useDialog", player.id, { title: `Use action to attempt to remove ${condition}?`, content: `` });
+            attempt = await USF.socket.executeAsUser("useDialog", player.id, { title: `Use action to attempt to remove ${condition}?`, content: `` });
         }
         if (args[4] === "auto" || attempt) {
-            const roll = await MidiQOL.socket().executeAsUser("rollAbility", player.id, { request: type, targetUuid: tactor.uuid, ability: ability, options: options });
-            if (game.dice3d) game.dice3d.showForRoll(roll);
-            if (roll.total >= saveDC) {
+            const itemData = {
+                name: condition,
+                img: `${lastArg.efData.icon}`,
+                type: "feat",
+                flags: {
+                    midiProperties: {
+                        magiceffect: (magicEffect ? true : false),
+                        spelleffect: (spellEffect ? true : false),
+                    }
+                },
+                data: {
+                    activation: {
+                        type: "none",
+                    },
+                    target: {
+                        type: "self",
+                    },
+                    actionType: type,
+                    ability: ability,
+                    save: { dc: saveDC, ability: ability, scaling: "flat" },
+                }
+            }
+            await tactor.createEmbeddedDocuments("Item", [itemData]);
+            let item = await tactor.items.find(i => i.name === itemData.name);
+            let workflow = await MidiQOL.completeItemRoll(item, { chatMessage: true, fastForward: true });
+            await wait(500);
+            await tactor.deleteEmbeddedDocuments("Item", [item.id]);
+            
+            if (!workflow.failedSaves.has(token)) {
                 let ef = tactor.effects.find(i => i.data === lastArg.efData);
                 if (ef) await tactor.deleteEmbeddedDocuments("ActiveEffect", [ef.id]);
-                ChatMessage.create({ content: `The afflicted creature passes the roll and removes the ${condition} condition.` });
-            } else {
-                if (roll.total < saveDC) ChatMessage.create({ content: `The afflicted creature fails the roll and still has the ${condition} condition.` });
             }
         }
     }
 } catch (err) {
     console.error("AttemptRemoval error", err);
+    try {
+        await wait(500);
+        const item = await tactor.items.find(i => i.name === lastArg.efData.label);
+        await tactor.deleteEmbeddedDocuments("Item", [item.id]);
+    } catch (err) {
+        console.error("AttemptRemoval Cleanup error", err);
+    }
 }
