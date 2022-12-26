@@ -1,4 +1,5 @@
 // fire form
+// effect itemacro
 
 const lastArg = args[args.length - 1];
 let tokenOrActor = await fromUuid(lastArg.actorUuid);

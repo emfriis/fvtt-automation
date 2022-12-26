@@ -60,22 +60,8 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                             let useFeat = false;
                             useFeat = await USF.socket.executeAsUser("useDialog", player.id, { title: `Relentless Rage`, content: `Use Relentless Rage to survive grievous wounds?` });
                             if (useFeat) {
-                                const itemData = {
-                                    name: `Relentless Rage Save`,
-                                    img: `icons/skills/social/intimidation-impressing.webp`,
-                                    type: "feat",
-                                    data: {
-                                        activation: { type: "none", },
-                                        target: { type: "self", },
-                                        actionType: "save",
-                                        save: { dc: relentlessDC, ability: "con", scaling: "flat" },
-                                    }
-                                }
-                                await USF.socket.executeAsGM("createItem", { actorUuid: tactor.uuid, itemData: itemData });
-                                let saveItem = await tactor.items.find(i => i.name === itemData.name);
-                                let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
-                                await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
-                                if (!saveWorkflow.failedSaves.size) {
+                                const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: tactor.uuid, saveName: `Relentless Rage Save`, saveImg: `icons/skills/social/intimidation-impressing.webp`, saveType: "save", saveDC: relentlessDC, saveAbility: "con" });
+                                if (save) {
                                     await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
                                     let relentless = tactor.effects.find(i => i.data.label === "Relentless Rage DC");
                                     if (relentless) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [relentless.id] });
@@ -102,22 +88,8 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                     try {
                         console.warn("Undead Fortitude activated");
                             if (!workflow.damageList[d].damageDetail.find(d => Array.isArray(d) && d[0].type === "radiant") && !workflow.isCritical) {
-                                const itemData = {
-                                    name: `Undead Fortitude Save`,
-                                    img: `icons/magic/acid/pouring-gas-smoke-liquid.webp`,
-                                    type: "feat",
-                                    data: {
-                                        activation: { type: "none", },
-                                        target: { type: "self", },
-                                        actionType: "save",
-                                        save: { dc: workflow.damageList[d].appliedDamage + 5, ability: "con", scaling: "flat" },
-                                    }
-                                }
-                                await USF.socket.executeAsGM("createItem", { actorUuid: tactor.uuid, itemData: itemData });
-                                let saveItem = await tactor.items.find(i => i.name === itemData.name);
-                                let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
-                                await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
-                                if (!saveWorkflow.failedSaves.size) await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
+                                const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: tactor.uuid, saveName: `Undead Fortitude Save`, saveImg: `icons/magic/acid/pouring-gas-smoke-liquid.webp`, saveType: "save", saveDC: workflow.damageList[d].appliedDamage + 5, saveAbility: "con" });
+                                if (save) await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
                             console.warn("Undead Fortitude used");
                         }
                     } catch(err) {
@@ -246,26 +218,8 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                                     });
                                 }
                             }
-                            const itemData = {
-                                name: `${condition} Save`,
-                                img: icon,
-                                type: "feat",
-                                flags: {
-                                    midiProperties: { magiceffect: (magicEffect ? true : false), spelleffect: (spellEffect ? true : false), }
-                                },
-                                data: {
-                                    activation: { type: "none", },
-                                    target: { type: "self", },
-                                    actionType: removalData[1],
-                                    ability: removalData[2],
-                                    save: { dc: removalData[0], ability: removalData[2], scaling: "flat" },
-                                }
-                            }
-                            await USF.socket.executeAsGM("createItem", { actorUuid: tactor.uuid, itemData: itemData });
-                            let saveItem = await tactor.items.find(i => i.name === itemData.name);
-                            let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
-                            await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
-                            if (!saveWorkflow.failedSaves.size) {
+                            const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: tactor.uuid, saveName: `${condition} Save`, saveImg: icon, saveType: removalData[1], saveDC: removalData[0], saveAbility: removalData[2], magiceffect: magicEffect, spelleffect: spellEffect });
+                            if (!save) {
                                 await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effects[e].id] });
                             }
                             console.warn("Damaged Attempt Removal used");

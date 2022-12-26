@@ -110,26 +110,9 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                         const effect = tactor.effects.find(e => e.data.label === "Sanctuary");
                         const item = await fromUuid(effect.data.origin);
                         const parent = item?.parent;
-                        const dc = parent.data.data.attributes.spelldc;
-                        const itemData = {
-                            name: `Sanctuary Save`,
-                            img: `systems/dnd5e/icons/spells/haste-sky-3.jpg`,
-                            type: "feat",
-                            flags: {
-                                midiProperties: { magiceffect: true, spelleffect: true, }
-                            },
-                            data: {
-                                activation: { type: "none", },
-                                target: { type: "self", },
-                                actionType: "save",
-                                save: { dc: dc, ability: "wis", scaling: "flat" },
-                            }
-                        }
-                        await USF.socket.executeAsGM("createItem", { actorUuid: workflow.actor.uuid, itemData: itemData });
-                        let saveItem = await workflow.actor.items.find(i => i.name === itemData.name);
-                        let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
-                        await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
-                        if (saveWorkflow.failedSaves.size) {
+                        const spellDC = parent.data.data.attributes.spelldc;
+                        const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: workflow.actor.uuid, saveName: `Sanctuary Save`, saveImg: `systems/dnd5e/icons/spells/haste-sky-3.jpg`, saveType: "save", saveDC: spellDC, saveAbility: "wis", magiceffect: true, spelleffect: true });
+                        if (!save) {
                             const range = workflow.item.data.data.range.value ?? 5;
                                 let newTargets = await canvas.tokens.placeables.filter((p) => 
                                     p?.actor && // exists

@@ -24,7 +24,7 @@ try {
     }
 
     // revertTransformActor
-    async function reverTransformActor (...args) {
+    async function revertTransformActor (...args) {
         return new Promise(async (resolve, reject) => {
             const tokenOrActor = await fromUuid(args[0]?.actorUuid);
             const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
@@ -63,6 +63,33 @@ try {
             const item = await fromUuid(args[0]?.itemUuid);
             await item.parent.deleteEmbeddedDocuments("Item", [item.id]);
             resolve(true); 
+        });
+    }
+
+    // attemptSaveDC
+    async function attemptSaveDC(...args) {
+        return new Promise(async (resolve, reject) => {
+            const tokenOrActor = await fromUuid(args[0]?.actorUuid);
+            const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+            const itemData = {
+                name: args[0]?.saveName ?? "Save",
+                img: args[0]?.saveImg ?? "icons/svg/shield.svg",
+                type: "feat",
+                flags: {
+                    midiProperties: { magiceffect: args[0]?.magiceffect, spelleffect: args[0]?.spelleffect, }
+                },
+                data: {
+                    activation: { type: "none", },
+                    target: { type: "self", },
+                    actionType: args[0]?.saveType,
+                    save: { dc: args[0]?.saveDC, ability: args[0]?.saveAbility, scaling: "flat" },
+                }
+            }
+            await tactor.createEmbeddedDocuments("Item", [itemData]);
+            let saveItem = await tactor.items.find(i => i.name === itemData.name);
+            let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
+            await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
+            resolve(saveWorkflow.failedSaves.size ? false : true); 
         });
     }
 
@@ -238,10 +265,11 @@ try {
         socket = globalThis.socketlib.registerModule("user-socket-functions");
         socket.register("updateActor", updateActor);
         socket.register("transformActor", transformActor);
-        socket.register("revertTransformActor", reverTransformActor);
+        socket.register("revertTransformActor", revertTransformActor);
         socket.register("createItem", createItem);
         socket.register("updateItem", updateItem);
         socket.register("deleteItem", deleteItem);
+        socket.register("attemptSaveDC", attemptSaveDC);
         socket.register("midiItemRoll", midiItemRoll);
         socket.register("useDialog", useDialog);
         socket.register("optionDialog", optionDialog);
