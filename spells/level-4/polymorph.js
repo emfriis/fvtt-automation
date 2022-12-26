@@ -35,7 +35,6 @@ if (args[0].tag === "OnUse" && lastArg.failedSaves.length !== 0) {
                     let polyId = html.find('#beast')[0].value;
                     let findToken = getFolder.find(i => i.id === polyId);
                     const getToken = duplicate(tokenTarget.data);
-                    const getActor = duplicate(tactorTarget.data);
 
                     // transform
                     let polyOptions = { keepBio: true, keepClass: false, keepMental: false, mergeSaves: false, mergeSkills: false, transformTokens: true }
@@ -49,7 +48,6 @@ if (args[0].tag === "OnUse" && lastArg.failedSaves.length !== 0) {
                     } else {
                         findPoly = tactorTarget;
                         await findPoly.setFlag("midi-qol", "polymorphTokenData", getToken);
-                        await findPoly.setFlag("midi-qol", "polymorphActorData", getActor);
                     }
                     await canvas.scene.updateEmbeddedDocuments("Token", [{ "_id": getToken._id, "displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, "mirrorX": getToken.mirrorX, "mirrorY": getToken.mirrorY, "rotation": getToken.rotation, "elevation": getToken.elevation }]);
                     await findPoly.setFlag("midi-qol", "polymorph", tactorTarget.uuid);
@@ -110,11 +108,10 @@ if (args[0] === "off") {
         ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
     } else {
         let polymorphTokenData = tactor.getFlag("midi-qol", "polymorphTokenData");
-        let polymorphActorData = tactor.getFlag("midi-qol", "polymorphActorData");
-        Object.assign(polymorphTokenData, { "_id": token.data._id, "mirrorX": token.data.mirrorX, "mirrorY": token.data.mirrorY, "rotation": token.data.rotation, "elevation": token.data.elevation });
-        if (tactor.isPolymorphed) await tactor.revertOriginalForm();
+        tactor.unsetFlag("midi-qol", "polymorphTokenData");
+        const getToken = duplicate(token.data);
+        Object.assign(polymorphTokenData, { "_id": getToken._id, "mirrorX": getToken.mirrorX, "mirrorY": getToken.mirrorY, "rotation": getToken.rotation, "elevation": getToken.elevation, "x": getToken.x, "y": getToken.y });
         await canvas.scene.updateEmbeddedDocuments("Token", [polymorphTokenData]);
-        tactor.update(polymorphActorData);
         ogTactor = tactor;
     }
 
