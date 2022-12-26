@@ -52,7 +52,7 @@ if (args[0].tag === "OnUse" && lastArg.failedSaveUuids.length !== 0) {
         origin: lastArg.uuid,
         disabled: false,
         duration: { rounds: duration, startRound: gameRound, startTime: game.time.worldTime },
-        flags: { "dae": { itemData: lastArg.item.data, token: tactorTarget.uuid, } },
+        flags: { "dae": { itemData: lastArg.item, token: tactorTarget.uuid, } },
     }
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
     if (conc) {

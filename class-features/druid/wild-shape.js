@@ -9,9 +9,6 @@ const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
-let socket;
-if (game.modules.get("user-socket-functions").active) socket = socketlib.registerModule("user-socket-functions");
-
 try {
     if (args[0].tag === "OnUse") {
 
@@ -45,12 +42,11 @@ try {
                         
                         // transform
                         let polyOptions = { keepBio: true, keepClass: true, keepMental: true, mergeSaves: true, mergeSkills: true, transformTokens: true }
-                        await socket.executeAsGM("transformActor", { actorUuid: tactor.uuid, folderName: folderName, transformId: polyId, transformOptions: polyOptions });
+                        await USF.socket.executeAsGM("transformActor", { actorUuid: tactor.uuid, folderName: folderName, transformId: polyId, transformOptions: polyOptions });
                         
                         // post transform config
                         await wait(100);
                         let findPoly = await game.actors.find(i => i.name === `${tactor.name} (${findToken.name})`);
-                        console.error(findPoly);
                         await canvas.scene.updateEmbeddedDocuments("Token", [{ "_id": getToken._id, "displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, "mirrorX": getToken.mirrorX, "mirrorY": getToken.mirrorY, "rotation": getToken.rotation, "elevation": getToken.elevation }]);
                         await findPoly.setFlag("midi-qol", "wildShape", tactor.uuid);
                         await findPoly.setFlag("midi-qol", "wildShapeEffects", findToken.effects.map(e => e.data.label));
@@ -140,7 +136,7 @@ try {
         // get transformation data
         let wildShape = tactor.getFlag("midi-qol", "wildShape");
         let wildShapeEffects = tactor.getFlag("midi-qol", "wildShapeEffects");
-        let newEffects = tactor.effects.filter(e => !wildShapeEffects.includes(e.data.label) && !["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)) && !(e.data.label === "Unconscious" && !e.data.origin)).map(e => e.data);
+        let newEffects = tactor.effects.filter(e => !wildShapeEffects?.includes(e.data.label) && !["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v)) && !(e.data.label === "Unconscious" && !e.data.origin)).map(e => e.data);
         const concFlag = tactor.data.flags["midi-qol"]["concentration-data"];
         
         // get spells data
@@ -155,7 +151,7 @@ try {
         let featUses = tactor.items.filter(i => i.data.data.uses?.max).map(i => ({ uses: i.data.data.uses, name: i.name }));
 
         // revert transformation
-        await socket.executeAsGM("revertTransformActor", { actorUuid: tactor.uuid });
+        await USF.socket.executeAsGM("revertTransformActor", { actorUuid: tactor.uuid });
 
         // get original actor
         const ogTokenOrActor = await fromUuid(wildShape);
