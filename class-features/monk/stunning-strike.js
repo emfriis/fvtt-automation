@@ -8,7 +8,8 @@ try {
 	const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 	const tokenOrActorTarget = await fromUuid(args[0].hitTargetUuids[0]);
     const tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-	const dc = 8 + tactor.data.data.attributes.prof + tactor.data.data.abilities.wis.mod;
+	const saveDC = 8 + tactor.data.data.attributes.prof + tactor.data.data.abilities.wis.mod;
+	const ability = "con";
     let item = tactor.items.find(i => i.name === "Ki");
 	
 	if (dc && item && item.data.data.uses.value) {
@@ -46,26 +47,11 @@ try {
 		} else {
 			item.update({"data.uses.value" : item.data.data.uses.value - 1});
 		}
-		
-        const itemData = {
-			name: `Stunned Save`,
-			img: `icons/magic/light/projectile-halo-teal.webp`,
-			type: "feat",
-			data: {
-				activation: { type: "none", },
-				target: { type: "self", },
-				actionType: "save",
-				save: { dc: dc, ability: "con", scaling: "flat" },
-			}
-		}
-		await USF.socket.executeAsGM("createItem", { actorUuid: tactorTarget.uuid, itemData: itemData });
-		let saveItem = await tactorTarget.items.find(i => i.name === itemData.name);
-		let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
-		await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
-        if (saveWorkflow.failedSaves.size) {
+		const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: tactorTarget.uuid, saveName: `Stunned Save`, saveImg: `icons/magic/light/projectile-halo-teal.webp`, saveType: "save", saveDC: saveDC, saveAbility: ability });
+    	if (!save) {
             game.dfreds.effectInterface.addEffect({ effectName: "Stunned", uuid: tactorTarget.uuid });
         }
 	}
 } catch(err) {
-	console.error(`${args[0].itemData.name} - stunnings strike macro`, err);
+	console.error(`${args[0].itemData.name} - stunning strike macro`, err);
 }

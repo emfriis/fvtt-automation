@@ -63,6 +63,9 @@ if (args[0] === "on") {
     const itemData = {
         name: `Dragon's ${typeFlavour} Breath`,
         type: "feat",
+        flags: {
+            midiProperties: { magiceffect: true, spelleffect: true },
+        },
         data: {
             activation: { type: "action", cost: 1, condition: "", },
             target: { value: 15, units: "feet", type: "cone", },
