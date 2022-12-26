@@ -19,7 +19,7 @@ try {
     }
 
     if (args[0] === "each" && lastArg.efData.disabled === false) {
-        const origin = await fromUuid(lastArg.efData.origin);
+        if (lastArg.efData.origin) origin = await fromUuid(lastArg.efData.origin);
         const magicEffect = origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect;
         const spellEffect = origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect;
         const condition = lastArg.efData.label;

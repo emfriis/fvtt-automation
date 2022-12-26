@@ -18,7 +18,7 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
 		    if (!tactor) continue;
 
             // spell resistance save
-            if ((workflow.item.data.type === "spell" || workflow.item.data.flags?.midiProperties?.spelleffect) && workflow.item.data.data.save.ability && workflow.item.data.data.save.dc && tactor.data.flags["midi-qol"]?.spellResistance?.save) {
+            if ((workflow.item.data.type === "spell" || workflow.item.data.flags?.midiProperties?.spelleffect) && workflow.item.data.data.save.dc && workflow.item.data.data.actionType !== "abil" && tactor.data.flags["midi-qol"]?.spellResistance?.save) {
                 try {
                     console.warn("Spell Resistance Save activated");
                     let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
@@ -34,7 +34,7 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
             }
 
             // resilience
-            if (workflow.item.data.data.save.ability && workflow.item.data.data.save.dc && tactor.data.flags["midi-qol"].resilience) {
+            if (workflow.item.data.data.save.dc && workflow.item.data.data.actionType !== "abil" && tactor.data.flags["midi-qol"].resilience) {
                 try {
                     console.warn("Resilience activated");
                     const resilience = Object.keys(tactor.data.flags["midi-qol"].resilience);
@@ -57,7 +57,7 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
             }
 
             // shield master
-            if (workflow.item.data.data?.save?.ability === "dex" && targets.length === 1 && tactor.data.flags["midi-qol"].shieldMaster && tactor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data?.equipped) && !tactor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label))) {
+            if (workflow.item.data.data.save.ability === "dex" && workflow.item.data.data.actionType !== "abil" && targets.length === 1 && tactor.data.flags["midi-qol"].shieldMaster && tactor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data?.equipped) && !tactor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label))) {
                 try {
                     console.warn("Shield Master activated");
                     const effectData = {

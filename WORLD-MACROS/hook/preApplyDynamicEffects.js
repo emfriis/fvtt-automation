@@ -226,7 +226,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                             const removalData = effects[e].data.changes.find(c => c.key === "flags.midi-qol.damagedAttemptRemoval").value.split(",");
                             const condition = effects[e].data.label;
                             const icon = effects[e].data.icon;
-                            const origin = await fromUuid(effects[e].data.origin);
+                            if (effects[e].data.origin) origin = await fromUuid(effects[e].data.origin);
                             const magicEffect = origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || effects[e].data?.flags?.magiceffect;
                             const spellEffect = origin?.data?.type === "spell" || effects[e].data?.flags?.spelleffect;
                             if (removalData[3]) {
