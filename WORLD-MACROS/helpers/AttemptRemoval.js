@@ -6,6 +6,7 @@ async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms
 
 try {
     const lastArg = args[args.length - 1];
+
     const token = canvas.tokens.get(lastArg.tokenId);
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
@@ -70,6 +71,9 @@ try {
 } catch (err) {
     console.error("AttemptRemoval error", err);
     try {
+        const lastArg = args[args.length - 1];
+        const tokenOrActor = await fromUuid(lastArg.actorUuid);
+        const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
         await wait(500);
         const item = await tactor.items.find(i => i.name === lastArg.efData.label);
         await tactor.deleteEmbeddedDocuments("Item", [item.id]);

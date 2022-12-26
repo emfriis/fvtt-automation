@@ -18,15 +18,6 @@ async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms
 
 try {
     const lastArg = args[args.length - 1];
-    
-    async function playerForActor(actor) {
-        if (!actor) return undefined;
-        let user;
-        if (actor.hasPlayerOwner) user = game.users?.find(u => u.data.character === actor?.id && u.active);
-        if (!user) user = game.users?.players.find(p => p.active && actor?.data.permission[p.id ?? ""] === CONST.ENTITY_PERMISSIONS.OWNER);
-        if (!user) user = game.users?.find(p => p.isGM && p.active);
-        return user;
-    }
 
     if (args[0] === "on" && args[12] !== "on") return;
     if (args[0] === "off" && args[12] !== "off") return;

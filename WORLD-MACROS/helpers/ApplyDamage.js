@@ -15,10 +15,10 @@
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
 try {
+    const lastArg = args[args.length - 1];
+
     if (args[0] === "on" && args[10] !== "on") return;
     if (args[0] === "off" && args[10] !== "off") return;
-
-    const lastArg = args[args.length - 1];
 
     let sourceId;
     if (args[1] === "self") {
