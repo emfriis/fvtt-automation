@@ -37,10 +37,10 @@ async function attemptRemoval() {
             save: { dc: spellDC, ability: ability, scaling: "flat" },
         }
     }
-    await tactor.createEmbeddedDocuments("Item", [itemData]);
+    await USF.socket.executeAsGM("createItem", { actorUuid: tactor.uuid, itemData: itemData });
     let saveItem = await tactor.items.find(i => i.name === itemData.name);
     let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
-    await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
+    await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
     
     if (!saveWorkflow.failedSaves.size) {
         let fear = tactor.effects.find(i => i.data === lastArg.efData);

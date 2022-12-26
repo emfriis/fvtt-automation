@@ -47,11 +47,22 @@ try {
 			item.update({"data.uses.value" : item.data.data.uses.value - 1});
 		}
 		
-        const getResist = tactorTarget.data.flags["midi-qol"]?.resilience?.stunned;
-        const rollOptions = getResist ? { request: "save", targetUuid: tactorTarget.uuid, ability: ability, advantage: true } : { request: "save", targetUuid: tactorTarget.uuid, ability: "con" };
-        let roll = await MidiQOL.socket().executeAsGM("rollAbility", rollOptions);
-        if (game.dice3d) game.dice3d.showForRoll(roll);
-        if (roll.total < dc) {
+        const itemData = {
+			name: `Stunned Save`,
+			img: `icons/magic/light/projectile-halo-teal.webp`,
+			type: "feat",
+			data: {
+				activation: { type: "none", },
+				target: { type: "self", },
+				actionType: "save",
+				save: { dc: dc, ability: "con", scaling: "flat" },
+			}
+		}
+		await USF.socket.executeAsGM("createItem", { actorUuid: tactorTarget.uuid, itemData: itemData });
+		let saveItem = await tactorTarget.items.find(i => i.name === itemData.name);
+		let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
+		await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
+        if (saveWorkflow.failedSaves.size) {
             game.dfreds.effectInterface.addEffect({ effectName: "Stunned", uuid: tactorTarget.uuid });
         }
 	}

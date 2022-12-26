@@ -72,10 +72,10 @@ if (lastArg.tag === "DamageBonus") {
                 save: { dc: spellDC, ability: ability, scaling: "flat" },
             }
         }
-        await tactorTarget.createEmbeddedDocuments("Item", [itemData]);
+        await USF.socket.executeAsGM("createItem", { actorUuid: tactorTarget.uuid, itemData: itemData });
         let saveItem = await tactorTarget.items.find(i => i.name === itemData.name);
         let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
-        await tactorTarget.deleteEmbeddedDocuments("Item", [saveItem.id]);
+        await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
         
         if (saveWorkflow.failedSaves.size) {
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: effectData });

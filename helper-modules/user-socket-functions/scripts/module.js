@@ -38,6 +38,16 @@ try {
         });
     }
 
+    // createItem
+    async function createItem(...args) {
+        return new Promise(async (resolve, reject) => {
+            const tokenOrActor = await fromUuid(args[0]?.actorUuid);
+            const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+            await tactor.createEmbeddedDocuments("Item", [args[0]?.itemData]);
+            resolve(true); 
+        });
+    }
+
     // updateItem
     async function updateItem(...args) {
         return new Promise(async (resolve, reject) => {
@@ -229,6 +239,7 @@ try {
         socket.register("updateActor", updateActor);
         socket.register("transformActor", transformActor);
         socket.register("revertTransformActor", reverTransformActor);
+        socket.register("createItem", createItem);
         socket.register("updateItem", updateItem);
         socket.register("deleteItem", deleteItem);
         socket.register("midiItemRoll", midiItemRoll);

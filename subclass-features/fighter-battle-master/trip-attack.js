@@ -55,12 +55,22 @@ try {
 			const strDC = 8 + rollData.attributes.prof + rollData.abilities.str.mod;
 			const dexDC = 8 + rollData.attributes.prof + rollData.abilities.dex.mod;
 			const saveDC = strDC > dexDC ? strDC : dexDC;
-            const getResist = tactorTarget.data.flags["midi-qol"]?.resilience?.prone;
-            const ability = "str";
-            const rollOptions = getResist ? { request: "save", targetUuid: tactorTarget.uuid, ability: ability, options: { advantage: true } } : { request: "save", targetUuid: tactorTarget.uuid, ability: ability };
-			let roll = await MidiQOL.socket().executeAsGM("rollAbility", rollOptions);
-            if (game.dice3d) game.dice3d.showForRoll(roll);
-			if (roll.total < saveDC) {
+            const itemData = {
+				name: `Trip Attack Prone Save`,
+				img: `systems/dnd5e/icons/skills/yellow_37.jpg`,
+				type: "feat",
+				data: {
+					activation: { type: "none", },
+					target: { type: "self", },
+					actionType: "save",
+					save: { dc: saveDC, ability: ability, scaling: "flat" },
+				}
+			}
+			await USF.socket.executeAsGM("createItem", { actorUuid: tactorTarget.uuid, itemData: itemData });
+			let saveItem = await tactorTarget.items.find(i => i.name === itemData.name);
+			let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
+			await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
+			if (saveWorkflow.failedSaves.size) {
 				const hasEffectApplied = await game.dfreds.effectInterface.hasEffectApplied("Prone", args[0].hitTargetUuids[0]);
                 if (!hasEffectApplied) {
                     game.dfreds.effectInterface.addEffect({ effectName: "Prone", uuid: tactorTarget.uuid });

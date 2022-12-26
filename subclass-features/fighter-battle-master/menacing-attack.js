@@ -58,10 +58,22 @@ try {
         const saveDC = strDC > dexDC ? strDC : dexDC;
         const getResist = tactorTarget.data.flags["midi-qol"]?.resilience?.frightened;
         const ability = "wis";
-        const rollOptions = getResist ? { request: "save", targetUuid: tactorTarget.uuid, ability: ability, options: { advantage: true } } : { request: "save", targetUuid: tactorTarget.uuid, ability: ability };
-        let roll = await MidiQOL.socket().executeAsGM("rollAbility", rollOptions);
-        if (game.dice3d) game.dice3d.showForRoll(roll);
-        if (roll.total < saveDC) {
+        const itemData = {
+			name: `Menacing Attack Frightened Save`,
+			img: `systems/dnd5e/icons/skills/yellow_37.jpg`,
+			type: "feat",
+			data: {
+				activation: { type: "none", },
+				target: { type: "self", },
+				actionType: "save",
+				save: { dc: saveDC, ability: ability, scaling: "flat" },
+			}
+		}
+		await USF.socket.executeAsGM("createItem", { actorUuid: tactorTarget.uuid, itemData: itemData });
+		let saveItem = await tactorTarget.items.find(i => i.name === itemData.name);
+		let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
+		await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
+        if (saveWorkflow.failedSaves.size) {
             let effectData = [{
                 changes: [
                     { key: `flags.midi-qol.fear`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: args[0].actorUuid, priority: 20 }

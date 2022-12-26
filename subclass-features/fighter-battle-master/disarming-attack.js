@@ -54,10 +54,22 @@ try {
         const dexDC = 8 + rollData.attributes.prof + rollData.abilities.dex.mod;
         const saveDC = strDC > dexDC ? strDC : dexDC;
         const ability = "str";
-        const rollOptions = { request: "save", targetUuid: tactorTarget.uuid, ability: ability }
-        let roll = await MidiQOL.socket().executeAsGM("rollAbility", rollOptions);
-        if (game.dice3d) game.dice3d.showForRoll(roll);
-        if (roll.total < saveDC) {
+        const itemData = {
+			name: `Disarming Attack Save`,
+			img: `systems/dnd5e/icons/skills/yellow_37.jpg`,
+			type: "feat",
+			data: {
+				activation: { type: "none", },
+				target: { type: "self", },
+				actionType: "save",
+				save: { dc: saveDC, ability: ability, scaling: "flat" },
+			}
+		}
+		await USF.socket.executeAsGM("createItem", { actorUuid: tactorTarget.uuid, itemData: itemData });
+		let saveItem = await tactorTarget.items.find(i => i.name === itemData.name);
+		let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
+		await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
+        if (saveWorkflow.failedSaves.size) {
             ChatMessage.create({ content: "The target fails its save and drops the item of your choosing." });
         }
 		

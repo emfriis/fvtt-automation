@@ -125,10 +125,10 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                                 save: { dc: dc, ability: "wis", scaling: "flat" },
                             }
                         }
-                        await workflow.actor.createEmbeddedDocuments("Item", [itemData]);
+                        await USF.socket.executeAsGM("createItem", { actorUuid: workflow.actor.uuid, itemData: itemData });
                         let saveItem = await workflow.actor.items.find(i => i.name === itemData.name);
                         let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
-                        await workflow.actor.deleteEmbeddedDocuments("Item", [saveItem.id]);
+                        await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
                         if (saveWorkflow.failedSaves.size) {
                             const range = workflow.item.data.data.range.value ?? 5;
                                 let newTargets = await canvas.tokens.placeables.filter((p) => 
