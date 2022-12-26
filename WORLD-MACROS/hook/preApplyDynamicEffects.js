@@ -62,7 +62,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                             if (useFeat) {
                                 const itemData = {
                                     name: `Relentless Rage Save`,
-                                    img: `${lastArg.efData.icon}`,
+                                    img: `icons/skills/social/intimidation-impressing.webp`,
                                     type: "feat",
                                     data: {
                                         activation: { type: "none", },
@@ -227,8 +227,8 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                             const condition = effects[e].data.label;
                             const icon = effects[e].data.icon;
                             const origin = await fromUuid(effects[e].data.origin);
-                            const magicEffect = origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect;
-                            const spellEffect = origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect;
+                            const magicEffect = origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || effects[e].data?.flags?.magiceffect;
+                            const spellEffect = origin?.data?.type === "spell" || effects[e].data?.flags?.spelleffect;
                             if (removalData[3]) {
                                 if (removalData[1] === "save") {
                                     let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
