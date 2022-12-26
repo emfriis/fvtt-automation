@@ -29,21 +29,20 @@ async function applyBurst(actor, token, range, damageDice, damageType, saveDC, s
 Hooks.on("midi-qol.RollComplete", async (workflow) => {
     try {
 
-        let attackWorkflow;
-        if (workflow.damageList) attackWorkflow = workflow.damageList.map((d) => ({ tokenUuid: d.tokenUuid, appliedDamage: d.appliedDamage, newHP: d.newHP, oldHP: d.oldHP, newTemp: d.newTemp, oldTemp: d.oldTemp, damageDetail: d.damageDetail }));
-        if (attackWorkflow) {
-            for (let a = 0; a < attackWorkflow.length; a++) {
-                let token = await fromUuid(attackWorkflow[a].tokenUuid);
-                let tactor = token.actor ? token.actor : token;
+        if (workflow.damageList) {
+            for (let d = 0; d < workflow.damageList.length; d++) {
+                let token = canvas.tokens.get(workflow.damageList[d].tokenId);
+                let tokenOrActor = await fromUuid(workflow.damageList[d].actorUuid)
+                let tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 		        if (!tactor) continue;
 
                 // wild shape
-                if (tactor.data.flags["midi-qol"].wildShape && tactor.isPolymorphed && tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0) {
+                if (tactor.data.flags["midi-qol"].wildShape && tactor.isPolymorphed && tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0) {
                     try {
                         console.warn("Wild Shape activated");
                         const ogTokenOrActor = await fromUuid(tactor.data.flags["midi-qol"].wildShape);
                         const ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
-                        if (attackWorkflow[a].appliedDamage && attackWorkflow[a].appliedDamage > attackWorkflow[a].oldHP)  await USF.socket.executeAsGM("updateActor", { actorUuid: ogTactor.uuid, updates: {"data.attributes.hp.value" : ogTactor.data.data.attributes.hp.value + attackWorkflow[a].oldHP - attackWorkflow[a].appliedDamage} });
+                        if (workflow.damageList[d].appliedDamage && workflow.damageList[d].appliedDamage > workflow.damageList[d].oldHP)  await USF.socket.executeAsGM("updateActor", { actorUuid: ogTactor.uuid, updates: {"data.attributes.hp.value" : ogTactor.data.data.attributes.hp.value + workflow.damageList[d].oldHP - workflow.damageList[d].appliedDamage} });
 				        const wildShape = tactor.effects.find(e => e.data.label === "Wild Shape");
                         if (wildShape) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [wildShape.id] });
                         tactor = ogTactor;
@@ -54,7 +53,7 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                 }
 
                 // burst
-                if (tactor.data.flags["midi-qol"].burst && tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0) {
+                if (tactor.data.flags["midi-qol"].burst && tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0) {
                     try {
                         console.warn("Burst activated");
 				        const burst = actor.data.flags["midi-qol"].burst.split(",");

@@ -107,14 +107,29 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                     const isAttack = ["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType);
                     const isHarmSpell = workflow.item.data.type === "spell" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(workflow.item.data.data.activation.type) && ["creature", "enemy"].includes(workflow.item.data.data.target.type) && workflow.token.data.disposition !== token.data.disposition;
                     if (isAttack || isHarmSpell) {
-                        const item = await fromUuid(ef.data.origin);
+                        const effect = tactor.effects.find(e => e.data.label === "Sanctuary");
+                        const item = await fromUuid(effect.data.origin);
                         const parent = item?.parent;
-                        const player = await playerForActor(workflow.actor);
                         const dc = parent.data.data.attributes.spelldc;
-                        const rollOptions = { chatMessage: true, fastForward: true };
-                        const roll = await MidiQOL.socket().executeAsUser("rollAbility", player.id, { request: "save", targetUuid: workflow.actor.uuid, ability: "wis", options: rollOptions });
-                        if (game.dice3d) game.dice3d.showForRoll(roll);
-                        if (roll.total < dc) {
+                        const itemData = {
+                            name: `Sanctuary Save`,
+                            img: `systems/dnd5e/icons/spells/haste-sky-3.jpg`,
+                            type: "feat",
+                            flags: {
+                                midiProperties: { magiceffect: true, spelleffect: true, }
+                            },
+                            data: {
+                                activation: { type: "none", },
+                                target: { type: "self", },
+                                actionType: "save",
+                                save: { dc: dc, ability: "wis", scaling: "flat" },
+                            }
+                        }
+                        await workflow.actor.createEmbeddedDocuments("Item", [itemData]);
+                        let saveItem = await workflow.actor.items.find(i => i.name === itemData.name);
+                        let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
+                        await workflow.actor.deleteEmbeddedDocuments("Item", [saveItem.id]);
+                        if (saveWorkflow.failedSaves.has(workflow.token)) {
                             const range = workflow.item.data.data.range.value ?? 5;
                                 let newTargets = await canvas.tokens.placeables.filter((p) => 
                                     p?.actor && // exists

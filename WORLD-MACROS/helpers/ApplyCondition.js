@@ -14,8 +14,6 @@
 // [11] - origin uuid (string: [uuid] or "" or EMPTY)
 // [12] - on/off override (string: "on", "off", or "" or EMPTY)
 
-async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
-
 try {
     const lastArg = args[args.length - 1];
 
@@ -32,33 +30,25 @@ try {
     const targetTactor = targetToken.actor;
 
     const itemData = {
-        name: `${args[2].charAt(0).toUpperCase() + args[2].slice(1)}`,
+        name: `${args[2].charAt(0).toUpperCase() + args[2].slice(1)} Save`,
         img: `icons/svg/aura.svg`,
         type: "feat",
         flags: {
-            midiProperties: {
-                magiceffect: (args[7] === "magiceffect" ? true : false),
-                spelleffect: (args[8] === "spelleffect" ? true : false),
-            }
+            midiProperties: { magiceffect: (args[7] === "magiceffect" ? true : false), spelleffect: (args[8] === "spelleffect" ? true : false), }
         },
         data: {
-            activation: {
-                type: "none",
-            },
-            target: {
-                type: "self",
-            },
+            activation: { type: "none", },
+            target: { type: "self", },
             actionType: "save",
             save: { dc: args[3], ability: args[4], scaling: "flat" },
         }
     }
     await targetTactor.createEmbeddedDocuments("Item", [itemData]);
-    let item = await targetTactor.items.find(i => i.name === itemData.name);
-    let workflow = await MidiQOL.completeItemRoll(item, { chatMessage: true, fastForward: true });
-    await wait(100);
-    await targetTactor.deleteEmbeddedDocuments("Item", [item.id]);
+    let saveItem = await targetTactor.items.find(i => i.name === itemData.name);
+    let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
+    await targetTactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
 
-    if (workflow.failedSaves.has(targetToken)) {
+    if (saveWorkflow.failedSaves.has(targetToken)) {
         const effectData = {
             changes: [
                 { key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Convenient Effect: ${args[2]}`, priority: 20, },
@@ -82,9 +72,8 @@ try {
         }
         const targetToken = canvas.tokens.get(targetId);
         const targetTactor = targetToken.actor;
-        await wait(100);
-        let item = await targetTactor.items.find(i => i.name === `${args[2].charAt(0).toUpperCase() + args[2].slice(1)}`);
-        await targetTactor.deleteEmbeddedDocuments("Item", [item.id]);
+        let saveItem = await targetTactor.items.find(i => i.name === `${args[2].charAt(0).toUpperCase() + args[2].slice(1)} Save`);
+        await targetTactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
     } catch (err) {
         console.error("ApplyCondition error Cleanup error", err);
     }

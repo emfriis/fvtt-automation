@@ -2,8 +2,6 @@
 // execute as gm
 // values : dc(int) type(string) abil/save(string) auto/opt(string)
 
-async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
-
 try {
     const lastArg = args[args.length - 1];
 
@@ -35,34 +33,26 @@ try {
         }
         if (args[4] === "auto" || attempt) {
             const itemData = {
-                name: condition,
+                name: `${condition} Save`,
                 img: `${lastArg.efData.icon}`,
                 type: "feat",
                 flags: {
-                    midiProperties: {
-                        magiceffect: (magicEffect ? true : false),
-                        spelleffect: (spellEffect ? true : false),
-                    }
+                    midiProperties: { magiceffect: (magicEffect ? true : false), spelleffect: (spellEffect ? true : false), }
                 },
                 data: {
-                    activation: {
-                        type: "none",
-                    },
-                    target: {
-                        type: "self",
-                    },
+                    activation: { type: "none", },
+                    target: { type: "self", },
                     actionType: type,
                     ability: ability,
                     save: { dc: saveDC, ability: ability, scaling: "flat" },
                 }
             }
             await tactor.createEmbeddedDocuments("Item", [itemData]);
-            let item = await tactor.items.find(i => i.name === itemData.name);
-            let workflow = await MidiQOL.completeItemRoll(item, { chatMessage: true, fastForward: true });
-            await wait(100);
-            await tactor.deleteEmbeddedDocuments("Item", [item.id]);
+            let saveItem = await tactor.items.find(i => i.name === itemData.name);
+            let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
+            await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
             
-            if (!workflow.failedSaves.has(token)) {
+            if (!saveWorkflow.failedSaves.has(token)) {
                 let ef = tactor.effects.find(i => i.data === lastArg.efData);
                 if (ef) await tactor.deleteEmbeddedDocuments("ActiveEffect", [ef.id]);
             }
@@ -74,9 +64,8 @@ try {
         const lastArg = args[args.length - 1];
         const tokenOrActor = await fromUuid(lastArg.actorUuid);
         const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-        await wait(100);
-        const item = await tactor.items.find(i => i.name === lastArg.efData.label);
-        await tactor.deleteEmbeddedDocuments("Item", [item.id]);
+        const saveItem = await tactor.items.find(i => i.name === `${lastArg.efData.label} Save`);
+        await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
     } catch (err) {
         console.error("AttemptRemoval Cleanup error", err);
     }

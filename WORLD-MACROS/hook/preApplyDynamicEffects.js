@@ -12,11 +12,11 @@ function playerForActor(actor) {
 Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
 	try {
 
-        const targets = Array.from(workflow.hitTargets);
+        const targets = Array.from(workflow.targets);
         for (let t = 0; t < targets.length; t++) {
             let token = targets[t];
             let tactor = token.actor;
-		    if (!tactor) continue;
+            if (!tactor) continue;
 
             // thorns 
             // range(int[range]),damageDice(str[rollable]),damageType(str[damage]),magicEffect(str["magiceffect"] or null),spellEffect(str["magiceffect"] or null),saveDC(int[dc] or null),saveType(str[abil] or null),saveDamage(str["nodam","halfdam","fulldam"] or null)
@@ -37,16 +37,15 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
             }
         }
 
-        let attackWorkflow;
-        if (workflow.damageList) attackWorkflow = workflow.damageList.map((d) => ({ tokenUuid: d.tokenUuid, appliedDamage: d.appliedDamage, newHP: d.newHP, oldHP: d.oldHP, newTemp: d.newTemp, oldTemp: d.oldTemp, damageDetail: d.damageDetail }));
-        if (attackWorkflow) {
-            for (let a = 0; a < attackWorkflow.length; a++) {
-                let token = await fromUuid(attackWorkflow[a].tokenUuid);
-                let tactor = token.actor ? token.actor : token;
+        if (workflow.damageList) {
+            for (let d = 0; d < workflow.damageList.length; d++) {
+                let token = canvas.tokens.get(workflow.damageList[d].tokenId);
+                let tokenOrActor = await fromUuid(workflow.damageList[d].actorUuid)
+                let tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 		        if (!tactor) continue;
 
                 // rage
-                if (attackWorkflow[a].appliedDamage > 0 && tactor.data.flags["midi-qol"]?.rage) {
+                if (workflow.damageList[d].appliedDamage > 0 && tactor.data.flags["midi-qol"]?.rage) {
                     try {
                         console.warn("Rage activated");
                         const rollData = tactor.getRollData();
@@ -55,24 +54,41 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                             if (!tactor.data.flags["midi-qol"]?.rageDamaged) await tactor.setFlag("midi-qol", "rageDamaged", true);
                             console.warn("Rage Damaged used");
                         } 
-                        if (barbarian && barbarian >= 11 && tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0) {
+                        if (barbarian && barbarian >= 11 && tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0) {
                             const relentlessDC = getProperty(tactor.data.flags, "midi-qol.relentlessDC") ?? 10;
                             let player = await playerForActor(tactor);
                             let useFeat = false;
                             useFeat = await USF.socket.executeAsUser("useDialog", player.id, { title: `Relentless Rage`, content: `Use Relentless Rage to survive grievous wounds?` });
                             if (useFeat) {
-                                await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
-                                let relentless = tactor.effects.find(i => i.data.label === "Relentless Rage DC");
-                                if (relentless) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [relentless.id] });
-                                const effectData2 = {
-                                    changes: [{ key: "flags.midi-qol.relentlessDC", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: `${relentlessDC + 5}`, priority: 20 }],
-                                    disabled: false,
-                                    flags: { dae: { specialDuration: ["shortRest", "longRest"] } },
-                                    label: "Relentless Rage DC",
-                                };
-                                await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData2] });
-                                let effect = tactor.effects.find(i => i.data.label === "Unconscious");
-                                if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                                const itemData = {
+                                    name: `Relentless Rage Save`,
+                                    img: `${lastArg.efData.icon}`,
+                                    type: "feat",
+                                    data: {
+                                        activation: { type: "none", },
+                                        target: { type: "self", },
+                                        actionType: "save",
+                                        save: { dc: relentlessDC, ability: "con", scaling: "flat" },
+                                    }
+                                }
+                                await tactor.createEmbeddedDocuments("Item", [itemData]);
+                                let saveItem = await tactor.items.find(i => i.name === itemData.name);
+                                let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
+                                await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
+                                if (!saveWorkflow.failedSaves.has(token)) {
+                                    await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
+                                    let relentless = tactor.effects.find(i => i.data.label === "Relentless Rage DC");
+                                    if (relentless) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [relentless.id] });
+                                    const effectData2 = {
+                                        changes: [{ key: "flags.midi-qol.relentlessDC", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: `${relentlessDC + 5}`, priority: 20 }],
+                                        disabled: false,
+                                        flags: { dae: { specialDuration: ["shortRest", "longRest"] } },
+                                        label: "Relentless Rage DC",
+                                    };
+                                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData2] });
+                                    let effect = tactor.effects.find(i => i.data.label === "Unconscious");
+                                    if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                                }
                                 console.warn("Relentless Rage used");
                             }
                         }
@@ -82,28 +98,40 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 }   
 
                 // undead fortitude
-                if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.data.flags["midi-qol"].undeadFortitude) {
+                if (tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0 && tactor.data.flags["midi-qol"].undeadFortitude) {
                     try {
                         console.warn("Undead Fortitude activated");
-                            if (!attackWorkflow[a].damageDetail.find(d => Array.isArray(d) && d[0].type === "radiant") && !workflow.isCritical) {
-                                const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "save", targetUuid: tactor.uuid, ability: "con", options: { chatMessage: true, fastForward: true } });
-                                if (game.dice3d) game.dice3d.showForRoll(roll);
-                                await USF.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
-                                if (roll.total >= attackWorkflow[a].appliedDamage + 5) tactor.update({"data.attributes.hp.value" : 1});
+                            if (!workflow.damageList[d].damageDetail.find(d => Array.isArray(d) && d[0].type === "radiant") && !workflow.isCritical) {
+                                const itemData = {
+                                    name: `Undead Fortitude Save`,
+                                    img: `icons/magic/acid/pouring-gas-smoke-liquid.webp`,
+                                    type: "feat",
+                                    data: {
+                                        activation: { type: "none", },
+                                        target: { type: "self", },
+                                        actionType: "save",
+                                        save: { dc: workflow.damageList[d].appliedDamage + 5, ability: "con", scaling: "flat" },
+                                    }
+                                }
+                                await tactor.createEmbeddedDocuments("Item", [itemData]);
+                                let saveItem = await tactor.items.find(i => i.name === itemData.name);
+                                let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
+                                await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
+                                if (!saveWorkflow.failedSaves.has(token)) await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
                             console.warn("Undead Fortitude used");
                         }
                     } catch(err) {
-                            console.error("Undead Fortitude error", err);
-                        }
+                        console.error("Undead Fortitude error", err);
                     }
+                }
 
                 // relentless
-                if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.data.flags["midi-qol"].relentless) {
+                if (tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0 && tactor.data.flags["midi-qol"].relentless) {
                     try {
                         console.warn("Relentless activated");
                         let featItem = await tactor.items.find(i => i.name === "Relentless");
                         let damageThreshold = parseInt(tactor.data.flags["midi-qol"].relentless) ?? Math.ceil(tactor.data.data.details?.cr * 2 + 6);
-                        if (featItem && featItem.data.data.uses.value && featItem.data.data.uses.value > 0 && damageThreshold && attackWorkflow[a].appliedDamage <= damageThreshold) {
+                        if (featItem && featItem.data.data.uses.value && featItem.data.data.uses.value > 0 && damageThreshold && workflow.damageList[d].appliedDamage <= damageThreshold) {
                             await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
                             await USF.socket.executeAsGM("updateItem", { itemUuid: featItem.uuid, updates: {"data.uses.value" : featItem.data.data.uses.value - 1} });
                             console.warn("Relentless used");
@@ -114,7 +142,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 }
 
                 // relentless endurance
-                if (tactor.data.data.attributes.hp.value === 0 && attackWorkflow[a].oldHP !== 0 && attackWorkflow[a].newHP === 0 && tactor.data.flags["midi-qol"].relentlessEndurance) {
+                if (tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0 && tactor.data.flags["midi-qol"].relentlessEndurance) {
                     try {
                         console.warn("Relentless Endurance activated");
                         let featItem = await tactor.items.find(i => i.name === "Relentless Endurance");
@@ -134,15 +162,15 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 }
 
                 // no regen
-                if (tactor.data.flags["midi-qol"].noRegen && attackWorkflow[a].appliedDamage > 0) {
+                if (tactor.data.flags["midi-qol"].noRegen && workflow.damageList[d].appliedDamage > 0) {
                     try {
                         console.warn("No Regen activated");
                         let noRegenTypes = tactor.data.flags["midi-qol"]?.noRegen?.split(",");
                         if (noRegenTypes) {
-                            let damageDetail = attackWorkflow[a].damageDetail;
-                            for (let d = 0; d < damageDetail?.length; d++) {
-                                for (let p = 0; p < damageDetail[d]?.length; p++) {
-                                    if (noRegenTypes.includes(damageDetail[d][p]?.type)) {
+                            let damageDetail = workflow.damageList[d].damageDetail;
+                            for (let i = 0; i < damageDetail?.length; i++) {
+                                for (let p = 0; p < damageDetail[i]?.length; p++) {
+                                    if (noRegenTypes.includes(damageDetail[i][p]?.type)) {
                                         const effectData = {
                                             disabled: false,
                                             flags: { dae: { specialDuration: ["turnEnd"], "core": { statusId: "No Regen" } } },
@@ -163,7 +191,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 if (tactor.data.flags["midi-qol"].armorOfAgathys) {
                     try {
                         console.warn("Armor of Agathys activated");
-                        if (tactor.data.data.attributes.hp.temp === 0 || (attackWorkflow[a].newTemp > attackWorkflow[a].oldTemp)) {
+                        if (tactor.data.data.attributes.hp.temp === 0 || (workflow.damageList[d].newTemp > workflow.damageList[d].oldTemp)) {
                             let effect = tactor.effects.find(e => e.data.label === "Armor of Agathys");
                             if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                             console.warn("Armor of Agathys used");
@@ -174,10 +202,10 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 }
 
                 // elemental bane
-                if (tactor.data.flags["midi-qol"].elementalBane && attackWorkflow[a].appliedDamage > 0 && !tactor.data.data.traits.di.value.includes(tactor.data.flags["midi-qol"].elementalBane?.toLowerCase())) {
+                if (tactor.data.flags["midi-qol"].elementalBane && workflow.damageList[d].appliedDamage > 0 && !tactor.data.data.traits.di.value.includes(tactor.data.flags["midi-qol"].elementalBane?.toLowerCase())) {
                     try {
                         console.warn("Elemental Bane activated");
-                        if (game.combat && tactor.data.flags["midi-qol"].baneTime !== `${game.combat.id}-${game.combat.round + game.combat.turn / 100}` && attackWorkflow[a].damageDetail.find(d => Array.isArray(d) && d[0].type === tactor.data.flags["midi-qol"].elementalBane?.toLowerCase())) {
+                        if (game.combat && tactor.data.flags["midi-qol"].baneTime !== `${game.combat.id}-${game.combat.round + game.combat.turn / 100}` && workflow.damageList[d].damageDetail.find(d => Array.isArray(d) && d[0].type === tactor.data.flags["midi-qol"].elementalBane?.toLowerCase())) {
                             await tactor.setFlag("midi-qol", "baneTime", `${game.combat.id}-${game.combat.round + game.combat.turn / 100}`);
                             const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
                             if (applyDamage) await applyDamage.execute("ApplyDamage", tactor?.token?.id, token.id, "2d6", tactor.data.flags["midi-qol"].elementalBane?.toLowerCase(), "magiceffect", "spelleffect");
@@ -190,30 +218,56 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
 
                 // damaged attempt removal
                 // spelldc,abil/save,type,advantage
-                if (tactor.data.flags["midi-qol"].damagedAttemptRemoval && attackWorkflow[a].appliedDamage > 0) {
+                if (tactor.data.flags["midi-qol"].damagedAttemptRemoval && workflow.damageList[d].appliedDamage > 0) {
                     try {
                         console.warn("Damaged Attempt Removal activated");
                         const effects = tactor.effects.filter(e => e.data.changes.find(c => c.key === "flags.midi-qol.damagedAttemptRemoval"));
                         for (let e = 0; e < effects.length; e++) {
                             const removalData = effects[e].data.changes.find(c => c.key === "flags.midi-qol.damagedAttemptRemoval").value.split(",");
                             const condition = effects[e].data.label;
+                            const icon = effects[e].data.icon;
                             const origin = await fromUuid(effects[e].data.origin);
-                            let getResist = false;
-                            if (removalData[1] === "save") {
-                                let conditionResist = tactor.data.flags["midi-qol"]?.resilience && tactor.data.flags["midi-qol"]?.resilience[condition.toLowerCase()];
-                                let magicResist = (origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect) && ((tactor.data.flags["midi-qol"]?.magicResistance?.all && typeof(tactor.data.flags["midi-qol"]?.magicResistance?.all) !== "object") || tactor.data.flags["midi-qol"]?.magicResistance?.all[args[2]]);
-                                let spellResist = (origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect) && tactor.data.flags["midi-qol"]?.spellResistance?.save;
-                                getResist = conditionResist || magicResist || spellResist;
+                            const magicEffect = origin?.data?.data?.properties?.mgc || origin?.data?.flags?.midiProperties?.magiceffect || lastArg.efData?.flags?.magiceffect;
+                            const spellEffect = origin?.data?.type === "spell" || lastArg.efData?.flags?.spelleffect;
+                            if (removalData[3]) {
+                                if (removalData[1] === "save") {
+                                    let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
+                                        if (actor === tactor && abilityId === removalData[2]) {
+                                            rollData.advantage = true;
+                                            Hooks.off("Actor5e.preRollAbilitySave", hook);
+                                        }
+                                    });
+                                } else if (removalData[1] === "abil") {
+                                    let hook = Hooks.on("Actor5e.preRollAbilityCheck", async (actor, rollData, abilityId) => {
+                                        if (actor === tactor && abilityId === removalData[2]) {
+                                            rollData.advantage = true;
+                                            Hooks.off("Actor5e.preRollAbilityCheck", hook);
+                                        }
+                                    });
+                                }
                             }
-                            const player = await playerForActor(tactor);
-                            const rollOptions = getResist || removalData[3] === "advantage" ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
-                            const roll = await MidiQOL.socket().executeAsUser("rollAbility", player.id, { request: removalData[1], targetUuid: tactor.uuid, ability: removalData[2], options: rollOptions }); 
-                            if (game.dice3d) game.dice3d.showForRoll(roll);
-                            if (roll.total >= removalData[0]) {
+                            const itemData = {
+                                name: `${condition} Save`,
+                                img: icon,
+                                type: "feat",
+                                flags: {
+                                    midiProperties: { magiceffect: (magicEffect ? true : false), spelleffect: (spellEffect ? true : false), }
+                                },
+                                data: {
+                                    activation: { type: "none", },
+                                    target: { type: "self", },
+                                    actionType: removalData[1],
+                                    ability: removalData[2],
+                                    save: { dc: removalData[0], ability: removalData[2], scaling: "flat" },
+                                }
+                            }
+                            await tactor.createEmbeddedDocuments("Item", [itemData]);
+                            let saveItem = await tactor.items.find(i => i.name === itemData.name);
+                            let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
+                            await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
+
+                            if (!saveWorkflow.failedSaves.has(token)) {
                                 await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effects[e].id] });
-                                ChatMessage.create({ content: `The afflicted creature passes the roll and removes the ${condition} condition.` });
-                            } else {
-                                if (roll.total < removalData[0]) ChatMessage.create({ content: `The afflicted creature fails the roll and still has the ${condition} condition.` });
                             }
                             console.warn("Damaged Attempt Removal used");
                         }
