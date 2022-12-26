@@ -20,23 +20,36 @@ function canSee(token, target) {
     return canSee;
 }
 
-async function attemptRemoval(getResist) {
-    const saveDC = args[2];
-    const rollOptions = getResist ? { chatMessage: true, fastForward: true, advantage: true } : { chatMessage: true, fastForward: true };
-    const roll = await MidiQOL.socket().executeAsGM("rollAbility", { request: "save", targetUuid: lastArg.actorUuid, ability: "wis", options: rollOptions });
-    if (game.dice3d) game.dice3d.showForRoll(roll);
-    if (roll.total >= saveDC) {
+async function attemptRemoval() {
+    const spellDC = args[2];
+    const ability = "wis";
+    const itemData = {
+        name: `${lastArg.efData.label} Save`,
+        img: lastArg.efData.icon,
+        type: "feat",
+        flags: {
+            midiProperties: { magiceffect: true, spelleffect: true, }
+        },
+        data: {
+            activation: { type: "none", },
+            target: { type: "self", },
+            actionType: "save",
+            save: { dc: spellDC, ability: ability, scaling: "flat" },
+        }
+    }
+    await tactor.createEmbeddedDocuments("Item", [itemData]);
+    let saveItem = await tactor.items.find(i => i.name === itemData.name);
+    let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
+    await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
+    
+    if (!saveWorkflow.failedSaves.size) {
         let fear = tactor.effects.find(i => i.data === lastArg.efData);
 		if (fear) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [fear.id] });
-        ChatMessage.create({ content: `The afflicted creature passes the roll and removes the Frightened condition.` });
-    } else {
-        if (roll.total < saveDC) ChatMessage.create({ content: `The afflicted creature fails the roll and still has the Frightened condition.` });
     }
 }
 
 if (args[0] === "each" && lastArg.efData.disabled === false) {
     if (token && sourceToken && !canSee(token, sourceToken)) { 
-        const getResist = tactor.data.flags["midi-qol"]?.resilience?.frightened || tactor.data.flags["midi-qol"]?.spellResistance?.save || (tactor.data.flags["midi-qol"]?.magicResistance?.all && typeof(tactor.data.flags["midi-qol"]?.magicResistance?.all) !== "object") || tactor.data.flags["midi-qol"]?.magicResistance?.wis;
-        attemptRemoval(getResist);
+        attemptRemoval();
     }
 }

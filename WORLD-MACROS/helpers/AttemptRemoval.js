@@ -52,7 +52,7 @@ try {
             let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
             await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
             
-            if (!saveWorkflow.failedSaves.has(token)) {
+            if (!saveWorkflow.failedSaves.size) {
                 let ef = tactor.effects.find(i => i.data === lastArg.efData);
                 if (ef) await tactor.deleteEmbeddedDocuments("ActiveEffect", [ef.id]);
             }

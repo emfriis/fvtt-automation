@@ -48,7 +48,7 @@ try {
     let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
     await targetTactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
 
-    if (saveWorkflow.failedSaves.has(targetToken)) {
+    if (saveWorkflow.failedSaves.size) {
         const effectData = {
             changes: [
                 { key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Convenient Effect: ${args[2]}`, priority: 20, },

@@ -75,7 +75,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                                 let saveItem = await tactor.items.find(i => i.name === itemData.name);
                                 let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
                                 await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
-                                if (!saveWorkflow.failedSaves.has(token)) {
+                                if (!saveWorkflow.failedSaves.size) {
                                     await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
                                     let relentless = tactor.effects.find(i => i.data.label === "Relentless Rage DC");
                                     if (relentless) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [relentless.id] });
@@ -117,7 +117,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                                 let saveItem = await tactor.items.find(i => i.name === itemData.name);
                                 let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
                                 await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
-                                if (!saveWorkflow.failedSaves.has(token)) await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
+                                if (!saveWorkflow.failedSaves.size) await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
                             console.warn("Undead Fortitude used");
                         }
                     } catch(err) {
@@ -266,7 +266,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                             let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
                             await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
 
-                            if (!saveWorkflow.failedSaves.has(token)) {
+                            if (!saveWorkflow.failedSaves.size) {
                                 await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effects[e].id] });
                             }
                             console.warn("Damaged Attempt Removal used");

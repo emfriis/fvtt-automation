@@ -129,7 +129,7 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                         let saveItem = await workflow.actor.items.find(i => i.name === itemData.name);
                         let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
                         await workflow.actor.deleteEmbeddedDocuments("Item", [saveItem.id]);
-                        if (saveWorkflow.failedSaves.has(workflow.token)) {
+                        if (saveWorkflow.failedSaves.size) {
                             const range = workflow.item.data.data.range.value ?? 5;
                                 let newTargets = await canvas.tokens.placeables.filter((p) => 
                                     p?.actor && // exists
