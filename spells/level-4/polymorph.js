@@ -1,4 +1,5 @@
 // polymorph
+// on use pre saves
 // on use post saves
 // effect itemacro
 // requires "Beasts" folder in actors dir
@@ -61,15 +62,16 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "postSave" && lastArg.faile
                     const getActor = duplicate(tactorTarget.data);
 
                     // transform
-                    let polyOptions = { keepBio: true, keepClass: false, keepMental: false, mergeSaves: false, mergeSkills: false, transformTokens: true }
-                    await USF.socket.executeAsGM("transformActor", { actorUuid: tactorTarget.uuid, folderName: folderName, transformId: polyId, transformOptions: polyOptions });
-
-                    // post transform config
-                    await wait(100);
                     let findPoly;
                     if (isCharacter) { 
+                        let polyOptions = { keepBio: true, keepClass: false, keepMental: false, mergeSaves: false, mergeSkills: false, transformTokens: true }
+                        await USF.socket.executeAsGM("transformActor", { actorUuid: tactorTarget.uuid, folderName: folderName, transformId: polyId, transformOptions: polyOptions });
+                        await wait(100);
                         findPoly = await game.actors.find(i => i.name === `${tactorTarget.name} (${findToken.name})`);
                     } else {
+                        let polyOptions = { keepBio: true, keepClass: false, keepMental: false, mergeSaves: false, mergeSkills: false, transformTokens: true }
+                        await USF.socket.executeAsGM("transformActor", { actorUuid: tactorTarget.uuid, folderName: folderName, transformId: polyId, transformOptions: polyOptions });
+                        await wait(100);
                         findPoly = tactorTarget;
                         await findPoly.setFlag("midi-qol", "polymorphTokenData", getToken);
                         await findPoly.setFlag("midi-qol", "polymorphActorData", getActor);
