@@ -39,13 +39,13 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "postSave" && lastArg.faile
     const tokenOrActorTarget = await fromUuid(lastArg.failedSaveUuids[0]);
     const tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
     const isCharacter = tactorTarget.data.type === "character";
-    const polyCR = actor.data.data.details.cr ?? tactor.data.data.details.level;
+    const polyCR = tactorTarget.data.data.details.cr ?? tactorTarget.data.data.details.level;
     const folderName = "Beasts";
     const getFolder = game.folders.getName(folderName).content;
     const filteredFolder = getFolder.filter((i) => i.data.data.details.cr <= polyCR && i.data.data?.details?.type?.value.toLowerCase() == "beast");
     const folderContents = filteredFolder.reduce((acc, target) => acc += `<option value="${target.id}">${target.name} CR: ${target.data.data.details.cr}</option>`, ``);
     const content = `<p>Pick a beast</p><form><div class="form-group"><label for="beast">Beast:</label><select id="beast">${folderContents}</select></div></form>`;
-    const removeVisionEffects = tactor.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v))).map(e => e.id);
+    const removeVisionEffects = tactorTarget.effects.filter(e => ["blind sight", "darkvision", "tremorsense", "true sight"].some(v => e.data.label.toLowerCase().includes(v))).map(e => e.id);
 
     new Dialog({
         title: "Polymorph: Choose a Beast",
