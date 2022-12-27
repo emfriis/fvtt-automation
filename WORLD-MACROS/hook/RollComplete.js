@@ -1,5 +1,7 @@
 // RollComplete
 
+async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+
 async function applyBurst(actor, token, range, damageDice, damageType, saveDC, saveType, saveDamage, magicEffect) {
     const itemData = {
         name: `${damageType.charAt(0).toUpperCase() + damageType.slice(1)} Burst`,
@@ -40,15 +42,41 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                 if (tactor.data.flags["midi-qol"].wildShape && tactor.isPolymorphed && tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0) {
                     try {
                         console.warn("Wild Shape activated");
-                        const ogTokenOrActor = await fromUuid(tactor.data.flags["midi-qol"].wildShape);
-                        const ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
-                        if (workflow.damageList[d].appliedDamage && workflow.damageList[d].appliedDamage > workflow.damageList[d].oldHP)  await USF.socket.executeAsGM("updateActor", { actorUuid: ogTactor.uuid, updates: {"data.attributes.hp.value" : ogTactor.data.data.attributes.hp.value + workflow.damageList[d].oldHP - workflow.damageList[d].appliedDamage} });
-				        const wildShape = tactor.effects.find(e => e.data.label === "Wild Shape");
+                        let ogTactor;
+                        if (tactor.data.type === "character") {
+                            let ogTokenOrActor = await fromUuid(tactor.data.flags["midi-qol"].wildShape);
+                            ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
+                        }
+                        const wildShape = tactor.effects.find(e => e.data.label === "Wild Shape");
                         if (wildShape) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [wildShape.id] });
-                        tactor = ogTactor;
+                        if (ogTactor) tactor = ogTactor;
+                        await wait(1000);
+                        if (workflow.damageList[d].appliedDamage && workflow.damageList[d].appliedDamage > workflow.damageList[d].oldHP) await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : tactor.data.data.attributes.hp.value + workflow.damageList[d].oldHP - workflow.damageList[d].appliedDamage} });
 				        console.warn("Wild Shape used");
                     } catch(err) {
                         console.error("Wild Shape error", err);
+                    }
+                }
+
+                // polymorph
+                if (tactor.data.flags["midi-qol"].polymorph && tactor.isPolymorphed && tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0) {
+                    try {
+                        console.warn("Polymorph activated");
+                        let ogTactor;
+                        let ogUuid = tactor.uuid;
+                        if (tactor.data.type === "character") {
+                            let ogTokenOrActor = await fromUuid(tactor.data.flags["midi-qol"].polymorph);
+                            ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
+                            ogUuid = ogTactor.uuid;
+                        }
+				        const polymorph = tactor.effects.find(e => e.data.label === "Polymorph");
+                        if (polymorph) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [polymorph.id] });
+                        if (ogTactor) tactor = ogTactor;
+                        await wait(1000);
+                        if (workflow.damageList[d].appliedDamage && workflow.damageList[d].appliedDamage > workflow.damageList[d].oldHP) await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : tactor.data.data.attributes.hp.value + workflow.damageList[d].oldHP - workflow.damageList[d].appliedDamage} });
+                        console.warn("Polymorph used");
+                    } catch(err) {
+                        console.error("Polymorph error", err);
                     }
                 }
 
@@ -63,9 +91,16 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                         console.error("Burst error", err);
                     }
                 }
+		    }
 
+            const targets = Array.from(workflow.targets);
+            for (let t = 0; t < targets.length; t++) {
+                let token = targets[t];
+                let tactor = token.actor;
+                if (!tactor) continue;
+            
                 // unconscious cleanup
-                if ((tactor.data.data.attributes.hp.value === 0 || tactor.effects.find(e => e.data.label === "Unconscious"))) {
+                if (tactor.data.data.attributes.hp.value === 0 || tactor.effects.find(e => e.data.label === "Unconscious")) {
                     try {
                         console.warn("Unconscious Cleanup activated");
                         if (!tactor.effects.find(e => e.data.label === "Prone")) {
@@ -80,12 +115,12 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                             let rage = tactor.effects.find(e => e.data.label === "Rage");
                             if (rage) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [rage.id] });
                         }
-				        console.warn("Unconscious Cleanup used");
+                        console.warn("Unconscious Cleanup used");
                     } catch(err) {
                         console.error("Unconscious Cleanup error", err);
                     }
                 }
-		    }
+            }
         }
     } catch(err) {
         console.error("RollComplete Error", err);

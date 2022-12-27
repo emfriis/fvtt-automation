@@ -12,7 +12,7 @@ function playerForActor(actor) {
 Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
 	try {
 
-        const targets = Array.from(workflow.targets);
+        const targets = Array.from(workflow.hitTargets);
         for (let t = 0; t < targets.length; t++) {
             let token = targets[t];
             let tactor = token.actor;

@@ -10,11 +10,34 @@ const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
-if (args[0].tag === "OnUse" && lastArg.failedSaves.length !== 0) {
+if (args[0].tag === "OnUse" && args[0].macroPass === "preSave" && lastArg.targets.length !== 0) {
+    for (let i = 0; i < lastArg.targetUuids.length; i++) {
+        let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
+        let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
+        if (tactor.token?.data?.disposition === tactorTarget.token?.data?.disposition) {
+            const effectData = {
+                changes: [
+                    {
+                        key: "data.bonuses.abilities.save",
+                        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                        value: -999,
+                        priority: 20,
+                    }
+                ],
+                disabled: false,
+                flags: { dae: { specialDuration: ["isSave"] } },
+                icon: lastArg.item.img,
+                label: `${lastArg.item.name} Save Auto Fail`,
+            };
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+        }
+    }
+}
+
+if (args[0].tag === "OnUse" && lastArg.macroPass === "postSave" && lastArg.failedSaves.length !== 0) {
     const tokenTarget = lastArg.failedSaves[0];
     const tokenOrActorTarget = await fromUuid(lastArg.failedSaveUuids[0]);
     const tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-
     const isCharacter = tactorTarget.data.type === "character";
     const polyCR = actor.data.data.details.cr ?? tactor.data.data.details.level;
     const folderName = "Beasts";
@@ -35,6 +58,7 @@ if (args[0].tag === "OnUse" && lastArg.failedSaves.length !== 0) {
                     let polyId = html.find('#beast')[0].value;
                     let findToken = getFolder.find(i => i.id === polyId);
                     const getToken = duplicate(tokenTarget.data);
+                    const getActor = duplicate(tactorTarget.data);
 
                     // transform
                     let polyOptions = { keepBio: true, keepClass: false, keepMental: false, mergeSaves: false, mergeSkills: false, transformTokens: true }
@@ -48,6 +72,7 @@ if (args[0].tag === "OnUse" && lastArg.failedSaves.length !== 0) {
                     } else {
                         findPoly = tactorTarget;
                         await findPoly.setFlag("midi-qol", "polymorphTokenData", getToken);
+                        await findPoly.setFlag("midi-qol", "polymorphActorData", getActor);
                     }
                     await canvas.scene.updateEmbeddedDocuments("Token", [{ "_id": getToken._id, "displayBars": CONST.TOKEN_DISPLAY_MODES.ALWAYS, "mirrorX": getToken.mirrorX, "mirrorY": getToken.mirrorY, "rotation": getToken.rotation, "elevation": getToken.elevation }]);
                     await findPoly.setFlag("midi-qol", "polymorph", tactorTarget.uuid);
@@ -108,10 +133,15 @@ if (args[0] === "off") {
         ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
     } else {
         let polymorphTokenData = tactor.getFlag("midi-qol", "polymorphTokenData");
+        let polymorphActorData = tactor.getFlag("midi-qol", "polymorphActorData");
+        tactor.unsetFlag("midi-qol", "polymorph");
+        tactor.unsetFlag("midi-qol", "polymorphEffects");
         tactor.unsetFlag("midi-qol", "polymorphTokenData");
+        tactor.unsetFlag("midi-qol", "polymorphActorData");
         const getToken = duplicate(token.data);
         Object.assign(polymorphTokenData, { "_id": getToken._id, "mirrorX": getToken.mirrorX, "mirrorY": getToken.mirrorY, "rotation": getToken.rotation, "elevation": getToken.elevation, "x": getToken.x, "y": getToken.y });
         await canvas.scene.updateEmbeddedDocuments("Token", [polymorphTokenData]);
+        await tactor.update(polymorphActorData);
         ogTactor = tactor;
     }
 
