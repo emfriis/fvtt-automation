@@ -51,32 +51,19 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                         if (wildShape) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [wildShape.id] });
                         if (ogTactor) tactor = ogTactor;
                         await wait(1000);
+                        if (tactor.effects.find(e => e.data.label === "Concentrating")) {
+                            const effectData = {
+                                changes: [{ key: "flags.midi-qol.concentrationSaveBonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 99, }],
+                                disabled: false,
+                                label: "Wild Shape Concentration Cleanup",
+                                flags: { dae: { specialDuration: ["1Save"] } }
+                            }
+                            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                        }
                         if (workflow.damageList[d].appliedDamage && workflow.damageList[d].appliedDamage > workflow.damageList[d].oldHP) await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : tactor.data.data.attributes.hp.value + workflow.damageList[d].oldHP - workflow.damageList[d].appliedDamage} });
 				        console.warn("Wild Shape used");
                     } catch(err) {
                         console.error("Wild Shape error", err);
-                    }
-                }
-
-                // polymorph
-                if (tactor.data.flags["midi-qol"].polymorph && tactor.isPolymorphed && tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0) {
-                    try {
-                        console.warn("Polymorph activated");
-                        let ogTactor;
-                        let ogUuid = tactor.uuid;
-                        if (tactor.data.type === "character") {
-                            let ogTokenOrActor = await fromUuid(tactor.data.flags["midi-qol"].polymorph);
-                            ogTactor = ogTokenOrActor.actor ? ogTokenOrActor.actor : ogTokenOrActor;
-                            ogUuid = ogTactor.uuid;
-                        }
-				        const polymorph = tactor.effects.find(e => e.data.label === "Polymorph");
-                        if (polymorph) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [polymorph.id] });
-                        if (ogTactor) tactor = ogTactor;
-                        await wait(1000);
-                        if (workflow.damageList[d].appliedDamage && workflow.damageList[d].appliedDamage > workflow.damageList[d].oldHP) await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : tactor.data.data.attributes.hp.value + workflow.damageList[d].oldHP - workflow.damageList[d].appliedDamage} });
-                        console.warn("Polymorph used");
-                    } catch(err) {
-                        console.error("Polymorph error", err);
                     }
                 }
 

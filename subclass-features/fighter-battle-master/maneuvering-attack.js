@@ -54,7 +54,7 @@ try {
 		const diceMult = args[0].isCritical ? 2: 1;
 		const damageType = args[0].item.data.damage.parts[0][1];
 
-		return {damageRoll: `${diceMult}${die}[${damageType}]`, flavor: "Disarming Attack"};
+		return {damageRoll: `${diceMult}${die}[${damageType}]`, flavor: "Maneuvering Attack"};
 	}
 } catch(err) {
 	console.error(`${args[0].itemData.name} - maneuver macro`, err);
