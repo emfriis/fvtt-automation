@@ -4,12 +4,12 @@ const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 // ItemMacro beforeSave 
 
-// beforeSave on save type save
 if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPass === "preSave") {
     for (let i = 0; i < lastArg.targetUuids.length; i++) {
         let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
         let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-        if (tactor.token?.data?.disposition === tactorTarget.token?.data?.disposition) {
+        let tokenTarget = lastArg.targets[i];
+        if (token?.data?.disposition === tokenTarget?.data?.disposition) {
             const effectData = {
                 changes: [
                     {

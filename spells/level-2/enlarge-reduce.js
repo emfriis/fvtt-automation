@@ -20,7 +20,8 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
     for (let i = 0; i < lastArg.targetUuids.length; i++) {
         let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
         let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-        if (tactor.token?.data?.disposition === tactorTarget.token?.data?.disposition) {
+        let tokenTarget = lastArg.targets[i];
+        if (token?.data?.disposition === tokenTarget?.data?.disposition) {
             const effectData = {
                 changes: [
                     {
@@ -35,7 +36,7 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
                 icon: args[0].item.img,
                 label: `${args[0].item.name} Save Auto Fail`,
             };
-            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
         }
     }
 }

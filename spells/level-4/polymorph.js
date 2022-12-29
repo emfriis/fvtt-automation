@@ -11,11 +11,12 @@ const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
-if (args[0].tag === "OnUse" && args[0].macroPass === "preSave" && lastArg.targets.length !== 0) {
+if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPass === "preSave") {
     for (let i = 0; i < lastArg.targetUuids.length; i++) {
         let tokenOrActorTarget = await fromUuid(lastArg.targetUuids[i]);
         let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
-        if (tactor.token?.data?.disposition === tactorTarget.token?.data?.disposition) {
+        let tokenTarget = lastArg.targets[i];
+        if (token?.data?.disposition === tokenTarget?.data?.disposition) {
             const effectData = {
                 changes: [
                     {
@@ -27,10 +28,10 @@ if (args[0].tag === "OnUse" && args[0].macroPass === "preSave" && lastArg.target
                 ],
                 disabled: false,
                 flags: { dae: { specialDuration: ["isSave"] } },
-                icon: lastArg.item.img,
-                label: `${lastArg.item.name} Save Auto Fail`,
+                icon: args[0].item.img,
+                label: `${args[0].item.name} Save Auto Fail`,
             };
-            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
         }
     }
 }
