@@ -42,10 +42,11 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "preambleComplete") {
 
 if (args[0] === "on" || args[0] === "each") {
     if (!tactor.effects.find(e => e.data.label === "Reaction") && game.combat) {
-        game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: tactor.uuid });
+        await game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: tactor.uuid });
     }
 }
 
 if (args[0] === "off") {
     await tactor.unsetFlag("midi-qol", "slowSpell");
+    await game.dfreds.effectInterface.removeEffect({ effectName: "Reaction", uuid: tactor.uuid });
 }

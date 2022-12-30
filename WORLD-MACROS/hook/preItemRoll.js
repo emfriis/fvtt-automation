@@ -57,20 +57,9 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                     await workflow.actor.unsetFlag("midi-qol", "slowSpell");
                     console.warn("Slow used");
                 } else {
-                    const roll = await new Roll(`1d20`).evaluate({ async: false });
+                    let roll = await new Roll(`1d20`).evaluate({ async: false });
                     if (game.dice3d) game.dice3d.showForRoll(roll);
                     if (roll.total >= 11) {
-                        if (["prepared", "always", "pact"].includes(workflow.item.data.data.preparation.mode) && workflow.itemLevel >= 1) {
-                            let slotLevel = workflow.actor.data.data.spells[`spell${spellLevel}`].max > workflow.actor.data.data.spells[`spell${workflow.itemLevel}`].value ? `spell${workflow.itemLevel}` : workflow.actor.data.data.spells.pact.level === workflow.itemLevel && workflow.actor.data.data.spells.pact.max > workflow.actor.data.data.spells.pact.value ? pact : null;
-                            if (slotLevel) {
-                                let actorData = duplicate(workflow.actor.data._source);
-                                actorData.data.spells[`${slotLevel}`].value = actorData.data.spells[`${slotLevel}`].value + 1;
-                                await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: actorData });
-                            }
-                        } else if (["innate", "atwill"].includes(workflow.item.data.data.preparation.mode) && workflow.item.data.data.uses.max && workflow.item.data.data.uses.value < workflow.item.data.data.uses.max) {
-                            await USF.socket.executeAsGM("updateItem", { itemUuid: workflow.item.uuid, updates: {"data.uses.value" : workflow.item.data.data.uses.value + 1} });
-                        }
-                        await workflow.actor.setFlag("midi-qol", "slowSpell", workflow.item.name);
                         ChatMessage.create({ content: "The spell is stalled by a lethargic energy until next turn." });
                         console.warn("Slow used");
                         return false;
