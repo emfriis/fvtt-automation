@@ -21,17 +21,19 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
         ability = tactor.data.flags["midi-qol"]?.hexAbility;
         if (!ability) return;
 
-        const prevTarget = canvas.tokens.get(lastArg.tokenId);
+        // check previous target
+        const prevTarget = canvas.tokens.get(tactor.data.flags["midi-qol"]?.hexTarget);
         const prevTactor = prevTarget?.actor;
-        if (prevTarget && prevTactor && prevTactor.data.data.attributes.hp.value !== 0) {
+        if (prevTactor && prevTactor.data.data.attributes.hp.value !== 0) {
             ui.notifications.warn("Previous target still above 0 hit points");
             return;
+        } else if (prevTactor) {
+            await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: prevTactor.uuid, effects: [prevTactor.effects.find(e => e.data.label === "Hex" && e.data.origin === item.uuid)?.id] });
         }
-
-        if (prevTactor) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: prevTactor.uuid, effects: [prevTactor.effects.find(e => e.data.label === "Hex" && e.data.origin === item.uuid)?.id] });
     } else {
         const durationSeconds = lastArg.itemLevel > 4 ? 86400 : lastArg.itemLevel > 2 ? 28800 : 3600;
 
+        // select ability
         let dialog = new Promise((resolve, reject) => {
             new Dialog({
                 title: `Hex: Usage Configuration`,
@@ -67,13 +69,10 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
         ability = await dialog;
         if (!ability) return;
 
+        // create self effect and update concentration
         let effectData1 = {
             label: "Hex Damage Bonus",
             icon: item.img,
-            changes: [
-                { key: `flags.dnd5e.DamageBonusMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro.Hex`, priority: 20 },
-                { key: `flags.midi-qol.hexAbility`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: ability, priority: 20 },
-            ],
             origin: item.uuid,
             disabled: false,
             flags: { dae: { itemData: item.data, token: tactorTarget.uuid, } },
@@ -84,8 +83,10 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
             let concUpdate = await getProperty(tactor.data.flags, "midi-qol.concentration-data.targets");
             await concUpdate.push({ tokenUuid: tokenOrActor.uuid, actorUuid: tactor.uuid });
             await tactor.setFlag("midi-qol", "concentration-data.targets", concUpdate);
+            await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: conc.id, duration: { seconds: durationSeconds, startTime: game.time.worldTime } }] });
         }
 
+        // create reapply item
         const itemData = mergeObject(duplicate(item.data), {
             name: "Reapply Hex",
             type: "feat",
@@ -96,6 +97,7 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
         await tactor.createEmbeddedDocuments("Item", [itemData]);
     }
 
+    // create target effect
     let effectData2 = {
         label: item.name,
         icon: item.img,
@@ -109,6 +111,7 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
     }
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData2] });
 
+    // update self effect
     const sourceEffect = tactor.effects.find(e => e.data.label === "Hex Damage Bonus" && e.data.origin === item.uuid);
     const targetEffect = tactorTarget.effects.find(e => e.data.label === "Hex" && e.data.origin === item.uuid);
     if (sourceEffect && targetEffect) {
@@ -117,6 +120,7 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
             { key: `flags.midi-qol.hexAbility`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: ability, priority: 20 },
             { key: `flags.midi-qol.hexTarget`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: lastArg.targets[0].id, priority: 20 },
             { key: `flags.dae.deleteUuid`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: targetEffect.uuid, priority: 20 },
+            { key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "", priority: 20 },
         ];
         await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: sourceEffect.id, changes: changes }] });
     }
