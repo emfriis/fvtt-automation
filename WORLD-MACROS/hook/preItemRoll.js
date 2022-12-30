@@ -129,110 +129,26 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                         const effect = tactor.effects.find(e => e.data.label === "Sanctuary");
                         const item = await fromUuid(effect.data.origin);
                         const parent = item?.parent;
-                        const spellDC = parent.data.data.attributes.spelldc;
+                        const spellDC = parent?.data?.data?.attributes?.spelldc ?? 10;
                         const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: workflow.actor.uuid, saveName: `Sanctuary Save`, saveImg: `systems/dnd5e/icons/spells/haste-sky-3.jpg`, saveType: "save", saveDC: spellDC, saveAbility: "wis", magiceffect: true, spelleffect: true });
+                        const attackRange = longRange > range ? longRange : range;
                         if (!save) {
-                            const range = workflow.item.data.data.range.value ?? 5;
-                                let newTargets = await canvas.tokens.placeables.filter((p) => 
-                                    p?.actor && // exists
-                                    p.document.uuid !== workflow.token.document.uuid && // not attacker
-                                    p.document.uuid !== token.document.uuid && // not original target
-                                    p.data.disposition !== workflow.token.data.disposition && // not friendly
-                                    MidiQOL.getDistance(workflow.token, p, false) <= range && // within range
-                                    canSee(workflow.token, p) // can see
-                                );
-                            if (newTargets.length === 0) {
-                                return false;
-                            } else if (newTargets.length === 1) {
-                                if (isAttack) {
-                                    let hook = Hooks.on("midi-qol.preAttackRoll", async (workflowNext) => {
-                                        if (workflowNext.uuid === workflow.uuid) {
-                                            workflowNext?.targets?.delete(token);
-                                            workflowNext?.targets?.add(newTargets[0]);
-                                            Hooks.off("midi-qol.preAttackRoll", hook);
-                                        }
-                                    });
-                                } else if (isHarmSpell) {
-                                    let hook = Hooks.on("midi-qol.preCheckSaves", async (workflowNext) => {
-                                        if (workflowNext.uuid === workflow.uuid) {
-                                            workflowNext?.targets?.delete(token);
-                                            workflowNext?.hitTargets?.delete(token);
-                                            workflowNext?.saves?.delete(token);
-                                            workflowNext?.targets?.add(replaceTarget);
-                                            workflowNext?.hitTargets?.add(replaceTarget);
-                                            workflowNext?.saves?.add(replaceTarget);
-                                            Hooks.off("midi-qol.preCheckSaves", hook);
-                                        }
-                                    });
-                                }
-                            }
-                            let target_content = "";
-                            for (let n; n < newTargets.length; n++) {
-                                let target = newTargets[n];
-                                target_content += `<label class="radio-label">
-                                <input type="radio" name="target" value="${target.id}">
-                                <img src="${target.data.img}" style="border:0px; width: 100px; height:100px;">
-                                </label>`;
-                            }
-                            let content = `
-                                    <style>
-                                    .target .form-group {
-                                    display: flex;
-                                    flex-wrap: wrap;
-                                    width: 100%;
-                                    align-items: flex-start;
-                                    }
-
-                                    .target .radio-label {
-                                    display: flex;
-                                    flex-direction: column;
-                                    align-items: center;
-                                    text-align: center;
-                                    justify-items: center;
-                                    flex: 1 0 25%;
-                                    line-height: normal;
-                                    }
-                
-                                    .target .radio-label input {
-                                    display: none;
-                                    }
-                
-                                    .target img {
-                                    border: 0px;
-                                    width: 50px;
-                                    height: 50px;
-                                    flex: 0 0 50px;
-                                    cursor: pointer;
-                                    }
-                
-                                    /* CHECKED STYLES */
-                                    .target [type=radio]:checked + img {
-                                    outline: 2px solid #f00;
-                                    }
-                                    </style>
-                                    <form class="target">
-                                    <div class="form-group" id="target">
-                                    ${target_content}
-                                    </div>
-                                    </form>
-                            `;
-                
                             let dialog = new Promise(async (resolve, reject) => {
                                 new Dialog({
                                     title: "Sanctuary: Choose a new target",
-                                    content,
                                     buttons: {
-                                        Choose: {
-                                            label: "Choose",
+                                        Ok: {
+                                            label: "Ok",
                                             callback: async () => {
-                                                const selectedId = $("input[type='radio'][name='target']:checked").val();
-                                                const replaceTarget = canvas.tokens.get(selectedId);
-                                                if (isAttack) {
+                                                let targets = Array.from(game.user?.targets);
+                                                if (targets.length !== 1 || targets[0].id === token.id || MidiQOL.getDistance(targets[0], workflow.token, false) > attackRange) {
+                                                    resolve(false);
+                                                } else if (isAttack) {
                                                     let hook = Hooks.on("midi-qol.preAttackRoll", async (workflowNext) => {
                                                         if (workflowNext.uuid === workflow.uuid) {
-                                                                workflowNext?.targets?.delete(token);
-                                                                workflowNext?.targets?.add(replaceTarget);
-                                                                Hooks.off("midi-qol.preAttackRoll", hook);
+                                                            workflowNext?.targets?.delete(token);
+                                                            workflowNext?.targets?.add(targets[0]);
+                                                            Hooks.off("midi-qol.preAttackRoll", hook);
                                                         }
                                                     });
                                                 } else if (isHarmSpell && !isAttack) {
@@ -241,9 +157,9 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                                                             workflowNext?.targets?.delete(token);
                                                             workflowNext?.hitTargets?.delete(token);
                                                             workflowNext?.saves?.delete(token);
-                                                            workflowNext?.targets?.add(replaceTarget);
-                                                            workflowNext?.hitTargets?.add(replaceTarget);
-                                                            workflowNext?.saves?.add(replaceTarget);
+                                                            workflowNext?.targets?.add(targets[0]);
+                                                            workflowNext?.hitTargets?.add(targets[0]);
+                                                            workflowNext?.saves?.add(targets[0]);
                                                             Hooks.off("midi-qol.preCheckSaves", hook);
                                                         }
                                                     });
@@ -254,10 +170,10 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                                     }
                                 }).render(true);
                             });
-                            await dialog;
-                            if (!dialog) return false;
+                            let newTarget = await dialog;
+                            console.warn("Sanctuary used");
+                            if (!newTarget) return false;
                         }
-                        console.warn("Sanctuary used");
                     }
                 } catch (err) {
                     console.error("Sanctuary error", err);
