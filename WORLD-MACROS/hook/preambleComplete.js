@@ -37,31 +37,31 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
         if (workflow.token && [null, "", "creature", "ally", "enemy"].includes(workflow.item.data.data.target.type) && ["ft", "touch"].includes(workflow.item.data.data.range.units) && !(["mwak","msak"].includes(workflow.item.data.data.actionType) && game.combat && game.combat?.current.tokenId !== workflow.tokenId)) {
             try {
                 console.warn("Range Check Cleanup Activated");
-                const needsCleanup = (workflow.actor.items.find(i => i.name === "Metamagic: Distant Spell"));
-                if (needsCleanup) {
-                    let range = workflow.item.data.data.range.value ? workflow.item.data.data.range.value : 5;
-                    let longRange = workflow.item.data.data.range.long ? workflow.item.data.data.range.long : 0;
-                    if (["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType) && workflow.actor.data.flags["midi-qol"].rangeBonus && workflow.actor.data.flags["midi-qol"].rangeBonus[workflow.item.data.data.actionType]) {
-                        const bonus = workflow.actor.data.flags["midi-qol"].rangeBonus[workflow.item.data.data.actionType]?.split("+")?.reduce((accumulator, current) => Number(accumulator) + Number(current));
-                        range += bonus;
-                        if (longRange) longRange += bonus;
-                    }
-                    if (longRange && workflow.actor.data.flags["midi-qol"].sharpShooter && workflow.item.data.data.actionType === "rwak") range = longRange;
-                    if (workflow.actor.data.flags["midi-qol"].spellSniper && workflow.item.data.data.actionType === "rsak") range *= 2;
-                    if (workflow.actor.data.flags["midi-qol"].distantSpell && workflow.item.type === "spell") {
-                        if (workflow.item.data.data.range.units === "ft") range *= 2;
-                        if (workflow.item.data.data.range.units === "touch") range = 30;
-                    }
+                let range = workflow.item.data.data.range.value ? workflow.item.data.data.range.value : 5;
+                let longRange = workflow.item.data.data.range.long ? workflow.item.data.data.range.long : 0;
+                if (["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType) && workflow.actor.data.flags["midi-qol"].rangeBonus && workflow.actor.data.flags["midi-qol"].rangeBonus[workflow.item.data.data.actionType]) {
+                    const bonus = workflow.actor.data.flags["midi-qol"].rangeBonus[workflow.item.data.data.actionType]?.split("+")?.reduce((accumulator, current) => Number(accumulator) + Number(current));
+                    range += bonus;
+                    if (longRange) longRange += bonus;
+                }
+                if (longRange && workflow.actor.data.flags["midi-qol"].sharpShooter && workflow.item.data.data.actionType === "rwak") range = longRange;
+                if (workflow.actor.data.flags["midi-qol"].spellSniper && workflow.item.data.data.actionType === "rsak") range *= 2;
+                if (workflow.actor.data.flags["midi-qol"].distantSpell && workflow.item.type === "spell") {
+                    if (workflow.item.data.data.range.units === "ft") range *= 2;
+                    if (workflow.item.data.data.range.units === "touch") range = 30;
+                }
 
-                    const targets = Array.from(workflow.targets);
-                    for (let t = 0; t < targets.length; t++) {
-                        const token = targets[t];
-                        const distance = MidiQOL.getDistance(workflow.token, token, false);
-                        if (distance > range && distance > longRange) {
-                            ui.notifications.warn("Target(s) not within range");
-                            console.warn("Range Check Cleanup used", range);
-                            return false;
-                        } 
+                const targets = Array.from(workflow.targets);
+                for (let t = 0; t < targets.length; t++) {
+                    const token = targets[t];
+                    const distance = MidiQOL.getDistance(workflow.token, token, false);
+                    if (distance > range && distance > longRange) {
+                        ui.notifications.warn("Target(s) not within range");
+                        console.warn("Range Check Cleanup used");
+                        return false;
+                    } else if (!workflow.disadvantage && distance > range && distance <= longRange && ["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) {
+                        workflow.disadvantage = true;
+                        console.warn("Range Check Cleanup used");
                     }
                 }
             } catch (err) {

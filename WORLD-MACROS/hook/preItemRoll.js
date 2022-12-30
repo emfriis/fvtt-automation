@@ -141,28 +141,18 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                                             label: "Ok",
                                             callback: async () => {
                                                 let targets = Array.from(game.user?.targets);
-                                                if (targets.length !== 1 || targets[0].id === token.id || MidiQOL.getDistance(targets[0], workflow.token, false) > attackRange) {
+                                                if (targets.length !== 1 || targets[0].id === token.id) {
                                                     resolve(false);
                                                 } else if (isAttack) {
-                                                    let hook = Hooks.on("midi-qol.preAttackRoll", async (workflowNext) => {
-                                                        if (workflowNext.uuid === workflow.uuid) {
-                                                            workflowNext?.targets?.delete(token);
-                                                            workflowNext?.targets?.add(targets[0]);
-                                                            Hooks.off("midi-qol.preAttackRoll", hook);
-                                                        }
-                                                    });
+                                                    workflow?.targets?.delete(token);
+                                                    workflow?.targets?.add(targets[0]);
                                                 } else if (isHarmSpell && !isAttack) {
-                                                    let hook = Hooks.on("midi-qol.preCheckSaves", async (workflowNext) => {
-                                                        if (workflowNext.uuid === workflow.uuid) {
-                                                            workflowNext?.targets?.delete(token);
-                                                            workflowNext?.hitTargets?.delete(token);
-                                                            workflowNext?.saves?.delete(token);
-                                                            workflowNext?.targets?.add(targets[0]);
-                                                            workflowNext?.hitTargets?.add(targets[0]);
-                                                            workflowNext?.saves?.add(targets[0]);
-                                                            Hooks.off("midi-qol.preCheckSaves", hook);
-                                                        }
-                                                    });
+                                                    workflow?.targets?.delete(token);
+                                                    workflow?.hitTargets?.delete(token);
+                                                    workflow?.saves?.delete(token);
+                                                    workflow?.targets?.add(targets[0]);
+                                                    workflow?.hitTargets?.add(targets[0]);
+                                                    workflow?.saves?.add(targets[0]);
                                                 }
                                                 resolve(true);
                                             }
