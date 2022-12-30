@@ -31,6 +31,10 @@ try {
         if (args[4] === "opt") {
             attempt = await USF.socket.executeAsUser("useDialog", player.id, { title: `Use action to attempt to remove ${condition}?`, content: `` });
         }
+        if (!saveDC) {
+            await tactor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.efData._id]);
+            return;
+        }
         if (args[4] === "auto" || attempt) {
             const itemData = {
                 name: `${condition} Save`,
@@ -53,8 +57,7 @@ try {
             await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
             
             if (!saveWorkflow.failedSaves.size) {
-                let ef = tactor.effects.find(i => i.data === lastArg.efData);
-                if (ef) await tactor.deleteEmbeddedDocuments("ActiveEffect", [ef.id]);
+                await tactor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.efData._id]);
             }
         }
     }
