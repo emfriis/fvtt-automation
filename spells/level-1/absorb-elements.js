@@ -6,8 +6,8 @@ const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 if (args[0].tag === "OnUse") {
-    const itemD = lastArg.item;
-    const spellLevel = lastArg.spellLevel;
+    const item = lastArg.item;
+    const spellLevel = lastArg.itemLevel;
     let elements = ["acid", "cold", "fire", "lightning", "poison"];
     let damageDetail = args[0].workflowOptions.damageDetail;
     let options = [];
@@ -18,11 +18,15 @@ if (args[0].tag === "OnUse") {
     })
     let type;
     if (options.length === 0) {
-        let slotLevel = tactor.data.data.spells[`spell${spellLevel}`].max > tactor.data.data.spells[`spell${spellLevel}`].value ? `spell${spellLevel}` : tactor.data.data.spells.pact.level === spellLevel && tactor.data.data.spells.pact.max > tactor.data.data.spells.pact.value ? pact : null;
-        if (slotLevel) {
-            let actorData = duplicate(tactor.data._source);
-            actorData.data.spells[`${slotLevel}`].value = actorData.data.spells[`${slotLevel}`].value + 1;
-            await tactor.update(actorData);
+        if (["prepared", "always", "pact"].includes(item.data.preparation.mode)) {
+            let slotLevel = tactor.data.data.spells[`spell${spellLevel}`].max > tactor.data.data.spells[`spell${spellLevel}`].value ? `spell${spellLevel}` : tactor.data.data.spells.pact.level === spellLevel && tactor.data.data.spells.pact.max > tactor.data.data.spells.pact.value ? pact : null;
+            if (slotLevel) {
+                let actorData = duplicate(tactor.data._source);
+                actorData.data.spells[`${slotLevel}`].value = actorData.data.spells[`${slotLevel}`].value + 1;
+                await tactor.update(actorData);
+            }
+        } else if (["innate", "atwill"].includes(item.data.preparation.mode) && item.data.uses.max && item.data.uses.value < item.data.uses.max) {
+            await item.update({ "data.uses.value": item.data.uses.value + 1 });
         }
         let reaction = tactor.effects.find(e => e.data.label === "Reaction");
         if (reaction) {
@@ -63,15 +67,15 @@ if (args[0].tag === "OnUse") {
     }
     if (!type) return;
     let effectData = [{
-        label: itemD.name,
-        icon: itemD.img,
+        label: item.name,
+        icon: item.img,
         changes: [
             { key: `data.traits.dr.value`, mode: 2, value: type, priority: 20 },
             { key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `${type} ${spellLevel}`, priority: 20 },
         ],
         origin: lastArg.uuid,
         disabled: false,
-        flags: { dae: { specialDuration: ["turnStartSource"], itemData: itemD } , core: { statusId: "Absorb Elements" }},
+        flags: { dae: { specialDuration: ["turnStartSource"], itemata: item } , core: { statusId: "Absorb Elements" }},
     }]
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
 }

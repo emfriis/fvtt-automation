@@ -1,5 +1,6 @@
-// mass cure wounds
+// slow
 // on use post targeting
+// effect itemacro
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
@@ -7,7 +8,7 @@ const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 if (args[0].tag === "OnUse" && lastArg.macroPass === "preambleComplete") {
     const maxTargets = 6;
-    const shape = "sphere";
+    const shape = "cube";
     let targetsDialog =  new Promise(async (resolve, reject) => {
         new Dialog({
             title: `${lastArg.item.name}`,
@@ -37,4 +38,14 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "preambleComplete") {
     }
     workflow.targets = new Set(targets);
     if (workflow?.templateId) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow.templateId]);
+}
+
+if (args[0] === "on" || args[0] === "each") {
+    if (!tactor.effects.find(e => e.data.label === "Reaction") && game.combat) {
+        game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: tactor.uuid });
+    }
+}
+
+if (args[0] === "off") {
+    await tactor.unsetFlag("midi-qol", "slowSpell");
 }

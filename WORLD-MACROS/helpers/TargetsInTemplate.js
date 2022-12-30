@@ -23,9 +23,12 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "preambleComplete") {
         }).render(true);
     });
     let targets = await targetsDialog;
-    if (!targets) return;
-    if (targets.length > maxTargets) return ui.notifications.warn(`Too many targets selected (${maxTargets} Maximum)`);
     let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
+    if (!targets) {
+        workflow.targets = new Set();
+        return ui.notifications.warn(`No Targets Selected`);
+    }
+    if (targets.length > maxTargets) return ui.notifications.warn(`Too many targets selected (${maxTargets} Maximum)`);
     for (let t = 0; t < targets.length; t++) {
         if (!lastArg.targetUuids.includes(targets[t].document.uuid)) {
             workflow.targets = new Set();
