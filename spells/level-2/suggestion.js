@@ -14,31 +14,31 @@ if (args[0].tag === "OnUse" && args[0].failedSaveUuids.length > 0) {
 
 	let dialog = new Promise((resolve, reject) => {
 		new Dialog({
-		title: "Suggestion: Usage Configuration",
-		content: `
-		<form id="suggestion-use-form">
-			<p>` + game.i18n.format("DND5E.AbilityUseHint", {name: "Suggestion", type: "feature"}) + `</p>
-			<p>Choose a suggestion.</p>
-			<form>
-				<input id="suggestion" type="text" 
-				pattern="^[a-zA-Z]+$"/>
+			title: "Suggestion: Usage Configuration",
+			content: `
+			<form id="suggestion-use-form">
+				<p>` + game.i18n.format("DND5E.AbilityUseHint", {name: "Suggestion", type: "feature"}) + `</p>
+				<p>Choose a suggestion.</p>
+				<form>
+					<input id="suggestion" type="text" 
+					pattern="^[a-zA-Z]+$"/>
+				</form>
 			</form>
-		</form>
-		`,
-		buttons: {
-			one: {
-				icon: '<i class="fas fa-check"></i>',
-				label: "Confirm",
-				callback: () => resolve(document.getElementById('suggestion').value)
+			`,
+			buttons: {
+				one: {
+					icon: '<i class="fas fa-check"></i>',
+					label: "Confirm",
+					callback: () => resolve(document.getElementById('suggestion').value)
+				},
+				two: {
+					icon: '<i class="fas fa-times"></i>',
+					label: "Cancel",
+					callback: () => {resolve(false)}
+				}
 			},
-			two: {
-				icon: '<i class="fas fa-times"></i>',
-				label: "Cancel",
-				callback: () => {resolve(false)}
-			}
-		},
-		default: "two",
-		close: callBack => {resolve(false)}
+			default: "two",
+			close: callBack => {resolve(false)}
 		}).render(true);
 	});
 	suggestion = await dialog;
@@ -72,5 +72,5 @@ if (args[0] === "each") {
 			},
 		},
 		default: "one",
-		}).render(true);
+	}).render(true);
 }

@@ -98,9 +98,8 @@ if (args[0] === "on") {
     const sourceItem = await fromUuid(lastArg.efData.origin);
     const sourceActor = sourceItem.parent;
     let player = await playerForActor(sourceActor);
-    let socket = socketlib.registerModule("user-socket-functions");
     let reduce = false;
-    if (player && socket) reduce = await socket.executeAsUser("useDialog", player.id, { title: `Enlarge/Reduce`, content: `Reduce instead of Enlarge?` });
+    if (player) reduce = await USF.socket.executeAsUser("useDialog", player.id, { title: `Enlarge/Reduce`, content: `Reduce instead of Enlarge?` });
     if (reduce) {
         await reSize("reduce");
     } else {

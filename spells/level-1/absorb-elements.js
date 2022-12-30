@@ -66,7 +66,7 @@ if (args[0].tag === "OnUse") {
         type = await dialog;
     }
     if (!type) return;
-    let effectData = [{
+    let effectData = {
         label: item.name,
         icon: item.img,
         changes: [
@@ -75,8 +75,8 @@ if (args[0].tag === "OnUse") {
         ],
         origin: lastArg.uuid,
         disabled: false,
-        flags: { dae: { specialDuration: ["turnStartSource"], itemata: item } , core: { statusId: "Absorb Elements" }},
-    }]
+        flags: { dae: { specialDuration: ["turnStartSource"], itemData: item } , core: { statusId: "Absorb Elements" }},
+    }
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
 }
 
@@ -84,7 +84,7 @@ if (args[0] === "off" && lastArg["expiry-reason"] === "times-up:duration-special
     let type = args[1];
     let level = args[2];
     let gameRound = game.combat ? game.combat.rounds : 0;
-    let effectData = [{
+    let effectData = {
         label: "Absorb Elements Damage Bonus",
         icon: "systems/dnd5e/icons/skills/weapon_25.jpg",
         changes: [
@@ -95,7 +95,7 @@ if (args[0] === "off" && lastArg["expiry-reason"] === "times-up:duration-special
         disabled: false,
         duration: {turns: 1, startTime: game.time.worldTime, startRound: gameRound },
         flags: { dae: { specialDuration: ["1Attack:mwak"] } },
-    }]
+    }
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
 }
 

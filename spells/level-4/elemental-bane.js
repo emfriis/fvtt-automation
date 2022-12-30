@@ -34,7 +34,7 @@ if (args[0].tag === "OnUse" && lastArg.failedSaveUuids.length !== 0) {
             close: () => {resolve(false)}
         }).render(true);
     });
-    type = await dialog;
+    let type = await dialog;
     if (!type) return;
     const tokenOrActorTarget = await fromUuid(lastArg.failedSaveUuids[0]);
     const tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
