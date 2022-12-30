@@ -42,3 +42,7 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "preambleComplete") {
     workflow.hitTargets = new Set(targets);
     if (workflow?.templateId) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow.templateId]);
 }
+
+if (args[0] === "off") {
+    await tactor.unsetFlag("midi-qol", "slowSpell");
+}
