@@ -1,7 +1,7 @@
 // haste
 // effect itemacro
 
-if(args[0] === "off") {
+if (args[0] === "off") {
 	const lastArg = args[args.length - 1];
 	const tokenOrActor = await fromUuid(lastArg.actorUuid);
 	const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
