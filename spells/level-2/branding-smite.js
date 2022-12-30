@@ -1,57 +1,43 @@
 // branding smite
 // on use
 
-async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 const lastArg = args[args.length - 1];
-const tokenD = canvas.tokens.get(lastArg.tokenId);
-const actorD = tokenD.actor;
-const gameRound = game.combat ? game.combat.round : 0;
-const spellDC = actorD.data.data.attributes.spelldc;
+const token = canvas.tokens.get(lastArg.tokenId);
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-if (args[0].tag === "OnUse") {
-    let itemD = lastArg.item;
+if (lastArg.tag === "OnUse") {
+    let item = lastArg.item;
+    const gameRound = game.combat ? game.combat.round : 0;
+    const durationType = lastArg.item.data.duration.units;
+    const duration = durationType === "second" ? lastArg.item.data.duration.value * 6 : durationType === "minute" ? lastArg.item.data.duration.value * 10 : durationType === "hour" ? lastArg.item.data.duration.value * 600 : lastArg.item.data.duration.value;
     let effectData = [{
         changes: [
-            { key: "flags.dnd5e.DamageBonusMacro", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro.${itemD.name}`, priority: 20 },
-            { key: "flags.midi-qol.BrandingSmite.Damage", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: `${lastArg.spellLevel}`, priority: 20 },
-            { key: "flags.midi-qol.itemDetails", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: `${lastArg.uuid}`, priority: 20 }
+            { key: "flags.dnd5e.DamageBonusMacro", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro.${item.name}`, priority: 20 },
+            { key: "flags.midi-qol.smiteUuid", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: lastArg.uuid, priority: 20 },
+            { key: "flags.midi-qol.smiteLevel", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: lastArg.spellLevel, priority: 20 },
         ],
         origin: lastArg.uuid,
         disabled: false,
-        duration: { rounds: 1, startRound: gameRound, startTime: game.time.worldTime },
-        flags: { dae: { itemData: itemD, specialDuration: ["1Hit"] } },
-        icon: itemD.img,
-        label: game.i18n.localize(itemD.name)
+        duration: { rounds: duration, startRound: gameRound, startTime: game.time.worldTime },
+        flags: {
+            "dae": { itemData: item, specialDuration: ["1Hit"] }
+        },
+        icon: item.img,
+        label: item.name
     }];
-    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tokenD.actor.uuid, effects: effectData });
+    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: effectData });
 }
-if (args[0].tag === "DamageBonus") {
-    if (!["mwak"].includes(lastArg.item.data.actionType)) return {};
-    let tokenD = canvas.tokens.get(lastArg.tokenId);
-    let itemUuid = getProperty(actorD.data.flags, "midi-qol.itemDetails");
-    let itemD = await fromUuid(itemUuid);
-    let target = canvas.tokens.get(lastArg.hitTargets[0].id);
-    let spellLevel = getProperty(actorD.data.flags, "midi-qol.BrandingSmite.Damage");
+
+if (lastArg.tag === "DamageBonus") {
+    if (!["mwak"].includes(lastArg.item.data.actionType) || lastArg.hitTargetUuids.length < 1) return;
+    let tokenOrActorTarget = await fromUuid(lastArg.hitTargetUuids[0]);
+    let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
+    let conc = tactor.effects.find(i => i.data.label === game.i18n.localize("Concentrating"));
+    let smiteUuid = getProperty(tactor.data.flags, "midi-qol.smiteUuid");
+    let spellItem = await fromUuid(smiteUuid);
+    let smiteLevel = parseInt(getProperty(tactor.data.flags, "midi-qol.smiteLevel"));
     let damageType = "radiant";
-    let damageDice = await new game.dnd5e.dice.DamageRoll(`${spellLevel}d6[${damageType}]`, actorD.getRollData(), { critical: lastArg.isCritical }).evaluate({ async: true });
-    let invisNames = ["Invisible", "Invisibility"];
-    let invis = target.actor.effects.find(i => invisNames.includes(i.data.label));
-    let conc = tokenD.actor.effects.find(i => i.data.label === game.i18n.localize("Concentrating"));
-    if (conc) {
-        let concUpdate = await getProperty(actorD.data.flags, "midi-qol.concentration-data.targets");
-        await concUpdate.push({ tokenUuid: target.document.uuid, actorUuid: target.actor.uuid });
-        await actorD.setFlag("midi-qol", "concentration-data.targets", concUpdate);
-    }
-    if (invis) {
-        await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: target.actor.uuid, effects: [invis.id] });        
-    } else if (target.data.hidden) {
-        if(!(game.modules.get("warpgate")?.active)) return {};
-        let updates = {
-            token: { hidden: false }
-        }
-        let mutateCallbacks = "";
-        await warpgate.mutate(target.document, updates, mutateCallbacks, { permanent: true });
-    }
     let effectData = [{
         changes: [
             { key: `data.traits.ci.value`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: "invisible", priority: 20 },
@@ -62,13 +48,24 @@ if (args[0].tag === "DamageBonus") {
             { key: `ATL.light.bright`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: "0", priority: 20 },
             { key: `ATL.light.color`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: "#b8fffa", priority: 20 }
         ],
-        origin: itemUuid,
+        origin: smiteUuid,
+        flags: {
+            "dae": { itemData: spellItem.data, token: tactorTarget.uuid },
+            "core": { statusId: spellItem.name }
+        },
         disabled: false,
-        duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },
-        icon: itemD.img,
-        label: game.i18n.localize(itemD.name)
+        icon: spellItem.img,
+        label: spellItem.name
     }];
-    let branded = target.actor.effects.find(i => i.data.label === game.i18n.localize(itemD.name));
-    if (!branded) await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.actor.uuid, effects: effectData });
-    return { damageRoll: damageDice.formula, flavor: `(${game.i18n.localize(itemD.name)} (${CONFIG.DND5E.damageTypes[damageType]}))` };
+    if (conc) {
+        let invisEffects = tactorTarget.effects.filter(e => e.data.label === "Invisible").map(e => e.id);
+        await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactorTarget.uuid, effects: invisEffects });
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: effectData });
+        let concUpdate = await getProperty(tactor.data.flags, "midi-qol.concentration-data.targets");
+        await concUpdate.push({ tokenUuid: tokenOrActorTarget.uuid, actorUuid: tactorTarget.uuid });
+        await tactor.setFlag("midi-qol", "concentration-data.targets", concUpdate);
+    }
+
+    const diceMult = lastArg.isCritical ? smiteLevel * 2 : smiteLevel;
+    return { damageRoll: `${diceMult}d6[${damageType}]`, flavor: spellItem.name };
 }

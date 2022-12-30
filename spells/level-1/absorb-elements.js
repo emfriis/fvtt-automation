@@ -7,7 +7,7 @@ const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
 if (args[0].tag === "OnUse") {
     const item = lastArg.item;
-    const spellLevel = lastArg.itemLevel;
+    const spellLevel = lastArg.spellLevel;
     let elements = ["acid", "cold", "fire", "lightning", "poison"];
     let damageDetail = args[0].workflowOptions.damageDetail;
     let options = [];

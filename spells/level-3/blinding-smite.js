@@ -1,21 +1,20 @@
 // blinding smite
 // on use
 
-async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 const lastArg = args[args.length - 1];
 const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-const gameRound = game.combat ? game.combat.round : 0;
-const durationType = lastArg.item.data.duration.units;
-const duration = durationType === "second" ? lastArg.item.data.duration.value * 6 : durationType === "minute" ? lastArg.item.data.duration.value * 10 : durationType === "hour" ? lastArg.item.data.duration.value * 600 : lastArg.item.data.duration.value;
 
 if (lastArg.tag === "OnUse") {
     let item = lastArg.item;
+    const gameRound = game.combat ? game.combat.round : 0;
+    const durationType = lastArg.item.data.duration.units;
+    const duration = durationType === "second" ? lastArg.item.data.duration.value * 6 : durationType === "minute" ? lastArg.item.data.duration.value * 10 : durationType === "hour" ? lastArg.item.data.duration.value * 600 : lastArg.item.data.duration.value;
     let effectData = [{
         changes: [
             { key: "flags.dnd5e.DamageBonusMacro", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro.${item.name}`, priority: 20 },
-            { key: "flags.midi-qol.spellId", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: lastArg.uuid, priority: 20 }
+            { key: "flags.midi-qol.smiteUuid", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: lastArg.uuid, priority: 20 }
         ],
         origin: lastArg.uuid,
         disabled: false,
@@ -31,13 +30,12 @@ if (lastArg.tag === "OnUse") {
 
 if (lastArg.tag === "DamageBonus") {
     if (!["mwak"].includes(lastArg.item.data.actionType)) return;
-    let tokenTarget = lastArg.hitTargets[0];
     let tokenOrActorTarget = await fromUuid(lastArg.hitTargetUuids[0]);
     let tactorTarget = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
     let spellDC = tactor.data.data.attributes.spelldc;
     let conc = tactor.effects.find(i => i.data.label === game.i18n.localize("Concentrating"));
-    let spellUuid = getProperty(tactor.data.flags, "midi-qol.spellId");
-    let spellItem = await fromUuid(getProperty(tactor.data.flags, "midi-qol.spellId"));
+    let smiteUuid = getProperty(tactor.data.flags, "midi-qol.smiteUuid");
+    let spellItem = await fromUuid(smiteUuid);
     let ability = "con";
     let damageType = "radiant";
     const senses = tactorTarget.data.data.attributes.senses;
@@ -54,7 +52,7 @@ if (lastArg.tag === "DamageBonus") {
             { key: "ATCV.conditionTargets", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99 - visionRange, value: "" }, 
             { key: "ATCV.conditionSources", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99 - visionRange, value: "" }
         ],
-        origin: spellUuid,
+        origin: smiteUuid,
         disabled: false,
         icon: spellItem.img,
         label: spellItem.name
@@ -67,9 +65,12 @@ if (lastArg.tag === "DamageBonus") {
             let concUpdate = await getProperty(tactor.data.flags, "midi-qol.concentration-data.targets");
             await concUpdate.push({ tokenUuid: tokenOrActorTarget.uuid, actorUuid: tactorTarget.uuid });
             await tactor.setFlag("midi-qol", "concentration-data.targets", concUpdate);
+        } else {
+            await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [conc.id] });
+            await tactor.unsetFlag("midi-qol", "concentration-data.targets");
         }
     }
 
-    const diceMult = args[0].isCritical ? 6 : 3;
-    return { damageRoll: `${diceMult}d8[${damageType}]`, flavor: `(${spellItem.name} (${CONFIG.DND5E.damageTypes[damageType]}))` };
+    const diceMult = lastArg.isCritical ? 6 : 3;
+    return { damageRoll: `${diceMult}d8[${damageType}]`, flavor: spellItem.name };
 }
