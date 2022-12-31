@@ -1,95 +1,43 @@
 // produce-flame
+// effect itemacro
 
 const lastArg = args[args.length - 1];
-let actorD;
-if (lastArg.tokenId) actorD = canvas.tokens.get(lastArg.tokenId).actor;
-else actorD = game.actors.get(lastArg.actorId);
-const target = canvas.tokens.get(lastArg.tokenId);
-const itemD = lastArg.efData.flags.dae.itemData;
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const characterLevel = tactor.data.type === "character" ? tactor.data.data.details.level : tactor.data.data.details.cr;
+const cantripDice = Math.floor((characterLevel + 1) / 6) + 1;
 
 if (args[0] === "on") {
-  let itemData = [{
-    "name": `Flame (${itemD.name})`,
-    "type": "consumable",
-    "img": "systems/dnd5e/icons/spells/explosion-orange-2.jpg",
+  const itemData = {
+    "name": `Flame (${lastArg.efData.label})`,
+    "type": "feat",
+    "img": lastArg.efData.icon,
     "data": {
-      "description": {
-        "value": `<p>You can hurl the flame at a creature within 30 feet of you.</p>\n<p>Make a ranged spell attack. On a hit, the target takes [[/r 1d8]] fire damage.</p>\n<p>This spell's damage increases by [[/r 1d8]] when you reach 5th level ([[/r 2d8]]), 11th level ([[/r 3d8]]), and 17th level ([[/r 4d8]]).</p>`
-      },
-      "activation": {
-        "type": "action",
-        "cost": 1
-      },
-      "target": {
-        "value": 1,
-        "type": "creature"
-      },
-      "range": {
-        "value": 30,
-        "units": "ft"
-      },
+      "description": { "value": `<p>You can hurl the flame at a creature within 30 feet of you.</p>\n<p>Make a ranged spell attack. On a hit, the target takes [[/r 1d8]] fire damage.</p>\n<p>This spell's damage increases by [[/r 1d8]] when you reach 5th level ([[/r 2d8]]), 11th level ([[/r 3d8]]), and 17th level ([[/r 4d8]]).</p>` },
+      "activation": { "type": "action", "cost": 1 },
+      "target": { "value": null, "type": "creature" },
+      "range": { "value": 30, "units": "ft" },
       "actionType": "rsak",
-      "damage": {
-        "parts": [
-          [
-            "1d8[fire]",
-            "fire"
-          ]
-        ],
-        "versatile": ""
-      },
-      "save": {
-        "scaling": "spell"
-      },
-      "level": 0,
-      "school": "con",
-      "components": {
-        "vocal": true,
-        "somatic": true
-      },
-      "preparation": {
-        "mode": "innate",
-        "prepared": true
-      },
-      "scaling": {
-        "mode": "cantrip",
-        "formula": "1d8"
-      }
+      "damage": { "parts": [[`${cantripDice}d8[fire]`, "fire"]] },
     },
-    "effects": [],
-    "flags": {
-      "midi-qol": {
-        "onUseMacroName": "[all]ItemMacro",
-        "criticalThreshold": "20",
-        "effectActivation": false
-      },
+    "flags": { "midi-qol": { "onUseMacroName": "[postAttackRoll]ItemMacro" },
       "itemacro": {
         "macro": {
           "data": {
             "_id": null,
-            "name": `Flame (${itemD.name})`,
+            "name": `Flame (${lastArg.efData.label})`,
             "type": "script",
-            "author": "Tyd5yiqWrRZMvG30",
-            "img": "icons/svg/dice-target.svg",
             "scope": "global",
-            "command": "const lastArg = args[args.length - 1];\nlet tokenD = canvas.tokens.get(lastArg.tokenId);\nlet actorD = tokenD.actor;\nlet hit = lastArg.hitTargets.length > 0 ? true : false;\nlet target = hit ? canvas.tokens.get(lastArg.hitTargets[0].id) : canvas.tokens.get(lastArg.targets[0].id);\nlet effect = actorD.effects.find(i => i.data.label === \"Produce Flame\");\n\nif((!hit) && (lastArg.macroPass === \"postAttackRoll\")){    \n    if (effect) await MidiQOL.socket().executeAsGM(\"removeEffects\", { actorUuid: actorD.uuid, effects: [effect.id] });\n    await anime(tokenD, target, hit);\n}\nif ((hit) && (lastArg.macroPass === \"preActiveEffects\")){    \n    if (effect) await MidiQOL.socket().executeAsGM(\"removeEffects\", { actorUuid: actorD.uuid, effects: [effect.id] });\n    await anime(tokenD, target, hit);\n}\n\nasync function anime(tokenD, target, hit){\nif (!(game.modules.get(\"jb2a_patreon\")?.active || game.modules.get(\"JB2A_DnD5e\")?.active)) return {};\nif (!(game.modules.get(\"sequencer\")?.active)) return {};\nnew Sequence()\n    .effect()\n    .atLocation(tokenD)\n    .stretchTo(target)\n    .file(\"jb2a.fire_bolt.orange\")\n    .missed(!hit)\n    .waitUntilFinished(-500)\n.play()\n}",
-            "folder": null,
-            "sort": 0,
-            "permission": {
-              "default": 0
-            },
-            "flags": {}
+            "command": "const lastArg = args[args.length - 1];\nconst tokenOrActor = await fromUuid(lastArg.actorUuid);\nconst tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;\nconst effect = tactor.effects.find(e => e.data.label === \"Produce Flame\")\nif (effect) await MidiQOL.socket().executeAsGM(\"removeEffects\", { actorUuid: tactor.uuid, effects: [effect.id] });",
           }
         }
       }
     }
-  }];
-
-  await actorD.createEmbeddedDocuments("Item", itemData);
+  }
+  await tactor.createEmbeddedDocuments("Item", [itemData]);
 }
 
 if (args[0] === "off") {
-  let getItem = actorD.items.find(i => i.name === `Flame (${itemD.name})`);
-  if (!getItem) return {};
-  await getItem.delete();
+  const item = tactor.items.find(i => i.name === `Flame (${lastArg.efData.label})`);
+  if (item) await tactor.deleteEmbeddedDocuments("Item", [item.id]);
 }
