@@ -9,8 +9,7 @@ if (args[0].tag == "OnUse") {
             let targetUuid = lastArg.failedSaveUuids[i];
             let targetToken = await fromUuid(targetUuid);
             let targetActor = targetToken.actor ?? targetToken._actor;
-            const hasEffectApplied = await game.dfreds.effectInterface.hasEffectApplied("Reaction", targetUuid );
-            if (!hasEffectApplied && game.combat) {
+            if (!game.dfreds.effectInterface.hasEffectApplied("Reaction", targetUuid) && game.combat) {
                 game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: targetActor.uuid });
             }
         }
