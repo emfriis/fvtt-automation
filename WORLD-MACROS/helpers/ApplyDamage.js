@@ -54,7 +54,7 @@ try {
                 type: "none"
             },
             actionType: (parseInt(args[7]) ? "save" : "other"),
-            target: { value: null, type: "creature" },
+            target: { value: null, type: sourceId === targetId ? "self" : "creature" },
             damage: { parts: [[args[3] + `[${args[4]}]`, args[4]]] },
             save: { dc: args[7], ability: args[8], scaling: "flat" },
         }
