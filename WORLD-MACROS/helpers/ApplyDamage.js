@@ -53,7 +53,7 @@ try {
             activation: {
                 type: "none"
             },
-            actionType: (args[7] ? "save" : "other"),
+            actionType: (parseInt(args[7]) ? "save" : "other"),
             damage: { parts: [[args[3] + `[${args[4]}]`, args[4]]] },
             save: { dc: args[7], ability: args[8], scaling: "flat" },
         }
