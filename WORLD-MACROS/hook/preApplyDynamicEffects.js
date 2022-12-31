@@ -120,7 +120,7 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         let featItem = await tactor.items.find(i => i.name === "Relentless Endurance");
                         let player = await playerForActor(tactor);
                         let useFeat = false;
-                        if (featItem && featItem.data.data.uses.value && socket) useFeat = await socket.executeAsUser("useDialog", player.id, { title: `Relentless Endurance`, content: `Use Relentless Endurance to survive grievous wounds?` });
+                        if (featItem && featItem.data.data.uses.value) useFeat = await USF.socket.executeAsUser("useDialog", player.id, { title: `Relentless Endurance`, content: `Use Relentless Endurance to survive grievous wounds?` });
                         if (useFeat) {
                             await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
                             await USF.socket.executeAsGM("updateItem", { itemUuid: featItem.uuid, updates: {"data.uses.value" : featItem.data.data.uses.value - 1} });
