@@ -79,14 +79,14 @@ for (let target of targetList) {
                 await USF.socket.executeAsGM("updateActor", { actorUuid: target.actor.uuid, updates: {"data.attributes.hp.value" : 0} });
             } else {   
                 let effectData = {
-                    label: "Turn Undead",
+                    label: "Turned",
                     icon: "icons/svg/stoned.svg",
                     origin: args[0].uuid,
                     disabled: false,
                     duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },
                     flags: { dae: { specialDuration: ["isDamaged"] } }
 			    };
-                let effect = target.actor.effects.find(i => i.data.label === "Turn Undead");
+                let effect = target.actor.effects.find(i => i.data.label === "Turned");
                 if (!effect) {
                     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.actor.uuid, effects: [effectData] });
                 }
