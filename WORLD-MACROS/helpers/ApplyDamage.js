@@ -54,12 +54,19 @@ try {
                 type: "none"
             },
             actionType: (parseInt(args[7]) ? "save" : "other"),
+            target: { value: null, type: "creature" },
             damage: { parts: [[args[3] + `[${args[4]}]`, args[4]]] },
             save: { dc: args[7], ability: args[8], scaling: "flat" },
         }
     }
     await sourceTactor.createEmbeddedDocuments("Item", [itemData]);
-    let damageItem = await sourceTactor.items.find(i => i.name === itemData.name);
+    let damageItem = sourceTactor.items.find(i => i.name === itemData.name);
+    let hook = Hooks.on("midi-qol.preambleComplete", async (workflowNext) => {
+        if (workflowNext.uuid === damageItem.uuid) {
+            workflowNext.targets.add(targetToken);
+            Hooks.off("midi-qol.preambleComplete", hook);
+        }
+    });
     await MidiQOL.completeItemRoll(damageItem, { targetUuids: [targetUuid] });
     await sourceTactor.deleteEmbeddedDocuments("Item", [damageItem.id]);
 } catch (err) {

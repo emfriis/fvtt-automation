@@ -80,7 +80,7 @@ if (args[0].tag === "OnUse") {
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
 }
 
-if (args[0] === "off" && lastArg["expiry-reason"] === "times-up:duration-special") {
+if (args[0] === "off" && ["times-up:duration-special","times-up:duration:turns"].includes(lastArg["expiry-reason"])) {
     let type = args[1];
     let level = args[2];
     let gameRound = game.combat ? game.combat.rounds : 0;
