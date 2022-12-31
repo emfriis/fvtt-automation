@@ -4,6 +4,8 @@
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const characterLevel = tactor.data.type === "character" ? tactor.data.data.details.level : tactor.data.data.details.cr;
+const cantripDice = Math.floor((characterLevel + 1) / 6) + 1;
 
 if (args[0] === "on") {
   const itemData = {
@@ -17,7 +19,7 @@ if (args[0] === "on") {
       "range": { "value": 30, "units": "ft" },
       "actionType": "rsak",
       "attackBonus": "5 - @mod",
-      "damage": { "parts": [[`1d8[fire]`, "fire"]] },
+      "damage": { "parts": [[`${cantripDice}d8[fire]`, "fire"]] },
     },
     "flags": { "midi-qol": { "onUseMacroName": "[postAttackRoll]ItemMacro" },
       "itemacro": {
