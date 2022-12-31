@@ -4,28 +4,17 @@
 const lastArg = args[args.length - 1];
 
 if (args[0].tag === "OnUse") {
-	if (lastArg.targetUuids.length > 0) {
-		let token = await fromUuid(lastArg.tokenUuid);
-		let targetToken = await fromUuid(lastArg.targetUuids[0]);
-		let targetActor = targetToken.actor ?? targetToken._actor;
-		const resist = ["Fey Ancestry", "Duergar Reslience", "Charm Resilience"];
-		let getResist = targetActor.items.find(i => resist.includes(i.name)) || tactorTarget.effects.find(i => resist.includes(i.data.label));
-		if ((game?.combat?.current && targetToken.data.disposition != token.data.disposition && targetToken.data.disposition != "Neutral") || getResist) {
-			const effectData = {
-				changes: [
-					{
-						key: "flags.midi-qol.advantage.ability.save.all",
-						mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM,
-						value: 1,
-						priority: 20,
-					}
-				],
-				disabled: false,
-				flags: { dae: { specialDuration: ["isSave"] } },
-				icon: args[0].item.img,
-				label: `${args[0].item.name} Save Advantage`,
-			};
-			await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
+	let token = canvas.tokens.get(lastArg.tokenId);
+	for (let t = 0; t < lastArg.targets.length; t++) {
+		let target = lastArg.targets[t];
+		let tactor = target?.actor;
+		if (game.combat && target.data.disposition !== token.data.disposition && target.data.disposition !== 0) {
+			let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
+				if (actor === tactor && abilityId === lastArg.item.data.save.ability) {
+					rollData.advantage = true;
+					Hooks.off("Actor5e.preRollAbilitySave", hook);
+				}
+			});
 		}
 	}
 }

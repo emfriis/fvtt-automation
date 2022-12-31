@@ -1,11 +1,11 @@
-// acid arrow
+// acid arrow WIP
 // on use post attack
 // effect itemacro
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-
+// wont deal damage on crit miss
 if (args[0].tag === "OnUse" && lastArg.macroPass === "postDamageRoll") {
     for (let t = 0; t < lastArg.targetUuids.length; t++) {
         if (!lastArg.hitTargetUuids.includes(lastArg.targetUuids[t])) {
