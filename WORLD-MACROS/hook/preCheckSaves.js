@@ -40,7 +40,7 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
                     const resilience = Object.keys(tactor.data.flags["midi-qol"].resilience);
                     let resilientCondition, resilientDamage;
                     resilientCondition = resilience.find(r => workflow.item.name.toLowerCase().includes(r)) || workflow.item.data.effects.contents.find(e => resilience.includes(e.data.label.toLowerCase()) || e.data.changes.find(c => c.key === "StatusEffect" && resilience.find(r => c.value?.toLowerCase()?.includes(r))));
-                    if (!resilientCondition) resilientDamage = workflow.item.data.data.damage.parts.find(p => resilience.includes(p[1]?.toLowerCase())) || resilience.find(r => workflow.item.data.data.formula?.toLowerCase()?.includes(r));
+                    if (!resilientCondition) resilientDamage = workflow.item.data.data.damage.parts.find(p => resilience.includes(p[1]?.toLowerCase())) && !workflow.item.data.data.midiProperties?.fulldam || resilience.find(r => workflow.item.data.data.formula?.toLowerCase()?.includes(r));
                     if (resilientCondition || resilientDamage) {
                         let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
                             if (actor === tactor && abilityId === workflow.item.data.data.save.ability) {
