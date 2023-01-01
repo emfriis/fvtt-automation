@@ -20,18 +20,13 @@ function canSee(token, target) {
     return canSee;
 }
 
-async function attemptRemoval() {
+if (args[0] === "each" && lastArg.efData.disabled === false) {
+    if (canSee(token, sourceToken)) return;
     const spellDC = args[2];
     const ability = "wis";
     const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: lastArg.actorUuid, saveName: `${lastArg.efData.label} Save`, saveImg: lastArg.efData.icon, saveType: "save", saveDC: spellDC, saveAbility: ability, magiceffect: true, spelleffect: true });
     if (save) {
         let fear = tactor.effects.find(i => i.data === lastArg.efData);
 		if (fear) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [fear.id] });
-    }
-}
-
-if (args[0] === "each" && lastArg.efData.disabled === false) {
-    if (token && sourceToken && !canSee(token, sourceToken)) { 
-        attemptRemoval();
     }
 }
