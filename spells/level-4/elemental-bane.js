@@ -46,7 +46,7 @@ if (args[0].tag === "OnUse" && lastArg.failedSaveUuids.length !== 0) {
         label: lastArg.item.name,
         icon: lastArg.item.img,
         changes: [
-            { key: `data.traits.dv.value`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: tactorTarget.data.data.traits.dr.value.includes(type) ? `${type}` : ``, priority: 20 },
+            { key: `data.traits.dv.value`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `-${type}`, priority: 20 },
             { key: `flags.midi-qol.elementalBane`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: type, priority: 20 },
         ],
         origin: lastArg.uuid,

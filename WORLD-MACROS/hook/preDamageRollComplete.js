@@ -54,6 +54,23 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                 }
             }
 
+            // devil silver vulnerability
+            if (workflow.item.data.type === "weapon" && workflow.item.data.data.properties.sil && tactor.data.data.details?.type?.subtype?.toLowerCase()?.includes("devil")) {
+                try {
+                    console.warn("Devil Silver Vulnerability activated");
+                    const effectData = {
+                        changes: [{ key: "data.traits.dr.value", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "-physical", priority: 20, }],
+                        disabled: false,
+                        label: "Devil Silver Vulnerability",
+                        flags: { dae: { specialDuration: ["isAttacked", "isDamaged"] } },
+                    };
+                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                    console.warn("Devil Silver Vulnerability used");
+                } catch (err) {
+                    console.error("Devil Silver Vulnerability error", err);
+                }
+            }
+
             // shield
             if (workflow.item.name === "Magic Missile" && workflow.item.data.data.activation.type !== "action" && tactor.effects.find(e => e.data.label === "Shield")) {
                 try {
