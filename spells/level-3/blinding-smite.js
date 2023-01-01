@@ -10,7 +10,7 @@ if (lastArg.tag === "OnUse") {
     let item = lastArg.item;
     const gameRound = game.combat ? game.combat.round : 0;
     const durationType = lastArg.item.data.duration.units;
-    const duration = durationType === "second" ? lastArg.item.data.duration.value * 6 : durationType === "minute" ? lastArg.item.data.duration.value * 10 : durationType === "hour" ? lastArg.item.data.duration.value * 600 : lastArg.item.data.duration.value;
+    const duration = durationType === "second" ? lastArg.item.data.duration.value / 6 : durationType === "minute" ? lastArg.item.data.duration.value * 10 : durationType === "hour" ? lastArg.item.data.duration.value * 600 : lastArg.item.data.duration.value;
     let effectData = [{
         changes: [
             { key: "flags.dnd5e.DamageBonusMacro", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro.${item.name}`, priority: 20 },
