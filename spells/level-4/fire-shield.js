@@ -37,7 +37,7 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
     type = await dialog;
     if (!type) return;
 
-    const effect = await tactor.effects.find(i => i.data.label === "Fire Shield");
+    const effect = await tactor.effects.find(e => e.data.label === "Fire Shield" && e.data.origin === lastArg.uuid);
     if (!effect) return;
     const updates =  {
         _id: effect.id,
