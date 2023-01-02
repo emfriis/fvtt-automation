@@ -25,7 +25,7 @@ function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); });
         const senses = tactor.data.data.attributes.senses;
         let visionRange = Math.max(senses.blindsight, senses.tremorsense, senses.truesight, 0);
         const effectData = [{
-            changes: [{ key: "ATL.flags.perfect-vision.sightLimit", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 99 - visionRange, value: visionRange, }, ],
+            changes: [{ key: "ATL.flags.perfect-vision.sightLimit", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 99 - visionRange, value: `${visionRange}` }],
             origin: lastArg.uuid,
             disabled: false,
             label: "Darkness Vision",
