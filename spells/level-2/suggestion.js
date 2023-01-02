@@ -48,9 +48,7 @@ if (args[0].tag === "OnUse" && args[0].failedSaveUuids.length > 0) {
         { key: "flags.midi-qol.suggestion", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: suggestion, priority: 20 },
         { key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "", priority: 20 },
     ];
-	if (effect) {
-        await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, changes: changes.concat(effect.data.changes) }] });
-    }
+	if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, changes: changes.concat(effect.data.changes) }] });
 }
 
 if (args[0] === "each") {

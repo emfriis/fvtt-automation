@@ -126,7 +126,7 @@ try {
             let timeoutId = setTimeout(() => {
                 dialog.close();
                 resolve(false);
-            }, (args[0]?.timeout || 30) * 1000);
+            }, (args[0]?.timeout ?? 60) * 1000);
         });
     }
 
@@ -204,7 +204,7 @@ try {
             let timeoutId = setTimeout(() => {
                 dialog.close();
                 resolve(false);
-            }, (args[0]?.timeout || 30) * 1000);
+            }, (args[0]?.timeout ?? 60) * 1000);
         });
     }
 
@@ -257,7 +257,7 @@ try {
             let timeoutId = setTimeout(() => {
                 dialog.close();
                 resolve(false);
-            }, (args[0]?.timeout || 30) * 1000);
+            }, (args[0]?.timeout ?? 60) * 1000);
         });
     }
 
