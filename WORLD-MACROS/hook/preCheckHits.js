@@ -92,24 +92,32 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                     console.warn("Mirror Image activated");
                     const senses = workflow.actor.data.data.attributes.senses;
                     if (!(Math.max(-1, senses.blindsight, senses.tremorsense, senses.truesight) >= MidiQOL.getDistance(workflow.token, token, false)) && await canSee(workflow.token, token)) {
-                        let images = tactor.effects.filter(i => i.data.label === "Mirror Image").length;
-                        let dc = images === 3 ? 6 : images === 2 ? 8 : images === 1 ? 11 : 9999;
+                        let images = tactor.data.flags["midi-qol"].mirrorImage;
+                        let dc = images == 3 ? 6 : images == 2 ? 8 : 11;
                         let ac = 10 + tactor.data.data.abilities.dex.mod;
                         const roll = await new Roll(`1d20`).evaluate({ async: false });
                         if (game.dice3d) game.dice3d.showForRoll(roll);
                         if (roll.total >= dc) {
                             ChatMessage.create({ content: "The attack strikes a mirror image." });
                             if (workflow.attackRoll.total >= ac) {
-                                let effect = tactor.effects.find(i => i.data.label === "Mirror Image");
-                                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
-                            }
-                            workflow.targets.delete(token);
-                            let hook = Hooks.on("midi-qol.AttackRollComplete", async (workflowNext) => {
-                                if (workflowNext.uuid === workflow.uuid) {
-                                    workflow.targets.add(token);
-                                    Hooks.off("midi-qol.AttackRollComplete", hook);
+                                let effect = tactor.effects.find(e => e.data.label === "Mirror Image");
+                                if (images > 1) {
+                                    let changes = [
+                                        { key: "flags.midi-qol.mirrorImage", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: images - 1, priority: 20, },
+                                        { key: "macro.tokenMagic", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "spectral-images", priority: 20, },
+                                    ];
+                                    await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, changes: changes }] });
+                                } else {
+                                    await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                                 }
-                            });
+                                workflow.targets.delete(token);
+                                let hook = Hooks.on("midi-qol.AttackRollComplete", async (workflowNext) => {
+                                    if (workflowNext.uuid === workflow.uuid) {
+                                        workflow.targets.add(token);
+                                        Hooks.off("midi-qol.AttackRollComplete", hook);
+                                    }
+                                });
+                            }
                         }
                         console.warn("Mirror Image used");
                     }
