@@ -1,6 +1,6 @@
 // preCheckHits
 
-function canSee(token, target) {
+async function canSee(token, target) {
     let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target);
     let canSeeLos = _levels?.advancedLosTestVisibility(token, target);
     let canSeeLight = true;
@@ -13,7 +13,7 @@ function canSee(token, target) {
     return canSee;
 }
 
-function calculateCover(sourceToken, targetToken) {
+async function calculateCover(sourceToken, targetToken) {
     const sourceHeight = sourceToken.losHeight;
     const baseZ = targetToken.data.elevation;
     const targetHeight = targetToken.losHeight == baseZ ? baseZ+0.001 : targetToken.losHeight;

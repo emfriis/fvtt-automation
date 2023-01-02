@@ -9,7 +9,7 @@ function playerForActor(actor) {
 	return user;
 }
 
-function canSee(token, target) {
+async function canSee(token, target) {
     let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target);
     let canSeeLOS = _levels?.advancedLosTestVisibility(token, target);
     let canSeeLight = true;
@@ -172,6 +172,19 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                     }
                 } catch (err) {
                     console.error("Blur error", err);
+                }
+            }
+
+            // taunt 
+            if (!workflow.disadvantage && workflow.actor.data.flags["midi-qol"].taunt) {
+                try {
+                    console.warn("Taunt activated");
+                    if (!workflow.actor.data.flags["midi-qol"].taunt.includes(token.id)) {
+                        workflow.disadvantage = true;
+                        console.warn("Taunt used");	
+                    }
+                } catch (err) {
+                    console.error("Taunt error", err);
                 }
             }
 
