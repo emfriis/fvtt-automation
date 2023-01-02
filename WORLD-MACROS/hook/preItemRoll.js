@@ -26,7 +26,7 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
     try {  
         
 	    // incapacitated
-        if (["action", "bonus", "reaction", "reactionDamaged", "reactionManual"].includes(workflow.item.data.data.activation.type) && workflow.actor.effects.find(e => ["Incapacitated", "Unconscious", "Paralyzed", "Petrified", "Stunned"].includes(e.data.label))) {
+        if (["action", "bonus", "reaction", "reactionDamaged", "reactionManual"].includes(workflow.item.data.data.activation.type) && workflow.actor.effects.find(e => ["Incapacitated", "Unconscious", "Paralyzed", "Petrified", "Stunned", "Dead", "Defeated"].includes(e.data.label))) {
             try {
                 console.warn("Incapacitated activated");
                 ui.notifications.warn(`${workflow.actor.name} is Incapacitated`);

@@ -92,10 +92,10 @@ if (args[0].tag === "OnUse") {
                     for (let t = 0; t < lastArg.targets.length; t++) {
                         if (cantripDice > 1) {
                             let effectData = {
-                            changes: [{ key: "flags.dnd5e.DamageBonusMacro", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro.${lastArg.item.name}`, priority: 20, }],
-                            origin: lastArg.uuid,
-                            disabled: false,
-                            flags: { dae: { specialDuration: ["1Attack"] }}
+                                changes: [{ key: "flags.dnd5e.DamageBonusMacro", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro.${lastArg.item.name}`, priority: 20, }],
+                                origin: lastArg.uuid,
+                                disabled: false,
+                                flags: { dae: { specialDuration: ["1Attack"] }}
                             };
                             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         }
