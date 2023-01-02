@@ -98,8 +98,8 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                         const roll = await new Roll(`1d20`).evaluate({ async: false });
                         if (game.dice3d) game.dice3d.showForRoll(roll);
                         if (roll.total >= dc) {
-                            ChatMessage.create({ content: "The attack strikes a mirror image." });
                             if (workflow.attackRoll.total >= ac) {
+                                ChatMessage.create({ content: `The Attack strikes a Mirror Image (${images - 1} Image(s) Remaining).` });
                                 let effect = tactor.effects.find(e => e.data.label === "Mirror Image");
                                 if (images > 1) {
                                     let changes = [
@@ -117,6 +117,8 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                                         Hooks.off("midi-qol.AttackRollComplete", hook);
                                     }
                                 });
+                            } else {
+                                ChatMessage.create({ content: `The Attack strikes a Mirror Image (${images} Image(s) Remaining).` });
                             }
                         }
                         console.warn("Mirror Image used");
