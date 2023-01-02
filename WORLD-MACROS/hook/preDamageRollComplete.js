@@ -31,26 +31,27 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
 	  	    let tactor = token?.actor;
         	if (!tactor) continue;
 
-            // spell resistance damage
-            if ((workflow.item.data.type === "spell" || workflow.item.data.flags?.midiProperties?.spelleffect) && tactor.data.flags["midi-qol"]?.spellResistance?.damage) {
+            // spell effect damage resistance
+            if (workflow.item.data.flags?.midiProperties?.spelleffect && tactor.data.data.traits.dr.includes("spell") && !["healing", "temphp"].includes(workflow.item.data.data?.damage?.parts[0][1])) {
                 try {
-                    console.warn("Spell Resistance Damage activated");
+                    console.warn("Spell Effect Damage Resistance activated");
                     const effectData = {
                         changes: [{ key: "data.traits.dr.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, }],
                         disabled: false,
-                        label: "Spell Damage Resistance",
+                        label: "Spell Effect Damage Resistance",
+                        flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                     };
                     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                     let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
-                        if (workflow.uuid === workflowNext.uuid) {
-                            const effect = tactor.effects.find(e => e.data.label === "Spell Damage Resistance");
-                            await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                        if (workflowNext.uuid === workflow.uuid) {
+                            const effect = tactor.effects.find(i => i.data.label === "Spell Effect Damage Resistance");
+                            if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                             Hooks.off("midi-qol.preApplyDynamicEffects", hook);
                         }
                     });
-                    console.warn("Spell Resistance Damage used");
+                    console.warn("Spell Effect Damage Resistance used");
                 } catch (err) {
-                    console.error("Spell Resistance Damage error", err);
+                    console.error("Spell Effect Damage Resistance error", err);
                 }
             }
 
@@ -62,9 +63,16 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                         changes: [{ key: "data.traits.dr.value", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "-physical", priority: 20, }],
                         disabled: false,
                         label: "Devil Silver Vulnerability",
-                        flags: { dae: { specialDuration: ["isAttacked", "isDamaged"] } },
+                        flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                     };
                     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                    let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                        if (workflowNext.uuid === workflow.uuid) {
+                            const effect = tactor.effects.find(i => i.data.label === "Devil Silver Vulnerability");
+                            if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                            Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                        }
+                    });
                     console.warn("Devil Silver Vulnerability used");
                 } catch (err) {
                     console.error("Devil Silver Vulnerability error", err);
@@ -78,13 +86,14 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                     const effectData = {
                         changes: [{ key: "data.traits.di.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, }],
                         disabled: false,
-                        label: "Magic Missile Negation",
+                        label: "Shield Magic Missile Damage Immunity",
+                        flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                     };
                     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                     let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
-                        if (workflow.uuid === workflowNext.uuid) {
-                            const effect = tactor.effects.find(e => e.data.label === "Magic Missile Negation");
-                            await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                        if (workflowNext.uuid === workflow.uuid) {
+                            const effect = tactor.effects.find(i => i.data.label === "Shield Magic Missile Damage Immunity");
+                            if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                             Hooks.off("midi-qol.preApplyDynamicEffects", hook);
                         }
                     });
@@ -123,7 +132,7 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                                     ],
                                     disabled: false,
                                     label: `Interception`,
-                                    flags: { dae: { specialDuration: ["isDamaged"] } },
+                                    flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                                 };
                                 await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                                 let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
