@@ -44,18 +44,22 @@ if (args[0] === "each") {
         avertGaze = await USF.socket.executeAsUser("useDialog", player.id, { title: `Petrifying Gaze`, content: `Avert your gaze?` });
         if (avertGaze) {
             const effectData = {
-                changes: [
-                    { key: `flags.midi-qol.DR.${workflow.item.data.data.actionType}`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `[[1d10 + ${prot.actor.data.data.attributes.prof}]]`, priority: 20, },
-                ],
+                changes: [{ key: `flags.midi-qol.onUseMacroName`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `PetrifyingGaze, preAttackRoll`, priority: 20, }],
                 disabled: false,
                 label: "Averted Gaze",
-                flags: { dae: { specialDuration: ["turnStart"] } },
+                icon: "icons/magic/control/hypnosis-mesmerism-eye.webp",
+                flags: { dae: { itemData: item.data, specialDuration: ["turnStart"] }, core: { statusId: "Averted Gaze" } },
             };
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
         } else {
 
         }
     } else if (lastArg.efData.label === "Restrained") {
-
+        
     }
+}
+
+if (args[0].tag === "OnUse" && lastArg.macroPass === "preAttackRoll") {
+    const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
+    attackWorkflow.disadvantage = true;
 }
