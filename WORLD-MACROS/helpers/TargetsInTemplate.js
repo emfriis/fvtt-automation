@@ -1,4 +1,5 @@
 // targets in template helper
+// on use post targeting
 // for auto animation do not delete on play animation - leave for this macro to do
 
 const lastArg = args[args.length - 1];
