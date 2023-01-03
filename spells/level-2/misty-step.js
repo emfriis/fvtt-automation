@@ -4,8 +4,8 @@
 
 const sourceToken = canvas.tokens.get(args[0]?.tokenId);
 const sourceTokenGS = sourceToken.w / canvas.grid.size;
-const teleDist = 30;
-const drawingSize = (sourceToken.w * canvas.grid.size) + (2 * ((30 / canvas.dimensions.distance) * canvas.grid.size));
+const radius = 30;
+const size = ((sourceTokenGS / canvas.grid.size) + 0.5 + (radius / canvas.dimensions.distance)) * 2;
 const userColor = game.user?.data?.color ? "0x" + game.user.data.color.replace(/^#/, '') : 0x0D26FF;
 const filePath = "modules/autoanimations/src/images/teleportCircle.png";
 const fileIn = "jb2a.misty_step.01.blue";
@@ -13,10 +13,10 @@ const fileOut = "jb2a.misty_step.02.blue";
 const fileSound = "https://assets.forge-vtt.com/630fc11845b0e419bee903cd/combat-sound-fx/magic/effect/teleport-1.ogg";
 
 let aaSeq01 = new Sequence()
-aaSeq01.effect()
+    aaSeq01.effect()
     .file(filePath)
     .atLocation(sourceToken)
-    .size(((sourceTokenGS / canvas.grid.size) + 0.5 + (teleDist / canvas.dimensions.distance)) * 2, {gridUnits: true})
+    .size(size, {gridUnits: true})
     .fadeIn(500)
     .scaleIn(0, 500)
     .fadeOut(500)
@@ -41,7 +41,7 @@ canvas.app.stage.addListener('pointerdown', event => {
 
     let topLeft = canvas.grid.getTopLeft(pos.x, pos.y);
 
-    if (checkDistance(sourceToken, { x: topLeft[0], y: topLeft[1] }) <= teleDist) {
+    if (checkDistance(sourceToken, { x: topLeft[0], y: topLeft[1] }) <= radius) {
         deleteTemplatesAndMove();
         canvas.app.stage.removeListener('pointerdown');
     } else {
@@ -59,7 +59,7 @@ async function deleteTemplatesAndMove() {
         centerPos = canvas.grid.getCenter(pos.x, pos.y);
     }
 
-    Sequencer.EffectManager.endEffects({ name: "teleportation" })
+    Sequencer.EffectManager.endEffects({ name: "teleportation" });
 
     let aaSeq = new Sequence();
     aaSeq.effect()
