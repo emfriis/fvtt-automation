@@ -11,7 +11,7 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "preActiveEffects") {
     for (let t = 0; t < lastArg.hitTargets.length; t++) {
         let target = lastArg.hitTargets[t];
         const durationType = lastArg.item.data.duration.units;
-        if (!target.actor || target.actor.data.data.traits.ci.value.includes("frightened") || target.actor.effects.find(e => e.data.label === `${tactor.name} Fear Immunity` && e.data.origin === lastArg.uuid)) continue;
+        if (!target.actor || target.actor.data.data.traits.ci.value.includes("frightened") || target.actor.effects.find(e => e.data.label === `${tactor.name} Fear Immunity`)) continue;
         if (lastArg.failedSaves.includes(target)) {
             let duration = durationType === "round" ? lastArg.item.data.duration.value * 6 : durationType === "minute" ? lastArg.item.data.duration.value * 60 : durationType === "hour" ? lastArg.item.data.duration.value * 3600 : lastArg.item.data.duration.value;
             let effectData = {
