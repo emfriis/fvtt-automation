@@ -1,6 +1,6 @@
 // preDamageRollComplete
 
-function playerForActor(actor) {
+async function playerForActor(actor) {
 	if (!actor) return undefined;
 	let user;
 	if (actor.hasPlayerOwner) user = game.users.find(u => u.data.character === actor.id && u.active);
@@ -9,7 +9,7 @@ function playerForActor(actor) {
 	return user;
 }
 
-function canSee(token, target) {
+async function canSee(token, target) {
     let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target);
     let canSeeLos = _levels?.advancedLosTestVisibility(token, target);
     let canSeeLight = true;
@@ -154,9 +154,7 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                             useProtect = await USF.socket.executeAsUser("useDialog", player.id, { title: `Fighting Style: Interception`, content: `Use your reaction to reduce damage from attack against ${token.name}?` });
                             if (useProtect) {
                                 const effectData = {
-                                    changes: [
-                                        { key: `flags.midi-qol.DR.${workflow.item.data.data.actionType}`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `[[1d10 + ${prot.actor.data.data.attributes.prof}]]`, priority: 20, },
-                                    ],
+                                    changes: [{ key: `flags.midi-qol.DR.${workflow.item.data.data.actionType}`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `[[1d10 + ${prot.actor.data.data.attributes.prof}]]`, priority: 20, }],
                                     disabled: false,
                                     label: `Interception`,
                                     flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
