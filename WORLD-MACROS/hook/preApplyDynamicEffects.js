@@ -169,11 +169,11 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         let damageDetail = workflow.damageList[d].damageDetail;
                         for (let i = 0; i < damageDetail?.length; i++) {
                             for (let p = 0; p < damageDetail[i]?.length; p++) {
-                                if (tactor.data.flags["midi-qol"].aversion[damageDetail[i][p]?.type]) {
+                                if (tactor.data.flags["midi-qol"].aversion[damageDetail[i][p]?.type?.toLowerCase()]) {
                                     const effectData = {
                                         disabled: false,
                                         changes: [{ key: "flags.midi-qol.disadvantage.attack.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20 }],
-                                        flags: { dae: { specialDuration: ["turnEnd"], "core": { statusId: "Aversion" } } },
+                                        flags: { dae: { specialDuration: ["turnEnd"] }, core: { statusId: "Aversion" } },
                                         label: "Aversion",
                                         icon: "icons/magic/fire/flame-burning-skull-orange.webp"
                                     }
@@ -193,10 +193,10 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                         let damageDetail = workflow.damageList[d].damageDetail;
                         for (let i = 0; i < damageDetail?.length; i++) {
                             for (let p = 0; p < damageDetail[i]?.length; p++) {
-                                if (tactor.data.flags["midi-qol"].noRegen[damageDetail[i][p]?.type]) {
+                                if (tactor.data.flags["midi-qol"].noRegen[damageDetail[i][p]?.type?.toLowerCase()]) {
                                     const effectData = {
                                         disabled: false,
-                                        flags: { dae: { specialDuration: ["turnEnd"], "core": { statusId: "No Regen" } } },
+                                        flags: { dae: { specialDuration: ["turnEnd"] }, core: { statusId: "No Regen" } },
                                         label: "No Regen",
                                         icon: "icons/skills/wounds/blood-cells-vessel-red-orange.webp"
                                     }
