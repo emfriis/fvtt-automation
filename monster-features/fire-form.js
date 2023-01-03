@@ -11,11 +11,11 @@ if (args[0] === "on" && lastArg.tokenId !== game.combat?.current?.tokenId) {
     const effectData = {
         changes: [
             { key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "ApplyDamage self self 1d10 fire", priority: 20, },
-            { key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "AttemptRemoval -9999 dex abil opt", priority: 20, },
+            { key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "AttemptRemoval 0 dex abil opt", priority: 20, },
         ],
         disabled: false,
         label: `Burning`,
-        icon: `icons/magic/fire/flame-burning-embers-yellow.webp`,
+        icon: `icons/magic/fire/projectile-fireball-embers-yellow.webp`,
         flags: { dae: { macroRepeat: "startEveryTurn", stackable: "noneName" }, core: { statusId: `Burning` } },
     };
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
