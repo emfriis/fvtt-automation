@@ -1,5 +1,4 @@
 // weight of sorrow
-// effect itemacro
 
 const lastArg = args[args.length - 1];
 

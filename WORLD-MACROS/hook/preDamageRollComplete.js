@@ -59,23 +59,50 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
             if (workflow.item.data.type === "weapon" && workflow.item.data.data.properties.sil && tactor.data.data.details?.type?.subtype?.toLowerCase()?.includes("devil")) {
                 try {
                     console.warn("Devil Silver Vulnerability activated");
-                    const effectData = {
-                        changes: [{ key: "data.traits.dr.value", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "-physical", priority: 20, }],
-                        disabled: false,
-                        label: "Devil Silver Vulnerability",
-                        flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
-                    };
-                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                    let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
-                        if (workflowNext.uuid === workflow.uuid) {
-                            const effect = tactor.effects.find(i => i.data.label === "Devil Silver Vulnerability");
-                            if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
-                            Hooks.off("midi-qol.preApplyDynamicEffects", hook);
-                        }
-                    });
-                    console.warn("Devil Silver Vulnerability used");
+                    if (tactor.data.data.traits.dr.value.includes("physical")) {
+                        const effectData = {
+                            changes: [{ key: "data.traits.dr.value", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "-physical", priority: 20, }],
+                            disabled: false,
+                            label: "Devil Silver Vulnerability",
+                            flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
+                        };
+                        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                        let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                            if (workflowNext.uuid === workflow.uuid) {
+                                const effect = tactor.effects.find(i => i.data.label === "Devil Silver Vulnerability");
+                                if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                                Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                            }
+                        });
+                        console.warn("Devil Silver Vulnerability used");
+                    }
                 } catch (err) {
                     console.error("Devil Silver Vulnerability error", err);
+                }
+            }
+            // golem adamantine vulnerability
+            if (workflow.item.data.type === "weapon" && workflow.item.data.data.properties.ada && tactor.name.toLowerCase().includes("golem")) {
+                try {
+                    console.warn("Golem Adamantine Vulnerability activated");
+                    if (tactor.data.data.traits.dr.value.includes("physical")) {
+                        const effectData = {
+                            changes: [{ key: "data.traits.dr.value", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "-physical", priority: 20, }],
+                            disabled: false,
+                            label: "Golem Adamantine Vulnerability",
+                            flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
+                        };
+                        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                        let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                            if (workflowNext.uuid === workflow.uuid) {
+                                const effect = tactor.effects.find(i => i.data.label === "Golem Adamantine Vulnerability");
+                                if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                                Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                            }
+                        });
+                        console.warn("Golem Adamantine Vulnerability used");
+                    }
+                } catch (err) {
+                    console.error("Golem Adamantine Vulnerability error", err);
                 }
             }
 

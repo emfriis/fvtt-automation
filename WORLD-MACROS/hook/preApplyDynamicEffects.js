@@ -44,6 +44,35 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 let tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 		        if (!tactor) continue;
 
+                // armor of agathys
+                if (tactor.data.flags["midi-qol"].armorOfAgathys) {
+                    try {
+                        console.warn("Armor of Agathys activated");
+                        if (tactor.data.data.attributes.hp.temp === 0 || (workflow.damageList[d].newTemp > workflow.damageList[d].oldTemp)) {
+                            let effect = tactor.effects.find(e => e.data.label === "Armor of Agathys");
+                            if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                            console.warn("Armor of Agathys used");
+                        }
+                    } catch(err) {
+                        console.error("Armor of Agathys error", err);
+                    }
+                }
+
+                // elemental bane
+                if (tactor.data.flags["midi-qol"].elementalBane && workflow.damageList[d].appliedDamage > 0 && !tactor.data.data.traits.di.value.includes(tactor.data.flags["midi-qol"].elementalBane?.toLowerCase())) {
+                    try {
+                        console.warn("Elemental Bane activated");
+                        if (game.combat && tactor.data.flags["midi-qol"].baneTime !== `${game.combat.id}-${game.combat.round + game.combat.turn / 100}` && workflow.damageList[d].damageDetail.find(d => Array.isArray(d) && d[0].type === tactor.data.flags["midi-qol"].elementalBane?.toLowerCase())) {
+                            await tactor.setFlag("midi-qol", "baneTime", `${game.combat.id}-${game.combat.round + game.combat.turn / 100}`);
+                            const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
+                            if (applyDamage) await applyDamage.execute("ApplyDamage", tactor?.token?.id, token.id, "2d6", tactor.data.flags["midi-qol"].elementalBane?.toLowerCase(), "magiceffect", "spelleffect");
+                            console.warn("Elemental Bane used");
+                        }
+                    } catch(err) {
+                        console.error("Elemental Bane error", err);
+                    }
+                }
+
                 // rage
                 if (workflow.damageList[d].appliedDamage > 0 && tactor.data.flags["midi-qol"]?.rage) {
                     try {
@@ -133,58 +162,50 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                     }
                 }
 
+                // aversion
+                if (tactor.data.flags["midi-qol"].aversion && workflow.damageList[d].appliedDamage > 0) {
+                    try {
+                        console.warn("Aversion activated");
+                        let damageDetail = workflow.damageList[d].damageDetail;
+                        for (let i = 0; i < damageDetail?.length; i++) {
+                            for (let p = 0; p < damageDetail[i]?.length; p++) {
+                                if (tactor.data.flags["midi-qol"].aversion[damageDetail[i][p]?.type]) {
+                                    const effectData = {
+                                        disabled: false,
+                                        changes: [{ key: "flags.midi-qol.disadvantage.attack.all", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20 }],
+                                        flags: { dae: { specialDuration: ["turnEnd"], "core": { statusId: "Aversion" } } },
+                                        label: "Aversion",
+                                        icon: "icons/magic/fire/flame-burning-skull-orange.webp"
+                                    }
+                                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Aversion error", err);
+                    }
+                }
+
                 // no regen
                 if (tactor.data.flags["midi-qol"].noRegen && workflow.damageList[d].appliedDamage > 0) {
                     try {
                         console.warn("No Regen activated");
-                        let noRegenTypes = tactor.data.flags["midi-qol"]?.noRegen?.split(",");
-                        if (noRegenTypes) {
-                            let damageDetail = workflow.damageList[d].damageDetail;
-                            for (let i = 0; i < damageDetail?.length; i++) {
-                                for (let p = 0; p < damageDetail[i]?.length; p++) {
-                                    if (noRegenTypes.includes(damageDetail[i][p]?.type)) {
-                                        const effectData = {
-                                            disabled: false,
-                                            flags: { dae: { specialDuration: ["turnEnd"], "core": { statusId: "No Regen" } } },
-                                            label: "No Regen",
-                                            icon: "icons/skills/wounds/blood-cells-vessel-red-orange.webp"
-                                        }
-                                        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                        let damageDetail = workflow.damageList[d].damageDetail;
+                        for (let i = 0; i < damageDetail?.length; i++) {
+                            for (let p = 0; p < damageDetail[i]?.length; p++) {
+                                if (tactor.data.flags["midi-qol"].noRegen[damageDetail[i][p]?.type]) {
+                                    const effectData = {
+                                        disabled: false,
+                                        flags: { dae: { specialDuration: ["turnEnd"], "core": { statusId: "No Regen" } } },
+                                        label: "No Regen",
+                                        icon: "icons/skills/wounds/blood-cells-vessel-red-orange.webp"
                                     }
+                                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                                 }
                             }
                         }
                     } catch (err) {
                         console.error("No Regen error", err);
-                    }
-                }
-
-                // armor of agathys
-                if (tactor.data.flags["midi-qol"].armorOfAgathys) {
-                    try {
-                        console.warn("Armor of Agathys activated");
-                        if (tactor.data.data.attributes.hp.temp === 0 || (workflow.damageList[d].newTemp > workflow.damageList[d].oldTemp)) {
-                            let effect = tactor.effects.find(e => e.data.label === "Armor of Agathys");
-                            if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
-                            console.warn("Armor of Agathys used");
-                        }
-                    } catch(err) {
-                        console.error("Armor of Agathys error", err);
-                    }
-                }
-
-                // elemental bane
-                if (tactor.data.flags["midi-qol"].elementalBane && workflow.damageList[d].appliedDamage > 0 && !tactor.data.data.traits.di.value.includes(tactor.data.flags["midi-qol"].elementalBane?.toLowerCase())) {
-                    try {
-                        console.warn("Elemental Bane activated");
-                        if (game.combat && tactor.data.flags["midi-qol"].baneTime !== `${game.combat.id}-${game.combat.round + game.combat.turn / 100}` && workflow.damageList[d].damageDetail.find(d => Array.isArray(d) && d[0].type === tactor.data.flags["midi-qol"].elementalBane?.toLowerCase())) {
-                            await tactor.setFlag("midi-qol", "baneTime", `${game.combat.id}-${game.combat.round + game.combat.turn / 100}`);
-                            const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
-                            if (applyDamage) await applyDamage.execute("ApplyDamage", tactor?.token?.id, token.id, "2d6", tactor.data.flags["midi-qol"].elementalBane?.toLowerCase(), "magiceffect", "spelleffect");
-                            console.warn("Elemental Bane used");
-                        }
-                    } catch(err) {
-                        console.error("Elemental Bane error", err);
                     }
                 }
 
