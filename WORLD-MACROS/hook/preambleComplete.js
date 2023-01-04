@@ -1,6 +1,6 @@
 // preambleComplete
 
-function playerForActor(actor) {
+async function playerForActor(actor) {
 	if (!actor) return undefined;
 	let user;
 	if (actor.hasPlayerOwner) user = game.users.find(u => u.data.character === actor.id && u.active);
@@ -9,20 +9,20 @@ function playerForActor(actor) {
 	return user;
 }
 
-function canSee(token, target) {
-    let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target);
-    let canSeeLOS = _levels?.advancedLosTestVisibility(token, target);
+async function canSee(token, target) {
+    let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target) ?? true;
+    let canSeeLOS = !_levels?.advancedLosTestInLos(token, target);
     let canSeeLight = true;
-    let inLight = _levels?.advancedLOSCheckInLight(target);
+    let inLight = _levels?.advancedLOSCheckInLight(target) ?? true;
     if (!inLight) {
-        let vision = Math.min((token.data.flags["perfect-vision"].sightLimit ? token.data.flags["perfect-vision"].sightLimit : 9999), Math.max(token.data.dimSight, token.data.brightSight));
-	  if (vision < MidiQOL.getDistance(token, target, false)) canSeeLight = false;
+        let vision = Math.min((token.data.flags["perfect-vision"].sightLimit ?? 9999), Math.max(token.data.dimSight, token.data.brightSight));
+	    if (!vision || vision < MidiQOL.getDistance(token, target, false)) canSeeLight = false;
     }
     let canSee = canSeeCV && canSeeLOS && canSeeLight;
     return canSee;
 }
 
-function counterSequence(source, target) {
+async function counterSequence(source, target) {
     if (game.modules.get("sequencer").active && hasProperty(Sequencer.Database.entries, "jb2a")) {
         new Sequence().effect().file("jb2a.impact.004.blue").atLocation(source).scaleToObject(1.5).sound().file("https://assets.forge-vtt.com/630fc11845b0e419bee903cd/combat-sound-fx/magic/effect/dispel-1.ogg").play();
         new Sequence().effect().file("jb2a.energy_strands.range.standard.blue").atLocation(source).stretchTo(target).play();
@@ -117,7 +117,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                     let counterCast = false;
                     if (options) counterCast = await USF.socket.executeAsUser("midiItemRoll", player.id, { itemUuid: counterItem.uuid, options: options});
                     if (counterCast && counterCast?.itemLevel && !counterCast?.countered) {
-                        counterSequence(counter, workflow.token);
+                        await counterSequence(counter, workflow.token);
                         if (workflow?.itemLevel <= 3 || counterCast?.itemLevel >= workflow?.itemLevel) {
                             if (workflow.item.name !== "Counterspell") {
                                 if (workflow?.templateId) {

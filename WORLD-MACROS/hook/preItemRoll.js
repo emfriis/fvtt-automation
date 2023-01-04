@@ -1,25 +1,12 @@
 // preItemRoll
 
-function playerForActor(actor) {
+async function playerForActor(actor) {
 	if (!actor) return undefined;
 	let user;
 	if (actor.hasPlayerOwner) user = game.users.find(u => u.data.character === actor.id && u.active);
 	if (!user) user = game.users.players.find(p => p.active && actor.data.permission[p.id ?? ""] === CONST.ENTITY_PERMISSIONS.OWNER);
 	if (!user) user = game.users.find(p => p.isGM && p.active);
 	return user;
-}
-
-async function canSee(token, target) {
-	let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target);
-    let canSeeLos = _levels?.advancedLosTestVisibility(token, target);
-    let canSeeLight = true;
-    let inLight = _levels?.advancedLOSCheckInLight(target);
-    if (!inLight) {
-        let vision = Math.min((token.data.flags["perfect-vision"].sightLimit ? token.data.flags["perfect-vision"].sightLimit : 9999), Math.max(token.data.dimSight, token.data.brightSight));
-        if (vision < MidiQOL.getDistance(token, target, false)) canSeeLight = false;
-    }
-    let canSee = canSeeCV && canSeeLos && canSeeLight;
-    return canSee;
 }
 
 Hooks.on("midi-qol.preItemRoll", async (workflow) => {

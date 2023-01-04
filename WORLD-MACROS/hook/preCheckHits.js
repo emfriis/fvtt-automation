@@ -1,15 +1,15 @@
 // preCheckHits
 
 async function canSee(token, target) {
-    let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target);
-    let canSeeLos = _levels?.advancedLosTestVisibility(token, target);
+    let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target) ?? true;
+    let canSeeLOS = !_levels?.advancedLosTestInLos(token, target);
     let canSeeLight = true;
-    let inLight = _levels?.advancedLOSCheckInLight(target);
+    let inLight = _levels?.advancedLOSCheckInLight(target) ?? true;
     if (!inLight) {
-        let vision = Math.min((token.data.flags["perfect-vision"].sightLimit ? token.data.flags["perfect-vision"].sightLimit : 9999), Math.max(token.data.dimSight, token.data.brightSight));
-        if (vision < MidiQOL.getDistance(token, target, false)) canSeeLight = false;
+        let vision = Math.min((token.data.flags["perfect-vision"].sightLimit ?? 9999), Math.max(token.data.dimSight, token.data.brightSight));
+	    if (!vision || vision < MidiQOL.getDistance(token, target, false)) canSeeLight = false;
     }
-    let canSee = canSeeCV && canSeeLos && canSeeLight;
+    let canSee = canSeeCV && canSeeLOS && canSeeLight;
     return canSee;
 }
 
