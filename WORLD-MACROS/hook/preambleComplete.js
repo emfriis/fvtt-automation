@@ -87,26 +87,26 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
 		    console.warn("Counterspell activated");
             const components = workflow.item.data.data?.components;
             if ((components.vocal || components.somatic || components.material) && !(workflow.actor.data.flags["midi-qol"].subtleSpell && !components.material)) {
-                let counterTokens = canvas.tokens.placeables.filter(p => {
+                let counterTokens = canvas.tokens.placeables.filter(c => {
                     let cToken = (
-                        p?.actor && // exists
-                        p.actor.items.find(i => i.name === "Counterspell" && i.type === "spell") && // has item
-                        p.actor.uuid !== workflow.token.actor.uuid && // not caster
-                        p.data.disposition !== workflow.token.data.disposition && // not friendly
-                        !p.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].includes(e.data.label)) && // can react
-                        MidiQOL.getDistance(p, workflow.token, false) <= 60 && // in range
-                        canSee(p, workflow.token) // can see
+                        c?.actor && // exists
+                        c.actor.items.find(i => i.name === "Counterspell" && i.type === "spell") && // has item
+                        c.actor.uuid !== workflow.token.actor.uuid && // not caster
+                        c.data.disposition !== workflow.token.data.disposition && // not friendly
+                        !c.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].includes(e.data.label)) && // can react
+                        MidiQOL.getDistance(c, workflow.token, false) <= 60 && // in range
+                        canSee(c, workflow.token) // can see
                     );
                     return cToken;
                 });
            		for (let c = 0; c < counterTokens.length; c++) {
-                    let token = counterTokens[c];
-                    let player = await playerForActor(token?.actor);
-			        let counterItem = token.actor.items.find(i => 
+                    let counter = counterTokens[c];
+                    let player = await playerForActor(counter.actor);
+			        let counterItem = counter.actor.items.find(i => 
                         i.name === "Counterspell" && 
                         i.type === "spell" &&
                         (       
-                            ((i.data.data.preparation?.prepared || i.data.data.preparation.mode === "always" || i.data.data.preparation.mode === "pact") && Object.keys(p.actor.data.data.spells).find(i => (p.actor.data.data.spells.pact?.level >= 3 && p.actor.data.data.spells.pact?.value > 0) || (i !== "pact" && parseInt(i.slice(-1)) >= 3 && p.actor.data.data.spells[i]?.value > 0))) ||
+                            ((i.data.data.preparation?.prepared || i.data.data.preparation.mode === "always" || i.data.data.preparation.mode === "pact") && Object.keys(counter.actor.data.data.spells).find(i => (counter.actor.data.data.spells.pact?.level >= 3 && counter.actor.data.data.spells.pact?.value > 0) || (i !== "pact" && parseInt(i.slice(-1)) >= 3 && counter.actor.data.data.spells[i]?.value > 0))) ||
                             ((i.data.data.preparation.mode === "atwill" || i.data.data.preparation.mode === "innate") && (i.data.data.uses?.value > 0 || !i.data.data.uses?.max))
                         )
 			        );
@@ -117,26 +117,41 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                     let counterCast = false;
                     if (options) counterCast = await USF.socket.executeAsUser("midiItemRoll", player.id, { itemUuid: counterItem.uuid, options: options});
                     if (counterCast && counterCast?.itemLevel && !counterCast?.countered) {
-                        counterSequence(token, workflow.token);
-                        let level = counterCast.itemLevel;
-                        if (level >= workflow?.itemLevel) {
+                        counterSequence(counter, workflow.token);
+                        if (workflow?.itemLevel <= 3 || counterCast?.itemLevel >= workflow?.itemLevel) {
                             if (workflow.item.name !== "Counterspell") {
-                                if (workflow?.templateId) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow.templateId]);
+                                if (workflow?.templateId) {
+                                    try {
+                                        await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow?.templateId]);
+                                    } catch {}
+                                }
+                                ChatMessage.create({ content: `The Spell is countered.` });
                                 return false;
                             } else {
-                                workflow.countered = true;
+                                ChatMessage.create({ content: `The Spell is countered.` });
+                                workflow.countered = true;  
+                                break;
                             }
                         } else {
                             let rollOptions = { chatMessage: true, fastForward: true };
-                            let roll = await MidiQOL.socket().executeAsUser("rollAbility", player.id, { request: "abil", targetUuid: token.actor?.uuid, ability: (token.actor.data.data.attributes?.spellcasting), options: rollOptions });
+                            let roll = await MidiQOL.socket().executeAsUser("rollAbility", player.id, { request: "abil", targetUuid: counter.actor.uuid, ability: (counter.actor.data.data.attributes?.spellcasting), options: rollOptions });
                             if (game.dice3d) game.dice3d.showForRoll(roll);
                             if (roll.total >= workflow?.itemLevel + 10) {
                                 if (workflow.item.name !== "Counterspell") {
-                                    if (workflow?.templateId) await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow.templateId]);
+                                    if (workflow?.templateId) {
+                                        try {
+                                            await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow?.templateId]);
+                                        } catch {}
+                                    }
+                                    ChatMessage.create({ content: `The Spell is countered.` });
                                     return false;
                                 } else {
+                                    ChatMessage.create({ content: `The Spell is countered.` });
                                     workflow.countered = true;  
+                                    break;
                                 }
+                            } else {
+                                ChatMessage.create({ content: `The Spell is failed to be countered.` });
                             }
                         }
                     }
