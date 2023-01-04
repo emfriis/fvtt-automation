@@ -49,15 +49,23 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
             }
         }
 
+        // no reaction
+        if (workflow.actor.data.flags["midi-qol"]?.noReaction && ["reaction", "reactiondamage", "reactionmanual"].includes(workflow.item.data.data.activation.type)) {
+            try {
+                console.warn("No Reaction Activated");
+                ui.notifications.warn("Your reaction speed is dulled.");
+                console.warn("No Reaction used");
+                return false;
+            } catch (err) {
+                console.error("No Reaction error", err);
+            }
+        }
+
         // slow
         if (workflow.actor.data.flags["midi-qol"]?.slow && workflow.item.type === "spell") {
             try {
                 console.warn("Slow Activated");
-                if (["reaction", "reactiondamage", "reactionmanual"].includes(workflow.item.data.data.activation.type)) {
-                    ui.notifications.warn("Your reaction speed is dulled by the Slow spell.");
-                    console.warn("Slow used");
-                    return false;
-                } else if (workflow.actor.data.flags["midi-qol"]?.slowSpell === workflow.item.name) {
+                if (workflow.actor.data.flags["midi-qol"]?.slowSpell === workflow.item.name) {
                     await workflow.actor.unsetFlag("midi-qol", "slowSpell");
                     console.warn("Slow used");
                 } else if (workflow.item.data.data.activation.type === "action") {
