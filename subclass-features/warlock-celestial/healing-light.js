@@ -1,45 +1,44 @@
 // healing light
-// on use
+// on use any pre damage roll
 
-(async () => {
-    if(args[0].targets.length === 0) return ui.notifications.warn(`Please select a target.`);
+const lastArg = args[args.length - 1];
+const tokenOrActor = await fromUuid(lastArg.actorUuid);
+const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+
+if (args[0].tag === "OnUse") {
+    const item = await fromUuid(lastArg.uuid);
+    const itemUses = item.data.data.uses;
+    if (!itemUses.value || !itemUses.max) return;
+
     const target = canvas.tokens.get(args[0].targets[0].id);
-    const itemD = args[0].item;
-    const actorD = await game.actors.get(args[0].actor._id);
-    const tokenD = await canvas.tokens.get(args[0].tokenId);
-    const getData = await actorD.getRollData();
-    const resourceList = [{ name: "primary" }, { name: "secondary" }, { name: "tertiary" }];
-    const resourceValues = Object.values(actorD.data.data.resources);
-    const resourceTable = mergeObject(resourceList, resourceValues);
-    const abilityName = "Healing Light";
-    const findResourceSlot = resourceTable.find(i => i.label.toLowerCase() === abilityName.toLowerCase());
-    const maxSpend = Math.max(getData.abilities.cha.mod, 1);
-    const finalMax = Math.min(maxSpend, findResourceSlot.max);
-    const healingType = "healing";
-    const minHeal = Math.clamped(findResourceSlot.value, 0, target.actor.data.data.attributes.hp.max - target.actor.data.data.attributes.hp.value);
-    const content_heal = `<div style="vertical-align:top;display:flex;"><img src="${target.data.img}" style="border:none;" height="30" width="30"> <span style="margin-left:10px;line-height:2.1em;">${target.data.name} <b>HP:</b> ${target.actor.data.data.attributes.hp.value} / ${target.actor.data.data.attributes.hp.max}</span></div><hr><form class="flexcol"><div class="form-group"><label for="num"><b>[${findResourceSlot.value}/${findResourceSlot.max}]</b> Dice to spend:</span></label><input id="num" name="num" type="number" min="0" max="${findResourceSlot.max}" value="${minHeal}"></input></div></form>`;
-    if(findResourceSlot.value === 0) return ui.notifications.warn(`You are out of the required resource`);
-    new Dialog({
-        title: itemD.name,
-        content: content_heal,
-        buttons: {
-            heal: {
-                icon: '<i class="fas fa-check"></i>', label: 'Heal', callback: async (html) => {
-                    let number = Math.floor(Number(html.find('#num')[0].value));
-                    if (number < 1 || number > finalMax) {
-                        return ui.notifications.warn(`Invalid number of charges entered (${number})`);
-                    } else {
-                        let healDamage = new Roll(`${number}d6`).evaluate({ async: false });
-                        if (game.dice3d) game.dice3d.showForRoll(healDamage);
-                        new MidiQOL.DamageOnlyWorkflow(actorD, tokenD, healDamage.total, healingType, [target], healDamage, { flavor: `(${CONFIG.DND5E.healingTypes[healingType]})`, itemCardId: args[0].itemCardId, useOther: false });
-                        let total = Number(findResourceSlot.value - number);
-                        let actor_data = duplicate(actorD.data._source);
-                        actor_data.data.resources[findResourceSlot.name].value = total;
-                        await tokenD.actor.update(actor_data);
-                    }
-                }
-            }
-        },
-        default: "heal"
-    }).render(true);
-})();
+    const content = `<div style="vertical-align:top;display:flex;"><img src="${target.data.img}" style="border:none;" height="30" width="30"></div><hr><form class="flexcol"><div class="form-group"><label for="num"><b>[${itemUses.value}/${itemUses.max}]</b> additional dice to spend:</span></label><input id="num" name="num" type="number" min="0" max="${itemUses.max}" value="0"></input></div></form>`;
+    let dialog = new Promise((resolve, reject) => {
+        new Dialog({
+            title: lastArg.item.name + ": Spend Additional Dice?",
+            content: content,
+            buttons: { heal: { icon: '<i class="fas fa-check"></i>', label: 'Heal', callback: async (html) => { resolve(Math.floor(Number(html.find('#num')[0].value))); } } },
+            default: "heal"
+        }).render(true);
+    });
+    const dice = await dialog;
+    if (!dice) return;
+    if (dice > itemUses.max) {
+        return ui.notifications.warn(`Invalid number of charges entered (${dice})`);
+    } else {
+        const effectData = [{
+            changes: [{ key: `flags.dnd5e.DamageBonusMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro`, priority: 20 }],
+            flags: { "dae": { itemData: item.data }, dice: dice },
+            disabled: false,
+            label: "Healing Light Bonus Dice"
+        }];
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: effectData });
+        await item.update({ "data.uses.value" : Math.max(0, item.data.data.uses.value - dice) });
+    }
+}
+
+if (args[0].tag === "DamageBonus" && lastArg.item.name === "Healing Light") {
+    const effect = tactor.effects.find(e => e.data.label === "Healing Light Bonus Dice");
+    if (!effect || !effect.data.flags.dice) return;
+    await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+    return { damageRoll: `${effect.data.flags.dice}d6[healing]`, flavor: "Healing Light Bonus Dice" };
+}

@@ -46,7 +46,7 @@ try {
 			ui.notifications.warn("Trip Attack: No Superiority Die Remaining");
 			return;
 		} else {
-			item.update({"data.uses.value" : item.data.data.uses.value - 1});
+			await item.update({ "data.uses.value" : Math.max(0, item.data.data.uses.value - 1) });
 		}
 		
 		let canProne = tactorTarget.data.data.traits.size !== "grg" && tactorTarget.data.data.traits.size !== "huge";

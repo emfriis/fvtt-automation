@@ -46,7 +46,7 @@ try {
 			ui.notifications.warn("Maneuvering Attack: No Superiority Die Remaining");
 			return;
 		} else {
-			item.update({"data.uses.value" : item.data.data.uses.value - 1});
+			await item.update({ "data.uses.value" : Math.max(0, item.data.data.uses.value - 1) });
 		}
 		
 		ChatMessage.create({ content: "A nearby ally can use its reaction to move up to half its speed without provoking opportunity attacks from the target." });

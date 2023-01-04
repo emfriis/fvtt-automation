@@ -49,7 +49,7 @@ try {
 			ui.notifications.warn("Trip Attack: No Superiority Die Remaining");
 			return;
 		} else {
-			item.update({"data.uses.value" : item.data.data.uses.value - 1});
+			await item.update({ "data.uses.value" : Math.max(0, item.data.data.uses.value - 1) });
 		}
 		
         const rollData = tactor.getRollData();
@@ -60,14 +60,9 @@ try {
         const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: tactorTarget.uuid, saveName: `Menacing Attack Frightened Save`, saveImg: `systems/dnd5e/icons/skills/yellow_37.jpg`, saveType: "save", saveDC: saveDC, saveAbility: ability });
     	if (!save) {
             let effectData = [{
-                changes: [
-                    { key: `flags.midi-qol.fear`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: args[0].actorUuid, priority: 20 }
-                ],
+                changes: [{ key: `flags.midi-qol.fear`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `+${lastArg.tokenId}`, priority: 20 }],
                 origin: args[0].uuid,
-                flags: {
-                    "dae": { specialDuration: ["turnEndSource"] },
-                    "core": { statusId: "Frightened" }
-                },
+                flags: { "dae": { specialDuration: ["turnEndSource"] }, "core": { statusId: "Frightened" } },
                 disabled: false,
                 icon: "icons/svg/terror.svg",
                 label: "Frightened"
