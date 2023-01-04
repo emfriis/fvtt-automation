@@ -1,15 +1,15 @@
 // preRollAbilityTest
 
 function canSee(token, target) {
-	let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target);
-    let canSeeLos = _levels?.advancedLosTestVisibility(token, target);
+    let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target) ?? true;
+    let canSeeLOS = !_levels?.advancedLosTestInLos(token, target);
     let canSeeLight = true;
-    let inLight = _levels?.advancedLOSCheckInLight(target);
+    let inLight = _levels?.advancedLOSCheckInLight(target) ?? true;
     if (!inLight) {
-        let vision = Math.min((token.data.flags["perfect-vision"].sightLimit ? token.data.flags["perfect-vision"].sightLimit : 9999), Math.max(token.data.dimSight, token.data.brightSight));
-        if (vision < MidiQOL.getDistance(token, target, false)) canSeeLight = false;
+        let vision = Math.min((token.data.flags["perfect-vision"].sightLimit ?? 9999), Math.max(token.data.dimSight, token.data.brightSight));
+	    if (!vision || vision < MidiQOL.getDistance(token, target, false)) canSeeLight = false;
     }
-    let canSee = canSeeCV && canSeeLos && canSeeLight;
+    let canSee = canSeeCV && canSeeLOS && canSeeLight;
     return canSee;
 }
 
@@ -21,14 +21,14 @@ Hooks.on("Actor5e.preRollAbilityTest", async (actor, rollData, abilityId) => {
                 console.warn("Frightened activated");
                 const token = actor?.token ?? canvas.tokens.placeables.find(t => t.actor.uuid === actor?.uuid);
                 if (token) {
-                    const seeFear = canvas.tokens.placeables.find(async p => 
-                        p?.actor && // exists
-                        workflow.actor.data.flags["midi-qol"].fear.includes(p.id) && // is fear source
-                        canSee(workflow.token, p) // can see los
-                    );
-                    if (seeFear) {
-                        rollData.disadvantage = true;
-                        console.warn("Frightened used");
+                    let fearIds = actor.data.flags["midi-qol"].fear.split("+");
+                    for (let f = 0; f < fearIds.length; f++) {
+                        let fearToken = canvas.tokens.get(fearIds[f]);
+                        if (fearToken && canSee(token, fearToken)) {
+                            rollData.disadvantage = true;
+                            console.warn("Frightened used");
+                            break;
+                        }
                     }
                 }
             } catch(err) {

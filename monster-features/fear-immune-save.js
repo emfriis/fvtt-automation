@@ -22,7 +22,7 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "preActiveEffects") {
                 duration: { seconds: duration, startTime: game.time.worldTime },
                 flags: { dae: { itemData: lastArg.item, macroRepeat: "endEveryTurn", }, core: { statusId: "Frightened" } },
                 changes: [
-                    { key: "flags.midi-qol.fear", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: lastArg.tokenId, priority: 20 },
+                    { key: "flags.midi-qol.fear", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `+${lastArg.tokenId}`, priority: 20 },
                     { key: "macro.itemMacro", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `${lastArg.item.data.save.dc} ${lastArg.item.data.save.ability} ${tactor.name}`, priority: 20 },
                 ],
             }

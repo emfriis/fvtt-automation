@@ -53,14 +53,14 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
         if (!workflow.disadvantage && workflow.actor.data.flags["midi-qol"].fear) {
             try {
                 console.warn("Frightened activated");
-                const seeFear = canvas.tokens.placeables.find(p => 
-                    p?.actor && // exists
-                    workflow.actor.data.flags["midi-qol"].fear.includes(p.id) && // is fear source
-                    canSee(workflow.token, p) // can see los
-                );
-                if (seeFear) {
-                    workflow.disadvantage = true;
-                    console.warn("Frightened used");
+                let fearIds = workflow.actor.data.flags["midi-qol"].fear.split("+");
+                for (let f = 0; f < fearIds.length; f++) {
+                    let fearToken = canvas.tokens.get(fearIds[f]);
+                    if (fearToken && await canSee(workflow.token, fearToken)) {
+                        workflow.disadvantage = true;
+                        console.warn("Frightened used");
+                        break;
+                    }
                 }
             } catch (err) {
                 console.error("Frightened error", err);
