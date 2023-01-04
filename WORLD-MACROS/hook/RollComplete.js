@@ -2,28 +2,57 @@
 
 async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
-async function applyBurst(actor, token, range, damageDice, damageType, saveDC, saveType, saveDamage, magicEffect) {
+async function applyBurst(token, range, value, type, saveDC, saveType, saveDamage, magicEffect, duration) {
     const itemData = {
-        name: `${damageType.charAt(0).toUpperCase() + damageType.slice(1)} Burst`,
+        name: `${type.charAt(0).toUpperCase() + type.slice(1)} Burst`,
         img: "systems/dnd5e/icons/skills/yellow_15.jpg",
         type: "feat",
         flags: {
             midiProperties: {
-            magiceffect: (magicEffect === "magiceffect" ? true : false),
-            nodam: (saveDamage === "nodam" ? true : false),
-            halfdam: (saveDamage === "halfdam" ? true : false)
+                magiceffect: (magicEffect === "magiceffect" ? true : false),
+                nodam: (saveDamage === "nodam" ? true : false),
+                halfdam: (saveDamage === "halfdam" ? true : false),
             }
         },
+        effects: value === "condition" ? [
+            {
+                _id: null,
+                changes: type === "blinded" ? parseInt(duration) ? [
+                    { key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Convenient Effect: Blinded`, priority: 20, },
+                    { key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `AttemptRemoval ${saveDC} ${saveType} save auto`, priority: 20, },
+                    { key: "ATL.flags.perfect-vision.sightLimit", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 20, value: `[[max(0,@attributes.senses.blindsight,@attributes.senses.tremorsense)]]`, },
+                    { key: "ATCV.blinded", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20, value: "1" },
+                    { key: "ATCV.conditionBlinded", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20, value: "true" },
+                    { key: "ATCV.conditionType", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20, value: "sense" },
+                    { key: "ATCV.conditionTargets", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20, value: "" }, 
+                    { key: "ATCV.conditionSources", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20, value: "" },
+                ] : [
+                    { key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Convenient Effect: Blinded`, priority: 20, },
+                    { key: "ATL.flags.perfect-vision.sightLimit", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 20, value: `[[max(0,@attributes.senses.blindsight,@attributes.senses.tremorsense)]]`, },
+                    { key: "ATCV.blinded", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20, value: "1" },
+                    { key: "ATCV.conditionBlinded", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20, value: "true" },
+                    { key: "ATCV.conditionType", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20, value: "sense" },
+                    { key: "ATCV.conditionTargets", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20, value: "" }, 
+                    { key: "ATCV.conditionSources", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 20, value: "" },
+                ] : parseInt(duration) ? [
+                    { key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Convenient Effect: ${type.charAt(0).toUpperCase() + type.slice(1)}`, priority: 20, },
+                    { key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `AttemptRemoval ${saveDC} ${saveType} save auto`, priority: 20, },
+                ] : [{ key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Convenient Effect: ${type.charAt(0).toUpperCase() + type.slice(1)}`, priority: 20, }],
+                duration: parseInt(duration) ? { seconds: parseInt(duration), startTime: game.time.worldTime } : null,
+                flags: parseInt(duration) ? { dae: { macroRepeat: "endEveryTurn" }, magiceffect: magicEffect === "magiceffect" } : { dae: { specialDuration: [duration] }, magiceffect: magicEffect === "magiceffect" },
+                transfer: false,
+            }
+        ] : [],
         data: {
             "activation.type": "none",
-            actionType: (saveDC === "none" ? "other" : "save"),
-            damage: { parts: [[damageDice, damageType]] },
-            save: { dc: (saveDC === "none" ? null : parseInt(saveDC)), ability: (saveType === "none" ? null : saveType), scaling: "flat" },
+            actionType: (parseInt(saveDC) ? "save" : "other"),
+            "damage.parts": value !== "condition" ? [[`${value}[${type}]`, type]] : [],
+            save: { dc: (parseInt(saveDC) ? parseInt(saveDC) : null), ability: (parseInt(saveDC) ? saveType : null), scaling: "flat" },
             target: { value: null, width: null, units: null, type: "creature" },
         }
     }
-    const item = new CONFIG.Item.documentClass(itemData, { parent: actor });
-    const targets = canvas.tokens.placeables.filter(t => (MidiQOL.getDistance(token, t, false) <= parseInt(range))).map(t => t.document.uuid);
+    const item = new CONFIG.Item.documentClass(itemData, { parent: token.actor });
+    const targets = canvas.tokens.placeables.filter(t => (MidiQOL.getDistance(token, t, false) <= parseInt(range) && t.document.uuid !== token.document.uuid)).map(t => t.document.uuid);
     const options = { showFullCard: false, createWorkflow: true, configureDialog: false, targetUuids: targets };
     await MidiQOL.completeItemRoll(item, options);
 };
@@ -68,11 +97,12 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                 }
 
                 // burst
+                // range,value,type,saveDC,saveType,saveDamage,magic,duration
                 if (tactor.data.flags["midi-qol"].burst && tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0) {
                     try {
                         console.warn("Burst activated");
-				        const burst = actor.data.flags["midi-qol"].burst.split(",");
-                		await applyDamage(tactor, token, burst[0], burst[1], burst[2], burst[3], burst[4], burst[5], burst[6]);
+				        const burst = tactor.data.flags["midi-qol"].burst.split(",");
+                		await applyBurst(token, burst[0], burst[1], burst[2], burst[3], burst[4], burst[5], burst[6], burst[7]);
 				        console.warn("Burst used");
                     } catch(err) {
                         console.error("Burst error", err);
