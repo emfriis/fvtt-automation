@@ -5,7 +5,7 @@ const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const spellLevel = args[1];
-const bonus = tactor.data.data.attributes.prof + tactor.data.data.abilities[tactor.data.data.attributes.spellcasting]?.mod ?? tactor.data.data.abilities.int.mod;
+const bonus = tactor.data.data.attributes.prof + (tactor.data.data.abilities[tactor.data.data.attributes.spellcasting]?.mod ?? tactor.data.data.abilities.int.mod);
 
 async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     let ef = tactor.effects.find(i => i.data.label === "Arcane Hand");
@@ -46,9 +46,11 @@ if (args[0] === "on") {
                 "Clenched Fist": {
                     "data.attackBonus": `${bonus - 10}`,
                     "data.damage.parts": [[`4d8 + ${(spellLevel - 5) * 2}d8`, "force"]],
+                    "flags.midiProperties.spelleffect": true,
                 },
                 "Grasping Hand (Crush)": {
                     "data.damage.parts": [[`2d6 + ${(spellLevel - 5) * 2}d6 + @flags.spellmod`, "force"]],
+                    "flags.midiProperties.spelleffect": true,
                 },
             }
         }

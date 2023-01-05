@@ -1,5 +1,5 @@
 // flaming sphere 
-// on use post effects
+// effect itemacro
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
@@ -31,12 +31,13 @@ if (args[0] === "on") {
             Item: {
                 "Flaming Sphere Damage": {
                     "data.damage.parts": [[`${spellLevel - 1}d6`, "fire"]], 
-                    "data.save.dc": spellDC
+                    "data.save.dc": spellDC,
+                    "flags.midiProperties.spelleffect": true,
                 },
             },
             ActiveEffect: {
                 "Flaming Sphere Damage": {
-                    "changes":  [{"key":"flags.midi-qol.OverTime","mode":5,"value": `label=Flaming Sphere (End of Turn),turn=end,saveDC=${spellDC},saveAbility=dex,damageRoll=${spellLevel - 1}d6,damageType=fire,saveDamage=halfdamage,saveRemove=false`,"priority":"20"}],
+                    "changes":  [{"key":"macro.execute","mode":CONST.ACTIVE_EFFECT_MODES.CUSTOM,"value":`ApplyDamage @token self 2d6 fire magiceffect spelleffect ${spellDC} dex halfdam`,"priority":"20"}],
                     "disabled": false,
                     "icon": "systems/dnd5e/icons/spells/light-air-fire-3.jpg",
                     "label": "Flaming Sphere Damage",

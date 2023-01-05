@@ -6,7 +6,7 @@ const token = canvas.tokens.get(lastArg.tokenId);
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
 const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const spellLevel = args[1];
-const bonus = tactor.data.data.attributes.prof + tactor.data.data.abilities[tactor.data.data.attributes.spellcasting]?.mod ?? tactor.data.data.abilities.int.mod;
+const bonus = tactor.data.data.attributes.prof + (tactor.data.data.abilities[tactor.data.data.attributes.spellcasting]?.mod ?? tactor.data.data.abilities.int.mod);
 
 async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     let ef = tactor.effects.find(i => i.data.label === "Summon Shadowspawn");

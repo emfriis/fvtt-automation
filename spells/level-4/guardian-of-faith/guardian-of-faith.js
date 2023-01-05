@@ -63,6 +63,13 @@ if (args[0] === "on") {
             "disposition": token.data.disposition,
         },
         actor: {  "name": `Guardian of Faith (${tactor.name})`, },
+        embedded: {
+            Item: {
+                "Guardian of Faith Attack": {
+                    "flags.midiProperties.spelleffect": true,
+                },
+            },
+        }
     }
     await warpgate.spawn("Guardian of Faith", updates, { post: postWarp }, {});
 }

@@ -31,7 +31,8 @@ if (args[0] === "on") {
             Item: {
                 "Spiritual Weapon Attack": {
                     "data.attackBonus": bonus,
-                    "data.damage.parts": [[`${Math.max(Math.floor(spellLevel / 2), 1)}d8`, "force"]]
+                    "data.damage.parts": [[`${Math.max(Math.floor(spellLevel / 2), 1)}d8`, "force"]],
+                    "flags.midiProperties.spelleffect": true,
                 },
             },
         },
