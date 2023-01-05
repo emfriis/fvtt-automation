@@ -73,7 +73,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                 console.warn("Underwater activated");
                 let mwakIgnore = ["dagger", "spear", "javelin", "trident", "shorsword"];
                 let rwakIgnore = ["crossbow", "dart", "net"];
-                if (workflow.item.data.data.actionType === "mwak" && !mwakIgnore.some(i => workflow.item.data.data.baseItem === i || workflow.item.name.toLowerCase().includes(i))) {
+                if (!workflow.actor.data.data.attributes.movement.swim && workflow.item.data.data.actionType === "mwak" && !mwakIgnore.some(i => workflow.item.data.data.baseItem === i || workflow.item.name.toLowerCase().includes(i))) {
                     workflow.disadvantage = true;
                     console.warn("Underwater used");
                 }
