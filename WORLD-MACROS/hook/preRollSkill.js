@@ -16,7 +16,7 @@ function canSee(token, target) {
 Hooks.on("Actor5e.preRollSkill", async (actor, rollData, abilityId) => {
     try {
         // frightened
-        if (!rollData.disadvantage && actor.data.flags["midi-qol"].fear) {
+        if (!rollData.disadvantage && actor.data.flags["midi-qol"].fear && !actor.data.data.traits.ci.includes("frightened")) {
             try {
                 console.warn("Frightened activated");
                 const token = actor?.token ?? canvas.tokens.placeables.find(t => t.actor.uuid === actor?.uuid);

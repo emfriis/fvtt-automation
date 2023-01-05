@@ -58,7 +58,7 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
                     },
                 },
             },
-            default: "Fury",
+            default: "Air",
             close: () => {resolve(false)}
         }).render(true);
     });
