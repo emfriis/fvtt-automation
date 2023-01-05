@@ -40,7 +40,8 @@ if (args[0].tag === "OnUse") {
 		const effectData = {
 			changes: [
 				{ key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Grappled", priority: 20, },
-				{ key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Grapple ${token.id}`, priority: 20, }
+				{ key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Grapple ${token.id}`, priority: 20, },
+				{ key: "flags.midi-qol.grapple", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `+${token.id}`, priority: 20, },
 			],
             disabled: false,
             label: "Grappled",
