@@ -50,12 +50,12 @@ if (lastArg.tag === "DamageBonus") {
         ],
         origin: smiteUuid,
         flags: {
-            "dae": { itemData: spellItem.data, token: tactorTarget.uuid },
+            "dae": { itemData: spellItem.data, token: tactorTarget.uuid, stackable: "noneName" },
             "core": { statusId: spellItem.name }
         },
         disabled: false,
         icon: spellItem.img,
-        label: spellItem.name
+        label: spellItem.name + " Light",
     }];
     if (conc) {
         let invisEffects = tactorTarget.effects.filter(e => e.data.label === "Invisible").map(e => e.id);

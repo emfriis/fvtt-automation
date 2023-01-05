@@ -50,7 +50,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
         }
 
 	    // frightened
-        if (!workflow.disadvantage && workflow.actor.data.flags["midi-qol"].fear && !workflow.actor.data.data.traits.ci.includes("frightened")) {
+        if (!workflow.disadvantage && workflow.actor.data.flags["midi-qol"].fear && !workflow.actor.data.data.traits.ci.value.includes("frightened")) {
             try {
                 console.warn("Frightened activated");
                 let fearIds = workflow.actor.data.flags["midi-qol"].fear.split("+");

@@ -10,6 +10,7 @@ async function playerForActor(actor) {
 }
 
 if (args[0].tag === "OnUse") {
+	const token = canvas.tokens.get(args[0].tokenId);
 	const tokenOrActor = await fromUuid(args[0].actorUuid);
 	const source = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
@@ -24,6 +25,7 @@ if (args[0].tag === "OnUse") {
 
 	const sourcePlayer = await playerForActor(source);
 	const targetPlayer = await playerForActor(target);
+
 	let socket;
 	if (game.modules.get("user-socket-functions")?.active) socket = socketlib.registerModule("user-socket-functions");
 	if (!socket) return;
@@ -38,7 +40,7 @@ if (args[0].tag === "OnUse") {
 		const effectData = {
 			changes: [
 				{ key: "StatusEffect", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Convenient Effect: Grappled", priority: 20, },
-				{ key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Grapple ${source.uuid}`, priority: 20, }
+				{ key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `Grapple ${token.id}`, priority: 20, }
 			],
             disabled: false,
             label: "Grappled",
@@ -58,11 +60,12 @@ if (args[0] === "each") {
 	const tokenOrActorTarget = await fromUuid(lastArg.actorUuid);
 	const target = tokenOrActorTarget.actor ? tokenOrActorTarget.actor : tokenOrActorTarget;
 
-	const tokenOrActorSource = await fromUuid(args[1]);
-	const source = tokenOrActorSource.actor ? tokenOrActorSource.actor : tokenOrActorSource;
+	const tokenSource = canvas.tokens.get(args[1]);
+	const source = tokenSource.actor;
 
 	const sourcePlayer = await playerForActor(source);
 	const targetPlayer = await playerForActor(target);
+
 	let socket;
 	if (game.modules.get("user-socket-functions")?.active) socket = socketlib.registerModule("user-socket-functions");
 	if (!socket) return
@@ -77,8 +80,7 @@ if (args[0] === "each") {
 	const targetRoll = await MidiQOL.socket().executeAsUser("rollAbility", targetPlayer.id, { request: "skill", targetUuid: target.uuid, ability: skillType, options: { chatMessage: true, fastForward: true } });
 	
 	if (targetRoll.total > sourceRoll.total) {
-		let effect = target.effects.find(i => i.data === lastArg.efData);
-		if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: target.uuid, effects: [effect.id] });
+		await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: target.uuid, effects: [lastArg.efData._id] });
         ChatMessage.create({ content: "The grappled creature wins the contest and removes the grappled condition." });
 	} else if (targetRoll.total <= sourceRoll.total) {
         ChatMessage.create({ content: "The grappled creature loses the contest." });

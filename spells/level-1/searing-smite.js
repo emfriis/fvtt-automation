@@ -47,12 +47,12 @@ if (lastArg.tag === "DamageBonus") {
         ],
         origin: smiteUuid,
         flags: {
-            "dae": { itemData: spellItem.data, token: tactorTarget.uuid, macroRepeat: "startEveryTurn" },
+            "dae": { itemData: spellItem.data, token: tactorTarget.uuid, macroRepeat: "startEveryTurn", stackable: "noneName" },
             "core": { statusId: spellItem.name }
         },
         disabled: false,
         icon: spellItem.img,
-        label: spellItem.name
+        label: spellItem.name + " Flames"
     }];
     if (conc) {
         const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: tactorTarget.uuid, saveName: `${spellItem.name} Save`, saveImg: spellItem.img, saveType: "save", saveDC: spellDC, saveAbility: ability, magiceffect: true, spelleffect: true });
