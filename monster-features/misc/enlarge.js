@@ -29,7 +29,7 @@ if (args[0] === "on") {
 
 if (args[0].tag === "DamageBonus" && ["mwak", "rwak"].includes(args[0].itemData.data.actionType)) {
     if (args[0].itemData?.data?.ability === ("str" || null) && !args[0].itemData?.data?.properties?.fin) {
-        const weaponDamage = args[0].itemData?.data?.damage?.parts[0][0];
+        const weaponDamage = args[0].itemData?.data?.damage?.parts[0][0].replace("@mod", "0");
         const dice = args[0].isCritical ? weaponDamage.replace(/\d+(?=d)/g, (i) => (i * 2)) : weaponDamage;
 		const damageType = args[0].itemData?.data?.damage?.parts[0][1];
 		return {damageRoll: `${dice}[${damageType}]`, flavor: "Enlarge"};
