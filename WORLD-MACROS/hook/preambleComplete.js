@@ -69,6 +69,18 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
             }
         }
 
+        // silence
+        if (workflow.item.data.type === "spell" && workflow.actor.data.flags["midi-qol"].silence && workflow.item.data.data?.components?.vocal && !workflow.actor.data.flags["midi-qol"].subtleSpell) {
+            try {
+                console.warn("Silence activated");
+                ui.notifications.warn("You cannot perform verbal spell components - the spell fails");
+                console.warn("Silence used");
+              return false;
+            } catch (err) {
+                console.error("Silence error", err);
+            }
+        }
+
         // spell scroll check
         if (workflow.item.data.type === "spell" && workflow.item.name.includes("Spell Scroll")) {
             try {
@@ -85,18 +97,6 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                 }
             } catch (err) {
                 console.error("Spell Scroll Check error", err);
-            }
-        }
-
-        // silence
-        if (workflow.item.data.type === "spell" && workflow.actor.data.flags["midi-qol"].silence && workflow.item.data.data?.components?.vocal && !workflow.actor.data.flags["midi-qol"].subtleSpell) {
-            try {
-                console.warn("Silence activated");
-                ui.notifications.warn("You cannot perform verbal spell components - the spell fails");
-                console.warn("Silence used");
-              return false;
-            } catch (err) {
-                console.error("Silence error", err);
             }
         }
 

@@ -85,10 +85,8 @@ try {
                     save: { dc: args[0]?.saveDC, ability: args[0]?.saveAbility, scaling: "flat" },
                 }
             }
-            await tactor.createEmbeddedDocuments("Item", [itemData]);
-            let saveItem = await tactor.items.find(i => i.name === itemData.name);
+            let saveItem = new CONFIG.Item.documentClass(itemData, { parent: tactor })
             let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
-            await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
             resolve(saveWorkflow.failedSaves.size ? false : true); 
         });
     }
