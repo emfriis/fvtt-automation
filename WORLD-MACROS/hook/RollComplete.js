@@ -108,6 +108,26 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                         console.error("Burst error", err);
                     }
                 }
+
+                // hexblades curse
+                if (tactor.data.flags["midi-qol"].hexbladesCurse && tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0) {
+                    try {
+                        console.warn("Hexblade's Curse activated");
+				        let hexIds = tactor.data.flags["midi-qol"].hexbladesCurse.split("+");
+                        for (let h = 0; h < hexIds.length; h++) {
+                            let hexToken = canvas.tokens.get(hexIds[h]);
+                            if (hexToken?.actor) {
+                                let actorData = hexToken.actor.getRollData();
+                                let level = actorData.details?.cr ?? actorData.classes?.warlock?.levels;
+                                let applyDamage = game.macros.find(m => m.name === "ApplyDamage");
+                                if (applyDamage) await applyDamage.execute("ApplyDamage", hexToken.id, hexToken.id, `${Math.max(1, level + actorData.abilities.cha.mod)}`, "healing", "magiceffect");
+                                console.warn("Hexblade's Curse used");
+                            }
+                        }
+                    } catch(err) {
+                        console.error("Hexblade's Curse error", err);
+                    }
+                }
 		    }
 
             const targets = Array.from(workflow.targets);
