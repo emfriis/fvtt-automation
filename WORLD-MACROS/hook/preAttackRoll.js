@@ -216,25 +216,25 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                     let pToken = (
                         p?.actor && // exists
                         p.actor.data.flags["midi-qol"].protection && // has feature
+                        p.data.disposition === token.data.disposition && // is friendly
                         p.actor.uuid !== workflow.token.actor.uuid && // not attacker
                         p.actor.uuid !== token.actor.uuid && // not target
                         p.actor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data.equipped) && // shield equipped
                         !p.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].includes(e.data.label)) && // can react
-                        canSee(p, workflow.token) // can see attacker
+                        canSee(p, workflow.token) && // can see attacker
+                        MidiQOL.getDistance(p, token, false) <= 5 // in range
                     );
                     return pToken;
                 });
                 for (let p = 0; p < protTokens.length; p++) {
                     let prot = protTokens[p];
-                    if (MidiQOL.getDistance(prot, token, false) <= 5 && prot.data.disposition === token.data.disposition && prot.document.uuid !== token.document.uuid) {
-                        let player = await playerForActor(prot.actor);
-                        let useProtect = false;
-                        useProtect = await USF.socket.executeAsUser("useDialog", player.id, { title: `Fighting Style: Protection`, content: `Use your reaction to impose disadvantage on attack against ${token.name}?` });
-                        if (useProtect) {
-                            workflow.disadvantage = true;
-                            if (game.combat) game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: prot.actor.uuid });
-                            console.warn("Fighting Style Protection used");
-                        }
+                    let player = await playerForActor(prot.actor);
+                    let useProtect = false;
+                    useProtect = await USF.socket.executeAsUser("useDialog", player.id, { title: `Fighting Style: Protection`, content: `Use your reaction to impose disadvantage on attack against ${token.name}?` });
+                    if (useProtect) {
+                        workflow.disadvantage = true;
+                        if (game.combat) game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: prot.actor.uuid });
+                        console.warn("Fighting Style Protection used");
                     }
                 }
             } catch (err) {

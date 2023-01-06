@@ -3,14 +3,14 @@
 
 const lastArg = args[args.length - 1];
 const tokenOrActor = await fromUuid(lastArg.actorUuid);
-const targetActor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
+const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const DAEItem = lastArg.efData.flags.dae.itemData;
 
 /**
  * Select for weapon
  */
 if (args[0] === "on") {
-  const weapons = targetActor.items.filter((i) => i.data.type === "weapon" && i.data.data.properties.two !== true);
+  const weapons = tactor.items.filter((i) => i.data.type === "weapon" && i.data.data.properties.two !== true);
   let weapon_content = "";
 
   //Filter for weapons
@@ -72,9 +72,9 @@ if (args[0] === "on") {
         label: `Ok`,
         callback: (html) => {
           const itemId = $("input[type='radio'][name='weapon']:checked").val();
-          const weaponItem = targetActor.items.get(itemId);
+          const weaponItem = tactor.items.get(itemId);
           let copyItem = duplicate(weaponItem);
-          DAE.setFlag(targetActor, "hexWeapon", {
+          DAE.setFlag(tactor, "hexWeapon", {
             weapon: itemId,
 			      ability: copyItem.data.ability,
 			      name: copyItem.name,
@@ -82,7 +82,7 @@ if (args[0] === "on") {
           if (copyItem.data.attackBonus === "") copyItem.data.attackBonus = "0";
           copyItem.data.ability = "cha";
 		  copyItem.name = "Hex " + copyItem.name;
-          targetActor.updateEmbeddedDocuments("Item", [copyItem]);
+          tactor.updateEmbeddedDocuments("Item", [copyItem]);
         },
       },
       cancel: {
@@ -95,13 +95,13 @@ if (args[0] === "on") {
 //Revert weapon and unset flag.
 if (args[0] === "off") {
 try {
-    const { weapon, ability, name } = DAE.getFlag(targetActor, "hexWeapon");
-    const weaponItem = targetActor.items.get(weapon);
+    const { weapon, ability, name } = DAE.getFlag(tactor, "hexWeapon");
+    const weaponItem = tactor.items.get(weapon);
     let copyItem = duplicate(weaponItem);
     copyItem.data.ability = ability;
     copyItem.name = copyItem.name.replace("Hex ", "");
-    targetActor.updateEmbeddedDocuments("Item", [copyItem]);
-    DAE.unsetFlag(targetActor, "hexWeapon");
+    tactor.updateEmbeddedDocuments("Item", [copyItem]);
+    DAE.unsetFlag(tactor, "hexWeapon");
   } catch (err) {
     console.error('hex warrior macro error');
   }

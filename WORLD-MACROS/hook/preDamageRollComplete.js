@@ -130,14 +130,53 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                 }
 	  	    }
 
+            // arcane ward
+            /*if (workflow.item.data.data.damage.parts && !["healing","temphp"].includes(workflow.item.data.data.damage.parts[0][1])) {
+                try {
+                    console.warn("Arcane Ward activated");
+                    let wardTokens = await canvas.tokens.placeables.filter(p => {
+                        let wardToken = (
+                            p?.actor && // exists
+                            p.actor.data.flags["midi-qol"].arcaneWard && // has feature
+                            p.actor.item.find(i => i.name === "Arcane Ward" && i.data.data.uses.value) && // feature charged
+                            p.data.disposition === token.data.disposition && // is friendly
+                            p.actor.uuid !== workflow.token.actor.uuid && // not attacker
+                            MidiQOL.getDistance(p, token, false) <= 30 // in range
+                        );
+                        return wardToken;
+                    });
+                    for (let w = 0; w < wardTokens.length; w++) {
+                        let ward = wardTokens[w];
+                        let item = tactor.items.find(i => i.name === "Arcane Ward");
+                        const effectData = {
+                            changes: [{ key: `flags.midi-qol.DR.all`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `item.data.data.uses.value`, priority: 20, }],
+                            disabled: false,
+                            label: "Arcane Ward Damage Reduction",
+                            flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
+                        };
+                        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                        let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                            if (workflowNext.uuid === workflow.uuid) {
+                                const effect = tactor.effects.find(i => i.data.label === "Arcane Ward Damage Reduction");
+                                if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                                Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                            }
+                        });
+                    }
+                } catch (err) {
+                    console.error("Arcane Ward error", err);
+                }
+            }*/
+
             // fighting style interception
-            if (["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) {
+            if (["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType) && workflow.item.data.data.damage.parts) {
                 try {
                     console.warn("Fighting Style Interception activated");
                     let protTokens = await canvas.tokens.placeables.filter(p => {
                         let protToken = (
                             p?.actor && // exists
                             p.actor.data.flags["midi-qol"].interception && // has feature
+                            p.data.disposition === token.data.disposition && // is friendly
                             p.actor.uuid !== workflow.token.actor.uuid && // not attacker
                             p.actor.uuid !== token.actor.uuid && // not target
                             (p.actor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data.equipped) || p.actor.items.find(i => i.data.type === "weapon" && ["martialM","simpleM","martialR","simpleR"].includes(i.data.data.weaponType))) && // shield or weapon equipped
@@ -156,13 +195,13 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                                 const effectData = {
                                     changes: [{ key: `flags.midi-qol.DR.${workflow.item.data.data.actionType}`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `[[1d10 + ${prot.actor.data.data.attributes.prof}]]`, priority: 20, }],
                                     disabled: false,
-                                    label: `Interception`,
+                                    label: "Interception Damage Reduction",
                                     flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                                 };
                                 await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                                 let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
                                     if (workflowNext.uuid === workflow.uuid) {
-                                        const effect = tactor.effects.find(i => i.data.label === "Interception");
+                                        const effect = tactor.effects.find(i => i.data.label === "Interception Damage Reduction");
                                         if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                                         Hooks.off("midi-qol.preApplyDynamicEffects", hook);
                                     }
