@@ -69,15 +69,34 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
             }
         }
 
+        // spell scroll check
+        if (workflow.item.data.type === "spell" && workflow.item.name.includes("Spell Scroll")) {
+            try {
+                console.warn("Spell Scroll Check activated");
+                let slotLevels = Object.keys(workflow.actor.data.data.spells).filter(slot => workflow.actor.data.data.spells[slot].max).map(slot => slot.includes("spell") ? parseInt(slot.replace("spell", "")) : workflow.actor.data.data.spells[slot].level);
+                let highestSlotLevel = Math.max(...slotLevels);
+                if (!highestSlotLevel || highestSlotLevel < workflow.itemLevel) {
+                    const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: workflow.actor.uuid, saveName: "Spell Scroll Check", saveImg: "icons/sundries/scrolls/scroll-bound-gold-brown.webp", saveType: "abil", saveDC: 10 + workflow.itemLevel, saveAbility: workflow.actor.data.data.attributes.spellcasting ?? "int" });
+                    console.warn("Spell Scroll Check used", save);    
+                    if (!save) {
+                        ui.notifications.error("You fail to decipher the spell scroll and the magic is lost");
+                        return false;
+                    }
+                }
+            } catch (err) {
+                console.error("Spell Scroll Check error", err);
+            }
+        }
+
         // silence
         if (workflow.item.data.type === "spell" && workflow.actor.data.flags["midi-qol"].silence && workflow.item.data.data?.components?.vocal && !workflow.actor.data.flags["midi-qol"].subtleSpell) {
             try {
-              console.warn("Silence activated");
-              ui.notifications.warn("You cannot perform verbal spell components - the spell fails");
-              console.warn("Silence used");
+                console.warn("Silence activated");
+                ui.notifications.warn("You cannot perform verbal spell components - the spell fails");
+                console.warn("Silence used");
               return false;
             } catch (err) {
-              console.error("Silence error", err);
+                console.error("Silence error", err);
             }
         }
 
