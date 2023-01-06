@@ -120,6 +120,29 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                 }
             }
 
+            // umbral sight
+            if (tactor.data.flags["midi-qol"].umbralSight || workflow.actor.data.flags["midi-qol"].umbralSight) {
+                try {
+                    console.warn("Umbral Sight activated");
+                    if (!workflow.disadvantage && tactor.data.flags["midi-qol"].umbralSight && workflow.actor.data.data.attributes.senses.darkvision && !(_levels?.advancedLOSCheckInLight(token) ?? true)) {
+                        let vision = Math.min((workflow.token.data.flags["perfect-vision"].sightLimit ?? 9999), workflow.token.data.brightSight);
+                        if (vision < MidiQOL.getDistance(workflow.token, token, false)) {
+                            workflow.disadvantage = true;
+                            console.warn("Umbral Sight used");
+                        }
+                    }
+                    if (!workflow.advantage && workflow.actor.data.flags["midi-qol"].umbralSight && tactor.data.data.attributes.senses.darkvision && !(_levels?.advancedLOSCheckInLight(workflow.token) ?? true)) {
+                        let vision = Math.min((token.data.flags["perfect-vision"].sightLimit ?? 9999), token.data.brightSight);
+                        if (vision < MidiQOL.getDistance(token, workflow.token, false)) {
+                            workflow.advantage = true;
+                            console.warn("Umbral Sight used");
+                        }
+                    }
+                } catch (err) {
+                    console.error("Umbral Sight error", err);
+                }
+            }
+
             // underwater range check
             if (workflow.actor.data.flags["midi-qol"].underwater && ["mwak","rwak"].includes(workflow.item.data.data.actionType)) {
                 try {
