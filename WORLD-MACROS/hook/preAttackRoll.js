@@ -125,15 +125,13 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                 try {
                     console.warn("Umbral Sight activated");
                     if (!workflow.disadvantage && tactor.data.flags["midi-qol"].umbralSight && workflow.actor.data.data.attributes.senses.darkvision && !(_levels?.advancedLOSCheckInLight(token) ?? true)) {
-                        let vision = Math.min((workflow.token.data.flags["perfect-vision"].sightLimit ?? 9999), workflow.token.data.brightSight);
-                        if (vision < MidiQOL.getDistance(workflow.token, token, false)) {
+                        if (workflow.token.data.brightSight < MidiQOL.getDistance(workflow.token, token, false)) {
                             workflow.disadvantage = true;
                             console.warn("Umbral Sight used");
                         }
                     }
                     if (!workflow.advantage && workflow.actor.data.flags["midi-qol"].umbralSight && tactor.data.data.attributes.senses.darkvision && !(_levels?.advancedLOSCheckInLight(workflow.token) ?? true)) {
-                        let vision = Math.min((token.data.flags["perfect-vision"].sightLimit ?? 9999), token.data.brightSight);
-                        if (vision < MidiQOL.getDistance(token, workflow.token, false)) {
+                        if (token.data.brightSight < MidiQOL.getDistance(token, workflow.token, false)) {
                             workflow.advantage = true;
                             console.warn("Umbral Sight used");
                         }
