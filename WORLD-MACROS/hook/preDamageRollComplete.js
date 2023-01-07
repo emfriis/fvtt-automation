@@ -31,126 +31,6 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
 	  	    let tactor = token?.actor;
         	if (!tactor) continue;
 
-            // calculate damage
-            let totalDamage = 0;
-            if (workflow.item.data.data.damage.parts) {
-                try {
-                    console.warn("Calculate Damage activated");
-                    for (let d = 0; d < workflow.damageDetail?.length ?? 0; d++) {
-                        let damage = workflow.damageDetail[d].damage;
-                        let type = workflow.damageDetail[d].type;
-                        let isPhysical = ["bludgeoning","piercing","slashing"].includes(type);
-                        let isAdamantine = workflow.item.data.data?.properties?.ada;
-                        let isSilver = workflow.item.data.data?.properties?.sil;
-                        let isMagic = workflow.item.type === "spell" || workflow.item.data.flags?.midiProperties?.spelleffect || workflow.item.data.flags?.midiProperties?.magiceffect || workflow.item.data.flags?.midiProperties?.magicdam;
-                        let isSpell = workflow.item.type === "spell" || workflow.item.data.flags?.midiProperties?.spelleffect;
-                        let drApplied;
-                        let dvApplied;
-                        // apply generic immunity
-                        if (tactor.data.data.traits.di.value.includes(type)) continue;
-                        // apply physical immunity
-                        if (isPhysical) {
-                            if (tactor.data.data.traits.di.value.includes("physical") && !isMagic) { 
-                                continue;
-                            } else if (tactor.data.data.traits.di.value.includes("adamant") && !isAdamantine && !isMagic) {
-                                continue;
-                            } else if (tactor.data.data.traits.di.value.includes("silver") && !isSilver && !isMagic) { 
-                                continue;
-                            }
-                        }
-                        // apply magic immunity
-                        if (isMagic) {
-                            if (tactor.data.data.traits.di.value.includes("magic")) {
-                                continue;
-                            } else if (tactor.data.data.traits.di.value.includes("spell") && isSpell) {
-                                continue;
-                            }
-                        } else if (tactor.data.data.traits.di.value.includes("nonmagic")) {
-                            continue;
-                        }
-                        // apply generic resistance
-                        if (tactor.data.data.traits.dr.value.includes(type)) {
-                            damage = Math.floor(damage / 2);
-                            drApplied = true;
-                        }
-                        // apply physical resistance
-                        if (!drApplied && isPhysical) {
-                            if (tactor.data.data.traits.dr.value.includes("physical") && !isMagic) { 
-                                damage = Math.floor(damage / 2);
-                                drApplied = true;
-                            } else if (tactor.data.data.traits.dr.value.includes("adamant") && !isAdamantine && !isMagic) {
-                                damage = Math.floor(damage / 2);
-                                drApplied = true;
-                            } else if (tactor.data.data.traits.dr.value.includes("silver") && !isSilver && !isMagic) { 
-                                damage = Math.floor(damage / 2);
-                                drApplied = true;
-                            }
-                        }
-                        // apply magic resitance
-                        if (!drApplied && isMagic) {
-                            if (tactor.data.data.traits.dr.value.includes("magic")) {
-                                damage = Math.floor(damage / 2);
-                                drApplied = true;
-                            } else if (tactor.data.data.traits.dr.value.includes("spell") && isSpell) {
-                                damage = Math.floor(damage / 2);
-                                drApplied = true;
-                            }
-                        } else if (tactor.data.data.traits.dr.value.includes("nonmagic")) {
-                            damage = Math.floor(damage / 2);
-                            drApplied = true;
-                        }
-                        // apply generic vulnerability
-                        if (tactor.data.data.traits.dv.value.includes(type)) {
-                            damage *= 2;
-                            dvApplied = true;
-                        }
-                        // apply physical vulnerability
-                        if (!drApplied && isPhysical) {
-                            if (tactor.data.data.traits.dv.value.includes("physical") && !isMagic) { 
-                                damage *= 2;
-                                drApplied = true;
-                            } else if (tactor.data.data.traits.dv.value.includes("adamant") && !isAdamantine && !isMagic) {
-                                damage *= 2;
-                                drApplied = true;
-                            } else if (tactor.data.data.traits.dv.value.includes("adamant") && !isSilver && !isMagic) { 
-                                damage *= 2;
-                                drApplied = true;
-                            }
-                        }
-                        // apply magic vulnerability
-                        if (!drApplied && isMagic) {
-                            if (tactor.data.data.traits.dv.value.includes("magic")) {
-                                damage *= 2;
-                                drApplied = true;
-                            } else if (tactor.data.data.traits.dv.value.includes("spell") && isSpell) {
-                                damage *= 2;
-                                drApplied = true;
-                            }
-                        } else if (tactor.data.data.traits.dv.value.includes("nonmagic")) {
-                            damage *= 2;
-                            dvApplied = true;
-                        }
-                        // apply damage reduction
-                        let drAll = getProperty(tactor.data, `flags.midi-qol.DR.all`) || 0;
-                        let drAction = getProperty(tactor.data, `flags.midi-qol.DR.${workflow.item.data.data.actionType}`) || 0;
-                        let drType = getProperty(tactor.data, `flags.midi-qol.DR.${type}`) || 0;
-                        let drPhysical = isPhysical && !isMagic ? getProperty(tactor.data, `flags.midi-qol.DR.physical`) || 0 : 0;
-                        let drNonPhysical = !isPhysical ? getProperty(tactor.data, `flags.midi-qol.DR.non-physical`) || 0 : 0;
-                        let drAdamantine = isPhysical && !isAdamantine && !isMagic ? getProperty(tactor.data, `flags.midi-qol.DR.non-adamant`) || 0 : 0;
-                        let drSilver = isPhysical && !isSilver && !isMagic ? getProperty(tactor.data, `flags.midi-qol.DR.non-silver`) || 0 : 0;
-                        let drMagic = isMagic ? getProperty(tactor.data, `flags.midi-qol.DR.magic`) || 0 : 0;
-                        let drNonMagic = !isMagic ? getProperty(tactor.data, `flags.midi-qol.DR.non-magic`) || 0 : 0;
-                        let drTotal = drAll + drAction + drType + drPhysical + drNonPhysical + drAdamantine + drSilver + drMagic + drNonMagic;
-                        damage -= drTotal;
-                        // append to total damage
-                        totalDamage += damage;
-                    }
-                    console.warn("Calculate Damage used", totalDamage);
-                } catch (err) {
-                    console.error("Calculate error", err);
-                }
-            }
-
             // spell effect damage resistance
             if (workflow.item.data.flags?.midiProperties?.spelleffect && tactor.data.data.traits.dr.includes("spell") && !["healing", "temphp"].includes(workflow.item.data.data?.damage?.parts[0][1])) {
                 try {
@@ -162,11 +42,11 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                         flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                     };
                     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                    let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                    let hook = Hooks.on("midi-qol.damageRollComplete", async (workflowNext) => {
                         if (workflowNext.uuid === workflow.uuid) {
                             const effect = tactor.effects.find(i => i.data.label === "Spell Effect Damage Resistance");
                             if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
-                            Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                            Hooks.off("midi-qol.damageRollComplete", hook);
                         }
                     });
                     console.warn("Spell Effect Damage Resistance used");
@@ -187,11 +67,11 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                             flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                         };
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                        let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                        let hook = Hooks.on("midi-qol.damageRollComplete", async (workflowNext) => {
                             if (workflowNext.uuid === workflow.uuid) {
                                 const effect = tactor.effects.find(i => i.data.label === "Devil Silver Vulnerability");
                                 if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
-                                Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                                Hooks.off("midi-qol.damageRollComplete", hook);
                             }
                         });
                         console.warn("Devil Silver Vulnerability used");
@@ -212,11 +92,11 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                             flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                         };
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                        let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                        let hook = Hooks.on("midi-qol.damageRollComplete", async (workflowNext) => {
                             if (workflowNext.uuid === workflow.uuid) {
                                 const effect = tactor.effects.find(i => i.data.label === "Golem Adamantine Vulnerability");
                                 if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
-                                Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                                Hooks.off("midi-qol.damageRollComplete", hook);
                             }
                         });
                         console.warn("Golem Adamantine Vulnerability used");
@@ -237,11 +117,11 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                         flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                     };
                     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                    let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                    let hook = Hooks.on("midi-qol.damageRollComplete", async (workflowNext) => {
                         if (workflowNext.uuid === workflow.uuid) {
                             const effect = tactor.effects.find(i => i.data.label === "Shield Magic Missile Damage Immunity");
                             if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
-                            Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                            Hooks.off("midi-qol.damageRollComplete", hook);
                         }
                     });
                     console.warn("Shield used");
@@ -281,11 +161,11 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                                     flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                                 };
                                 await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                                let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                                let hook = Hooks.on("midi-qol.damageRollComplete", async (workflowNext) => {
                                     if (workflowNext.uuid === workflow.uuid) {
                                         const effect = tactor.effects.find(i => i.data.label === "Interception Damage Reduction");
                                         if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
-                                        Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                                        Hooks.off("midi-qol.damageRollComplete", hook);
                                     }
                                 });
                                 if (game.combat) game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: prot.actor.uuid });
@@ -299,7 +179,7 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
             }
 
             // arcane ward
-            if (workflow.item.data.data.damage.parts && !["healing","temphp"].includes(workflow.item.data.data.damage.parts[0][1]) && !(workflow.item.data.data.actionType === "save" && (workflow.superSavers.has(token) || (worklow.item.data.flags.midiProperties.nodam && !workflow.failedSaves.has(token))))) {
+            if (workflow.item.data.data.damage.parts && !["healing","temphp"].includes(workflow.item.data.data.damage.parts[0][1]) && !(workflow.item.data.data.save.dc && (workflow.superSavers.has(token) || (workflow.item.data.flags.midiProperties.nodam && !workflow.failedSaves.has(token))))) {
                 try {
                     console.warn("Arcane Ward activated");
                     let wardTokens = await canvas.tokens.placeables.filter(p => {
@@ -317,45 +197,49 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                         if (tactor.effects.find(e => e.data.label === "Arcane Ward Damage Reduction")) continue;
                         let ward = wardTokens[w];
                         let featItem = ward.actor.items.find(i => i.name === "Arcane Ward");
+                        let uses = featItem.data.data.uses.value;
+                        let totalDamage = workflow.damageDetail.reduce((acc, val) => acc + val.damage, 0);
                         if (totalDamage && ward.actor.uuid === tactor.uuid) {
                             const effectData = {
-                                changes: [{ key: `flags.midi-qol.DR.all`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `${Math.min(totalDamage, featItem.data.data.uses.value)}`, priority: 20, }],
+                                changes: [{ key: `flags.midi-qol.DR.all`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `${Math.min(uses, totalDamage)}`, priority: 20, }],
                                 disabled: false,
                                 label: "Arcane Ward Damage Reduction",
                                 origin: featItem.uuid,
                                 flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                             };
                             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                            if (featItem) await USF.socket.executeAsGM("updateItem", { itemUuid: featItem.uuid, updates: {"data.uses.value" : Math.max(0, featItem.data.data.uses.value - totalDamage) } });
-                            let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                            if (featItem) await USF.socket.executeAsGM("updateItem", { itemUuid: featItem.uuid, updates: {"data.uses.value" : Math.max(0, uses - totalDamage) } });
+                            let hook = Hooks.on("midi-qol.damageRollComplete", async (workflowNext) => {
                                 if (workflowNext.uuid === workflow.uuid) {
                                     const effect = tactor.effects.find(i => i.data.label === "Arcane Ward Damage Reduction");
                                     if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
-                                    Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                                    Hooks.off("midi-qol.damageRollComplete", hook);
                                 }
                             });
+                            console.warn("Arcane Ward used", wardValue);
                         } else if (totalDamage && !ward.actor.effects.find(e => e.data.label === "Reaction")) {
                             let player = await playerForActor(ward.actor);
                             let useWard = false;
                             useWard = await USF.socket.executeAsUser("useDialog", player.id, { title: `Arcane Ward`, content: `Use your reaction to reduce damage against ${token.name}?` });
                             if (useWard) {
                                 const effectData = {
-                                    changes: [{ key: `flags.midi-qol.DR.all`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `${Math.min(totalDamage, featItem.data.data.uses.value)}`, priority: 20, }],
+                                    changes: [{ key: `flags.midi-qol.DR.all`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `${Math.min(uses, totalDamage)}`, priority: 20, }],
                                     disabled: false,
                                     label: "Arcane Ward Damage Reduction",
                                     origin: featItem.uuid,
                                     flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                                 };
                                 await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                                if (featItem) await USF.socket.executeAsGM("updateItem", { itemUuid: featItem.uuid, updates: {"data.uses.value" : Math.max(0, featItem.data.data.uses.value - totalDamage) } });
-                                let hook = Hooks.on("midi-qol.preApplyDynamicEffects", async (workflowNext) => {
+                                if (featItem) await USF.socket.executeAsGM("updateItem", { itemUuid: featItem.uuid, updates: {"data.uses.value" : Math.max(0, uses - totalDamage) } });
+                                let hook = Hooks.on("midi-qol.damageRollComplete", async (workflowNext) => {
                                     if (workflowNext.uuid === workflow.uuid) {
                                         const effect = tactor.effects.find(i => i.data.label === "Arcane Ward Damage Reduction");
                                         if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
-                                        Hooks.off("midi-qol.preApplyDynamicEffects", hook);
+                                        Hooks.off("midi-qol.damageRollComplete", hook);
                                     }
                                 });
                                 if (game.combat) game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: ward.actor.uuid });
+                                console.warn("Arcane Ward used", wardValue);
                             }
                         }
                     }
