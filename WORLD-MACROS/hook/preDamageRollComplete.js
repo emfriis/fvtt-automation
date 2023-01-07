@@ -217,7 +217,7 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                                 }
                             });
                             console.warn("Arcane Ward used", wardValue);
-                        } else if (totalDamage && !ward.actor.effects.find(e => e.data.label === "Reaction")) {
+                        } else if (totalDamage && !ward.actor.effects.find(e => e.data.label === "Reaction") && ward.actor.items.find(i => i.name === "Projected Ward")) {
                             let player = await playerForActor(ward.actor);
                             let useWard = false;
                             useWard = await USF.socket.executeAsUser("useDialog", player.id, { title: `Arcane Ward`, content: `Use your reaction to reduce damage against ${token.name}?` });
