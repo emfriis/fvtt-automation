@@ -42,6 +42,7 @@ try {
         type: "feat",
         flags: {
             midiProperties: {
+                magicdam: (args[5] === "magiceffect" || args[6] === "spelleffect" ? true : false),
                 magiceffect: (args[5] === "magiceffect" ? true : false),
                 spelleffect: (args[6] === "spelleffect" ? true : false),
                 fulldam: (args[9] === "fulldam" ? true : false),

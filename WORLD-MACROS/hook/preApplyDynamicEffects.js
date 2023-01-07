@@ -91,9 +91,9 @@ Hooks.on("midi-qol.preApplyDynamicEffects", async (workflow) => {
                 if (tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0 && tactor.data.flags["midi-qol"].undeadFortitude) {
                     try {
                         console.warn("Undead Fortitude activated");
-                            if (!workflow.damageList[d].damageDetail.find(d => Array.isArray(d) && d[0].type === "radiant") && !workflow.isCritical) {
-                                const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: tactor.uuid, saveName: `Undead Fortitude Save`, saveImg: `icons/magic/acid/pouring-gas-smoke-liquid.webp`, saveType: "save", saveDC: workflow.damageList[d].appliedDamage + 5, saveAbility: "con" });
-                                if (save) await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
+                        if (!workflow.damageList[d].damageDetail.find(d => Array.isArray(d) && d[0].type === "radiant") && !workflow.isCritical) {
+                            const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: tactor.uuid, saveName: `Undead Fortitude Save`, saveImg: `icons/magic/acid/pouring-gas-smoke-liquid.webp`, saveType: "save", saveDC: workflow.damageList[d].appliedDamage + 5, saveAbility: "con" });
+                            if (save) await USF.socket.executeAsGM("updateActor", { actorUuid: tactor.uuid, updates: {"data.attributes.hp.value" : 1} });
                             console.warn("Undead Fortitude used");
                         }
                     } catch(err) {
