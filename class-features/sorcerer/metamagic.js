@@ -162,7 +162,7 @@ try {
                 changes: [{ key: "flags.midi-qol.distantSpell", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, },],
                 disabled: false,
                 label: "Metamagic: Distant Spell",
-                flags: { dae: { specialDuration: ["1Spell"] } }
+                flags: { dae: { specialDuration: ["turnEnd","turnStart"] } }
             }
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
             await usesItem.update({ "data.uses.value": Math.max(0, usesItem.data.data.uses.value - 1) });
