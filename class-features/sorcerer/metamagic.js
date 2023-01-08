@@ -180,14 +180,14 @@ try {
                             let effects = tactor.effects.filter(e => e.data.origin === args[0].uuid);
                             for (let e = 0; e < effects.length; e++) {
                                 let effect = effects[e];
-                                if (effect && effect.data.label !== "Concentrating") await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, duration: { seconds: (effect.data.duration.seconds ? effect.data.duration.seconds * 2 : null), turns: (effect.data.duration.turns ? effect.data.duration.turns * 2 : null), rounds: (effect.data.duration.rounds ? effect.data.duration.rounds * 2 : null), startTime: effect.data.duration.startTime, startTurn: effect.data.duration.startTurn, startRound: effect.data.duration.startRound } }] });
+                                if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, duration: { seconds: (effect.data.duration.seconds ? effect.data.duration.seconds * 2 : null), turns: (effect.data.duration.turns ? effect.data.duration.turns * 2 : null), rounds: (effect.data.duration.rounds ? effect.data.duration.rounds * 2 : null), startTime: effect.data.duration.startTime, startTurn: effect.data.duration.startTurn, startRound: effect.data.duration.startRound } }] });
                             }
                         }
                     }
                     let effects = workflowNext.actor.filter(e => e.data.origin === args[0].uuid);   
                     for (let e = 0; e < effects.length; e++) {
                         let effect = effects[e];
-                        if (effect && effect.data.label !== "Concentrating") await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, duration: { seconds: (effect.data.duration.seconds ? effect.data.duration.seconds * 2 : null), turns: (effect.data.duration.turns ? effect.data.duration.turns * 2 : null), rounds: (effect.data.duration.rounds ? effect.data.duration.rounds * 2 : null), startTime: effect.data.duration.startTime, startTurn: effect.data.duration.startTurn, startRound: effect.data.duration.startRound } }] });
+                        if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, duration: { seconds: (effect.data.duration.seconds ? effect.data.duration.seconds * 2 : null), turns: (effect.data.duration.turns ? effect.data.duration.turns * 2 : null), rounds: (effect.data.duration.rounds ? effect.data.duration.rounds * 2 : null), startTime: effect.data.duration.startTime, startTurn: effect.data.duration.startTurn, startRound: effect.data.duration.startRound } }] });
                     }
                     Hooks.off("midi-qol.RollComplete", hook1);
                     Hooks.off("midi-qol.preItemRoll", hook2);
