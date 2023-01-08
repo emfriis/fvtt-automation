@@ -20,7 +20,7 @@ if (args[0].tag !== "OnUse") {
     }
 }
 
-if (args[0].tag !== "OnUse" || lastArg.item.type !== "spell") return;
+if (args[0].tag !== "OnUse" || lastArg.item.type !== "spell" || lastArg.item.name.toLowerCase().includes("spell scroll")) return;
 
 try {
     if (lastArg.macroPass === "preItemRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.data.activation.type)) {
