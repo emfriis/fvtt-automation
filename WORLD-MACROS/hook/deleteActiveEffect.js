@@ -7,7 +7,7 @@ Hooks.on("deleteActiveEffect", async (effect) => {
         if (!tactor) return;
 
         // disable effect on incapacitated
-        if (["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(effect.data.label) && tactor.effects.find(e => e.data.disabled && e.data.changes.find(c => c.key === "midi-qol.disable.incapacitated"))) {
+        if (["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(effect.data.label) && !tactor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label)) && tactor.effects.find(e => e.data.disabled && e.data.changes.find(c => c.key === "midi-qol.disable.incapacitated"))) {
             try {
                 console.warn("Disable Effect on Incapacitated activated");
                 const disableIds = tactor.effects.filter(e => e.data.disabled && e.data.changes.find(c => c.key === "midi-qol.disable.incapacitated")).map(e => e.id);
