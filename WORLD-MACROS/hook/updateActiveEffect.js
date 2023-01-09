@@ -34,7 +34,7 @@ Hooks.on("updateActiveEffect", async (effect) => {
         if (["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(effect.data.label) && !effect.data.disabled && tactor.data.flags["midi-qol"]?.disable?.incapacitated) {
             try {
                 console.warn("Disable Effect on Incapacitated activated");
-                const disableIds = tactor.effects.filter(e => !e.data.disabled && e.data.changes.find(c => c.key === "midi-qol.disable.incapacitated")).map(e => e.id);
+                const disableIds = tactor.effects.filter(e => !e.data.disabled && e.data.changes.find(c => c.key === "flags.midi-qol.disable.incapacitated")).map(e => e.id);
                 for (let i = 0; i < disableIds.length; i++) {
                     await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: disableIds[i], disabled: true }] });
                 }
@@ -45,10 +45,10 @@ Hooks.on("updateActiveEffect", async (effect) => {
         }
 
         // disable effect on incapacitated revert
-        if (["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(effect.data.label) && effect.data.disabled && !tactor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label)) && tactor.effects.find(e => e.data.disabled && e.data.changes.find(c => c.key === "midi-qol.disable.incapacitated"))) {
+        if (["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(effect.data.label) && effect.data.disabled && !tactor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label)) && tactor.effects.find(e => e.data.disabled && e.data.changes.find(c => c.key === "flags.midi-qol.disable.incapacitated"))) {
             try {
                 console.warn("Disable Effect on Incapacitated Revert activated");
-                const disableIds = tactor.effects.filter(e => e.data.disabled && e.data.changes.find(c => c.key === "midi-qol.disable.incapacitated")).map(e => e.id);
+                const disableIds = tactor.effects.filter(e => e.data.disabled && e.data.changes.find(c => c.key === "flags.midi-qol.disable.incapacitated")).map(e => e.id);
                 for (let i = 0; i < disableIds.length; i++) {
                     await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: disableIds[i], disabled: false }] });
                 }

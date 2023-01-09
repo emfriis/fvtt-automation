@@ -22,7 +22,7 @@ Hooks.on("createActiveEffect", async (effect) => {
         if (["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(effect.data.label) && !effect.data.disabled && tactor.data.flags["midi-qol"]?.delete?.incapacitated) {
             try {
                 console.warn("Delete Effect on Incapacitated activated");
-                const deleteIds = tactor.effects.filter(e => e.data.changes.find(c => c.key === "midi-qol.delete.incapacitated")).map(e => e.id);
+                const deleteIds = tactor.effects.filter(e => e.data.changes.find(c => c.key === "flags.midi-qol.delete.incapacitated")).map(e => e.id);
                 if (deleteIds) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: deleteIds });
                 console.warn("Delete Effect on Incapacitated used");
             } catch (err) {
@@ -34,7 +34,7 @@ Hooks.on("createActiveEffect", async (effect) => {
         if (["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(effect.data.label) && !effect.data.disabled && tactor.data.flags["midi-qol"]?.disable?.incapacitated) {
             try {
                 console.warn("Disable Effect on Incapacitated activated");
-                const disableIds = tactor.effects.filter(e => !e.data.disabled && e.data.changes.find(c => c.key === "midi-qol.disable.incapacitated")).map(e => e.id);
+                const disableIds = tactor.effects.filter(e => !e.data.disabled && e.data.changes.find(c => c.key === "flags.midi-qol.disable.incapacitated")).map(e => e.id);
                 for (let i = 0; i < disableIds.length; i++) {
                     await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: disableIds[i], disabled: true }] });
                 }
