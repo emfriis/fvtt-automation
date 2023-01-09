@@ -36,7 +36,7 @@ let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
             await MidiQOL.completeItemRoll(attackItem, rollOptions);
         };
 
-        function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+        async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
         if (targets.length === 1) {
             for (i = 0; i < attacks; i++) {

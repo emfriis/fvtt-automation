@@ -1,5 +1,7 @@
 // createActiveEffect
 
+async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+
 Hooks.on("createActiveEffect", async (effect) => {
     try {
 
@@ -36,11 +38,35 @@ Hooks.on("createActiveEffect", async (effect) => {
                 console.warn("Disable Effect on Incapacitated activated");
                 const disableIds = tactor.effects.filter(e => !e.data.disabled && e.data.changes.find(c => c.key === "flags.midi-qol.disable.incapacitated")).map(e => e.id);
                 for (let i = 0; i < disableIds.length; i++) {
+                    await wait(100);
                     await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: disableIds[i], disabled: true }] });
                 }
                 console.warn("Disable Effect on Incapacitated used");
             } catch (err) {
                 console.error("Disable Effect on Incapacitated error", err);
+            }
+        }
+
+        // delete effect on incapacitated creation
+        if (effect.data.changes.find(c => c.key === "flags.midi-qol.delete.incapacitated") && tactor.effects.find(e => !e.data.disabled && ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label))) {
+            try {
+                console.warn("Delete Effect on Incapacitated Creation activated");
+                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: effect.id });
+                console.warn("Delete Effect on Incapacitated Creation used");
+            } catch (err) {
+                console.error("Delete Effect on Incapacitated Creation error", err);
+            }
+        }
+
+        // disable effect on incapacitated creation
+        if (effect.data.changes.find(c => c.key === "flags.midi-qol.disable.incapacitated") && !effect.data.disabled && tactor.effects.find(e => !e.data.disabled && ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(e.data.label))) {
+            try {
+                console.warn("Disable Effect on Incapacitated Creation activated");
+                await wait(100);
+                await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, disabled: true }] });
+                console.warn("Disable Effect on Incapacitated Creation used");
+            } catch (err) {
+                console.error("Disable Effect on Incapacitated Creation error", err);
             }
         }
 
