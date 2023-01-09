@@ -1,4 +1,4 @@
-// createActiveEffect
+// deleteActiveEffect
 
 Hooks.on("deleteActiveEffect", async (effect) => {
     try {

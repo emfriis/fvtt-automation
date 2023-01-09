@@ -7,11 +7,11 @@ Hooks.on("createActiveEffect", async (effect) => {
         if (!tactor) return;
 
         // downed
-        if (["Dead", "Defeated", "Unconscious"].includes(effect.data.label)) {
+        if (["Dead", "Defeated", "Unconscious"].includes(effect.data.label) && !effect.data.disabled) {
             try {
                 console.warn("Downed activated");
                 if (!tactor.effects.find(e => e.data.label === "Prone")) await game.dfreds.effectInterface.addEffect({ effectName: "Prone", uuid: tactor.uuid });
-                if (tactor.data.flags["midi-qol"]?.rage && tactor.effects.find(e => e.data.label === "Rage")) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: tactor.effects.find(e => e.data.label === "Rage").id });
+                if (tactor.data.flags["midi-qol"]?.rage && tactor.effects.find(e => e.data.label === "Rage")) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.find(e => e.data.label === "Rage").id] });
                 console.warn("Downed used");
             } catch (err) {
                 console.error("Downed error", err);
