@@ -36,7 +36,7 @@ Hooks.on("createActiveEffect", async (effect) => {
                 console.warn("Disable Effect on Incapacitated activated");
                 const disableIds = tactor.effects.filter(e => !e.data.disabled && e.data.changes.find(c => c.key === "midi-qol.disable.incapacitated")).map(e => e.id);
                 for (let i = 0; i < disableIds.length; i++) {
-                    await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: i, disabled: true }] });
+                    await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: disableIds[i], disabled: true }] });
                 }
                 console.warn("Disable Effect on Incapacitated used");
             } catch (err) {
