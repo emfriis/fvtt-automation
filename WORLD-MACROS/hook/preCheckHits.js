@@ -18,7 +18,7 @@ async function calculateCover(sourceToken, targetToken) {
     const baseZ = targetToken.data.elevation;
     const targetHeight = targetToken.losHeight == baseZ ? baseZ+0.001 : targetToken.losHeight;
     const sourcePov = {  x: sourceToken.center.x, y: sourceToken.center.y, z: sourceHeight, };
-    const precision = 10;
+    const precision = 15;
     let volPercent = 0;
     let collisionTestPoints = [];
     for (let zC = baseZ; zC <= targetHeight; zC += (targetHeight - baseZ) / precision) {
@@ -38,6 +38,23 @@ async function calculateCover(sourceToken, targetToken) {
     return calculatedCover;
 }
 
+async function calculateTokenCover(sourceToken, targetToken) {
+    let distance = MidiQOL.getDistance(sourceToken, targetToken, false);
+    let blockingToken = canvas.tokens.placeables.find(p => {
+        let distanceToTarget = MidiQOL.getDistance(p, targetToken, false);
+        let distanceToSource = MidiQOL.getDistance(p, sourceToken, false);
+        let block = (
+            p?.actor && // exists
+            !(p.actor.data.data.details?.type?.value?.length < 3) && // is a creature
+            distanceToTarget <= 5 && // is close to target
+            distanceToSource < distance // is closer to source than target
+        );
+        return block;  
+    });
+
+    return blockingToken ? true : false;
+}
+
 Hooks.on("midi-qol.preCheckHits", async (workflow) => {
     try {
         if (!["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) return;
@@ -53,6 +70,7 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                 try {
                     console.warn("Cover activated");
                     const calculatedCover = await calculateCover(workflow.token, token);
+                    const tokenCover = await calculateTokenCover(workflow.token, token);
                     if (calculatedCover >= 99) {
                         const effectData = {
                             changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 20, },],
@@ -71,7 +89,7 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         console.warn("3/4 Cover used");
-                    } else if (calculatedCover >= 40 && !tactor.effects.find(e => e.data.label === "Three-Quarters Cover") && !tactor.effects.find(e => e.data.label === "Half Cover")) {
+                    } else if ((calculatedCover >= 40 || tokenCover) && !tactor.effects.find(e => e.data.label === "Three-Quarters Cover") && !tactor.effects.find(e => e.data.label === "Half Cover")) {
                         const effectData = {
                             changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 2, priority: 20, },],
                             disabled: false,
