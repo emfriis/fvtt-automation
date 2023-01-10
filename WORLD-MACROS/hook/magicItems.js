@@ -1,4 +1,5 @@
 // magicItems
+// WIP
 
 Hooks.on(`renderActorSheet5e`, (app, html, data) => {
     if (window.MagicItems && window.MagicItems.bindCharacterSheet) {
