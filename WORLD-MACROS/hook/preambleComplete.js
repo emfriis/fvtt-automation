@@ -74,6 +74,11 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
             try {
                 console.warn("Silence activated");
                 ui.notifications.warn("You cannot perform verbal spell components - the spell fails");
+                if (workflow?.templateId) {
+                    try {
+                        await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow?.templateId]);
+                    } catch {}
+                }
                 console.warn("Silence used");
               return false;
             } catch (err) {
@@ -117,6 +122,11 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                     if (game.dice3d) game.dice3d.showForRoll(roll);
                     if (roll.total >= 11) {
                         ChatMessage.create({ content: "The spell is stalled by a lethargic energy until next turn." });
+                        if (workflow?.templateId) {
+                            try {
+                                await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow?.templateId]);
+                            } catch {}
+                        }
                         console.warn("Slow used");
                         return false;
                     }
@@ -221,6 +231,11 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                     console.warn("Charmed activated");
                     if (workflow.actor.data.flags["midi-qol"].charm?.includes(token.id)) {
                         ui.notifications.warn("You cannot attack or harm a creature that has charmed you.");
+                        if (workflow?.templateId) {
+                            try {
+                                await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow?.templateId]);
+                            } catch {}
+                        }
                         console.warn("Charmed used");
                         return false;
                     }
