@@ -1,5 +1,4 @@
 // magicItems
-// WIP
 
 Hooks.on(`renderActorSheet5e`, (app, html, data) => {
     if (window.MagicItems && window.MagicItems.bindCharacterSheet) {
@@ -8,6 +7,18 @@ Hooks.on(`renderActorSheet5e`, (app, html, data) => {
 });
   
 Hooks.on(`renderActorSheet`, (app, html, data) => {
+    if (window.MagicItems && window.MagicItems.bindCharacterSheet) {
+        window.MagicItems.bindCharacterSheet(app, html, data);
+    }
+});
+
+Hooks.on(`renderItemSheet5e`, (app, html, data) => {
+    if (window.MagicItems && window.MagicItems.bindItemSheet) {
+        window.MagicItems.bindItemSheet(app, html, data);
+    }
+});
+  
+Hooks.on(`renderItemSheet`, (app, html, data) => {
     if (window.MagicItems && window.MagicItems.bindItemSheet) {
         window.MagicItems.bindItemSheet(app, html, data);
     }
