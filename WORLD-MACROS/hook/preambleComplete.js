@@ -92,6 +92,11 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                     console.warn("Spell Scroll Check used", save);    
                     if (!save) {
                         ui.notifications.error("You fail to decipher the spell scroll and the magic is lost");
+                        if (workflow?.templateId) {
+                            try {
+                                await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow?.templateId]);
+                            } catch {}
+                        }
                         return false;
                     }
                 }
