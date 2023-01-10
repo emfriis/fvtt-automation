@@ -177,7 +177,15 @@ Hooks.once("ready",()=>{
         "set3s": false
       },
       "midi-qol": {
-        "onUseMacroName": ""
+        "onUseMacroName": "[preambleComplete]Hide", // added hide macro name
+        "onUseMacroParts": {
+          "items": [
+            {
+              "macroName": "Hide",
+              "option": "preambleComplete"
+            }
+          ]
+        }
       }
     }
   }

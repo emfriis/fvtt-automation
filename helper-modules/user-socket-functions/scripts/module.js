@@ -224,7 +224,7 @@ try {
                 title: `${args[0]?.title}`,
                 content: `
                 <form id="spell-use-form">
-                    <p>` + game.i18n.format("DND5E.AbilityUseHint", {name: `${args[0]?.title}`, type: "spell"}) + `</p>
+                    <p>` + game.i18n.format("DND5E.AbilityUseHint", {name: `${args[0]?.title}`, type: "feature"}) + `</p>
                     <div class="form-group">
                         <label>Spell Slot Level</label>
                         <div class="form-fields">

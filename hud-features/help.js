@@ -50,96 +50,30 @@ if (args[0].macroPass === "preambleComplete") {
         };
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
     } else if (helpType === "attack") {
-        const targets = await canvas.tokens.placeables.filter((t) =>
-            (t.document.uuid !== token.document.uuid) &&
-            (t.document.uuid !== lastArg.targetUuids[0]) &&
-            t?.actor?.data.data.attributes.hp.value !== 0 &&
-            MidiQOL.getDistance(token, t, false) <= 5
-        );
-        console.warn(targets);
-        let dialog = new Promise((resolve, reject) => {
-            let optionsContent = "";
-            (targets).forEach((option) => {
-                optionsContent += `<label class="radio-label">
-                <input type="radio" name="option" value="${option.document.uuid ?? option.uuid}">
-                <img src="${option.img ?? option.data.img}" style="border:0px; width: 100px; height:100px;">
-                ${option.name ?? option.data.name}
-                </label>`;
-            });
-            let content = `
-                <style>
-                .option .form-group {
-                    display: flex;
-                    flex-wrap: wrap;
-                    width: 100%;
-                    align-items: flex-start;
-                }
-
-                .option .radio-label {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    text-align: center;
-                    justify-items: center;
-                    flex: 1 0 25%;
-                    line-height: normal;
-                }
-
-                .option .radio-label input {
-                    display: none;
-                }
-
-                .option img {
-                    border: 0px;
-                    width: 50px;
-                    height: 50px;
-                    flex: 0 0 50px;
-                    cursor: pointer;
-                }
-
-                /* CHECKED STYLES */
-                .option [type=radio]:checked + img {
-                    outline: 2px solid #f00;
-                }
-                </style>
-                <form class="option">
-                <div class="form-group" id="options">
-                    ${optionsContent}
-                </div>
-                </form>
-            `;
+        let helpDialog =  new Promise(async (resolve, reject) => {
             new Dialog({
-                title: `Choose a target`,
-                content: `${content ?? ""}`,
+                title: "Helpn",
+                content: `<p>Target a creature to help against.</p>`,
                 buttons: {
-                    one: {
-                        icon: '<i class="fas fa-check"></i>',
-                        label: "Confirm",
-                        callback: () => {resolve($("input[type='radio'][name='option']:checked").val())} 
+                    Ok: {
+                        label: "Ok",
+                        callback: () => { resolve(Array.from(game.user?.targets[0])) },
                     },
-                    two: {
-                        icon: '<i class="fas fa-times"></i>',
-                        label: "Cancel",
-                        callback: () => {resolve(false)}
-                    }
                 },
-                default: "two",
-                close: callBack => {resolve(false)}
+                default: "Ok",
+                close: () => { resolve(false) },
             }).render(true);
         });
-        let helpTarget = await dialog;
-
+        let helpTarget = await helpDialog;
         if (!helpTarget) return;
 
         const effectData = {
             changes: [
                 { key: `flags.midi-qol.onUseMacroName`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Help, preAttackRoll", priority: 20 },
-                { key: `flags.midi-qol.help`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: helpTarget, priority: 20 },
+                { key: `flags.midi-qol.help`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `+${helpTarget.id}`, priority: 20 },
             ],
             origin: args[0].uuid,
-            flags: {
-                "core": { statusId: "Help" },
-            },
+            flags: { "core": { statusId: "Help" }, },
             disabled: false,
             label: "Help",
             icon: "icons/svg/upgrade.svg"
@@ -148,9 +82,9 @@ if (args[0].macroPass === "preambleComplete") {
     };
 } else if (args[0].macroPass === "preAttackRoll") {
     if (!["mwak","rwak","msak","rsak"].includes(args[0].item.data.actionType)) return;
-    if (!tactor.data.flags["midi-qol"]?.help?.includes(tactorTarget.uuid)) return;
+    if (!args[0].targets.find(t => tactor.data.flags["midi-qol"]?.help?.includes(t.id))) return;
     const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
     attackWorkflow.advantage = true;
-    const effect = tactor.effects.find(i => i.data.label === "Help" && i.data.changes.find(e => e.value.includes(tactorTarget.uuid)));
+    const effect = tactor.effects.find(e => e.data.label === "Help" && e.data.changes.find(c => args[0].targets.find(t => c.includes(t.id))));
     if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
 };
