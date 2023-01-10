@@ -1,0 +1,30 @@
+{
+  "title": "Levels - Volumetric Templates",
+  "description": "Auto Targeting for templates based on Volume instead of Area",
+  "authors": [
+    {
+      "name": "theripper93",
+      "email": "tsplab@gmail.com",
+      "url": "https://www.patreon.com/theripper93"
+    }
+  ],
+  "url": "https://github.com/theripper93/Levels-Volumetric-Templates",
+  "version": "0.8",
+  "scripts": [
+    "scripts/main.js",
+    "scripts/VolumetricTemplates.js",
+    "scripts/PointInSolid.js"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "id": "levelsvolumetrictemplates",
+  "compatibility": {
+    "minimum": "10",
+    "verified": "10"
+  }
+}

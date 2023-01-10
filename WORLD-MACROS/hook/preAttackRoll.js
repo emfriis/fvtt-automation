@@ -27,7 +27,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
         if (!["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType)) return;
 
 	    // ranged proximity
-        if (!workflow.disadvantage && ["rwak","rsak"].includes(workflow.item.data.data.actionType)) {
+        if (!workflow.disadvantage && ["rwak","rsak"].includes(workflow.item.data.data.actionType) && !workflow.actor.data.flags["midi-qol"].ignoreNearbyFoes) {
             try {
                 console.warn("Ranged Proximity activated");
                 const nearbyEnemy = canvas.tokens.placeables.find(p => 
