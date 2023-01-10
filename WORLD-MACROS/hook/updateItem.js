@@ -27,22 +27,12 @@ Hooks.on("updateItem", async (item) => {
         if (item.isArmor && !item.data.data.equipped && tactor.data.flags["midi-qol"]?.enable?.armor) {
             try {
                 console.warn("Enable Effect on Armor Revert activated");
-                if (tactor.data.flags["midi-qol"]?.enable?.armor[item.data.data.armor.type] && !tactor.items.find(i => i.isArmor && i.data.data.equipped && i.data.data.armor.type === item.data.data.armor.type)) {
-                    const enableIds = tactor.effects.filter(e => !e.data.disabled && e.data.changes.find(c => c.key === `flags.midi-qol.enable.armor.${item.data.data.armor.type}`)).map(e => e.id);
-                    for (let i = 0; i < enableIds.length; i++) {
-                        await wait(100);
-                        await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: enableIds[i], disabled: true }] });
-                    }
-                    console.warn("Enable Effect on Armor Revert used");
+                const enableIds = tactor.effects.filter(e => !e.data.disabled && e.data.changes.find(c => c.key?.includes(`flags.midi-qol.enable.armor`) && !tactor.items.find(i => i.isArmor && i.data.data.equipped && (c.key === `flags.midi-qol.enable.all` || i.data.data.armor.type === c.key.match(/armor.(.*)/))))).map(e => e.id);
+                for (let i = 0; i < enableIds.length; i++) {
+                    await wait(100);
+                    await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: enableIds[i], disabled: true }] });
                 }
-                if (tactor.data.flags["midi-qol"]?.enable?.armor?.all && !tactor.items.find(i => i.isArmor && i.data.data.equipped)) {
-                    const enableIds = tactor.effects.filter(e => !e.data.disabled && e.data.changes.find(c => c.key === `flags.midi-qol.enable.armor.all`)).map(e => e.id);
-                    for (let i = 0; i < enableIds.length; i++) {
-                        await wait(100);
-                        await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: enableIds[i], disabled: true }] });
-                    }
-                    console.warn("Enable Effect on Armor Revert used");
-                }
+                console.warn("Enable Effect on Armor Revert used");
             } catch (err) {
                 console.error("Enable Effect on Armor Revert error", err);
             }
