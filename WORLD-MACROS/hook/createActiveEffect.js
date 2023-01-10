@@ -70,6 +70,36 @@ Hooks.on("createActiveEffect", async (effect) => {
             }
         }
 
+        // enable effect on armor revert creation
+        if (effect.data.changes.find(c => c.key?.includes(`flags.midi-qol.enable.armor`))) {
+            try {
+                console.warn("Enable Effect on Armor Revert Creation activated");
+                const enableTypes = effect.data.changes.filter(c => c.key?.includes(`flags.midi-qol.enable.armor`)).map(c => c.key.match(/armor.(.*)/));
+                if (!tactor.items.find(i => i.isArmor && i.data.data.equipped && (enableTypes.includes(i.data.data.armor.type) || enableTypes.includes("all")))) {
+                    await wait(100);
+                    await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, disabled: true }] });
+                    console.warn("Enable Effect on Armor Revert Creation used");
+                }
+            } catch (err) {
+                console.error("Enable Effect on Armor Revert Creation error", err);
+            }
+        }
+
+        // disable effect on armor creation
+        if (effect.data.changes.find(c => c.key?.includes(`flags.midi-qol.disable.armor`))) {
+            try {
+                console.warn("Disable Effect on Armor Creation activated");
+                const disableTypes = effect.data.changes.filter(c => c.key?.includes(`flags.midi-qol.disable.armor`)).map(c => c.key.match(/armor.(.*)/));
+                if (tactor.items.find(i => i.isArmor && i.data.data.equipped && (disableTypes.includes(i.data.data.armor.type) || disableTypes.includes("all")))) {
+                    await wait(100);
+                    await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, disabled: true }] });
+                    console.warn("Disable Effect on Armor Creation used");
+                }
+            } catch (err) {
+                console.error("Disable Effect on Armor Creation error", err);
+            }
+        }
+
     } catch(err) {
         console.error("createActiveEffect Error", err);
     }
