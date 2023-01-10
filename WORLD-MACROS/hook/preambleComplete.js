@@ -210,6 +210,20 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
 	  	    let tactor = token?.actor;
         	if (!tactor) continue;
 
+            // charmed
+            if (workflow.actor.data.flags["midi-qol"].charm && !workflow.actor.data.data.traits.ci.value.includes("charmed") && (["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(workflow.item.data.data.activation.type) && ["mwak","rwak","msak","rsak","save","abil"].includes(workflow.item.data.data.actionType) || (workflow.item.data.data.damage.parts && !["healing","temphp"].includes(workflow.item.data.data.damage.parts[0][1])))) {
+                try {
+                    console.warn("Charmed activated");
+                    if (workflow.actor.data.flags["midi-qol"].charm?.includes(token.id)) {
+                        ui.notifications.warn("You cannot attack or harm a creature that has charmed you.");
+                        console.warn("Charmed used");
+                        return false;
+                    }
+                } catch (err) {
+                    console.error("Charmed error", err);
+                }
+            }
+
             // shield
             if (workflow.item.name === "Magic Missile" && workflow.item.data.data.activation.type === "action" && tactor.items.find(i => i.name === "Shield" && i.type === "spell") && !tactor.effects.find(e => e.data.label === "Shield")) {
                 try {
