@@ -48,27 +48,6 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
             }
         }
 
-        // slow
-        if (workflow.actor.data.flags["midi-qol"]?.slow && workflow.item.type === "spell") {
-            try {
-                console.warn("Slow Activated");
-                if (workflow.actor.data.flags["midi-qol"]?.slowSpell === workflow.item.name) {
-                    await workflow.actor.unsetFlag("midi-qol", "slowSpell");
-                    console.warn("Slow used");
-                } else if (workflow.item.data.data.activation.type === "action") {
-                    let roll = await new Roll(`1d20`).evaluate({ async: false });
-                    if (game.dice3d) game.dice3d.showForRoll(roll);
-                    if (roll.total >= 11) {
-                        ChatMessage.create({ content: "The spell is stalled by a lethargic energy until next turn." });
-                        console.warn("Slow used");
-                        return false;
-                    }
-                }
-            } catch (err) {
-                console.error("Slow error", err);
-            }
-        }
-
         // range check preamble
         let range;
         let longRange;

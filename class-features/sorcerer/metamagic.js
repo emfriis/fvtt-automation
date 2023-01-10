@@ -252,6 +252,13 @@ try {
 
 	    } else if (metamagic === "quickened") {
 
+            const effectData = {
+                changes: [{ key: "flags.midi-qol.quickenedSpell", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, },],
+                disabled: false,
+                label: "Metamagic: Quickened Spell",
+                flags: { dae: { specialDuration: ["turnStart","turnEnd"] } }
+            }
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
             if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: tactor.uuid });
             await usesItem.update({ "data.uses.value": Math.max(0, usesItem.data.data.uses.value - 1) });
 
@@ -321,7 +328,7 @@ try {
                 changes: [{ key: "flags.midi-qol.subtleSpell", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20, },],
                 disabled: false,
                 label: "Metamagic: Subtle Spell",
-                flags: { dae: { specialDuration: ["1Spell"] } }
+                flags: { dae: { specialDuration: ["turnStart","turnEnd"] } }
             }
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
             await usesItem.update({ "data.uses.value": usesItem.data.data.uses.value - 1 });
