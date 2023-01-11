@@ -93,7 +93,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
             if (!tactor) continue;
 
             // attacker unseen
-            if (!workflow.advantage) {
+            if (!workflow.advantage && !tactor.data.flags["midi-qol"].ignoreAttackerUnseen) {
                 try {
                     console.warn("Attacker Unseen activated");
                     const targetSight = await canSee(token, workflow.token);
@@ -107,7 +107,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
             }
 
             // target unseen
-            if (!workflow.disadvantage) {
+            if (!workflow.disadvantage && !workflow.actor.data.flags["midi-qol"].ignoreTargetUnseen) {
                 try {
                     console.warn("Target Unseen activated");
                     const tokenSight = await canSee(workflow.token, token);
@@ -124,15 +124,17 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
             if (tactor.data.flags["midi-qol"].umbralSight || workflow.actor.data.flags["midi-qol"].umbralSight) {
                 try {
                     console.warn("Umbral Sight activated");
-                    if (!workflow.disadvantage && tactor.data.flags["midi-qol"].umbralSight && workflow.actor.data.data.attributes.senses.darkvision && !(_levels?.advancedLOSCheckInLight(token) ?? true)) {
-                        if (workflow.token.data.brightSight < MidiQOL.getDistance(workflow.token, token, false)) {
-                            workflow.disadvantage = true;
+                    // attacker unseen
+                    if (!workflow.advantage && !tactor.data.flags["midi-qol"].ignoreAttackerUnseen && workflow.actor.data.flags["midi-qol"].umbralSight && tactor.data.data.attributes.senses.darkvision && !(_levels?.advancedLOSCheckInLight(workflow.token) ?? true)) {
+                        if (token.data.brightSight < MidiQOL.getDistance(token, workflow.token, false)) {
+                            workflow.advantage = true;
                             console.warn("Umbral Sight used");
                         }
                     }
-                    if (!workflow.advantage && workflow.actor.data.flags["midi-qol"].umbralSight && tactor.data.data.attributes.senses.darkvision && !(_levels?.advancedLOSCheckInLight(workflow.token) ?? true)) {
-                        if (token.data.brightSight < MidiQOL.getDistance(token, workflow.token, false)) {
-                            workflow.advantage = true;
+                    // target unseen
+                    if (!workflow.disadvantage && !workflow.actor.data.flags["midi-qol"].ignoreTargetUnseen && tactor.data.flags["midi-qol"].umbralSight && workflow.actor.data.data.attributes.senses.darkvision && !(_levels?.advancedLOSCheckInLight(token) ?? true)) {
+                        if (workflow.token.data.brightSight < MidiQOL.getDistance(workflow.token, token, false)) {
+                            workflow.disadvantage = true;
                             console.warn("Umbral Sight used");
                         }
                     }

@@ -192,7 +192,7 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                             changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 20, },],
                             disabled: false,
                             label: "Full Cover",
-                            flags: { dae: { specialDuration: ["isAttacked","isHit"], stackable: "noneName" } }
+                            flags: { dae: { specialDuration: ["isAttacked","isHit","1Reaction"], stackable: "noneName" } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         console.warn("Attack Full Cover used");
@@ -201,7 +201,7 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                             changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 5, priority: 20, },],
                             disabled: false,
                             label: "Three-Quarters Cover",
-                            flags: { dae: { specialDuration: ["isAttacked","isHit"], stackable: "noneName" } }
+                            flags: { dae: { specialDuration: ["isAttacked","isHit","1Reaction"], stackable: "noneName" } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         console.warn("Attack 3/4 Cover used");
@@ -210,7 +210,7 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                             changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 2, priority: 20, },],
                             disabled: false,
                             label: "Half Cover",
-                            flags: { dae: { specialDuration: ["isAttacked","isHit"], stackable: "noneName" } }
+                            flags: { dae: { specialDuration: ["isAttacked","isHit","1Reaction"], stackable: "noneName" } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                         console.warn("Attack 1/2 Cover used");
