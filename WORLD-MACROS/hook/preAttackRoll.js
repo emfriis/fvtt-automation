@@ -211,6 +211,23 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                 }
             }
 
+            // lucky
+            if (tactor.data.flags["midi-qol"].lucky && tactor.items.find(i => i.name === "Lucky" && i.data.data.uses.value)) {
+                try {
+                    console.warn("Lucky activated");
+                    let luckyItem = tactor.items.find(i => i.name === "Lucky" && i.data.data.uses.value);
+                    let player = await playerForActor(tactor);
+                    let useLucky = false;
+                    useLucky = await USF.socket.executeAsUser("useDialog", player.id, { title: `Lucky`, content: `Use a luck point to impose disadvantage on attack against you?` });
+                    if (useLucky && luckyItem) {
+                        workflow.disadvantage = true;
+                        await USF.socket.executeAsGM("updateItem", { itemUuid: luckyItem.uuid, updates: {"data.uses.value" : luckyItem.data.data.uses.value - 1} });
+                    }
+                } catch (err) {
+                    console.error("Lucky error", err);
+                }
+            }
+
             // fighting style protection
             try {
                 console.warn("Fighting Style Protection activated");
