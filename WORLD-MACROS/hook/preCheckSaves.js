@@ -174,22 +174,14 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
 		    if (!tactor) continue;
 
             // save cover
-            if (workflow.item.data.data.save.dc && workflow.item.data.data.save.ability === "dex" && workflow.item.data.data.actionType !== "abil" && ["creature","enemy","",null,undefined].includes(workflow.item.data.data.target.type) && !((workflow.item.data.data.actionType === "rwak" || (workflow.item.data.data.actionType === "mwak" && workflow.item.data.data.properties.thr)) && workflow.actor.data.flags["midi-qol"].sharpShooter)) {
+            if (workflow.item.data.data.save.dc && workflow.item.data.data.save.ability === "dex" && workflow.item.data.data.actionType !== "abil" && ["creature","enemy","",null,undefined].includes(workflow.item.data.data.target.type) && !(workflow.item.data.data.actionType === "rsak" && workflow.actor.data.flags["midi-qol"].spellSniper) && !((workflow.item.data.data.actionType === "rwak" || (workflow.item.data.data.actionType === "mwak" && workflow.item.data.data.properties.thr)) && workflow.actor.data.flags["midi-qol"].sharpShooter)) {
                 try {
                     console.warn("Save Cover activated");
                     const calculatedCover = await calculateCover(workflow.token, token);
                     console.warn("Attack Wall Cover", calculatedCover);
                     const calculatedTokenCover = await calculateTokenCover(workflow.token, token);
                     console.warn("Attack Token Cover", calculatedTokenCover);
-                    if (calculatedCover >= 99) {
-                        let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
-                            if (actor === tactor && abilityId === workflow.item.data.data.save.ability) {
-                                rollData.parts.push("9999");
-                                Hooks.off("Actor5e.preRollAbilitySave", hook);
-                            }
-                        });
-                        console.warn("Save Full Cover used");
-                    } else if (calculatedCover >= 65 && !tactor.effects.find(e => e.data.label === "Three-Quarters Cover") && !tactor.effects.find(e => e.data.label === "Half Cover")) {
+                    if (calculatedCover >= 65 && !tactor.effects.find(e => e.data.label === "Three-Quarters Cover") && !tactor.effects.find(e => e.data.label === "Half Cover")) {
                         let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
                             if (actor === tactor && abilityId === workflow.item.data.data.save.ability) {
                                 rollData.parts.push("5");

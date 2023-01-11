@@ -180,23 +180,14 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
             if (!tactor) continue;
 
             // attack cover
-            if (!((workflow.item.data.data.actionType === "rwak" || (workflow.item.data.data.actionType === "mwak" && workflow.item.data.data.properties.thr)) && workflow.actor.data.flags["midi-qol"].sharpShooter)) {
+            if (!(workflow.item.data.data.actionType === "rsak" && workflow.actor.data.flags["midi-qol"].spellSniper) && !((workflow.item.data.data.actionType === "rwak" || (workflow.item.data.data.actionType === "mwak" && workflow.item.data.data.properties.thr)) && workflow.actor.data.flags["midi-qol"].sharpShooter)) {
                 try {
                     console.warn("Attack Cover activated");
                     const calculatedCover = await calculateCover(workflow.token, token);
                     console.warn("Attack Wall Cover", calculatedCover);
                     const calculatedTokenCover = await calculateTokenCover(workflow.token, token);
                     console.warn("Attack Token Cover", calculatedTokenCover);
-                    if (calculatedCover >= 99) {
-                        const effectData = {
-                            changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 20, },],
-                            disabled: false,
-                            label: "Full Cover",
-                            flags: { dae: { specialDuration: ["isAttacked","isHit","1Reaction"], stackable: "noneName" } }
-                        }
-                        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                        console.warn("Attack Full Cover used");
-                    } else if (calculatedCover >= 65 && !tactor.effects.find(e => e.data.label === "Three-Quarters Cover") && !tactor.effects.find(e => e.data.label === "Half Cover")) {
+                    if (calculatedCover >= 65 && !tactor.effects.find(e => e.data.label === "Three-Quarters Cover") && !tactor.effects.find(e => e.data.label === "Half Cover")) {
                         const effectData = {
                             changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 5, priority: 20, },],
                             disabled: false,
