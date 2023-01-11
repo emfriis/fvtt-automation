@@ -1,6 +1,6 @@
 // RollComplete
 
-async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
 async function applyBurst(token, range, value, type, saveDC, saveType, saveDamage, magicEffect, duration) {
     const itemData = {
@@ -129,6 +129,27 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                     }
                 }
 		    }
+        }
+
+        if (workflow.targets) {
+            const targets = Array.from(workflow.targets);
+            for (let t = 0; t < targets.length; t++) {
+                let token = targets[t];
+                let tactor = token.actor;
+                if (!tactor) continue;
+
+                // downed
+                if (tactor.effects.find(e => ["Dead", "Defeated", "Unconscious"].includes(e.data.label) && !e.data.disabled)) {
+                    try {
+                        console.warn("Downed activated");
+                        if (!tactor.effects.find(e => e.data.label === "Prone")) await game.dfreds.effectInterface.addEffect({ effectName: "Prone", uuid: tactor.uuid });
+                        if (tactor.data.flags["midi-qol"]?.rage && tactor.effects.find(e => e.data.label === "Rage")) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.find(e => e.data.label === "Rage").id] });
+                        console.warn("Downed used");
+                    } catch (err) {
+                        console.error("Downed error", err);
+                    }
+                }
+            }
         }
     } catch(err) {
         console.error("RollComplete Error", err);

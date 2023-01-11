@@ -1,6 +1,6 @@
 // preCheckSaves
 
-async function playerForActor(actor) {
+function playerForActor(actor) {
 	if (!actor) return undefined;
 	let user;
 	if (actor.hasPlayerOwner) user = game.users?.find(u => u.data.character === actor?.id && u.active);
@@ -10,7 +10,7 @@ async function playerForActor(actor) {
 }
 
 // credit to levels auto cover author theripper93 for the cover functions
-async function calculateCover(sourceToken, targetToken) {
+function calculateCover(sourceToken, targetToken) {
     const sourceHeight = sourceToken.losHeight;
     const baseZ = targetToken.data.elevation;
     const targetHeight = targetToken.losHeight == baseZ ? baseZ+0.001 : targetToken.losHeight;
@@ -35,7 +35,7 @@ async function calculateCover(sourceToken, targetToken) {
     return calculatedCover;
 }
 
-async function calculateTokenCover(sourceToken, targetToken) {
+function calculateTokenCover(sourceToken, targetToken) {
     let distance = MidiQOL.getDistance(sourceToken, targetToken, false);
     let padd = 4;
     let blockingToken = canvas.tokens.placeables.find(p => {

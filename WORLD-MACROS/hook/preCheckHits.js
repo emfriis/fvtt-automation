@@ -1,6 +1,6 @@
 // preCheckHits
 
-async function canSee(token, target) {
+function canSee(token, target) {
     let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target) ?? true;
     let canSeeLOS = !_levels?.advancedLosTestInLos(token, target);
     let canSeeLight = true;
@@ -14,7 +14,7 @@ async function canSee(token, target) {
 }
 
 // credit to levels auto cover author theripper93 for the cover functions
-async function calculateCover(sourceToken, targetToken) {
+function calculateCover(sourceToken, targetToken) {
     const sourceHeight = sourceToken.losHeight;
     const baseZ = targetToken.data.elevation;
     const targetHeight = targetToken.losHeight == baseZ ? baseZ+0.001 : targetToken.losHeight;
@@ -39,7 +39,7 @@ async function calculateCover(sourceToken, targetToken) {
     return calculatedCover;
 }
 
-async function calculateTokenCover(sourceToken, targetToken) {
+function calculateTokenCover(sourceToken, targetToken) {
     let distance = MidiQOL.getDistance(sourceToken, targetToken, false);
     let padd = 4;
     let blockingToken = canvas.tokens.placeables.find(p => {

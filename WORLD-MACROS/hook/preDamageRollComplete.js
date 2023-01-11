@@ -1,6 +1,6 @@
 // preDamageRollComplete
 
-async function playerForActor(actor) {
+function playerForActor(actor) {
 	if (!actor) return undefined;
 	let user;
 	if (actor.hasPlayerOwner) user = game.users.find(u => u.data.character === actor.id && u.active);
@@ -9,7 +9,7 @@ async function playerForActor(actor) {
 	return user;
 }
 
-async function canSee(token, target) {
+function canSee(token, target) {
     let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target) ?? true;
     let canSeeLOS = !_levels?.advancedLosTestInLos(token, target);
     let canSeeLight = true;

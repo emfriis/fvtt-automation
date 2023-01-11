@@ -1,6 +1,6 @@
 // preambleComplete
 
-async function playerForActor(actor) {
+function playerForActor(actor) {
 	if (!actor) return undefined;
 	let user;
 	if (actor.hasPlayerOwner) user = game.users.find(u => u.data.character === actor.id && u.active);
@@ -9,7 +9,7 @@ async function playerForActor(actor) {
 	return user;
 }
 
-async function canSee(token, target) {
+function canSee(token, target) {
     let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target) ?? true;
     let canSeeLOS = !_levels?.advancedLosTestInLos(token, target);
     let canSeeLight = true;
@@ -22,7 +22,7 @@ async function canSee(token, target) {
     return canSee;
 }
 
-async function counterSequence(source, target) {
+function counterSequence(source, target) {
     if (game.modules.get("sequencer").active && hasProperty(Sequencer.Database.entries, "jb2a")) {
         new Sequence().effect().file("jb2a.impact.004.blue").atLocation(source).scaleToObject(1.5).sound().file("https://assets.forge-vtt.com/630fc11845b0e419bee903cd/combat-sound-fx/magic/effect/dispel-1.ogg").play();
         new Sequence().effect().file("jb2a.energy_strands.range.standard.blue").atLocation(source).stretchTo(target).play();
