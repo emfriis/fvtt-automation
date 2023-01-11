@@ -8,18 +8,6 @@ Hooks.on("createActiveEffect", async (effect) => {
         const tactor = effect.parent;
         if (!tactor) return;
 
-        // downed
-        if (["Dead", "Defeated", "Unconscious"].includes(effect.data.label) && !effect.data.disabled) {
-            try {
-                console.warn("Downed activated");
-                if (!tactor.effects.find(e => e.data.label === "Prone")) await game.dfreds.effectInterface.addEffect({ effectName: "Prone", uuid: tactor.uuid });
-                if (tactor.data.flags["midi-qol"]?.rage && tactor.effects.find(e => e.data.label === "Rage")) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.find(e => e.data.label === "Rage").id] });
-                console.warn("Downed used");
-            } catch (err) {
-                console.error("Downed error", err);
-            }
-        }
-
         // delete effect on incapacitated
         if (["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Stunned", "Unconscious"].includes(effect.data.label) && !effect.data.disabled && tactor.data.flags["midi-qol"]?.delete?.incapacitated) {
             try {
@@ -75,7 +63,7 @@ Hooks.on("createActiveEffect", async (effect) => {
             try {
                 console.warn("Enable Effect on Armor Revert Creation activated");
                 const enableTypes = effect.data.changes.filter(c => c.key?.includes(`flags.midi-qol.enable.armor`)).map(c => c.key.match(/armor.(.*)/)[1]);
-                if (!tactor.items.find(i => i.isArmor && i.data.data.equipped && (enableTypes.includes(i.data.data.armor.type) || (enableTypes.includes("all") && i.data.data.armor.type !== "shield")))) {
+                if (!tactor.items.find(i => i.isArmor && i.data.data.equipped && (enableTypes.includes(i.data.data?.armor?.type) || (enableTypes.includes("all") && i.data.data.armor.type !== "shield")))) {
                     await wait(100);
                     await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, disabled: true }] });
                     console.warn("Enable Effect on Armor Revert Creation used");
@@ -90,7 +78,7 @@ Hooks.on("createActiveEffect", async (effect) => {
             try {
                 console.warn("Disable Effect on Armor Creation activated");
                 const disableTypes = effect.data.changes.filter(c => c.key?.includes(`flags.midi-qol.disable.armor`)).map(c => c.key.match(/armor.(.*)/)[1]);
-                if (tactor.items.find(i => i.isArmor && i.data.data.equipped && (disableTypes.includes(i.data.data.armor.type) || (disableTypes.includes("all") && i.data.data.armor.type !== "shield")))) {
+                if (tactor.items.find(i => i.isArmor && i.data.data.equipped && (disableTypes.includes(i.data.data?.armor?.type) || (disableTypes.includes("all") && i.data.data?.armor?.type !== "shield")))) {
                     await wait(100);
                     await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, disabled: true }] });
                     console.warn("Disable Effect on Armor Creation used");
