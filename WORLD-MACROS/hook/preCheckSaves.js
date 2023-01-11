@@ -174,7 +174,7 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
 		    if (!tactor) continue;
 
             // save cover
-            if (workflow.item.data.data.save.dc && workflow.item.data.data.save.ability === "dex" && workflow.item.data.data.actionType !== "abil" && ["creature","enemy","",null,undefined].includes(workflow.item.data.data.target.type) && !(workflow.item.data.data.actionType === "rwak" && workflow.actor.data.flags["midi-qol"].sharpShooter)) {
+            if (workflow.item.data.data.save.dc && workflow.item.data.data.save.ability === "dex" && workflow.item.data.data.actionType !== "abil" && ["creature","enemy","",null,undefined].includes(workflow.item.data.data.target.type) && !((workflow.item.data.data.actionType === "rwak" || (workflow.item.data.data.actionType === "mwak" && workflow.item.data.data.properties.thr)) && workflow.actor.data.flags["midi-qol"].sharpShooter)) {
                 try {
                     console.warn("Save Cover activated");
                     const calculatedCover = await calculateCover(workflow.token, token);

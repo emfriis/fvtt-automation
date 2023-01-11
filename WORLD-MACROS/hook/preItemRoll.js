@@ -61,7 +61,7 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                     range += bonus;
                     if (longRange) longRange += bonus;
                 }
-                if (longRange && workflow.actor.data.flags["midi-qol"].sharpShooter && workflow.item.data.data.actionType === "rwak") range = longRange;
+                if (longRange && workflow.actor.data.flags["midi-qol"].sharpShooter && (workflow.item.data.data.actionType === "rwak" || (workflow.item.data.data.actionType === "mwak" && workflow.item.data.data.properties.thr))) range = longRange;
                 if (workflow.actor.data.flags["midi-qol"].spellSniper && workflow.item.data.data.actionType === "rsak") range *= 2;
                 // special cases
                 if (workflow.item.type === "spell" && workflow.actor.items.find(i => i.name === "Metamagic: Distant Spell")) {

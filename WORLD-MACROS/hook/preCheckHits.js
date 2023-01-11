@@ -180,7 +180,7 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
             if (!tactor) continue;
 
             // attack cover
-            if (!(workflow.item.data.data.actionType === "rwak" && workflow.actor.data.flags["midi-qol"].sharpShooter)) {
+            if (!((workflow.item.data.data.actionType === "rwak" || (workflow.item.data.data.actionType === "mwak" && workflow.item.data.data.properties.thr)) && workflow.actor.data.flags["midi-qol"].sharpShooter)) {
                 try {
                     console.warn("Attack Cover activated");
                     const calculatedCover = await calculateCover(workflow.token, token);

@@ -44,7 +44,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                     range += bonus;
                     if (longRange) longRange += bonus;
                 }
-                if (longRange && workflow.actor.data.flags["midi-qol"].sharpShooter && workflow.item.data.data.actionType === "rwak") range = longRange;
+                if (longRange && workflow.actor.data.flags["midi-qol"].sharpShooter && (workflow.item.data.data.actionType === "rwak" || (workflow.item.data.data.actionType === "mwak" && workflow.item.data.data.properties.thr))) range = longRange;
                 if (workflow.actor.data.flags["midi-qol"].spellSniper && workflow.item.data.data.actionType === "rsak") range *= 2;
                 if (workflow.actor.data.flags["midi-qol"].distantSpell && workflow.item.type === "spell") {
                     if (workflow.item.data.data.range.units === "ft") range *= 2;
