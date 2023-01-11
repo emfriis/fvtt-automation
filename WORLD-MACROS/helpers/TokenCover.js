@@ -1,26 +1,55 @@
+// credit to levels auto cover author theripper93 for the cover functions
+async function calculateCover(sourceToken, targetToken) {
+    const sourceHeight = sourceToken.losHeight;
+    const baseZ = targetToken.data.elevation;
+    const targetHeight = targetToken.losHeight == baseZ ? baseZ+0.001 : targetToken.losHeight;
+    const sourcePov = {  x: sourceToken.center.x, y: sourceToken.center.y, z: sourceHeight, };
+    const precision = 15;
+    let volPercent = 0;
+    let collisionTestPoints = [];
+    for (let zC = baseZ; zC <= targetHeight; zC += (targetHeight - baseZ) / precision) {
+        for (let yC = targetToken.y; yC <= targetToken.y + targetToken.h; yC += targetToken.h / precision) {
+            for (let xC = targetToken.x; xC <= targetToken.x + targetToken.w; xC += targetToken.w / precision) {
+                collisionTestPoints.push({ x: xC, y: yC, z: zC });
+            }
+        }
+    }
+
+    for (let point of collisionTestPoints) {
+        if (_levels.testCollision(sourcePov, point, "sight")) volPercent++;
+    }
+
+    let calculatedCover = (volPercent * 100) / collisionTestPoints.length;
+
+    return calculatedCover;
+}
+
 async function calculateTokenCover(sourceToken, targetToken) {
     let distance = MidiQOL.getDistance(sourceToken, targetToken, false);
     let padd = 4;
     let blockingToken = canvas.tokens.placeables.find(p => {
         let distanceToSource = MidiQOL.getDistance(p, sourceToken, false);
-        let block = (
+        let closer = (
             p?.actor && // exists
+            p.document.uuid !== sourceToken.document.uuid && // not attacker
+            p.document.uuid !== targetToken.document.uuid && // not target
+            p.actor.data.data.traits.size !== "tiny" && // not tiny
             !(p.actor.data.data.details?.type?.value?.length < 3) && // is a creature
-            distanceToSource < distance && // is closer to source than target
-            segmentBoxIntersection(
-                { x: sourceToken.center.x, y: sourceToken.center.y, z: sourceToken.losHeight },
-                { x: targetToken.center.x, y: targetToken.center.y, z: targetToken.losHeight == targetToken.data.elevation ? targetToken.data.elevation + 0.001 : targetToken.losHeight },
-                { x: p.x + padd, y: p.y + padd, z: p.data.elevation, },
-                { x: p.x + p.w - padd, y: p.y + p.h - padd, z: p.losHeight }
-            )
+            distanceToSource < distance // is closer to source than target
         );
-        return block;  
+        if (!closer) return false;
+        return segmentBoxIntersection(
+            { x: sourceToken.center.x, y: sourceToken.center.y, z: sourceToken.losHeight },
+            { x: targetToken.center.x, y: targetToken.center.y, z: targetToken.losHeight == targetToken.data.elevation ? targetToken.data.elevation + 0.001 : targetToken.losHeight },
+            { x: p.x + padd, y: p.y + padd, z: p.data.elevation, },
+            { x: p.x + p.w - padd, y: p.y + p.h - padd, z: p.losHeight }
+        );
     });
 
     return blockingToken ? true : false;
 }
 
-async function segmentBoxIntersection(p0, p1, b0, b1) {
+function segmentBoxIntersection(p0, p1, b0, b1) {
     const x0 = p0.x;
     const y0 = p0.y;
     const z0 = p0.z;
@@ -59,7 +88,7 @@ async function segmentBoxIntersection(p0, p1, b0, b1) {
     ];
 
     //check if a line intersects a box
-    async function boxCollisionTest() {
+    function boxCollisionTest() {
         for (let face of faces) {
             //declare points in 3d space of the rectangle created by the wall
             const wx1 = face[0].x;
@@ -109,7 +138,7 @@ async function segmentBoxIntersection(p0, p1, b0, b1) {
     }
 
     //Check if a point in 2d space is betweeen 2 points
-    async function isBetween(a, b, c) {
+    function isBetween(a, b, c) {
         //test
         //return ((a.x<=c.x && c.x<=b.x && a.y<=c.y && c.y<=b.y) || (a.x>=c.x && c.x >=b.x && a.y>=c.y && c.y >=b.y))
 
