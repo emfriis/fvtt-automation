@@ -9,8 +9,8 @@ if (args[0].tag === "OnUse" && args[0].item.type === "spell" && args[0].spellLev
     const validTypes = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
     if (!validTypes.some(type => args[0].item.data.damage.parts[0][1]?.toLowerCase() === type)) return;
     const optionTypes = [];
-    tactor.data.items.forEach(i => {
-        if (i.type === "spell" && i.data.data.preparation.type === "prepared" && i.data.data.level === args[0].item.data.level) {
+    tactor.items.forEach(i => {
+        if (i.type === "spell" && i.data.data.preparation.mode === "prepared" && i.data.data.level === args[0].item.data.level) {
             validTypes.forEach(t => {
                 if (optionTypes.includes(t)) return;
                 if (i.data.data.description.value?.toLowerCase().includes(t)) optionTypes.push(t);
