@@ -13,6 +13,7 @@ async function canSee(token, target) {
     return canSee;
 }
 
+// credit to levels auto cover author theripper93 for the cover functions
 async function calculateCover(sourceToken, targetToken) {
     const sourceHeight = sourceToken.losHeight;
     const baseZ = targetToken.data.elevation;
@@ -47,6 +48,7 @@ async function calculateTokenCover(sourceToken, targetToken) {
             p?.actor && // exists
             p.document.uuid !== sourceToken.document.uuid && // not attacker
             p.document.uuid !== targetToken.document.uuid && // not target
+            p.actor.data.data.traits.size !== "tiny" && // not tiny
             !(p.actor.data.data.details?.type?.value?.length < 3) && // is a creature
             distanceToSource < distance // is closer to source than target
         );
@@ -177,44 +179,44 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
             let tactor = token.actor;
             if (!tactor) continue;
 
-            // cover
+            // attack cover
             if (!(workflow.item.data.data.actionType === "rwak" && workflow.actor.data.flags["midi-qol"].sharpShooter)) {
                 try {
-                    console.warn("Cover activated");
+                    console.warn("Attack Cover activated");
                     const calculatedCover = await calculateCover(workflow.token, token);
-                    console.warn("Wall Cover", calculatedCover);
+                    console.warn("Attack Wall Cover", calculatedCover);
                     const calculatedTokenCover = await calculateTokenCover(workflow.token, token);
-                    console.warn("Token Cover", calculatedTokenCover);
+                    console.warn("Attack Token Cover", calculatedTokenCover);
                     if (calculatedCover >= 99) {
                         const effectData = {
                             changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 9999, priority: 20, },],
                             disabled: false,
                             label: "Full Cover",
-                            flags: { dae: { specialDuration: ["isAttacked"], stackable: "noneName" } }
+                            flags: { dae: { specialDuration: ["isAttacked","isHit"], stackable: "noneName" } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                        console.warn("Full Cover used");
+                        console.warn("Attack Full Cover used");
                     } else if (calculatedCover >= 65 && !tactor.effects.find(e => e.data.label === "Three-Quarters Cover") && !tactor.effects.find(e => e.data.label === "Half Cover")) {
                         const effectData = {
                             changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 5, priority: 20, },],
                             disabled: false,
                             label: "Three-Quarters Cover",
-                            flags: { dae: { specialDuration: ["isAttacked"], stackable: "noneName" } }
+                            flags: { dae: { specialDuration: ["isAttacked","isHit"], stackable: "noneName" } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                        console.warn("3/4 Cover used");
+                        console.warn("Attack 3/4 Cover used");
                     } else if ((calculatedCover >= 40 || calculatedTokenCover) && !tactor.effects.find(e => e.data.label === "Three-Quarters Cover") && !tactor.effects.find(e => e.data.label === "Half Cover")) {
                         const effectData = {
                             changes: [{ key: "data.attributes.ac.bonus", mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: 2, priority: 20, },],
                             disabled: false,
                             label: "Half Cover",
-                            flags: { dae: { specialDuration: ["isAttacked"], stackable: "noneName" } }
+                            flags: { dae: { specialDuration: ["isAttacked","isHit"], stackable: "noneName" } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
-                        console.warn("1/2 Cover used");
+                        console.warn("Attack 1/2 Cover used");
                     }
                 } catch (err) {
-                    console.error("Cover error", err);
+                    console.error("Attack Cover error", err);
                 }
             }
 

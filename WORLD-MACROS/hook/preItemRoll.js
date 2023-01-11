@@ -106,7 +106,7 @@ Hooks.on("midi-qol.preItemRoll", async (workflow) => {
                 try {
                     console.warn("Sanctuary activated");
                     const isAttack = ["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType);
-                    const isHarmSpell = workflow.item.data.type === "spell" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(workflow.item.data.data.activation.type) && ["creature", "enemy"].includes(workflow.item.data.data.target.type) && workflow.token.data.disposition !== token.data.disposition;
+                    const isHarmSpell = workflow.item.data.type === "spell" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(workflow.item.data.data.activation.type) && ["creature","enemy","",null,undefined].includes(workflow.item.data.data.target.type) && workflow.token.data.disposition !== token.data.disposition;
                     if (isAttack || isHarmSpell) {
                         const spellDC = tactor.data.flags["midi-qol"].sanctuary;
                         const save = await USF.socket.executeAsGM("attemptSaveDC", { actorUuid: workflow.actor.uuid, saveName: `Sanctuary Save`, saveImg: `systems/dnd5e/icons/spells/haste-sky-3.jpg`, saveType: "save", saveDC: spellDC, saveAbility: "wis", magiceffect: true, spelleffect: true });

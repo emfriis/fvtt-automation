@@ -219,7 +219,7 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                         p.data.disposition === token.data.disposition && // is friendly
                         p.actor.uuid !== workflow.token.actor.uuid && // not attacker
                         p.actor.uuid !== token.actor.uuid && // not target
-                        p.actor.items.find(i => i.data.data?.armor?.type === "shield" && i.data.data.equipped) && // shield equipped
+                        p.actor.items.find(i => i.isArmor && i.data.data?.armor?.type === "shield" && i.data.data.equipped) && // shield equipped
                         !p.actor.effects.find(e => ["Dead", "Defeated", "Incapacitated", "Paralyzed", "Petrified", "Reaction", "Stunned", "Unconscious"].includes(e.data.label)) && // can react
                         canSee(p, workflow.token) && // can see attacker
                         MidiQOL.getDistance(p, token, false) <= 5 // in range
