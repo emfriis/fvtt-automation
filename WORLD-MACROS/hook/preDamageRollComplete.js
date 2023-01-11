@@ -130,6 +130,34 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                 }
 	  	    }
 
+            // heavy armor master
+            if (tactor.data.flags["midi-qol"].heavyArmorMaster && workflow.damageDetail.find(d => ["bludgeoining","piercing","slashing"].includes(d.type)) && !(workflow.item.typ === "spell" || workflow.item.data.data.properties.mgc || workflow.item.data.flags?.midiProperties?.magiceffect || workflow.item.data.flags?.midiProperties?.magicdam || workflow.item.data.flags?.midiProperties?.spelleffect)) {
+                try {    
+                    console.warn("Heavy Armor Master activated");
+                    const effectData = {
+                        changes: [
+                            { key: `flags.midi-qol.DR.bludgeoning`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `${3}`, priority: 20, },
+                            { key: `flags.midi-qol.DR.piercing`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `${3}`, priority: 20, },
+                            { key: `flags.midi-qol.DR.slashing`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `${3}`, priority: 20, },
+                        ],
+                        disabled: false,
+                        label: "Heavy Armor Master",
+                        flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
+                    };
+                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                    let hook = Hooks.on("midi-qol.damageRollComplete", async (workflowNext) => {
+                        if (workflowNext.uuid === workflow.uuid) {
+                            const effect = tactor.effects.find(i => i.data.label === "Heavy Armor Master");
+                            if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
+                            Hooks.off("midi-qol.damageRollComplete", hook);
+                        }
+                    });
+                    console.warn("Heavy Armor Master used");
+                } catch (err) {
+                    console.error("Heavy Armor Master error", err);
+                }
+            }
+
             // fighting style interception
             if (["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType) && workflow.item.data.data.damage.parts) {
                 try {
