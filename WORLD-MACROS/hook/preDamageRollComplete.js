@@ -131,7 +131,7 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
 	  	    }
 
             // heavy armor master
-            if (tactor.data.flags["midi-qol"].heavyArmorMaster && workflow.damageDetail.find(d => ["bludgeoining","piercing","slashing"].includes(d.type)) && !(workflow.item.typ === "spell" || workflow.item.data.data.properties.mgc || workflow.item.data.flags?.midiProperties?.magiceffect || workflow.item.data.flags?.midiProperties?.magicdam || workflow.item.data.flags?.midiProperties?.spelleffect)) {
+            if (tactor.data.flags["midi-qol"].heavyArmorMaster && tactor.items.find(i => i.isArmor && i.data.data.equipped && i.data.data.armor?.type === "heavy") && workflow.damageDetail.find(d => ["bludgeoning","piercing","slashing"].includes(d.type)) && !(workflow.item.typ === "spell" || workflow.item.data.data.properties.mgc || workflow.item.data.flags?.midiProperties?.magiceffect || workflow.item.data.flags?.midiProperties?.magicdam || workflow.item.data.flags?.midiProperties?.spelleffect)) {
                 try {    
                     console.warn("Heavy Armor Master activated");
                     const effectData = {
@@ -141,13 +141,13 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                             { key: `flags.midi-qol.DR.slashing`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `${3}`, priority: 20, },
                         ],
                         disabled: false,
-                        label: "Heavy Armor Master",
+                        label: "Heavy Armor Master Damage Reduction",
                         flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
                     };
                     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
                     let hook = Hooks.on("midi-qol.damageRollComplete", async (workflowNext) => {
                         if (workflowNext.uuid === workflow.uuid) {
-                            const effect = tactor.effects.find(i => i.data.label === "Heavy Armor Master");
+                            const effect = tactor.effects.find(i => i.data.label === "Heavy Armor Master Damage Reduction");
                             if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
                             Hooks.off("midi-qol.damageRollComplete", hook);
                         }
