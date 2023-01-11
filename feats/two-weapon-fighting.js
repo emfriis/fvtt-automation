@@ -2,14 +2,17 @@
 // on use
 
 const lastArg = args[args.length - 1];
+const tokenOrActor = await fromUuid(lastArg.tokenUuid);
+const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
-function weaponAttack(caster, sourceItemData, origin, target) {
-  const twoFS = caster.items.find(i => i.name.toLowerCase().includes("fighting style: two-weapon fighting")); // search for two-weapon fighting style
-  const twoFeat = caster.items.find(i => i.name.toLowerCase().includes("dual wielder")); // search for dual wielder feat
-  const filteredWeapons = caster.items.filter((i) => i.data.data.equipped && (i.data.data.properties?.lgt || twoFeat) && !i.data.data.properties?.two);
-  let weapon_content = "";
+if (args[0].tag === "OnUse") {
+  const twoFS = tactor.items.find(i => i.name.toLowerCase().includes("fighting style: two-weapon fighting")); // search for two-weapon fighting style
+  const twoFeat = tactor.items.find(i => i.name.toLowerCase().includes("dual wielder")); // search for dual wielder feat
+  const filteredWeapons = tactor.items.filter((i) => i.data.data.equipped && (i.data.data.properties?.lgt || twoFeat) && !i.data.data.properties?.two);
 
   //Filter for weapons
+  let weapon_content = "";
+
   filteredWeapons.forEach((weapon) => {
     weapon_content += `<label class="radio-label">
     <input type="radio" name="weapon" value="${weapon.id}">
@@ -20,14 +23,14 @@ function weaponAttack(caster, sourceItemData, origin, target) {
 
   let content = `
     <style>
-    .hexWeapon .form-group {
+    .twoWeapon .form-group {
         display: flex;
         flex-wrap: wrap;
         width: 100%;
         align-items: flex-start;
       }
 
-      .hexWeapon .radio-label {
+      .twoWeapon .radio-label {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -37,11 +40,11 @@ function weaponAttack(caster, sourceItemData, origin, target) {
         line-height: normal;
       }
 
-      .hexWeapon .radio-label input {
+      .twoWeapon .radio-label input {
         display: none;
       }
 
-      .hexWeapon img {
+      .twoWeapon img {
         border: 0px;
         width: 50px;
         height: 50px;
@@ -50,11 +53,11 @@ function weaponAttack(caster, sourceItemData, origin, target) {
       }
 
       /* CHECKED STYLES */
-      .hexWeapon [type=radio]:checked + img {
+      .twoWeapon [type=radio]:checked + img {
         outline: 2px solid #f00;
       }
     </style>
-    <form class="hexWeapon">
+    <form class="twoWeapon">
       <div class="form-group" id="weapons">
           ${weapon_content}
       </div>
@@ -62,21 +65,20 @@ function weaponAttack(caster, sourceItemData, origin, target) {
   `;
 
   new Dialog({
-    title: "Two-Weapon Fighting: Choose a weapon to attack with",
+    title: "Two Weapon Fighting: Choose a weapon to attack with",
     content,
     buttons: {
       Ok: {
         label: "Ok",
-        callback: async (html) => {
+        callback: async () => {
           const itemId = $("input[type='radio'][name='weapon']:checked").val();
-          const weaponItem = caster.getEmbeddedDocument("Item", itemId);
-          DAE.setFlag(caster, "bonusAttackChoice", itemId);
+          const weaponItem = tactor.getEmbeddedDocument("Item", itemId);
           const weaponCopy = duplicate(weaponItem);
           delete weaponCopy._id;
-          if (!twoFS) weaponCopy.data.damage.parts[0][0] += ` -@mod`;
-          weaponCopy.name = weaponItem.name + " (Two-Weapon Fighting)";
-          const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: caster });
-          const options = { showFullCard: false, createWorkflow: true, configureDialog: true };
+          if (!twoFS) weaponCopy.data.damage.parts[0][0] = weaponCopy.data.damage.parts[0][0].replace("@mod", "0");
+          weaponCopy.name = weaponItem.name + " (Two Weapon Fighting)";
+          const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: tactor });
+          const options = { showFullCard: false, createWorkflow: true, configureDialog: true, targets: lastArg.targetUuids ? [lastArg.targetUuids[0]] : [] };
           await MidiQOL.completeItemRoll(attackItem, options);
         },
       },
@@ -85,15 +87,4 @@ function weaponAttack(caster, sourceItemData, origin, target) {
       },
     },
   }).render(true);
-}
-
-if(args[0].tag === "OnUse"){
-  if (lastArg.targets.length > 0) {
-    const casterData = await fromUuid(lastArg.actorUuid);
-    const caster = casterData.actor ? casterData.actor : casterData;
-    weaponAttack(caster, lastArg.itemData, lastArg.uuid, lastArg.targets[0]);
-  } else {
-    ui.notifications.error("Two Weapon Fighting: No target selected: please select a target and try again.");
-  }
-
 }
