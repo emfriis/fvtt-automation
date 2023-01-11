@@ -63,7 +63,7 @@ Hooks.on("createActiveEffect", async (effect) => {
             try {
                 console.warn("Enable Effect on Armor Revert Creation activated");
                 const enableTypes = effect.data.changes.filter(c => c.key?.includes(`flags.midi-qol.enable.armor`)).map(c => c.key.match(/armor.(.*)/)[1]);
-                if (!tactor.items.find(i => i.isArmor && i.data.data.equipped && (enableTypes.includes(i.data.data?.armor?.type) || (enableTypes.includes("all") && i.data.data.armor.type !== "shield")))) {
+                if (!tactor.items.find(i => i.isArmor && i.data.data.equipped && (enableTypes.includes(i.data.data.armor?.type) || (enableTypes.includes("all") && i.data.data.armor?.type !== "shield")))) {
                     await wait(100);
                     await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, disabled: true }] });
                     console.warn("Enable Effect on Armor Revert Creation used");
@@ -78,7 +78,7 @@ Hooks.on("createActiveEffect", async (effect) => {
             try {
                 console.warn("Disable Effect on Armor Creation activated");
                 const disableTypes = effect.data.changes.filter(c => c.key?.includes(`flags.midi-qol.disable.armor`)).map(c => c.key.match(/armor.(.*)/)[1]);
-                if (tactor.items.find(i => i.isArmor && i.data.data.equipped && (disableTypes.includes(i.data.data?.armor?.type) || (disableTypes.includes("all") && i.data.data?.armor?.type !== "shield")))) {
+                if (tactor.items.find(i => i.isArmor && i.data.data.equipped && (disableTypes.includes(i.data.data?.armor.type) || (disableTypes.includes("all") && i.data.data.armor?.type !== "shield")))) {
                     await wait(100);
                     await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: effect.id, disabled: true }] });
                     console.warn("Disable Effect on Armor Creation used");
