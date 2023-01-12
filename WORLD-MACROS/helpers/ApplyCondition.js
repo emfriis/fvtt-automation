@@ -43,11 +43,9 @@ try {
             save: { dc: args[3], ability: args[4], scaling: "flat" },
         }
     }
-    await targetTactor.createEmbeddedDocuments("Item", [itemData]);
-    let saveItem = await targetTactor.items.find(i => i.name === itemData.name);
+    let saveItem = new CONFIG.Item.documentClass(itemData, { parent: tactor });
     let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
-    await targetTactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
-
+    
     if (saveWorkflow.failedSaves.size) {
         const effectData = {
             changes: [

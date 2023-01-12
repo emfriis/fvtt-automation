@@ -85,7 +85,7 @@ try {
                     save: { dc: args[0]?.saveDC, ability: args[0]?.saveAbility, scaling: "flat" },
                 }
             }
-            let saveItem = new CONFIG.Item.documentClass(itemData, { parent: tactor })
+            let saveItem = new CONFIG.Item.documentClass(itemData, { parent: tactor });
             let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
             resolve(saveWorkflow.failedSaves.size ? false : true); 
         });

@@ -60,8 +60,7 @@ try {
             save: { dc: args[7], ability: args[8], scaling: "flat" },
         }
     }
-    await sourceTactor.createEmbeddedDocuments("Item", [itemData]);
-    let damageItem = sourceTactor.items.find(i => i.name === itemData.name);
+    let damageItem = new CONFIG.Item.documentClass(itemData, { parent: sourceTactor });
     let hook = Hooks.on("midi-qol.preambleComplete", async (workflowNext) => {
         if (workflowNext.uuid === damageItem.uuid) {
             workflowNext.targets.add(targetToken);
@@ -69,21 +68,6 @@ try {
         }
     });
     await MidiQOL.completeItemRoll(damageItem, { targetUuids: [targetUuid] });
-    await sourceTactor.deleteEmbeddedDocuments("Item", [damageItem.id]);
 } catch (err) {
     console.error("ApplyDamage error", err);
-    try {
-        let sourceId;
-        if (args[1] === "self") {
-            sourceId = lastArg.tokenId;
-        } else {
-            sourceId = args[1];
-        }
-        const sourceToken = canvas.tokens.get(sourceId);
-        const sourceTactor = sourceToken.actor;
-        let damageItem = await sourceTactor.items.find(i => i.name === `${args[4].charAt(0).toUpperCase() + args[4].slice(1)}`);
-        await sourceTactor.deleteEmbeddedDocuments("Item", [damageItem.id]);
-    } catch (err) {
-        console.error("ApplyDamage error Cleanup error", err);
-    }
 }

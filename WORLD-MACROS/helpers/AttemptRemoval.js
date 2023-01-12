@@ -4,8 +4,6 @@
 
 try {
     const lastArg = args[args.length - 1];
-
-    const token = canvas.tokens.get(lastArg.tokenId);
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 
@@ -51,11 +49,8 @@ try {
                     save: { dc: saveDC, ability: ability, scaling: "flat" },
                 }
             }
-            await tactor.createEmbeddedDocuments("Item", [itemData]);
-            let saveItem = await tactor.items.find(i => i.name === itemData.name);
+            let saveItem = new CONFIG.Item.documentClass(itemData, { parent: tactor });
             let saveWorkflow = await MidiQOL.completeItemRoll(saveItem, { chatMessage: true, fastForward: true });
-            await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
-            
             if (!saveWorkflow.failedSaves.size) {
                 await tactor.deleteEmbeddedDocuments("ActiveEffect", [lastArg.efData._id]);
             }
@@ -63,13 +58,4 @@ try {
     }
 } catch (err) {
     console.error("AttemptRemoval error", err);
-    try {
-        const lastArg = args[args.length - 1];
-        const tokenOrActor = await fromUuid(lastArg.actorUuid);
-        const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-        const saveItem = await tactor.items.find(i => i.name === `${lastArg.efData.label} Save`);
-        await tactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
-    } catch (err) {
-        console.error("AttemptRemoval Cleanup error", err);
-    }
 }
