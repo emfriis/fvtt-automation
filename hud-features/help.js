@@ -91,4 +91,17 @@ if (args[0].macroPass === "preambleComplete") {
     attackWorkflow.advantage = true;
     const effects = tactor.effects.filter(e => e.data.label === "Help" && e.data.changes.find(c => args[0].targets.find(t => c.value.includes(t.id)))).map(e => e.id);
     if (effects) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: effects });
-};
+} else if (args[0].tag === "DamageBonus") {
+    if (!["mwak","rwak","msak","rsak"].includes(lastArg.item.data.actionType) || !lastArg.hitTargets.length || !lastArg.hitTargets[0]?.actor?.uuid) return;
+    const effectData = {
+        changes: [{ key: `flags.midi-qol.disadvantage.attack.all`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20 }],
+        flags: { "dae": { specialDuration: ["1Attack"] } },
+        duration: { seconds: 60, startTime: game.time.worldTime },
+        disabled: false,
+        label: "Fey Gift: Spite Disadvantage",
+        icon: "systems/dnd5e/icons/skills/yellow_28.jpg"
+    };
+    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: lastArg.hitTargets[0].actor.uuid, effects: [effectData] });
+    const effects = tactor.effects.filter(e => e.data.label === "Fey Gift: Spite").map(e => e.id);
+    if (effects) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: effects });
+}

@@ -129,9 +129,9 @@ if (lastArg.macroPass === "preambleComplete") {
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
     } else if (giftType === "spite") {
         const effectData = {
-            changes: [{ key: `flags.midi-qol.onUseMacroName`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro, postActiveEffects`, priority: 20 }],
+            changes: [{ key: `flags.dnd5e.DamageBonusMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Help", priority: 20 }],
             origin: lastArg.uuid,
-            flags: { "core": { statusId: "Fey Gift: Spite" }, "dae": { itemData: lastArg.item, specialDuration: ["turnStartSource"] } },
+            flags: { "core": { statusId: "Fey Gift: Spite" }, "dae": { itemData: lastArg.itemData, specialDuration: ["turnStartSource"] } },
             disabled: false,
             label: "Fey Gift: Spite",
             icon: "systems/dnd5e/icons/skills/yellow_28.jpg"
@@ -145,16 +145,4 @@ if (lastArg.macroPass === "preambleComplete") {
     attackWorkflow.advantage = true;
     const effects = tactor.effects.filter(e => e.data.label === "Help" && e.data.changes.find(c => args[0].targets.find(t => c.value.includes(t.id)))).map(e => e.id);
     if (effects) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: effects });
-} else if (lastArg.macroPass === "postActiveEffects") {
-    if (!["mwak","rwak","msak","rsak"].includes(lastArg.item.data.actionType) || !lastArg.hitTargets.length || !lastArg.hitTargets[0]?.actor?.uuid) return;
-    const effectData = {
-        changes: [{ key: `flags.midi-qol.disadvantage.attack.all`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20 }],
-        origin: lastArg.uuid,
-        flags: { "dae": { specialDuration: ["1Attack"] } },
-        duration: { seconds: 60, startTime: game.time.worldTime },
-        disabled: false,
-        label: "Fey Gift: Spite Disadvantage",
-        icon: "systems/dnd5e/icons/skills/yellow_28.jpg"
-    };
-    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: lastArg.hitTargets[0].actor.uuid, effects: [effectData] });
 }
