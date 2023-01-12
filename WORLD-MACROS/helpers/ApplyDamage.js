@@ -64,10 +64,10 @@ try {
     let hook = Hooks.on("midi-qol.preambleComplete", async (workflowNext) => {
         if (workflowNext.uuid === damageItem.uuid) {
             workflowNext.targets.add(targetToken);
-            Hooks.off("midi-qol.preambleComplete", hook);
         }
     });
     await MidiQOL.completeItemRoll(damageItem, { targetUuids: [targetUuid] });
+    Hooks.off("midi-qol.preambleComplete", hook);
 } catch (err) {
     console.error("ApplyDamage error", err);
 }
