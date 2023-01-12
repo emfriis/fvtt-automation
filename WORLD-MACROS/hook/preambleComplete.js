@@ -244,6 +244,18 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                 }
             }
 
+            // full cover
+            if (["mwak","rwak","msak","rsak"].includes(workflow.item.data.data.actionType) && _levels.advancedLosTestInLos(workflow.token, token)) {
+                try {
+                    console.warn("Full Cover activated");
+                    ui.notifications.warn("Target has full cover.");
+                    console.warn("Full Cover used");
+                    return false;
+                } catch (err) {
+                    console.error("Full Cover error", err);
+                }
+            }
+
             // shield
             if (workflow.item.name === "Magic Missile" && workflow.item.data.data.activation.type === "action" && tactor.items.find(i => i.name === "Shield" && i.type === "spell") && !tactor.effects.find(e => e.data.label === "Shield")) {
                 try {
