@@ -29,8 +29,28 @@ Hooks.on("midi-qol.AttackRollComplete", async (workflow) => {
                     console.error("Thorns error", err);
                 }
             }
-        }
 
+            // fey gift spite
+            if (workflow.actor.data.flags["midi-qol"].feyGiftSpite) {
+                try {
+                    console.warn("Fey Gift: Spite activated");
+                    const effectData = {
+                        changes: [{ key: `flags.midi-qol.disadvantage.attack.all`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20 }],
+                        flags: { "dae": { specialDuration: ["1Attack"] } },
+                        duration: { seconds: 60, startTime: game.time.worldTime },
+                        disabled: false,
+                        label: "Fey Gift: Spite Disadvantage",
+                        icon: "systems/dnd5e/icons/skills/yellow_28.jpg"
+                    };
+                    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
+                    const effects = workflow.actor.effects.filter(e => e.data.label === "Fey Gift: Spite").map(e => e.id);
+                    if (effects) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: workflow.actor.uuid, effects: effects });
+                    console.warn("Fey Gift: Spite used");
+                } catch (err) {
+                    console.error("Fey Gift: Spite error", err);
+                }
+            }
+        }
     } catch(err) {
         console.error(`AttackRollComplete error`, err);
     }

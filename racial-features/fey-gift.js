@@ -129,9 +129,9 @@ if (lastArg.macroPass === "preambleComplete") {
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
     } else if (giftType === "spite") {
         const effectData = {
-            changes: [{ key: `flags.dnd5e.DamageBonusMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "Help", priority: 20 }],
+            changes: [{ key: `flags.midi-qol.feyGiftSpite`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20 }],
             origin: lastArg.uuid,
-            flags: { "core": { statusId: "Fey Gift: Spite" }, "dae": { itemData: lastArg.itemData, specialDuration: ["turnStartSource"] } },
+            flags: { "core": { statusId: "Fey Gift: Spite" }, "dae": { specialDuration: ["turnStartSource"] } },
             disabled: false,
             label: "Fey Gift: Spite",
             icon: "systems/dnd5e/icons/skills/yellow_28.jpg"
