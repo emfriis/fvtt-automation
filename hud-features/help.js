@@ -92,6 +92,7 @@ if (args[0].macroPass === "preambleComplete") {
     const effects = tactor.effects.filter(e => e.data.label === "Help" && e.data.changes.find(c => args[0].targets.find(t => c.value.includes(t.id)))).map(e => e.id);
     if (effects) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: effects });
 } else if (args[0].tag === "DamageBonus") {
+    // fey gift racial feature
     if (!["mwak","rwak","msak","rsak"].includes(lastArg.item.data.actionType) || !lastArg.hitTargets.length || !lastArg.hitTargets[0]?.actor?.uuid) return;
     const effectData = {
         changes: [{ key: `flags.midi-qol.disadvantage.attack.all`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: 1, priority: 20 }],

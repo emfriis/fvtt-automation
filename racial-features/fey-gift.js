@@ -138,11 +138,4 @@ if (lastArg.macroPass === "preambleComplete") {
         };
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactorTarget.uuid, effects: [effectData] });
     }
-} else if (lastArg.macroPass === "preAttackRoll") {
-    if (!["mwak","rwak","msak","rsak"].includes(args[0].item.data.actionType)) return;
-    if (!args[0].targets.find(t => tactor.data.flags["midi-qol"]?.help?.includes(t.id))) return;
-    const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
-    attackWorkflow.advantage = true;
-    const effects = tactor.effects.filter(e => e.data.label === "Help" && e.data.changes.find(c => args[0].targets.find(t => c.value.includes(t.id)))).map(e => e.id);
-    if (effects) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: effects });
 }
