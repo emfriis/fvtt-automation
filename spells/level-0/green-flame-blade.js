@@ -114,7 +114,7 @@ if (args[0].tag === "OnUse" && lastArg.targets.length === 1) {
                         }).render(true);
                     });
                     let targets = await dialog;
-                    if (!targets || targets[0] === workflow.hitTargets[0]) return;
+                    if (!targets || targets[0].document.uuid === lastArg.targetUuids[0]) return;
                     if (MidiQOL.getDistance(workflow.hitTargets[0], targets[0], false) > 5) return ui.notifications.warn("Target too far away");
                     if (targets.length !== 1) return ui.notifications.warn("More than one target selected");
                     const mod = tactor.data.data.abilities[tactor.data.data.attributes.spellcasting].mod;
