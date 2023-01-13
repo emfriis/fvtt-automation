@@ -11,7 +11,7 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "preActiveEffects" && lastA
         disabled: false,
         label: "Improved Abjuration Advantage",
         duration: { seconds: 1, startTime: game.time.worldTime },
-        flags: { dae: { specialDuration: ["isCheck.int"] } },
+        flags: { dae: { specialDuration: ["1Spell"] } },
     };
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
 }

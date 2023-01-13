@@ -1,5 +1,5 @@
 // destructive wrath
-// effect on use before damage
+// effect on use post damage
 
 const tokenOrActor = await fromUuid(args[0].actorUuid);
 const tactor = tokenOrActor.actor ?? tokenOrActor;
