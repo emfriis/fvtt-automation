@@ -10,7 +10,7 @@ const DAEItem = lastArg.efData.flags.dae.itemData;
  * Select for weapon
  */
 if (args[0] === "on") {
-  const weapons = tactor.items.filter((i) => i.data.type === "weapon" && i.data.data.properties.two !== true);
+  const weapons = tactor.items.filter((i) => i.data.type === "weapon" && i.data.data.properties.two !== true && !i.name.includes("Pact"));
   let weapon_content = "";
 
   //Filter for weapons
@@ -74,10 +74,9 @@ if (args[0] === "on") {
           const itemId = $("input[type='radio'][name='weapon']:checked").val();
           const weaponItem = tactor.items.get(itemId);
           let copyItem = duplicate(weaponItem);
-          DAE.setFlag(tactor, "hexWeapon", {
+          tactor.setFlag("midi-qol", "hexWeapon", {
             weapon: itemId,
 			      ability: copyItem.data.ability,
-			      name: copyItem.name,
           });
           if (copyItem.data.attackBonus === "") copyItem.data.attackBonus = "0";
           copyItem.data.ability = "cha";
@@ -95,13 +94,13 @@ if (args[0] === "on") {
 //Revert weapon and unset flag.
 if (args[0] === "off") {
 try {
-    const { weapon, ability, name } = DAE.getFlag(tactor, "hexWeapon");
+    const { weapon, ability } = tactor.getFlag("midi-qol", "hexWeapon");
     const weaponItem = tactor.items.get(weapon);
     let copyItem = duplicate(weaponItem);
     copyItem.data.ability = ability;
     copyItem.name = copyItem.name.replace("Hex ", "");
     tactor.updateEmbeddedDocuments("Item", [copyItem]);
-    DAE.unsetFlag(tactor, "hexWeapon");
+    tactor.unsetFlag("midi-qol", "hexWeapon");
   } catch (err) {
     console.error('hex warrior macro error');
   }
