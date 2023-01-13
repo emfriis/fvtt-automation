@@ -1,5 +1,5 @@
-// moonbeam
-// macro.execute - Moonbeam @item.level @attributes.spelldc
+// cloudkill
+// macro.execute - Cloudkill @item.level @attributes.spelldc
 // aura - all, apply effect, only apply during current turn, only trigger once per turn
 
 const lastArg = args[args.length - 1];
@@ -17,30 +17,20 @@ if (args[0] === "on") {
         return;
     }
 
-    let isShapechanger = tactor.data.data.details?.type?.subtype?.toLowerCase() === "shapechanger";
-    if (isShapechanger) {
-        let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
-            if (actor === tactor && abilityId === "con") {
-                rollData.disadvantage = true;
-                Hooks.off("Actor5e.preRollAbilitySave", hook);
-            }
-        });
-    }
-
-    let damageDice = `${args[1]}d10`;
+    let damageDice = `${args[1]}d8`;
     if (!damageDice) return;
     
     await wait(100);
     let applyDamage = game.macros.find(m => m.name === "ApplyDamage");
-    if (applyDamage) await applyDamage.execute("ApplyDamage", lastArg.tokenId, lastArg.tokenId, damageDice, "radiant", "magiceffect", "spelleffect", args[2], "con", "halfdam");
+    if (applyDamage) await applyDamage.execute("ApplyDamage", lastArg.tokenId, lastArg.tokenId, damageDice, "poison", "magiceffect", "spelleffect", args[2], "con", "halfdam");
     
     await wait (100);
     await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });
 }
 
 /*
-// moonbeam
-// macro.execute - Moonbeam @spellLevel @attributes.spelldc
+// cloudkill
+// macro.execute - Cloudkill @spellLevel @attributes.spelldc
 // aura - all, apply effect, only apply during current turn, only trigger once per turn
 
 if (!game.modules.get("ActiveAuras")?.active) {

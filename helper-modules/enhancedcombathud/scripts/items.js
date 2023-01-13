@@ -595,7 +595,7 @@ Hooks.once("ready",()=>{
       "range": {
         "value": null,
         "long": null,
-        "units": "touch"
+        "units": null
       },
 
       "consume": {
