@@ -38,9 +38,11 @@ if (args[0] === "on") {
           if (hexWarrior) copyItem.data.ability = "cha";
           copyItem.name = "Pact " + copyItem.name;
           copyItem.data.equipped = true;
-          DAE.setFlag(tactor, "pactWeapon", "Pact " + copyItem.name);
           await tactor.createEmbeddedDocuments("Item", [copyItem]);
-          await tactor.items.find(i => i.name === copyItem.name).update({ "data.proficient": true });
+          let item = tactor.items.find(i => i.name === copyItem.name);
+          if (item) await item.update({ "data.proficient": true });
+          let effect = tactor.effects.find(e => e.data === lastArg.efData);
+          if (item && effect) await effect.update({ changes: effect.data.changes.concat([{ key: "flags.dae.deleteUuid", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: item.uuid, priority: 20 }]) });
         },
       },
       cancel: {
@@ -48,10 +50,4 @@ if (args[0] === "on") {
       },
     },
   }).render(true);
-}
-
-if (args[0] === "off") {
-  const name = DAE.getFlag(tactor, "pactWeapon");
-  let weapon = tactor.items.find(i => i.name === name);
-  if (weapon) tactor.deleteEmbeddedDocuments("Item", [weapon.id ?? weapon._id]);
 }
