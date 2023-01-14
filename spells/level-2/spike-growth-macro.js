@@ -20,7 +20,7 @@ function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); });
 
         await wait(100);
         const applyDamage = game.macros.find(m => m.name === "ApplyDamage");
-        if (applyDamage) await applyDamage.execute("ApplyDamage", lastArg.Id, lastArg.Id, "2d4", "piercing", "magiceffect", "spelleffect");
+        if (applyDamage) await applyDamage.execute("ApplyDamage", lastArg.tokenId, lastArg.tokenId, "2d4", "piercing", "magiceffect", "spelleffect");
         
         await wait(100);
         await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [lastArg.effectId] });

@@ -27,7 +27,8 @@ try {
         targetId = args[1];
     }
     const targetToken = canvas.tokens.get(targetId);
-    const targetTactor = targetToken.actor;
+    const tactor = targetToken.actor;
+    if (!tactor) return;
 
     const itemData = {
         name: `${args[2].charAt(0).toUpperCase() + args[2].slice(1)} Save`,
@@ -57,23 +58,9 @@ try {
             origin: (args[11] ?? null),
             flags: { dae: { macroRepeat: args[10] ?? null, specialDuration: args[6]?.split(",") ?? null }, magiceffect: args[7] ?? false, spelleffect: args[8] ?? false, },
         }
-        await targetTactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
+        await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
     }
 } catch (err) {
     console.error("ApplyCondition error", err);
-    try {
-        let targetId;
-        if (args[1] === "self") {
-            targetId = lastArg.tokenId;
-        } else {
-            targetId = args[1];
-        }
-        const targetToken = canvas.tokens.get(targetId);
-        const targetTactor = targetToken.actor;
-        let saveItem = await targetTactor.items.find(i => i.name === `${args[2].charAt(0).toUpperCase() + args[2].slice(1)} Save`);
-        await targetTactor.deleteEmbeddedDocuments("Item", [saveItem.id]);
-    } catch (err) {
-        console.error("ApplyCondition error Cleanup error", err);
-    }
 }
 
