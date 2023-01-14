@@ -12,7 +12,7 @@ let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
 
     const targets = Array.from(workflow.targets);
 
-    if (itemUuid === workflow.uuid) {
+    if (itemUuid === workflow.uuid && workflow.item.data.data.activation.type !== "none") {
 
         const itemData = mergeObject(
             duplicate(workflow.item.data),
@@ -28,13 +28,12 @@ let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
                 }
             },
         );
-        await workflow.actor.createEmbeddedDocuments("Item", [itemData]);
-        const attackItem = workflow.actor.items.find(i => i.name === workflow.item.name && i.data.data.activation.type === "none");
 
         async function applyAttack(targetUuid) {
+            let attackItem = new CONFIG.Item.documentClass(itemData, { parent: workflow.actor });
             let rollOptions = { targetUuids: [targetUuid], showFullCard: false, configureDialog: false };
             await MidiQOL.completeItemRoll(attackItem, rollOptions);
-        };
+        }
 
         async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
 
@@ -91,7 +90,6 @@ let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
             }).render(true);
         };
         Hooks.off("midi-qol.preDamageRoll", hook);
-        await workflow.actor.deleteEmbeddedDocuments("Item", [attackItem.id]);
         return false;
     }
 });

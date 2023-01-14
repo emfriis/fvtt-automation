@@ -28,13 +28,12 @@ let hook = Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                 }
             },
         );
-        await workflow.actor.createEmbeddedDocuments("Item", [itemData]);
-        const attackItem = workflow.actor.items.find(i => i.name === workflow.item.name && i.data.data.activation.type === "none");
 
         async function applyAttack(targetUuid) {
+            let attackItem = new CONFIG.Item.documentClass(itemData, { parent: workflow.actor });
             let rollOptions = { targetUuids: [targetUuid], showFullCard: false, configureDialog: false };
             await MidiQOL.completeItemRoll(attackItem, rollOptions);
-        };
+        }
 
         async function teleportNearby() {
             let useTeleport = await new Promise((resolve) => {
@@ -226,7 +225,6 @@ let hook = Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
             }).render(true);
         }
         Hooks.off("midi-qol.preAttackRoll", hook);
-        await workflow.actor.deleteEmbeddedDocuments("Item", [attackItem.id]);
         return false;
     }
 });
