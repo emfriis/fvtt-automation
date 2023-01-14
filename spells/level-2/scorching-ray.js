@@ -10,9 +10,9 @@ if (args[0].targets.length > attacks) {
 
 let hook = Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
 
-    const targets = Array.from(workflow.targets);
+    if (itemUuid === workflow.uuid && workflow.item.data.data.activation.type !== "none") {
 
-    if (itemUuid === workflow.uuid) {
+        const targets = Array.from(workflow.targets);
 
         const itemData = mergeObject(
             duplicate(workflow.item.data),

@@ -14,6 +14,8 @@ let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
 
     if (itemUuid === workflow.uuid && workflow.item.data.data.activation.type !== "none") {
 
+        const targets = Array.from(workflow.targets);
+
         const itemData = mergeObject(
             duplicate(workflow.item.data),
             {
