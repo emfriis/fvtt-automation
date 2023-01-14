@@ -48,7 +48,7 @@ if (args[0].tag === "OnUse" && args[0].failedSaveUuids.length > 0) {
 			{ key: `macro.itemMacro`, mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: "", priority: 20 },
 		],
 		disabled: false,
-		flags: { dae: { itemData: item.data, specialDuration: ["turnEnd"], macroRepeat: "startEveryTurn" }, core: { statusId: "Command" } },
+		flags: { dae: { itemData: item.data, specialDuration: ["turnEnd"], macroRepeat: "startEveryTurn", stackable: "noneName" }, core: { statusId: "Command" } },
 		icon: lastArg.item.img,
 		label: `${lastArg.item.name}`,
 	};

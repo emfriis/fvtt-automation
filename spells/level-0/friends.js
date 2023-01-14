@@ -9,7 +9,7 @@ const friendsSource = canvas.tokens.get(args[1]);
 if (args[0] === "on") {
     if (tokenOrActor.data.disposition === -1) {
         let friends = tactor.effects.find(i => i.data === lastArg.efData);
-		if (friends) await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [friends.id] });
+		if (friends) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [friends.id] });
     }
 }
 
