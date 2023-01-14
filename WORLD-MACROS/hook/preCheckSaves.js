@@ -204,16 +204,18 @@ Hooks.on("midi-qol.preCheckSaves", async (workflow) => {
             }
 
             // spell resistance save
-            if ((workflow.item.data.type === "spell" || workflow.item.data.flags?.midiProperties?.spelleffect) && workflow.item.data.data.save.dc && workflow.item.data.data.actionType !== "abil" && tactor.data.flags["midi-qol"]?.spellResistance?.save) {
+            if ((workflow.item.data.type === "spell" || workflow.item.data.flags?.midiProperties?.spelleffect) && workflow.item.data.data.save.dc && workflow.item.data.data.actionType !== "abil" && tactor.data.flags["midi-qol"].spellResistance) {
                 try {
                     console.warn("Spell Resistance Save activated");
-                    let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
-                        if (actor === tactor && abilityId === workflow.item.data.data.save.ability) {
-                            rollData.advantage = true;
-                            Hooks.off("Actor5e.preRollAbilitySave", hook);
-                        }
-                    });
-                    console.warn("Spell Resistance Save used");
+                    if (tactor.data.flags["midi-qol"].spellResistance?.all || tactor.data.flags["midi-qol"].spellResistance[workflow.item.data.data.save.ability]) {
+                        let hook = Hooks.on("Actor5e.preRollAbilitySave", async (actor, rollData, abilityId) => {
+                            if (actor === tactor && abilityId === workflow.item.data.data.save.ability) {
+                                rollData.advantage = true;
+                                Hooks.off("Actor5e.preRollAbilitySave", hook);
+                            }
+                        });
+                        console.warn("Spell Resistance Save used");
+                    }
                 } catch (err) {
                     console.error("Spell Resistance Save error", err);
                 }
