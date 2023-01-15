@@ -69,6 +69,21 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
             }
         }
 
+        // self range template
+        if (workflow.item.data.data.range.units === "self" && ["cone","line"].includes(workflow.item.data.data.target.type)) {
+            try {
+                console.warn("Self Range Template activated");
+                let self = canvas.tokens.get(workflow.tokenId);
+                if (workflow.targets.has(self)) {
+                    game.user.targets?.delete(self);
+                    self.targeted.delete(game.user);
+                    console.warn("Self Range Template used");
+                }
+            } catch(err) {
+                console.error("Self Range Template error", err);
+            }
+        }
+
         // silence
         if (workflow.item.data.type === "spell" && workflow.actor.data.flags["midi-qol"].silence && workflow.item.data.data?.components?.vocal && !workflow.actor.data.flags["midi-qol"].subtleSpell) {
             try {

@@ -60,6 +60,17 @@ async function applyBurst(token, range, value, type, saveDC, saveType, saveDamag
 Hooks.on("midi-qol.RollComplete", async (workflow) => {
     try {
 
+        // template removal
+        if (workflow.templateId && !workflow.item.data.data.duration.value && canvas.scene.templates.find(t => t.id === workflow.templateId)) {
+            try {
+                console.warn("Template Removal activated");
+                await canvas.scene.deleteEmbeddedDocuments("MeasuredTemplate", [workflow.templateId]);
+                console.warn("Template Removal used");
+            } catch(err) {
+                console.error("Template Removal error", err);
+            }
+        }
+
         if (workflow.damageList) {
             for (let d = 0; d < workflow.damageList.length; d++) {
                 let token = canvas.tokens.get(workflow.damageList[d].tokenId);
