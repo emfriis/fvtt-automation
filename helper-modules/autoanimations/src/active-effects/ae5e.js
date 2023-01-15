@@ -87,7 +87,7 @@ export async function deleteActiveEffects5e(effect) {
     let aaEffects = Sequencer.EffectManager.getEffects({ origin: effect.uuid })
 
     // If no animations, exit early, Else continue with gathering data
-    if (aaEffects.length > 0) {  
+    if (aaEffects.length > 0 && !(effect.data.flags.ActiveAuras && !effect.data.flags.ActiveAuras.radius)) {  
         const itemData = effect.data?.flags?.autoanimations ?? {};
         const data = {
             token: undefined,
@@ -133,7 +133,7 @@ export async function deleteActiveEffects5e(effect) {
         }
 
         // End all Animations on the token with .origin(effect.uuid)
-        Sequencer.EffectManager.endEffects({ origin: effect.uuid, object: handler.sourceToken })
+        Sequencer.EffectManager.endEffects({ origin: effect.uuid, object: handler.sourceToken });
     } else {
         const itemData = effect.data?.flags?.autoanimations ?? {};
         //const aeToken = canvas.tokens.get(itemData.aaAeTokenId)
