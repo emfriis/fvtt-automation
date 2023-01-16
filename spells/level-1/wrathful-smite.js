@@ -19,9 +19,7 @@ if (lastArg.tag === "OnUse") {
         origin: lastArg.uuid,
         disabled: false,
         duration: { rounds: duration, startRound: gameRound, startTime: game.time.worldTime },
-        flags: {
-            "dae": { itemData: item, specialDuration: ["1Hit"] }
-        },
+        flags: { "dae": { itemData: item, specialDuration: ["1Hit"] } },
         icon: item.img,
         label: item.name
     }];
