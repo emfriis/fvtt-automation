@@ -91,6 +91,15 @@ try {
         });
     }
 
+    // rollSimple
+    async function rollSimple(...args) {
+        return new Promise(async (resolve, reject) => {
+            const roll = await new Roll(args[0]?.rollable).evaluate({ async: false });
+            if (game.dice3d) game.dice3d.showForRoll(roll);
+            resolve(roll);
+        });
+    }
+
     // midiItemRoll, takes args itemUuid, and options; returns workflow data
     async function midiItemRoll(...args) {
         return new Promise(async (resolve, reject) => {
@@ -268,6 +277,7 @@ try {
         socket.register("updateItem", updateItem);
         socket.register("deleteItem", deleteItem);
         socket.register("attemptSaveDC", attemptSaveDC);
+        socket.register("rollSimple", rollSimple);
         socket.register("midiItemRoll", midiItemRoll);
         socket.register("useDialog", useDialog);
         socket.register("optionDialog", optionDialog);

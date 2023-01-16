@@ -1,5 +1,14 @@
 // preCheckHits
 
+function playerForActor(actor) {
+	if (!actor) return undefined;
+	let user;
+	if (actor.hasPlayerOwner) user = game.users.find(u => u.data.character === actor.id && u.active);
+	if (!user) user = game.users.players.find(p => p.active && actor.data.permission[p.id ?? ""] === CONST.ENTITY_PERMISSIONS.OWNER);
+	if (!user) user = game.users.find(p => p.isGM && p.active);
+	return user;
+}
+
 function canSee(token, target) {
     let canSeeCV = game.modules.get('conditional-visibility')?.api?.canSee(token, target) ?? true;
     let canSeeLOS = !_levels?.advancedLosTestInLos(token, target);
@@ -220,8 +229,8 @@ Hooks.on("midi-qol.preCheckHits", async (workflow) => {
                         let images = tactor.data.flags["midi-qol"].mirrorImage;
                         let dc = images == 3 ? 6 : images == 2 ? 8 : 11;
                         let ac = 10 + tactor.data.data.abilities.dex.mod;
-                        const roll = await new Roll(`1d20`).evaluate({ async: false });
-                        if (game.dice3d) game.dice3d.showForRoll(roll);
+                        let player = playerForActor(tactor);
+                        let roll = await USF.socket.executeAsUser("rollSimple", player.id, { rollable: "1d20" });
                         if (roll.total >= dc) {
                             if (workflow.attackRoll.total >= ac) {
                                 ChatMessage.create({ content: `The Attack strikes a Mirror Image (${images - 1} Image(s) Remaining).` });

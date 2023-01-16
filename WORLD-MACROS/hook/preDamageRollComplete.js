@@ -182,8 +182,9 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                             let useProtect = false;
                             useProtect = await USF.socket.executeAsUser("useDialog", player.id, { title: `Fighting Style: Interception`, content: `Use your reaction to reduce damage from attack against ${token.name}?` });
                             if (useProtect) {
+                                let roll = await USF.socket.executeAsUser("rollSimple", player.id, { rollable: `1d10 + ${prot.actor.data.data.attributes.prof}` });
                                 const effectData = {
-                                    changes: [{ key: `flags.midi-qol.DR.${workflow.item.data.data.actionType}`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `[[1d10 + ${prot.actor.data.data.attributes.prof}]]`, priority: 20, }],
+                                    changes: [{ key: `flags.midi-qol.DR.${workflow.item.data.data.actionType}`, mode: CONST.ACTIVE_EFFECT_MODES.ADD, value: `${roll.total}`, priority: 20, }],
                                     disabled: false,
                                     label: "Interception Damage Reduction",
                                     flags: { dae: { specialDuration: ["isAttacked", "isDamaged", "isHit"] } },
