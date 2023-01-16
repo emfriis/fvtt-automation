@@ -222,9 +222,27 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                     if (useLucky && luckyItem) {
                         workflow.disadvantage = true;
                         await USF.socket.executeAsGM("updateItem", { itemUuid: luckyItem.uuid, updates: {"data.uses.value" : luckyItem.data.data.uses.value - 1} });
+                        console.warn("Lucky activated");
                     }
                 } catch (err) {
                     console.error("Lucky error", err);
+                }
+            }
+
+            // shadowy dodge
+            if (!workflow.advantage && tactor.data.flags["midi-qol"].shadowyDodge && !tactor.effects.find(e => e.data.label === "Reaction")) {
+                try {
+                    console.warn("Shadowy Dodge activated");
+                    let player = await playerForActor(tactor);
+                    let useFeat = false;
+                    useFeat = await USF.socket.executeAsUser("useDialog", player.id, { title: `Shadowy Dodge`, content: `Use your reaction to impose disadvantage on attack against you?` });
+                    if (useFeat) {
+                        workflow.disadvantage = true;
+                        if (game.combat) game.dfreds.effectInterface.addEffect({ effectName: "Reaction", uuid: tactor.uuid });
+                        console.warn("Shadowy Dodge activated");
+                    }
+                } catch (err) {
+                    console.error("Shadowy Dodge error", err);
                 }
             }
 
