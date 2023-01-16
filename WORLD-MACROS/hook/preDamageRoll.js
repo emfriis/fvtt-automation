@@ -26,7 +26,7 @@ Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
     try {  
 
         // cutting words damage roll
-        if (workflow.hitTargets.length && workflow.item.data.data.damage.parts && !["healing","temphp"].includes(workflow.item.data.data.damage.parts[0][1]) && !(workflow.item.data.data.save.dc && (workflow.superSavers.length || (workflow.item.data.flags.midiProperties.nodam && !workflow.failedSaves.length))) && !workflow.actor.data.data.traits.ci.value.includes("charmed") && !workflow.actor.effects.find(e => e.data.label === "Deafened")) {
+        if (workflow.hitTargets.size && workflow.item.data.data.damage.parts && !["healing","temphp"].includes(workflow.item.data.data.damage.parts[0][1]) && !(workflow.item.data.data.save.dc && (workflow.superSavers.length || (workflow.item.data.flags.midiProperties.nodam && !workflow.failedSaves.length))) && !workflow.actor.data.data.traits.ci.value.includes("charmed") && !workflow.actor.effects.find(e => e.data.label === "Deafened")) {
             try {
                 console.warn("Cutting Words Damage Roll activated");
                 let wordTokens = await canvas.tokens.placeables.filter(p => {
