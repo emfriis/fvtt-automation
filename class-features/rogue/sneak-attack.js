@@ -53,8 +53,8 @@ try {
         let dialog = new Promise((resolve, reject) => {
           new Dialog({
           // localize this text
-          title: "Conditional Damage",
-          content: `<p>Use Sneak attack?</p>`+(!foundEnemy ? "<p>Only Neutral creatures nearby</p>" : ""),
+          title: "Sneak Attack",
+          content: `<p>Use Sneak attack?</p>`,
           buttons: {
               one: {
                   icon: '<i class="fas fa-check"></i>',

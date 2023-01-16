@@ -34,10 +34,10 @@ if (args[0].macroPass === "preambleComplete") {
         };
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
     }
-} else if (args[0].macroPass === "preAttackRoll" && tactor.data.flags["midi-qol"].hidden && ["mwak","rwak","msak","rsak"].includes(args[0].item.data.actionType) && args[0].targets.find(t => t?.actor && t.actor.data.data.skills.per.passive < tactor.data.flags["midi-qol"].hidden)) {
+} else if (args[0].macroPass === "preAttackRoll" && tactor.data.flags["midi-qol"].hidden && ["mwak","rwak","msak","rsak"].includes(args[0].item.data.actionType) && args[0].targets.find(t => t?.actor && t.actor.data.data.skills.prc.passive < tactor.data.flags["midi-qol"].hidden)) {
     const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
     attackWorkflow.advantage = true;
-} else if (args[0].macroPass === "postAttackRoll" && tactor.data.flags["midi-qol"].hidden && !(tactor.data.flags["midi-qol"].skulker && args[0].hitTargets.length === 0 && !args[0].targets.find(t => t?.actor && t.actor.data.data.skills.per.passive >= tactor.data.flags["midi-qol"].hidden))) {
+} else if (args[0].macroPass === "postAttackRoll" && tactor.data.flags["midi-qol"].hidden && !(tactor.data.flags["midi-qol"].skulker && args[0].hitTargets.length === 0 && !args[0].targets.find(t => t?.actor && t.actor.data.data.skills.prc.passive >= tactor.data.flags["midi-qol"].hidden))) {
     const effect = tactor.effects.find(e => e.data.label === "Hidden");
     if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [effect.id] });
 }

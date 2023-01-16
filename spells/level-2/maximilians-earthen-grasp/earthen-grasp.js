@@ -13,10 +13,13 @@ async function postWarp(location, spawnedTokenDoc, updates, iteration) {
         await ef.update({ changes: changes.concat(ef.data.changes) });
     };
     let effectData = [{
-        changes: [{ key: `data.attributes.spelldc`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.data.data.attributes.spelldc, priority: 20 }],
+        changes: [
+            { key: `data.attributes.spelldc`, mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: tactor.data.data.attributes.spelldc, priority: 20 },
+            { key: "flags.parent", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value: lastArg.tokenId, priority: 20, },
+        ],
         disabled: false,
         label: "Earthen Grasp",
-        icon: "systems/dnd5e/icons/skills/yellow_23.jpg"
+        icon: "icons/magic/earth/strike-fist-stone-gray.webp"
     }];
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: spawnedTokenDoc.actor.uuid, effects: [effectData] });
 };
