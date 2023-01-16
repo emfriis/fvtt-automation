@@ -9,8 +9,8 @@ if (args[0].tag === "OnUse" && args[0].macroPass !== "preAttackRoll" && args[0].
 
     let nearbyHand = canvas.tokens.placeables.find(p => 
         p.actor &&
+        p.actor.data.flags.parent === args[0].tokenId &&
         p.name.includes("Mage Hand") &&
-        p.name.includes(args[0].actor.name) &&
         MidiQOL.getDistance(p, token, false) <= 5
     );
     if (!nearbyHand) return ui.notifications.warn("Mage Hand isn't within 5 feet of the target");
