@@ -207,8 +207,10 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                 }
             }
 
-            // arcane ward
+            // damage reduction effects
             if (workflow.item.data.data.damage.parts && !["healing","temphp"].includes(workflow.item.data.data.damage.parts[0][1]) && !(workflow.item.data.data.save.dc && (workflow.superSavers.has(token) || (workflow.item.data.flags.midiProperties.nodam && !workflow.failedSaves.has(token))))) {
+                
+                // arcane ward
                 try {
                     console.warn("Arcane Ward activated");
                     let wardTokens = await canvas.tokens.placeables.filter(p => {
