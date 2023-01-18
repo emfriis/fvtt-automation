@@ -211,6 +211,32 @@ Hooks.on("midi-qol.preAttackRoll", async (workflow) => {
                 }
             }
 
+            // advantage against
+            if (!workflow.advantage && workflow.actor.data.flags["midi-qol"].advantageAgainst) {
+                try {
+                    console.warn("Advantage Against activated");
+                    if ((workflow.actor.data.flags["midi-qol"].advantageAgainst[workflow.item.data.data.actionType] || workflow.actor.data.flags["midi-qol"].advantageAgainst.all) && (workflow.actor.data.flags["midi-qol"].advantageAgainst[workflow.item.data.data.actionType]?.includes(token.id) || workflow.actor.data.flags["midi-qol"].advantageAgainst.all?.includes(token.id))) {
+                        workflow.advantage = true;
+                        console.warn("Advantage Against used");	
+                    }
+                } catch (err) {
+                    console.error("Advantage Against error", err);
+                }
+            }
+
+            // disadvantage against
+            if (!workflow.disadvantage && workflow.actor.data.flags["midi-qol"].disadvantageAgainst) {
+                try {
+                    console.warn("Disadvantage Against activated");
+                    if ((workflow.actor.data.flags["midi-qol"].disadvantageAgainst[workflow.item.data.data.actionType] || workflow.actor.data.flags["midi-qol"].disadvantageAgainst.all) && (workflow.actor.data.flags["midi-qol"].disadvantageAgainst[workflow.item.data.data.actionType]?.includes(token.id) || workflow.actor.data.flags["midi-qol"].disadvantageAgainst.all?.includes(token.id))) {
+                        workflow.disadvantage = true;
+                        console.warn("Disadvantage Against used");	
+                    }
+                } catch (err) {
+                    console.error("Disadvantage Against error", err);
+                }
+            }
+
             // lucky
             if (tactor.data.flags["midi-qol"].lucky && tactor.items.find(i => i.name === "Lucky" && i.data.data.uses.value)) {
                 try {
