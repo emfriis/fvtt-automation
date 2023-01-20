@@ -24,7 +24,7 @@ function canSee(token, target) {
 
 function counterSequence(source, target) {
     if (game.modules.get("sequencer").active && hasProperty(Sequencer.Database.entries, "jb2a")) {
-        new Sequence().effect().file("jb2a.impact.004.blue").atLocation(source).scaleToObject(1.5).sound().file("https://assets.forge-vtt.com/630fc11845b0e419bee903cd/combat-sound-fx/magic/effect/dispel-1.ogg").play();
+        new Sequence().effect().file("jb2a.impact.004.blue").atLocation(source).scaleToObject(1.5).sound().file("assets/combat-sound-fx/magic/effect/dispel-1.ogg").play();
         new Sequence().effect().file("jb2a.energy_strands.range.standard.blue").atLocation(source).stretchTo(target).play();
         new Sequence().wait(1250).effect().file("jb2a.impact.005.blue").atLocation(target).scaleToObject(3).play();
     }

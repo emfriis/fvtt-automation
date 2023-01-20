@@ -10,7 +10,7 @@ const userColor = game.user?.data?.color ? "0x" + game.user.data.color.replace(/
 const filePath = "modules/autoanimations/src/images/teleportCircle.png";
 const fileIn = "jb2a.misty_step.01.blue";
 const fileOut = "jb2a.misty_step.02.blue";
-const fileSound = "https://assets.forge-vtt.com/630fc11845b0e419bee903cd/combat-sound-fx/magic/effect/teleport-1.ogg";
+const fileSound = "assets/combat-sound-fx/magic/effect/teleport-1.ogg";
 
 let aaSeq01 = new Sequence()
     aaSeq01.effect()

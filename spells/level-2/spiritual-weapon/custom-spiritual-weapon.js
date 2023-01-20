@@ -7,7 +7,7 @@ const tactor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 const spellLevel = args[1];
 const bonus = tactor.data.data.attributes.prof + tactor.data.data.abilities[tactor.data.data.attributes.spellcasting].mod;
 
-const customImgPath = "https://assets.forge-vtt.com/bazaar/modules/jb2a_patreon-2d960ceba80cc778/assets/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Sword01_01_Spectral_Green_200x200.webm";
+const customImgPath = "modules/jb2a_patreon-2d960ceba80cc778/assets/Library/2nd_Level/Spiritual_Weapon/SpiritualWeapon_Sword01_01_Spectral_Green_200x200.webm";
 
 async function postWarp(location, spawnedTokenDoc, updates, iteration) {
     let ef = tactor.effects.find(i => i.data.label === "Spiritual Weapon");
