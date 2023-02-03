@@ -139,6 +139,18 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                         console.error("Hexblade's Curse error", err);
                     }
                 }
+
+                // downed damage
+                if (tactor.data.data.attributes.hp.value === 0 && workflow.damageList[d].oldHP !== 0 && workflow.damageList[d].newHP === 0) {
+                    try {
+                        console.warn("Downed Damage activated");
+                        if (!tactor.effects.find(e => e.data.label === "Prone")) await game.dfreds.effectInterface.addEffect({ effectName: "Prone", uuid: tactor.uuid });
+                        if (tactor.data.flags["midi-qol"]?.rage && tactor.effects.find(e => e.data.label === "Rage")) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.find(e => e.data.label === "Rage").id] });
+                        console.warn("Downed Damage used");
+                    } catch (err) {
+                        console.error("Downed Damage error", err);
+                    }
+                }
 		    }
         }
 
@@ -149,15 +161,15 @@ Hooks.on("midi-qol.RollComplete", async (workflow) => {
                 let tactor = token.actor;
                 if (!tactor) continue;
 
-                // downed
-                if (tactor.effects.find(e => ["Dead", "Defeated", "Unconscious"].includes(e.data.label) && !e.data.disabled)) {
+                // downed unconscious
+                if (!workflow.damageList && tactor.effects.find(e => e.data.label === "Unconscious" && !e.data.disabled)) {
                     try {
-                        console.warn("Downed activated");
+                        console.warn("Downed Unconscious activated");
                         if (!tactor.effects.find(e => e.data.label === "Prone")) await game.dfreds.effectInterface.addEffect({ effectName: "Prone", uuid: tactor.uuid });
                         if (tactor.data.flags["midi-qol"]?.rage && tactor.effects.find(e => e.data.label === "Rage")) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [tactor.effects.find(e => e.data.label === "Rage").id] });
-                        console.warn("Downed used");
+                        console.warn("Downed Unconscious used");
                     } catch (err) {
-                        console.error("Downed error", err);
+                        console.error("Downed Unconscious error", err);
                     }
                 }
             }
