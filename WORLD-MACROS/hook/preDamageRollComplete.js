@@ -81,7 +81,7 @@ Hooks.on("midi-qol.preDamageRollComplete", async (workflow) => {
                 }
             }
             // golem adamantine vulnerability
-            if (workflow.item.data.type === "weapon" && workflow.item.data.data.properties.ada && tactor.name.toLowerCase().includes("golem")) {
+            if (workflow.item.data.type === "weapon" && workflow.item.data.data.properties.ada && (tactor.name.toLowerCase().includes("golem") || tactor.name.toLowerCase().includes("gargoyle"))) {
                 try {
                     console.warn("Golem Adamantine Vulnerability activated");
                     if (tactor.data.data.traits.dr.value.includes("physical")) {
