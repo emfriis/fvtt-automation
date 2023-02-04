@@ -1,5 +1,5 @@
 // web
-// macro.execute - Grease @attributes.spelldc
+// macro.execute - Web @attributes.spelldc
 // aura - all, check height, apply effect
   
 const lastArg = args[args.length - 1];

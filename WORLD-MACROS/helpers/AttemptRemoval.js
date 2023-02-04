@@ -34,6 +34,9 @@ try {
             return;
         }
         if (args[4] === "auto" || attempt) {
+            if (args[2].split("/").length === 2) {
+                ability = await USF.socket.executeAsUser("useDialog", player.id, { title: `Use ${args[2].split("/")[1]} instead of ${args[2].split("/")[0]} to attempt to remove ${condition}?`, content: `` });
+            }
             const itemData = {
                 name: `${condition} Save`,
                 img: `${lastArg.efData.icon}`,
