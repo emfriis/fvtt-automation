@@ -58,6 +58,18 @@ try {
             origin: (args[11] ?? null),
             flags: { dae: { macroRepeat: args[10] ?? null, specialDuration: args[6]?.split(",") ?? null }, magiceffect: args[7] ?? false, spelleffect: args[8] ?? false, },
         }
+        if (args[2] === "blinded") {
+            const senses = tactorTarget.data.data.attributes.senses;
+            const visionRange = Math.max(senses.blindsight, senses.tremorsense, 0);
+            effectData.changes = effectData.changes.concat([
+                { key: "ATL.flags.perfect-vision.sightLimit", mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, priority: 99 - visionRange, value: `${visionRange}`, },
+                { key: "ATCV.blinded", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99 - visionRange, value: "1" },
+                { key: "ATCV.conditionBlinded", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99 - visionRange, value: "true" },
+                { key: "ATCV.conditionType", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99 - visionRange, value: "sense" },
+                { key: "ATCV.conditionTargets", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99 - visionRange, value: "" }, 
+                { key: "ATCV.conditionSources", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, priority: 99 - visionRange, value: "" }
+            ]);
+        }
         await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
     }
 } catch (err) {
