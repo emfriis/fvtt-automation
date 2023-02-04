@@ -32,7 +32,7 @@ function counterSequence(source, target) {
 
 Hooks.on("midi-qol.preambleComplete", async (workflow) => {
     try { 
-
+        
         // range check cleanup
         if (workflow.token && [null, "", "creature", "ally", "enemy"].includes(workflow.item.data.data.target.type) && ["ft", "touch"].includes(workflow.item.data.data.range.units) && !(["mwak","msak"].includes(workflow.item.data.data.actionType) && game.combat && game.combat?.current.tokenId !== workflow.tokenId)) {
             try {
@@ -68,7 +68,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                 console.error("Range Check Cleanup error", err);
             }
         }
-
+        
         // self range template
         if (workflow.item.data.data.range.units === "self" && ["cone","line"].includes(workflow.item.data.data.target.type)) {
             try {
@@ -150,7 +150,7 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
                 console.error("Slow error", err);
             }
         }
-
+        
 	    // counterspell
 	    if (workflow.item.data.type === "spell" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(workflow.item.data.data.activation.type)) {
             try {
@@ -239,9 +239,9 @@ Hooks.on("midi-qol.preambleComplete", async (workflow) => {
         	const token = targets[t];
 	  	    let tactor = token?.actor;
         	if (!tactor) continue;
-
+            
             // charmed
-            if (workflow.actor.data.flags["midi-qol"].charm && !workflow.actor.data.data.traits.ci.value.includes("charmed") && (["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(workflow.item.data.data.activation.type) && ["mwak","rwak","msak","rsak","save","abil"].includes(workflow.item.data.data.actionType) || (workflow.item.data.data.damage.parts && !["healing","temphp"].includes(workflow.item.data.data.damage.parts[0][1])))) {
+            if (workflow.actor.data.flags["midi-qol"].charm && !["ally", "self"].includes(workflow.item.data.data.target.type) && !workflow.actor.data.data.traits.ci.value.includes("charmed") && (["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(workflow.item.data.data.activation.type) && ["mwak","rwak","msak","rsak","save","abil"].includes(workflow.item.data.data.actionType) || (workflow.item.data.data.damage.parts && !["healing","temphp"].includes(workflow.item.data.data.damage.parts[0][1])))) {
                 try {
                     console.warn("Charmed activated");
                     if (workflow.actor.data.flags["midi-qol"].charm?.includes(token.id)) {
