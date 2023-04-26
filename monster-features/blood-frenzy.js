@@ -12,3 +12,7 @@ if (target.actor.data.data.attributes.hp.value < target.actor.data.data.attribut
 	const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
     attackWorkflow.advantage = true;
 };
+
+// blood frenzy effect flags.midi-qol.advantage.attack.all custom ->
+
+game.user.targets?.first()?.actor?.data?.data?.attributes?.hp?.value < game.user.targets?.first()?.actor?.data?.data?.attributes?.hp?.max

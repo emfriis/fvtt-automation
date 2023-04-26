@@ -29,3 +29,18 @@ if (isPack) {
 	const attackWorkflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
     attackWorkflow.advantage = true;
 };
+
+// pack tactics effect flags.midi-qol.advantage.attack.all custom ->
+
+game.canvas.tokens.placeables.find(t => 
+	t.actor &&
+	!(t.actor?.data?.data?.details?.type?.value === "custom" && t.actor?.data?.data?.details?.type?.custom === "") &&
+	t.id !== canvas.tokens.controlled[0].id && 
+	t.id !== game.user.targets?.first().id &&
+	canvas.tokens.controlled[0].disposition === t.disposition &&
+	t.actor?.data?.data?.attributes?.hp?.value > 0 &&
+	!(t.actor?.effects?.find(e => ["Incapacitated", "Unconscious", "Paralyzed", "Petrified", "Stunned"].includes(e.data.label))) &&
+	MidiQOL.getDistance(t, game.user.targets?.first(), false) <= 5
+)
+
+game.canvas.tokens.placeables.find(t => t.actor && !(t.actor?.data?.data?.details?.type?.value === "custom" && t.actor?.data?.data?.details?.type?.custom === "") && t.id !== canvas.tokens.controlled[0].id && t.id !== game.user.targets?.first().id && canvas.tokens.controlled[0].disposition === t.disposition && t.actor?.data?.data?.attributes?.hp?.value > 0 && !(t.actor?.effects?.find(e => ["Incapacitated", "Unconscious", "Paralyzed", "Petrified", "Stunned"].includes(e.data.label))) && MidiQOL.getDistance(t, game.user.targets?.first(), false) <= 5)
