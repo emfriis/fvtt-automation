@@ -27,3 +27,5 @@ if (args[0].tag === "OnUse" && lastArg.targetUuids.length > 0 && args[0].macroPa
         await tactor.createEmbeddedDocuments("ActiveEffect", [effectData]);
     }
 }
+
+game.combat?.round === 1 && game.user.targets?.first()?.actor?.effects?.find(e => e.data.label === "Surprised")
