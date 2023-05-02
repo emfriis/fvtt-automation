@@ -34,13 +34,13 @@ if (isPack) {
 
 game.canvas.tokens.placeables.find(t => 
 	t.actor &&
-	!((t.actor?.data?.data?.details?.type?.value === "custom" || t.actor?.data?.data?.details?.type?.value === "") && t.actor?.data?.data?.details?.type?.custom === "") &&
+	!((t.actor?.system?.details?.type?.value === "custom" || t.actor?.system?.details?.type?.value === "") && t.actor?.system?.details?.type?.custom === "") &&
 	t.id !== canvas.tokens.controlled[0].id && 
 	t.id !== game.user.targets?.first().id &&
 	canvas.tokens.controlled[0].disposition === t.disposition &&
-	t.actor?.data?.data?.attributes?.hp?.value > 0 &&
+	t.actor?.system?.attributes?.hp?.value > 0 &&
 	!(t.actor?.effects?.find(e => ["Incapacitated", "Unconscious", "Paralyzed", "Petrified", "Stunned"].includes(e.data.label))) &&
 	MidiQOL.getDistance(t, game.user.targets?.first(), false) <= 5
 )
 
-game.canvas.tokens.placeables.find(t => t.actor && !((t.actor?.data?.data?.details?.type?.value === "custom" || t.actor?.data?.data?.details?.type?.value === "") && t.actor?.data?.data?.details?.type?.custom === "") && t.id !== canvas.tokens.controlled[0].id && t.id !== game.user.targets?.first().id && canvas.tokens.controlled[0].disposition === t.disposition && t.actor?.data?.data?.attributes?.hp?.value > 0 && !(t.actor?.effects?.find(e => ["Incapacitated", "Unconscious", "Paralyzed", "Petrified", "Stunned"].includes(e.data.label))) && MidiQOL.getDistance(t, game.user.targets?.first(), false) <= 5)
+game.canvas.tokens.placeables.find(t => t.actor && !((t.actor?.system?.details?.type?.value === "custom" || t.actor?.system?.details?.type?.value === "") && t.actor?.system?.details?.type?.custom === "") && t.id !== canvas.tokens.controlled[0].id && t.id !== game.user.targets?.first().id && canvas.tokens.controlled[0].disposition === t.disposition && t.actor?.system?.attributes?.hp?.value > 0 && !(t.actor?.effects?.find(e => ["Incapacitated", "Unconscious", "Paralyzed", "Petrified", "Stunned"].includes(e.data.label))) && MidiQOL.getDistance(t, game.user.targets?.first(), false) <= 5)
