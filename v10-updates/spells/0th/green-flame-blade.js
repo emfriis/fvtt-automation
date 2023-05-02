@@ -75,7 +75,7 @@ try {
                                         callback: async () => { 
                                             let target = game.user?.targets?.first();
                                             if (!target || workflow.hitTargets.has(target)) return;
-                                            if (MidiQOL.getDistance(workflow.hitTargets[0], target, false) > 5) return ui.notifications.warn("Target too far away");
+                                            if (MidiQOL.getDistance([...workflow.hitTargets][0], target, false) > 5) return ui.notifications.warn("Target too far away");
                                             const ability = args[0].item.system.ability ? args[0].item.system.ability : attacker.actor.system.attributes.spellcasting ? attacker.actor.system.attributes.spellcasting : "int";
                                             const mod = attacker.actor.system.abilities[ability].mod;
                                             const damageItemData = {
