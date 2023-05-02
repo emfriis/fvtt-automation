@@ -6,3 +6,4 @@ game.user.targets?.first()?.actor?.system?.attributes?.hp?.value < game.user.tar
 
 // ambusher - flags.midi-qol.advantage.attack.all
 game.combat?.round === 1 && game.user.targets?.first()?.actor?.effects?.find(e => e.data.label === "Surprised")
+
