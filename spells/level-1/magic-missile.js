@@ -10,26 +10,7 @@ if (args[0].targets.length > attacks) {
 
 let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
 
-    const targets = Array.from(workflow.targets);
-
-    if (itemUuid === workflow.uuid && workflow.item.data.data.activation.type !== "none") {
-
-        const targets = Array.from(workflow.targets);
-
-        const itemData = mergeObject(
-            duplicate(workflow.item.data),
-            {
-                //type: "feat",
-                flags: {
-                    "midi-qol": { onUseMacroName: null }
-                },
-                data: {
-                    activation: { type: "none" },
-                    preparation: { mode: "atwill" },
-                    damage: { parts: [[workflow.item.data.data.damage.parts[0][0], workflow.item.data.data.damage.parts[0][1]]] }
-                }
-            },
-        );
+    if (itemUuid === workflow.uuid && workflow.item.system.activation.type !== "none") {
 
         async function applyAttack(targetUuid) {
             let attackItem = new CONFIG.Item.documentClass(itemData, { parent: workflow.actor });
@@ -38,6 +19,16 @@ let hook = Hooks.on("midi-qol.preDamageRoll", async (workflow) => {
         }
 
         async function wait(ms) { return new Promise(resolve => { setTimeout(resolve, ms); }); }
+
+        const targets = Array.from(workflow.targets);
+
+        const itemData = mergeObject(
+            duplicate(workflow.item.data),
+            {
+                flags: { "midi-qol": { onUseMacroName: null } },
+                data: { activation: { type: "none" }, preparation: { mode: "atwill" }, damage: { parts: [[workflow.item.system.damage.parts[0][0], workflow.item.system.damage.parts[0][1]]] } }
+            },
+        );
 
         if (targets.length === 1) {
             for (i = 0; i < attacks; i++) {
