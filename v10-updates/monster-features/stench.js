@@ -1,3 +1,5 @@
+// macro.execute - custom - Stench [dc]
+
 try {
     const lastArg = args[args.length - 1];
     const target = canvas.tokens.get(lastArg.tokenId);

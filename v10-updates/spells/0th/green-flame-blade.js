@@ -62,43 +62,41 @@ try {
                         const weaponCopy = duplicate(weaponItem);
                         if (cantripDice > 1) weaponCopy.system.damage.parts.push([`${cantripDice - 1}d8`, "fire"]);
                         const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: attacker.actor });
-                        for (let t = 0; t < args[0].targetUuids.length; t++) {
-                            const options = { showFullCard: false, createWorkflow: true, configureDialog: true, targetUuids: [args[0].targetUuids[t]] };
-                            const workflow = await MidiQOL.completeItemRoll(attackItem, options);
-                            if (!workflow.hitTargets.size) return;
-                            new Dialog({
-                                title: "Green-Flame Blade",
-                                content: `<p>Target a creature for the flames to leap to.</p>`,
-                                buttons: {
-                                    Ok: {
-                                        label: "Ok",
-                                        callback: async () => { 
-                                            let target = game.user?.targets?.first();
-                                            if (!target || workflow.hitTargets.has(target)) return;
-                                            if (MidiQOL.getDistance([...workflow.hitTargets][0], target, false) > 5) return ui.notifications.warn("Target too far away");
-                                            const ability = args[0].item.system.ability ? args[0].item.system.ability : attacker.actor.system.attributes.spellcasting ? attacker.actor.system.attributes.spellcasting : "int";
-                                            const mod = attacker.actor.system.abilities[ability].mod;
-                                            const damageItemData = {
-                                                name: "Green-Flame Blade",
-                                                img: "icons/skills/melee/blade-tip-orange.webp",
-                                                type: "feat",
-                                                flags: { midiProperties: { magiceffect: true, spelleffect: true, } },
-                                                system: {
-                                                    activation: { type: "none", },
-                                                    target: { type: "self", },
-                                                    actionType: "other",
-                                                    damage: { parts: [[`${cantripDice - 1}d8 + ${mod}`, "fire"]] }
-                                                }
+                        const options = { showFullCard: false, createWorkflow: true, configureDialog: true, targetUuids: [args[0].targetUuids[0]] };
+                        const workflow = await MidiQOL.completeItemRoll(attackItem, options);
+                        if (!workflow.hitTargets.size) return;
+                        new Dialog({
+                            title: "Green-Flame Blade",
+                            content: `<p>Target a creature for the flames to leap to.</p>`,
+                            buttons: {
+                                Ok: {
+                                    label: "Ok",
+                                    callback: async () => { 
+                                        let target = game.user?.targets?.first();
+                                        if (!target || workflow.hitTargets.has(target)) return;
+                                        if (MidiQOL.getDistance([...workflow.hitTargets][0], target, false) > 5) return ui.notifications.warn("Target too far away");
+                                        const ability = args[0].item.system.ability ? args[0].item.system.ability : attacker.actor.system.attributes.spellcasting ? attacker.actor.system.attributes.spellcasting : "int";
+                                        const mod = attacker.actor.system.abilities[ability].mod;
+                                        const damageItemData = {
+                                            name: "Green-Flame Blade",
+                                            img: "icons/skills/melee/blade-tip-orange.webp",
+                                            type: "feat",
+                                            flags: { midiProperties: { magiceffect: true, spelleffect: true, } },
+                                            system: {
+                                                activation: { type: "none", },
+                                                target: { type: "self", },
+                                                actionType: "other",
+                                                damage: { parts: [[`${cantripDice - 1}d8 + ${mod}`, "fire"]] }
                                             }
-                                            const damageItem = new CONFIG.Item.documentClass(damageItemData, { parent: target.actor });
-                                            const damageOptions = { showFullCard: false, createWorkflow: true, configureDialog: true };
-                                            await MidiQOL.completeItemRoll(damageItem, damageOptions);
-                                        },
+                                        }
+                                        const damageItem = new CONFIG.Item.documentClass(damageItemData, { parent: target.actor });
+                                        const damageOptions = { showFullCard: false, createWorkflow: true, configureDialog: true };
+                                        await MidiQOL.completeItemRoll(damageItem, damageOptions);
                                     },
-                                    Cancel: { label: "Cancel" },
                                 },
-                            }).render(true);
-                        }
+                                Cancel: { label: "Cancel" },
+                            },
+                        }).render(true);
                     },
                 },
                 Cancel: { label: "Cancel" },

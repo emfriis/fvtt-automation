@@ -71,10 +71,8 @@ try {
                         });
                         if (cantripDice > 1) weaponCopy.system.damage.parts.push([`${cantripDice - 1}d8`, "thunder"]);
                         const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: attacker.actor });
-                        for (let t = 0; t < args[0].targetUuids.length; t++) {
-                            const options = { showFullCard: false, createWorkflow: true, configureDialog: true, targetUuids: [args[0].targetUuids[t]] };
-                            await MidiQOL.completeItemRoll(attackItem, options);
-                        }
+                        const options = { showFullCard: false, createWorkflow: true, configureDialog: true, targetUuids: [args[0].targetUuids[0]] };
+                        await MidiQOL.completeItemRoll(attackItem, options);
                     },
                 },
                 Cancel: { label: "Cancel" },
