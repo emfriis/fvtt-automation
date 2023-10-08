@@ -61,13 +61,13 @@ try {
                         const weaponItem = attacker.actor.getEmbeddedDocument("Item", itemId);
                         const weaponCopy = duplicate(weaponItem);
                         weaponCopy.effects.push({
-                            changes: [{ key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `BoomingBlade ${cantripDice}d8`, priority: "20", }],
+                            changes: [{ key: "macro.execute", mode: CONST.ACTIVE_EFFECT_MODES.CUSTOM, value: `ItemMacro ${cantripDice}d8`, priority: "20", }],
                             disabled: false,
                             icon: args[0].item.img,
                             label: args[0].item.name,
                             origin : args[0].uuid,
                             transfer: false,
-                            flags: { dae: { specialDuration: ["turnStartSource", "isMoved"], transfer: false, stackable: "noneName" }, core: { statusId: args[0].item.name, }, },
+                            flags: { dae: { itemData: args[0].item.system, specialDuration: ["turnStartSource", "isMoved"], transfer: false, stackable: "noneName" }, core: { statusId: args[0].item.name, }, },
                         });
                         if (cantripDice > 1) weaponCopy.system.damage.parts.push([`${cantripDice - 1}d8`, "thunder"]);
                         const attackItem = new CONFIG.Item.documentClass(weaponCopy, { parent: attacker.actor });

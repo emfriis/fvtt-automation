@@ -76,14 +76,14 @@ for (let target of targetList) {
         await USF.socket.executeAsGM("deleteItem", { itemUuid: saveItem.uuid });
         if (saveWorkflow.failedSaves.size) {
             if (level_cr >= mon_cr) {
-                await USF.socket.executeAsGM("updateActor", { actorUuid: target.actor.uuid, updates: {"data.attributes.hp.value" : 0} });
+                
             } else {   
                 let effectData = {
                     label: "Turned",
                     icon: "icons/svg/stoned.svg",
                     origin: args[0].uuid,
                     disabled: false,
-                    duration: { rounds: 10, startRound: gameRound, startTime: game.time.worldTime },
+                    duration: { seconds: 60, startTime: game.time.worldTime },
                     flags: { dae: { specialDuration: ["isDamaged"] } }
 			    };
                 let effect = target.actor.effects.find(i => i.data.label === "Turned");
