@@ -50,4 +50,4 @@ try {
     let dice = Math.min(+slot.level + 1 + (typeBonus ? 1 : 0), 6);
     let diceMult = args[0].isCritical ? 2: 1;
     return {damageRoll: `${dice * diceMult}d8[radiant]`, flavor: `Divine Smite`};
-} catch (err)  {console.error("Divine Smite Macro - ", err); }
+} catch (err) {console.error("Divine Smite Macro - ", err); }

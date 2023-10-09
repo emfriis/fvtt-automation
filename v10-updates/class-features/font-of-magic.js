@@ -3,8 +3,8 @@ try {
     let item = args[0].actor.items.find(i => i.name === "Sorcery Points" && i.system.uses);
     let spells = [];
     Object.keys(args[0].actor.system.spells).forEach(key => {
-        if (key === "pact" && args[0].actor.system.spells.pact.value > 0) spells.push({type: key, level: args[0].actor.system.spells.pact.level, value: args[0].actor.system.spells.pact.value, max: args[0].actor.system.spells.pact.max});
-        if (key !== "pact" && args[0].actor.system.spells[key].value > 0) spells.push({type: key, level: +key.slice(-1), value: args[0].actor.system.spells[key].value, max: args[0].actor.system.spells[key].max});
+        if (key === "pact" && args[0].actor.system.spells.pact.max > 0) spells.push({type: key, level: args[0].actor.system.spells.pact.level, value: args[0].actor.system.spells.pact.value, max: args[0].actor.system.spells.pact.max});
+        if (key !== "pact" && args[0].actor.system.spells[key].max > 0) spells.push({type: key, level: +key.slice(-1), value: args[0].actor.system.spells[key].value, max: args[0].actor.system.spells[key].max});
     });
     console.error("spells", spells);
     let buttonList = {};
@@ -43,7 +43,7 @@ try {
         icon: '<i class="fas fa-brain"></i>',
         label:  "Sorcery Point(s)",
         callback: () => {
-            spells.forEach(spell => inputText += `<div class="form-group"><label for="${spell.type}">Spell Slot Level ${spell.level} ${spell.type === "pact" ? "(Pact Slot) " : ""}[${spell.value}/${spell.max}]</label><input id="${spell.type}" name="spellSlot" value="${spell.level}" type="radio"></div>`);
+            spells.filter(spell => spell.value > 0).forEach(spell => inputText += `<div class="form-group"><label for="${spell.type}">Spell Slot Level ${spell.level} ${spell.type === "pact" ? "(Pact Slot) " : ""}[${spell.value}/${spell.max}]</label><input id="${spell.type}" name="spellSlot" value="${spell.level}" type="radio"></div>`);
             new Dialog({
                 title: "Font of Magic",
                 content: `<form><p>Choose a spell slot to convert:</p><hr>${inputText}</form>`,
