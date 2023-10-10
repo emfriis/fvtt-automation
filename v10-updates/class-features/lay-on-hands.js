@@ -2,7 +2,7 @@ try {
     let target = args[0].hitTargets[0].actor;
     let item = args[0].actor.items.find(i => i.name === "Lay on Hands" && i.system.uses);
     let uses = item.system.uses.value + 1;
-    if (args[0].tag !== "OnUse" || args[0].macroPass !== "postDamageRoll" || !target || !uses || ["undead", "fiend"].some(t => target.system.details?.type.value.toLowerCase().includes(t)) || ["undead", "fiend"].some(t => target.system.details?.type.value.toLowerCase().includes(t))) {
+    if (args[0].tag !== "OnUse" || args[0].macroPass !== "postDamageRoll" || !target || !uses || ["undead", "fiend"].some(t => target.system.details?.type?.value?.toLowerCase()?.includes(t)) || ["undead", "fiend"].some(t => target.system.details?.type?.value?.toLowerCase()?.includes(t))) {
         item.update({"system.uses.value": uses});
         return;
     }
@@ -25,7 +25,7 @@ try {
                     icon: '<i class="fas fa-check"></i>',
                     label: "Heal",
                     callback: () => {
-                        if (uses >= $('#heal')[0].value) {
+                        if (uses + 1 >= $('#heal')[0].value) {
                             resolve({ type: "heal", value: $('#heal')[0].value });
                         } else {
                             ui.notifications.warn("Not enough Points of Healing Remaining"); 
@@ -36,7 +36,7 @@ try {
                     icon: '<i class="fas fa-check"></i>',
                     label: "Cure",
                     callback: () => {  
-                        if (uses >= 5) {
+                        if (uses + 1 >= 5) {
                             resolve({ type: "cure", value: 5 });
                         } else {
                             ui.notifications.warn("Not enough Points of Healing Remaining"); 

@@ -5,44 +5,14 @@ try {
         const cantripDice = Math.floor((characterLevel + 1) / 6) + 1;
         const filteredWeapons = attacker.actor.items.filter((i) => i.data.type === "weapon" && i.system.equipped && i.system.activation.type === "action" && i.system.actionType == "mwak");
         let weapon_content = "";
-        filteredWeapons.forEach((weapon) => {
-            weapon_content += `<label class="radio-label">
-            <input type="radio" name="weapon" value="${weapon.id}">
-            <img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">
-            ${weapon.data.name}
-            </label>`;
-        });
+        filteredWeapons.forEach((weapon) => { weapon_content += `<label class="radio-label"><input type="radio" name="weapon" value="${weapon.id}"><img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">${weapon.data.name}</label>`; });
         let content = `
             <style>
-            .weapon .form-group {
-                display: flex;
-                flex-wrap: wrap;
-                width: 100%;
-                align-items: flex-start;
-            }
-            .weapon .radio-label {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                justify-items: center;
-                flex: 1 0 25%;
-                line-height: normal;
-            }
-            .weapon .radio-label input {
-                display: none;
-            }
-            .weapon img {
-                border: 0px;
-                width: 50px;
-                height: 50px;
-                flex: 0 0 50px;
-                cursor: pointer;
-            }
-            /* CHECKED STYLES */
-            .weapon [type=radio]:checked + img {
-                outline: 2px solid #f00;
-            }
+            .weapon .form-group { display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start; }
+            .weapon .radio-label { display: flex; flex-direction: column; align-items: center; text-align: center; justify-items: center; flex: 1 0 25%; line-height: normal; }
+            .weapon .radio-label input { display: none; }
+            .weapon img { border: 0px; width: 50px; height: 50px; flex: 0 0 50px; cursor: pointer; }
+            .weapon [type=radio]:checked + img { outline: 2px solid #f00; }
             </style>
             <form class="weapon">
             <div class="form-group" id="weapons">
