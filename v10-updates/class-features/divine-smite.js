@@ -1,8 +1,8 @@
 try {
-    if (args[0].tag !== "DamageBonus" || !["mwak"].includes(args[0].item.system.actionType) || !args[0].damageRoll.total) return;
+    if (args[0].tag !== "DamageBonus" || !args[0].damageRoll.total || !["mwak"].includes(args[0].item.system.actionType)) return;
     let options = "";
     Object.keys(args[0].actor.system.spells).forEach(key => {
-        if (key === "pact" && args[0].actor.system.spells.pact.value > 0) options += `<option id="${args[0].actor.system.spells.pact.level}" value="${key}">Pact Magic: Level ${game.i18n.format('DND5E.SpellLevelSlot', {level: args[0].actor.system.spells.pact.level, n: args[0].actor.system.spells.pact.value})}</option>`;
+        if (key === "pact" && args[0].actor.system.spells.pact.value > 0 && args[0].actor.system.spells.pact.level) options += `<option id="${args[0].actor.system.spells.pact.level}" value="${key}">Pact Magic: Level ${game.i18n.format('DND5E.SpellLevelSlot', {level: args[0].actor.system.spells.pact.level, n: args[0].actor.system.spells.pact.value})}</option>`;
         if (key !== "pact" && args[0].actor.system.spells[key].value > 0) options += `<option id="${key.slice(-1)}" value="${key}">Level ${game.i18n.format('DND5E.SpellLevelSlot', {level: +key.slice(-1), n: args[0].actor.system.spells[key].value})}</option>`;
     });
     if (options === "") return;
@@ -46,7 +46,7 @@ try {
         spellUpdate[`system.spells.${slot.type}.value`] = Math.max(args[0].actor.system.spells[slot.type].value - 1, 0);
         args[0].actor.update(spellUpdate);
     }
-    let typeBonus = ["undead", "fiend"].some(t => args[0].hitTargets.values().next().value.actor.system.details?.type.value.toLowerCase().includes(t)) || ["undead", "fiend"].some(t => args[0].hitTargets.values().next().value.actor.system.details?.type.value.toLowerCase().includes(t));
+    let typeBonus = ["undead", "fiend"].some(t => args[0].hitTargets[0].actor.system.details?.type.value.toLowerCase().includes(t)) || ["undead", "fiend"].some(t => args[0].hitTargets[0].actor.system.details?.type.value.toLowerCase().includes(t));
     let dice = Math.min(+slot.level + 1 + (typeBonus ? 1 : 0), 6);
     let diceMult = args[0].isCritical ? 2: 1;
     return {damageRoll: `${dice * diceMult}d8[radiant]`, flavor: `Divine Smite`};

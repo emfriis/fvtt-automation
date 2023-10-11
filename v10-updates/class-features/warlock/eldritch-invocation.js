@@ -1,8 +1,12 @@
 // agonizing blast
-if (args[0].tag === "DamageBonus" && args[0].item.name == "Eldritch Blast") return {damageRoll: `${args[0].actor.system.abilities.cha.mod}`, flavor: "Agonizing Blast"}
+try {
+    if (args[0].tag === "DamageBonus" && args[0].damageRoll.total && args[0].item.name == "Eldritch Blast") return {damageRoll: `${args[0].actor.system.abilities.cha.mod}`, flavor: "Agonizing Blast"}
+} catch (err) {console.error("Agonizing Blast Macro - ", err)}
 
 //lifedrinker
-if (args[0].tag === "DamageBonus" && args[0].item.name.includes("(Pact Weapon)")) return {damageRoll: `${Math.max(args[0].actor.system.abilities.cha.mod, 1)}[Necrotic]`, flavor: "Lifedrinker"}
+try {
+    if (args[0].tag === "DamageBonus" && args[0].damageRoll.total && args[0].item.name.includes("(Pact Weapon)")) return {damageRoll: `${Math.max(args[0].actor.system.abilities.cha.mod, 1)}[Necrotic]`, flavor: "Lifedrinker"}
+} catch (err) {console.error("Agonizing Blast Macro - ", err)}
 
 //lance of lethargy
 try {
@@ -43,7 +47,7 @@ try {
 
 //eldritch smite
 try {
-    if (args[0].tag !== "DamageBonus" || !["mwak"].includes(args[0].item.system.actionType) || !args[0].damageRoll.total || args[0].actor.system.spells.pact.value < 1 || args[0].actor.effects.find(e => e.label === "Used Eldritch Smite")) return;
+    if (args[0].tag !== "DamageBonus" || !args[0].hitTargets.length || !["mwak"].includes(args[0].item.system.actionType) || args[0].actor.system.spells.pact.value < 1 || args[0].actor.effects.find(e => e.label === "Used Eldritch Smite")) return;
     let slot = await new Promise((resolve) => {
         new Dialog({
             title: "Eldritch Smite",
@@ -86,13 +90,13 @@ try {
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     }
-    if (args[0].hitTargets.values().next().value.actor.system.details.size !== "grg" && !args[0].hitTargets.values().next().value.actor.effects.find(e => e.label === "Prone")) {
+    if (args[0].hitTargets[0].actor.system.details.size !== "grg" && !args[0].hitTargets[0].actor.effects.find(e => e.label === "Prone")) {
         let effectData = {
             disabled: false,
             changes: [{key: "StatusEffect", mode: 0, value: "Convenient Effect: Prone", priority: 20}],
             label: "Prone"
         };
-        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].hitTargets.values().next().value.actor.uuid, effects: [effectData] });
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].hitTargets[0].value.actor.uuid, effects: [effectData] });
     }
     let dice = args[0].actor.system.spells.pact.level + 1;
     let diceMult = args[0].isCritical ? 2: 1;
