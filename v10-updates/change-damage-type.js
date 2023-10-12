@@ -1,7 +1,7 @@
 let hook1 = Hooks.on("midi-qol.preDamageRollComplete", async workflowNext => {
     console.error(1, duplicate(workflowNext.damageRoll));
     if (workflowNext.uuid === args[0].uuid) {
-        //options.map(o => workflowNext.damageRoll.formula.replace(o, type));
+        workflowNext.defaultDamageType = type;
         workflowNext.damageRoll.dice.forEach((d) => { 
             if (options.includes(d.flavor)) {
                 d.flavor = type;
@@ -9,13 +9,6 @@ let hook1 = Hooks.on("midi-qol.preDamageRollComplete", async workflowNext => {
                 d.formula.replace(d.options.flavor, type);
             }
         });
-        /*workflowNext.damageRoll.terms.forEach((d) => { 
-            if (options.includes(d.flavor)) {
-                d.flavor = type;
-                d.options.flavor = type;
-                d.formula.replace(d.options.flavor, type);
-            }
-        });*/
         workflowNext.damageRollHTML = await workflowNext.damageRoll.render();
         Hooks.off("midi-qol.preDamageRollComplete", hook1);
     }
