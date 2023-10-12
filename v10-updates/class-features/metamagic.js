@@ -196,6 +196,7 @@ try {
             });
             let type = await transmutedDialog;
             if (!type) return;
+            args[0].workflow.newDefaultDamageType = type;
             let hook1 = Hooks.on("midi-qol.preDamageRollComplete", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid) {
                     workflowNext.defaultDamageType = type;
