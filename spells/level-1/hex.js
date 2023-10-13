@@ -76,14 +76,14 @@ if (args[0].tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
             origin: item.uuid,
             disabled: false,
             flags: { dae: { itemData: item.data, token: tactorTarget.uuid, } },
-            duration: { seconds: durationSeconds, startTime: game.time.worldTime },
+            duration: { seconds: durationSeconds },
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData1] });
         if (conc) {
             let concUpdate = await getProperty(tactor.data.flags, "midi-qol.concentration-data.targets");
             await concUpdate.push({ tokenUuid: tokenOrActor.uuid, actorUuid: tactor.uuid });
             await tactor.setFlag("midi-qol", "concentration-data.targets", concUpdate);
-            await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: conc.id, duration: { seconds: durationSeconds, startTime: game.time.worldTime } }] });
+            await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: tactor.uuid, updates: [{ _id: conc.id, duration: { seconds: durationSeconds } }] });
         }
 
         // create reapply item

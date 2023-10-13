@@ -193,7 +193,7 @@ async function createTale (tale, die) {
                     icon: "icons/skills/movement/arrow-down-pink.webp",
                     name: "Spirit Tale: Tale of the Traveller",
                     transfer: false,
-                    flags: { dae: { specialDuration: ["turnStartSource"], transfer: false }, core: { statusId: "Spirit Tale: Tale of the Traveller" } }
+                    flags: { dae: { specialDuration: ["turnStartSource"], transfer: false, showIcon: true } }
                 }],
                 flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } } }
             };
@@ -223,7 +223,7 @@ async function createTale (tale, die) {
                     name: "Spirit Tale: Tale of the Beguiler",
                     transfer: false,
                     duration: { rounds: 1 },
-                    flags: { dae: { specialDuration: ["turnEnd"], transfer: false }, core: { statusId: "Spirit Tale: Tale of the Beguiler" } }
+                    flags: { dae: { specialDuration: ["turnEnd"], transfer: false } }
                 }],
                 flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } }, flags: { midiProperties: { magiceffect: true } } }
             }
@@ -353,7 +353,7 @@ async function createTale (tale, die) {
                     name: "Spirit Tale: Tale of the Mind-Bender",                        
                     transfer: false,
                     duration: { rounds: 1 },
-                    flags: { dae: { specialDuration: ["turnEnd"], transfer: false }, core: { statusId: "Spirit Tale: Tale of the Mind-Bender" } }
+                    flags: { dae: { specialDuration: ["turnEnd"], transfer: false } }
                 }],
                 flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } }, midiProperties: { magiceffect: true } }
             }

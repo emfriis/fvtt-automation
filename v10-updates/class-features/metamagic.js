@@ -1,6 +1,6 @@
 try {
-    const usesItem = args[0].actor.items.find(i => i.name === "Sorcery Points");
-    if (!usesItem || !usesItem.system.uses.value || args[0].tag !== "OnUse" || args[0].item.type !== "spell") return;
+    const usesItem = args[0].actor.items.find(i => i.name === "Sorcery Points" && i.system.uses.value);
+    if (!usesItem || args[0].tag !== "OnUse" || args[0].item.type !== "spell") return;
     if (args[0].macroPass === "preItemRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type) && !args[0].actor.flags["midi-qol"]?.twinnedSpell) {
         let metamagicContent = "";
         let carefulItem = args[0].actor.items.find(i => i.name === "Metamagic: Careful Spell");
@@ -29,15 +29,11 @@ try {
             .metamagic [type=radio]:checked + img {outline: 2px solid #f00;}
             </style>
             <form class="metamagic">
-            <div class="form-group" id="metamagics">
-                ${metamagicContent}
-            </div>
-            <div>
-                <p>(${usesItem.system.uses.value} Sorcery Point${usesItem.system.uses.value > 1 ? "s" : ""} Remaining)</p>
-            </div>
+                <div class="form-group" id="metamagics">${metamagicContent}</div>
+                <div><p>(${usesItem.system.uses.value} Sorcery Point${usesItem.system.uses.value > 1 ? "s" : ""} Remaining)</p></div>
             </form>
         `;
-        let dialog = new Promise(async (resolve, reject) => {
+        let dialog = new Promise(async (resolve) => {
             new Dialog({
                 title: "Metamagic: Usage Configuration",
                 content,
@@ -64,7 +60,7 @@ try {
         if (!metamagic) return;
         if (metamagic === "careful") {
             // careful spell
-            let carefulDialog =  new Promise(async (resolve, reject) => {
+            let carefulDialog =  new Promise(async (resolve) => {
                 new Dialog({
                     title: "Metamagic: Careful Spell",
                     content: `<p>Target any creatures you want to protect.<br>(Up to ${Math.max(1, args[0].actor.system.abilities.cha.mod)} Creatures)</p>`,
@@ -87,7 +83,7 @@ try {
                         if (workflowNext.failedSaves.has(targets[t]) && !workflowNext.saves.has(targets[t])) {
                             workflowNext.failedSaves.delete(targets[t]);
                             workflowNext.saves.add(targets[t]);
-                            workflowNext.saveDisplayData.find(d => d.target === targets[t]).saveString = "succeeds";
+                            Object.assign(workflowNext.saveDisplayData.find(d => d.target === targets[t]), { saveString: "succeeds", saveStyle: "color: green" });
                         }
                     }
                     Hooks.off("midi-qol.postCheckSaves", hook);
@@ -133,7 +129,7 @@ try {
             if (args[0].targets.length === 1) {
                 targets = [args[0].targets[0]];
             } else {
-                let heightenedDialog =  new Promise(async (resolve, reject) => {
+                let heightenedDialog =  new Promise(async (resolve) => {
                     new Dialog({
                         title: "Metamagic: Heightened Spell",
                         content: `<p>Target a creature to weaken.</p>`,
@@ -174,10 +170,8 @@ try {
             const optionContent = options.map((o) => { return `<option value="${o}">${o}</option>` })
             const content = `
             <div class="form-group">
-            <label>Damage Types: </label>
-            <select name="types"}>
-            ${optionContent}
-            </select>
+                <label>Damage Types: </label>
+                <select name="types"}>${optionContent}</select>
             </div>
             `;
             let transmutedDialog =  new Promise(async (resolve, reject) => {
@@ -261,45 +255,18 @@ try {
         }
         let content = `
         <style>
-        .dice .form-group {
-            display: flex;
-            flex-wrap: wrap;
-            width: 100%;
-            align-items: flex-start;
-        }
-        .dice .checkbox-label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            justify-items: center;
-            flex: 1 0 25%;
-            line-height: normal;
-        }
-        .dice .check-label input {
-            display: none;
-        }
-        .dice img {
-            border: 0px;
-            width: 50px;
-            height: 50px;
-            flex: 0 0 50px;
-            cursor: pointer;
-        }
-            </style>
-            <form class="dice">
-                <div>
-                    <p>Choose up to ${Math.max(1, args[0].actor.system.abilities.cha.mod)} damage dice to reroll:</p>
-                </div>
-                <div class="form-group" id="dice-group">
-                    ${die_content}
-                </div>
-                <div>
-                    <p>(${usesItem.system.uses.value} Sorcery Points Remaining)</p>
-                </div>
-            </form>
+        .dice .form-group { display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start; }
+        .dice .checkbox-label { display: flex; flex-direction: column; align-items: center; text-align: center; justify-items: center; flex: 1 0 25%; line-height: normal; }
+        .dice .check-label input { display: none; }
+        .dice img { border: 0px; width: 50px; height: 50px; flex: 0 0 50px; cursor: pointer; }
+        </style>
+        <form class="dice">
+            <div><p>Choose up to ${Math.max(1, args[0].actor.system.abilities.cha.mod)} damage dice to reroll:</p></div>
+            <div class="form-group" id="dice-group">${die_content}</div>
+            <div><p>(${usesItem.system.uses.value} Sorcery Points Remaining)</p></div>
+        </form>
         `;
-        let empoweredRerolls = await new Promise((resolve, reject) => {
+        let empoweredRerolls = await new Promise((resolve) => {
             new Dialog({
                 title: "Metamagic: Heightened Spell",
                 content,
