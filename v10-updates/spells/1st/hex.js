@@ -11,15 +11,15 @@ if (lastArg.tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
     if(!target) return;
     if (isReapply) {
         const prevTarget = canvas.tokens.get(actor.flags["midi-qol"]?.hexTarget);
-        console.error(prevTarget);
-        if (prevTarget.actor && prevTarget.actor.system.attributes.hp.value > 0) {
+        if (prevTarget && prevTarget.actor.system.attributes.hp.value > 0) {
             return ui.notifications.warn("Previous target still above 0 hit points");
-        } else if (prevTarget.actor && prevTarget.actor.system.attributes.hp.value < 1) {
+        } else if (prevTarget && prevTarget.actor.system.attributes.hp.value < 1) {
             await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: prevTarget.actor.uuid, effects: [prevTarget.actor.effects.find(e => e.label === "Hex" && e.origin === item.uuid)?.id] });
         }
     } else {
-        const duration = lastArg.itemLevel > 4 ? 86400 : lastArg.itemLevel > 2 ? 28800 : 3600;
-        await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: conc.id, duration: { seconds: duration } }] });
+        const duration = lastArg.spellLevel > 4 ? 86400 : lastArg.spellLevel > 2 ? 28800 : 3600;
+        if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: effect.id, duration: { seconds: duration } }] });
+        if (conc) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: conc.id, duration: { seconds: duration } }] });
         const itemData = mergeObject(duplicate(item.data), {
             name: "Reapply Hex",
             type: "feat",
@@ -81,7 +81,7 @@ if (lastArg.tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.uuid, effects: [effectData] });
     //update self effect
     const targetEffect =  target.effects.find(e => e.label === "Hex" && e.changes.find(c => c.key == "flags.midi-qol.hex" && c.value == lastArg.tokenId));
-    if (effect && targetEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.concat([{ key: `flags.midi-qol.hexTarget`, mode: 2, value: lastArg.targets[0].id, priority: 20 }, { key: `flags.dae.deleteUuid`, mode: 5, value: targetEffect.uuid, priority: 20 }]) }] });
+    if (effect && targetEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.filter(c => c.key != "flags.midi-qol.hexTarget").concat([{ key: "flags.midi-qol.hexTarget", mode: 2, value: lastArg.targets[0].id, priority: 20 }, { key: `flags.dae.deleteUuid`, mode: 5, value: targetEffect.uuid, priority: 20 }]) }] });
 }
 //apply damage bonus
 if (lastArg.tag === "DamageBonus" && lastArg.damageRoll && ["mwak","rwak","msak","rsak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.hex?.includes(lastArg.tokenId))) {
