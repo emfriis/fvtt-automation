@@ -31,12 +31,7 @@ if (args[0].tag === "OnUse") {
         let reaction = tactor.effects.find(e => e.data.label === "Reaction");
         if (reaction) {
             await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: tactor.uuid, effects: [reaction.id] });
-        }
-        return ui.notifications.error(`The spell fizzles, No elemental damage found`);
-    } else if (options.length === 1) {
-        type = options[0];
-    } else {
-        const optionContent = options.map((o) => { return `<option value="${o}">${CONFIG.DND5E.damageTypes[o]}</option>` })
+        }const optionContent = options.map((o) => { return `<option value="${o}">${CONFIG.DND5E.damageTypes[o]}</option>` })
         const content = `
         <div class="form-group">
         <label>Damage Types : </label>
@@ -98,6 +93,11 @@ if (args[0] === "off" && ["times-up:duration-special","times-up:duration:turns"]
     }
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: tactor.uuid, effects: [effectData] });
 }
+        return ui.notifications.error(`The spell fizzles, No elemental damage found`);
+    } else if (options.length === 1) {
+        type = options[0];
+    } else {
+        
 
 if (args[0].tag === "DamageBonus") {
     if (!["mwak"].includes(lastArg.item.data.actionType)) return;

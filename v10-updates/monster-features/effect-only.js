@@ -13,3 +13,6 @@ game.combat?.round === 1 && game.user.targets?.first()?.actor?.effects?.find(e =
 
 game.combat?.round===1&&game.user.targets?.first()?.actor?.effects?.find(e=>e.label==="Surprised")
 
+// chill touch
+(["undead"].includes(canvas.tokens.controlled[0].actor.system.details?.race?.toLowerCase())||["undead"].includes(canvas.tokens.controlled[0].actor.system.details?.type?.value?.toLowerCase()))&&game.user.targets?.first()?.id=="@token"
+

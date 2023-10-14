@@ -20,11 +20,11 @@ if (lastArg.tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
         const duration = lastArg.spellLevel > 4 ? 86400 : lastArg.spellLevel > 2 ? 28800 : 3600;
         if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: effect.id, duration: { seconds: duration } }] });
         if (conc) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: conc.id, duration: { seconds: duration } }] });
-        const itemData = mergeObject(duplicate(item.data), {
+        const itemData = mergeObject(duplicate(item), {
             name: "Reapply Hex",
             type: "feat",
             effects: [],
-            system: { components: {concentration: false, material: false, ritual: false, somatic: false, value: "", vocal: false} }
+            system: { duration: { value: null, units: null}, components: {concentration: false, material: false, ritual: false, somatic: false, value: "", vocal: false} }
         }, {overwrite: true, inlace: true, insertKeys: true, insertValues: true});
         await actor.createEmbeddedDocuments("Item", [itemData]);
         const reapplyItem = actor.items.find(i => i.name === "Reapply Hex");
@@ -72,7 +72,7 @@ if (lastArg.tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
         icon: item.img,
         changes: [
             { key: `flags.midi-qol.disadvantage.ability.check.${ability}`, mode: 0, value: 1, priority: 20 },
-            { key: "flags.midi-qol.hex", mode: 2, value: lastArg.tokenId, priority: 20 },
+            { key: "flags.midi-qol.hex", mode: 2, value: lastArg.tokenId, priority: 20 }
         ],
         origin: item.uuid,
         disabled: false,
