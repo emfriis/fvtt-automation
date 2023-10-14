@@ -30,7 +30,7 @@ try {
         duration: { rounds: 1 },
         flags: { 
             dae: { specialDuration: ["turnStartSource"] },
-            effectmacro: { onDelete: { script: 'try {\nlet type = actor.flags["midi-qol"].absorbElements?.type;\nlet level = actor.flags["midi-qol"].absorbElements?.level;\nlet effectData = {\nlabel: "Absorb Elements Damage Bonus",\nicon: "icons/magic/lightning/orb-ball-spiral-blue.webp",\nchanges: [\n{ key: "system.bonuses.mwak.attack", mode: 2, value: `${level}d6[${type}]`, priority: 20 },\n{ key: "system.bonuses.msak.attack", mode: 2, value: `${level}d6[${type}]`, priority: 20 },\n],\ndisabled: false,\nduration: { turns: 1 },\nflags: { dae: { specialDuration: ["1Hit:mwak", "1Hit:msak"] } },\n}\nawait actor.unsetFlag("midi-qol", "absorbElements");\nawait MidiQOL.socket().executeAsGM("createEffects", { actorUuid: actor.uuid, effects: [effectData] });\n} catch (err) {console.error("Absorb Elements Macro - ", err)}' } }
+            effectmacro: { onDelete: { script: 'try {\nif (game?.combat?.current?.tokenId !== token.id) return;\nlet type = actor.flags["midi-qol"].absorbElements?.type;\nlet level = actor.flags["midi-qol"].absorbElements?.level;\nlet effectData = {\nlabel: "Absorb Elements Damage Bonus",\nicon: "icons/magic/lightning/orb-ball-spiral-blue.webp",\nchanges: [\n{ key: "system.bonuses.mwak.attack", mode: 2, value: `${level}d6[${type}]`, priority: 20 },\n{ key: "system.bonuses.msak.attack", mode: 2, value: `${level}d6[${type}]`, priority: 20 },\n],\ndisabled: false,\nduration: { turns: 1 },\nflags: { dae: { specialDuration: ["1Hit:mwak", "1Hit:msak"] } },\n}\nawait actor.unsetFlag("midi-qol", "absorbElements");\nawait MidiQOL.socket().executeAsGM("createEffects", { actorUuid: actor.uuid, effects: [effectData] });\n} catch (err) {console.error("Absorb Elements Macro - ", err)}' } }
         }
     }
     await args[0].actor.setFlag("midi-qol", "absorbElements", { type: type.toLowerCase(), level: args[0].spellLevel });
@@ -38,6 +38,7 @@ try {
 } catch (err) {console.error("Absorb Elements Macro - ", err)}
 
 try {
+    if (game?.combat?.current?.tokenId !== token.id) return;
     let type = actor.flags["midi-qol"].absorbElements?.type;
     let level = actor.flags["midi-qol"].absorbElements?.level;
     let effectData = {
