@@ -33,7 +33,7 @@ try {
     const item = new CONFIG.Item.documentClass(itemData, { parent: target });
     const saveWorkflow = await MidiQOL.completeItemRoll(item, { showFullCard: false, createWorkflow: true, configureDialog: false });
     const effectData = { 
-        changes: [{ key: "macro.CE", mode: 0, value: "Blinded", priority: 20 }], 
+        changes: [{ key: "macro.CE", mode: 0, value: "Frightened", priority: 20 }], 
         disabled: false, 
         icon: "icons/magic/fire/dagger-rune-enchant-teal-purple.webp", 
         name: "Wrathful Smite", 
