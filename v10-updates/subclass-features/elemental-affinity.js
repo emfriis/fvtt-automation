@@ -4,7 +4,7 @@ try {
     if (args[0].tag == "DamageBonus" && args[0].damageRoll) {
         return { damageRoll: `${args[0].actor.system.abilities.cha.mod}`, flavor: "Elemental Affinity" }
     } else if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && !args[0].actor.system.details.dr.includes(type)) {
-        const item = args[0].actor.items.find(i => i.name == "Sorcery Points" && i.system?.uses?.value);
+        const item = args[0].actor.items.find(i => i.name == "Font of Magic" && i.system?.uses?.value);
         if (item) new Dialog({
             title: "Elemental Affinity",
             content: `Spend 1 Sorcery Point to gain resistance to ${type} damage for 1 hour?`,

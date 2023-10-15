@@ -1,5 +1,5 @@
 try {
-    const usesItem = args[0].actor.items.find(i => i.name === "Sorcery Points" && i.system.uses.value);
+    const usesItem = args[0].actor.items.find(i => i.name === "Font of Magic" && i.system.uses.value);
     if (!usesItem || args[0].tag !== "OnUse" || args[0].item.type !== "spell") return;
     if (args[0].macroPass === "preItemRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type) && !args[0].actor.flags["midi-qol"]?.twinnedSpell) {
         let metamagicContent = "";

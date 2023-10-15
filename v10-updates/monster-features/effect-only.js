@@ -17,6 +17,5 @@ game.combat?.round===1&&game.user.targets?.first()?.actor?.effects?.find(e=>e.la
 (["undead"].includes(canvas.tokens.controlled[0].actor.system.details?.race?.toLowerCase())||["undead"].includes(canvas.tokens.controlled[0].actor.system.details?.type?.value?.toLowerCase()))&&game.user.targets?.first()?.id=="@token"
 
 // danger sense
-(game.actors.find(a=>a.system.abilities.str.value==@abilities.str.value&&!a.effects.find(e=>["blinded","deafened","incapacitated"].includes(e.label.toLowerCase()))))
 
 if (this.abilityId === "dex" && !actor.effects.find(e => ["blinded","deafened","incapacitated"].includes(e.label.toLowerCase()))) this.roll.hasAdvantage = true;

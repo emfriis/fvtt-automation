@@ -109,7 +109,7 @@ async function createTale (tale, die) {
         case 3:
             itemData = {
                 name: "Spirit Tale: Tale of the Beloved Friends",
-                img: "",
+                img: "icons/magic/light/explosion-star-glow-silhouette.webp",
                 type: "consumable",
                 system: {
                     consumableType: "trinket",
@@ -118,9 +118,19 @@ async function createTale (tale, die) {
                     target: { value: 2, type: "creature" },
                     range: { value: 30, units: "ft" },
                     uses: { value: 1, max: 1, per: "charges", autoDestroy: true },
-                    actionType: "heal",
-                    damage: { parts: [[`1${die} + @abilities.cha.mod`, "temphp"]] },
-                }
+                    actionType: "healing",
+                    damage: { parts: [[`1${die} + @abilities.cha.mod`, "temphp"]] }
+                },
+                effects: [{ 
+                    changes: [{ key: "system.attributes.ac.bonus", mode: 0, value: '@actorUuid number "[[@damage]]" system.attributes.hp.temp "0"', priority: "20" }],
+                    disabled: false,
+                    isSuppressed: false,
+                    icon: "icons/magic/light/explosion-star-glow-silhouette.webp",
+                    name: "Spirit Tale: Tale of the Beloved Friends",
+                    transfer: false,
+                    flags: { dae: { transfer: false } }
+                }],
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } } }
             }
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -180,11 +190,12 @@ async function createTale (tale, die) {
                     target: { value: 1, type: "creature" },
                     range: { value: 30, units: "ft" },
                     uses: { value: 1, max: 1, per: "charges", autoDestroy: true },
-                    actionType: "heal",
+                    actionType: "healing",
                     damage: { parts: [[`1${die} + @classes.bard.levels`, "temphp"]] },
                 },
                 effects: [{ 
                     changes: [
+                        { key: "system.attributes.ac.bonus", mode: 0, value: '@actorUuid number "[[@damage]]" system.attributes.hp.temp "0"', priority: "20" },
                         { key: "system.attributes.ac.bonus", mode: 2, value: "1", priority: "20" },
                         { key: "system.attributes.movement.walk", mode: 2, value: "10", priority: "20" }
                     ],
@@ -225,7 +236,7 @@ async function createTale (tale, die) {
                     duration: { rounds: 1 },
                     flags: { dae: { specialDuration: ["turnEnd"], transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } }, flags: { midiProperties: { magiceffect: true } } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } }, midiProperties: { magiceffect: true } }
             }
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
