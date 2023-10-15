@@ -1,7 +1,7 @@
 try {
     const usesItem = args[0].actor.items.find(i => i.name === "Font of Magic" && i.system.uses.value);
     if (!usesItem || args[0].tag !== "OnUse" || args[0].item.type !== "spell") return;
-    if (args[0].macroPass === "preItemRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type) && !args[0].actor.flags["midi-qol"]?.twinnedSpell) {
+    if (args[0].macroPass === "preItemRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type)) {
         let metamagicContent = "";
         let carefulItem = args[0].actor.items.find(i => i.name === "Metamagic: Careful Spell");
         if (carefulItem && args[0].item.system.save?.dc && args[0].item.system.save?.ability) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="careful"><img src="${carefulItem.img}" style="border:0px; width: 50px; height:50px;">Careful Spell<br>(1 Sorcery Point)</label>`;
@@ -246,9 +246,12 @@ try {
             for (let r = 0; r < results.length; r++) {
                 if (results[r]?.rerolled) continue;
                 die_content += `<label class='checkbox-label' for='die${d}${r}'>
-                <input type='checkbox' id='die${d}${r}' name='die' value='${results[r].result},${dice[d].faces},${d}'/>
-                <img src="icons/svg/d${workflow.damageRoll.dice[d].faces}-grey.svg" style="border:0px; width: 50px; height:50px;">
-                ${results[r].result} (1d${dice[d].faces} ${dice[d].flavor})
+                    <input type='checkbox' id='die${d}${r}' name='die' value='${results[r].result},${dice[d].faces},${d}'/>
+                    <div style="border:0px; width: 50px; height:50px;">
+                        <img src="icons/svg/d${workflow.damageRoll.dice[d].faces}-grey.svg" style="position: relative;">
+                        <p style="position: relative; bottom: 55px; font-weight: bolder; font-size: 25px">${results[r].result}</p>
+                    </div>
+                    <p>(${dice[d].flavor})</p>
                 </label>
                 `;
             }

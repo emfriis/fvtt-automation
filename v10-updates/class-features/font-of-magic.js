@@ -36,7 +36,7 @@ try {
                                 spellUpdate[`system.spells.${slot.type}.value`] = args[0].actor.system.spells[slot.type].value + 1;
                                 args[0].actor.update(spellUpdate);
                                 item.update({"system.uses.value": item.system.uses.value - spend[slot.type]});
-                                let roll_results = `<div><i>Converted ${spend[slot.type]} Sorcery points. Level ${slot.level} spell slot restored.</i></div>`;
+                                let roll_results = `<div><i>Converted ${spend[slot.type]} Sorcery Points. Level ${slot.level} spell slot restored.</i></div>`;
                                 const chatMessage = game.messages.get(args[0].itemCardId);
                                 let content = duplicate(chatMessage.content);
                                 const replaceString = `<div class="midi-qol-saves-display"><div class="end-midi-qol-saves-display">${roll_results}`;
@@ -66,7 +66,7 @@ try {
                                 spellUpdate[`system.spells.${slot.type}.value`] = args[0].actor.system.spells[slot.type].value - 1;
                                 args[0].actor.update(spellUpdate);
                                 item.update({"system.uses.value": item.system.uses.value + slot.level});
-                                let roll_results = `<div><i>Converted a Level ${slot.level} spell slot. ${slot.level} Sorcery points restored.</i></div>`;
+                                let roll_results = `<div><i>Converted a Level ${slot.level} spell slot. ${slot.level} Sorcery Points restored.</i></div>`;
                                 const chatMessage = game.messages.get(args[0].itemCardId);
                                 let content = duplicate(chatMessage.content);
                                 const replaceString = `<div class="midi-qol-saves-display"><div class="end-midi-qol-saves-display">${roll_results}`;
