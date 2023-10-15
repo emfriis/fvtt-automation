@@ -227,7 +227,7 @@ try {
                 { key: "flags.midi-qol.optional.ss.count", mode: 5, value: "ItemUses.Sorcery Points", priority: 20, },
                 { key: "flags.midi-qol.optional.ss.countAlt", mode: 5, value: "ItemUses.Sorcery Points", priority: 20, },
                 { key: "flags.midi-qol.optional.ss.label", mode: 5, value: "Metamagic: Seeking Spell", priority: 20, },
-                { key: "flags.midi-qol.optional.ss.attack.all", mode: 5, value: "reroll", priority: 20, },
+                { key: "flags.midi-qol.optional.ss.attack.fail.all", mode: 5, value: "reroll", priority: 20, },
             ],
             disabled: false,
             flags: { dae: { specialDuration: ["1Spell"] } },
