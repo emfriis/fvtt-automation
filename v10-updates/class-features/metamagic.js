@@ -147,7 +147,7 @@ try {
             }
             if (!targets || targets.length !== 1) return ui.notifications.warn("Invalid number of targets selected");
             const effectData = {
-                changes: [{ key: "flags.midi-qol.disadvantage.ability.save.all", mode: 0, value: "1", priority: 20, }],
+                changes: [{ key: "flags.midi-qol.disadvantage.ability.save.all", mode: 0, value: "1", priority: 20 }],
                 disabled: false,
                 flags: { dae: { specialDuration: ["isSave"] } },
                 label: "Metamagic: Heightened Spell",
@@ -230,7 +230,7 @@ try {
                 { key: "flags.midi-qol.optional.ss.attack.fail.all", mode: 5, value: "reroll", priority: 20, },
             ],
             disabled: false,
-            flags: { dae: { specialDuration: ["1Spell"] } },
+            flags: { dae: { specialDuration: ["1Attack", "1Spell"] } },
             icon: "icons/magic/light/projectile-flare-blue.webp",
             label: "Metamagic: Seeking Spell",
         };
