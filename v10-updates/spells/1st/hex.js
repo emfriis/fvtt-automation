@@ -72,7 +72,7 @@ if (lastArg.tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
         icon: item.img,
         changes: [
             { key: `flags.midi-qol.disadvantage.ability.check.${ability}`, mode: 0, value: 1, priority: 20 },
-            { key: "flags.midi-qol.hex", mode: 2, value: lastArg.tokenId, priority: 20 }
+            { key: "flags.midi-qol.hex", mode: 2, value: lastArg.actor.uuid, priority: 20 }
         ],
         origin: item.uuid,
         disabled: false,
@@ -80,11 +80,11 @@ if (lastArg.tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
     }
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.uuid, effects: [effectData] });
     //update self effect
-    const targetEffect =  target.effects.find(e => e.label === "Hex" && e.changes.find(c => c.key == "flags.midi-qol.hex" && c.value == lastArg.tokenId));
+    const targetEffect =  target.effects.find(e => e.label === "Hex" && e.changes.find(c => c.key == "flags.midi-qol.hex" && c.value == lastArg.actor.uuid));
     if (effect && targetEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.filter(c => c.key != "flags.midi-qol.hexTarget").concat([{ key: "flags.midi-qol.hexTarget", mode: 2, value: lastArg.targets[0].id, priority: 20 }, { key: `flags.dae.deleteUuid`, mode: 5, value: targetEffect.uuid, priority: 20 }]) }] });
 }
 //apply damage bonus
-if (lastArg.tag === "DamageBonus" && lastArg.damageRoll && ["mwak","rwak","msak","rsak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.hex?.includes(lastArg.tokenId))) {
+if (lastArg.tag === "DamageBonus" && lastArg.damageRoll && ["mwak","rwak","msak","rsak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.hex?.includes(lastArg.actor.uuid))) {
     const diceMult = lastArg.isCritical ? 2 : 1;
     return { damageRoll: `${diceMult}d6[necrotic]`, flavor: "Hex" }
 }

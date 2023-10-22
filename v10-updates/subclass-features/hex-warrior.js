@@ -3,19 +3,19 @@ try {
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
 	const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     if (args[0] === "on") {
-        const equipped = actor.items.filter(i => i.type === "weapon" && ["simple","martial"].find(t => i.system.weaponType.toLowerCase().includes(t)));
+        const equipped = actor.items.filter(i => i.type === "weapon" && (i.system.proficient == 1 || i.system.proficient == "") && !i.system.properties.two && ["simple","martial"].find(t => i.system.weaponType.toLowerCase().includes(t)));
         if (equipped.length == 1) {
             const weapon = equipped[0];
-            if (weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.concat([{ source: "hexWeapon", id: lastArg.efData._id, system: { properties: { mgc: true }, ability: "cha" } }]));
-			if (!weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", [{ source: "core", id: weapon.id, system: JSON.parse(JSON.stringify(weapon.system)) }, { source: "hexWeapon", id: lastArg.efData._id, system: { properties: { mgc: true }, ability: "cha" } }]); 
+            if (weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.concat([{ source: "hexWeapon", id: lastArg.efData._id, system: { ability: "cha" } }]));
+			if (!weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", [{ source: "core", id: weapon.id, system: JSON.parse(JSON.stringify(weapon.system)) }, { source: "hexWeapon", id: lastArg.efData._id, system: { ability: "cha" } }]); 
 			await weapon.setFlag("midi-qol", "hexWarrior", lastArg.efData._id);
 			await weapon.update({
                 name: weapon.name + " (Hex Weapon)",
-				system: { ability: "cha", properties: { mgc: true } }
+				system: { ability: "cha" }
 			});
         } else if (equipped.length > 1) {
-            let weapon_content = "";
-            equipped.forEach((weapon) => { weapon_content += `<label class="radio-label"><input type="radio" name="weapon" value="${weapon.id}"><img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">${weapon.name}</label>`; });
+            let weaponContent = "";
+            equipped.forEach((weapon) => { weaponContent += `<label class="radio-label"><input type="radio" name="weapon" value="${weapon.id}"><img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">${weapon.name}</label>`; });
             const content = `
                 <style>
                 .weapon .form-group { display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start; }
@@ -26,7 +26,7 @@ try {
                 </style>
                 <form class="weapon">
                 <div class="form-group" id="weapons">
-                    ${weapon_content}
+                    ${weaponContent}
                 </div>
                 </form>
             `;
@@ -38,12 +38,12 @@ try {
                         label: "Confirm",
                         callback: async () => {
                             const weapon = actor.items.find(i => i.id == $("input[type='radio'][name='weapon']:checked").val()); 
-							if (weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.concat([{ source: "hexWeapon", id: lastArg.efData._id, system: { properties: { mgc: true }, ability: "cha" } }]));
-							if (!weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", [{ source: "core", id: weapon.id, system: JSON.parse(JSON.stringify(weapon.system)) }, { source: "hexWeapon", id: lastArg.efData._id, system: { properties: { mgc: true }, ability: "cha" } }]); 
+							if (weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.concat([{ source: "hexWeapon", id: lastArg.efData._id, system: { ability: "cha" } }]));
+							if (!weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", [{ source: "core", id: weapon.id, system: JSON.parse(JSON.stringify(weapon.system)) }, { source: "hexWeapon", id: lastArg.efData._id, system: { ability: "cha" } }]); 
 							await weapon.setFlag("midi-qol", "hexWarrior", lastArg.efData._id);
 							await weapon.update({
 								name: weapon.name + " (Hex Weapon)",
-								system: { ability: "cha", properties: { mgc: true } }
+								system: { ability: "cha" }
 							});
                         }
                     },
@@ -66,7 +66,7 @@ try {
             }
             if (s.dieReplace) {
                 const parts = tempSystem.damage.parts;
-                parts[0][0] = parts[0][0].replace(s.dieReplace[0], s.dieReplace[1]);
+                parts[0][0] = parts[0][0].replace(new RegExp(s.dieReplace[0]), s.dieReplace[1]);
                 tempSystem.damage.parts = parts;
             }
         });

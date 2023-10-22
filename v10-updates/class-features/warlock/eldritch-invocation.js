@@ -47,7 +47,7 @@ try {
 
 //eldritch smite
 try {
-    if (args[0].tag !== "DamageBonus" || !args[0].hitTargets.length || !["mwak"].includes(args[0].item.system.actionType) || args[0].actor.system.spells.pact.value < 1 || args[0].actor.effects.find(e => e.label === "Used Eldritch Smite")) return;
+    if (args[0].tag !== "DamageBonus" || !args[0].targets.length || !["mwak"].includes(args[0].item.system.actionType) || args[0].actor.system.spells.pact.value < 1 || args[0].actor.effects.find(e => e.label === "Used Eldritch Smite")) return;
     let slot = await new Promise((resolve) => {
         new Dialog({
             title: "Eldritch Smite",
@@ -90,13 +90,13 @@ try {
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     }
-    if (args[0].hitTargets[0]?.actor?.system.details.size !== "grg" && !args[0].hitTargets[0]?.actor?.effects.find(e => e.label === "Prone")) {
+    if (args[0].targets[0]?.actor?.system.details.size !== "grg" && !args[0].targets[0]?.actor?.effects.find(e => e.label === "Prone")) {
         let effectData = {
             disabled: false,
             changes: [{key: "StatusEffect", mode: 0, value: "Convenient Effect: Prone", priority: 20}],
             label: "Prone"
         };
-        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].hitTargets[0].value.actor.uuid, effects: [effectData] });
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
     }
     let dice = args[0].actor.system.spells.pact.level + 1;
     let diceMult = args[0].isCritical ? 2: 1;

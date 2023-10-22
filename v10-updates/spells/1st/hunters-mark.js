@@ -34,18 +34,18 @@ if (lastArg.tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
     const effectData = {
         label: item.name,
         icon: item.img,
-        changes: [{ key: "flags.midi-qol.huntersMark", mode: 2, value: lastArg.tokenId, priority: 20 }],
+        changes: [{ key: "flags.midi-qol.huntersMark", mode: 2, value: lastArg.actor.uuid, priority: 20 }],
         origin: item.uuid,
         disabled: false,
         flags: { dae: { showIcon: true } },
     }
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.uuid, effects: [effectData] });
     //update self effect
-    const targetEffect =  target.effects.find(e => e.label === "Hunter's Mark" && e.changes.find(c => c.key == "flags.midi-qol.huntersMark" && c.value == lastArg.tokenId));
+    const targetEffect =  target.effects.find(e => e.label === "Hunter's Mark" && e.changes.find(c => c.key == "flags.midi-qol.huntersMark" && c.value == lastArg.actor.uuid));
     if (effect && targetEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.filter(c => c.key != "flags.midi-qol.huntersMarkTarget").concat([{ key: "flags.midi-qol.huntersMarkTarget", mode: 2, value: lastArg.targets[0].id, priority: 20 }, { key: `flags.dae.deleteUuid`, mode: 5, value: targetEffect.uuid, priority: 20 }]) }] });
 }
 //apply damage bonus
-if (lastArg.tag === "DamageBonus" && lastArg.damageRoll && ["mwak","rwak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.huntersMark?.includes(lastArg.tokenId))) {
+if (lastArg.tag === "DamageBonus" && lastArg.damageRoll && ["mwak","rwak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.huntersMark?.includes(lastArg.actor.uuid))) {
     const diceMult = lastArg.isCritical ? 2 : 1;
     return { damageRoll: `${diceMult}d6`, flavor: "Hunter's Mark" }
 }

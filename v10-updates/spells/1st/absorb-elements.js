@@ -1,11 +1,11 @@
 try {
     if (args[0].tag !== "OnUse" || args[0].macroPass !== "postActiveEffects") return;
-    const options = ["Acid", "Cold", "Fire", "Lightning", "Poison"];
+    const options = ["Acid", "Cold", "Fire", "Lightning", "Thunder"];
     const optionContent = options.map((o) => { return `<option value="${o}">${o}</option>` });
     let dialog = new Promise((resolve,) => {
         new Dialog({
             title: "Absorb Elements: Choose a Damage Type",
-            content: `<div class="form-group"><label>Damage Types: </label><select name="types"}>${optionContent}</select></div>`,
+            content: `<div><label>Damage Types: </label><select name="types"}>${optionContent}</select></div>`,
             buttons: {
                 Confirm: {
                     label: "Confirm",

@@ -7,8 +7,10 @@ try {
         args[0].targets.forEach(async target => {
             const equipped = target.actor.items.filter(i => i.type === "weapon" && i.system.equipped && !i.system.properties.mgc && ["simple","martial"].find(t => i.system.weaponType.toLowerCase().includes(t)));
             if (equipped.length) {
-                let weapon_content = "";
-                equipped.forEach((weapon) => { weapon_content += `<label class="radio-label"><input type="radio" name="weapon" value="${weapon.id}"><img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">${weapon.name}</label>`; });
+                let weaponContent = "";
+                equipped.forEach((weapon) => { weaponContent += `<label class="radio-label"><input type="radio" name="weapon" value="${weapon.id}"><img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">${weapon.name}</label>`; });
+                const types = ["Acid", "Cold", "Fire", "Lightning", "Thunder"];
+                const typeContent = types.map(o => `<option value="${o}">${o}</option>`);
                 const content = `
                     <style>
                     .weapon .form-group { display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start; }
@@ -21,9 +23,13 @@ try {
                         <p>Targeting: </p>
                         <img src="${target.texture.src}" style="border: 0px; width 50px; height: 50px;">
                     </div>
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center;">
+                        <label>Damage Type: </label>
+                        <select name="types"}>${typeContent}</select>
+                    </div>
                     <form class="weapon">
                     <div class="form-group" id="weapons">
-                        ${weapon_content}
+                        ${weaponContent}
                     </div>
                     </form>
                 `;
@@ -36,8 +42,8 @@ try {
                             callback: async () => {
                                 const effectData = {
                                     label: "Elemental Weapon",
-                                    icon: "icons/magic/fire/dagger-rune-enchant-flame-blue.webp",
-                                    changes: [{ key: "macro.execute", mode: 0, value: `ElementalWeapon ${$("input[type='radio'][name='weapon']:checked").val()} ${bonus} ${type}`, priority: 20 }],
+                                    icon: "icons/magic/fire/dagger-rune-enchant-flame-strong-teal.webp",
+                                    changes: [{ key: "macro.execute", mode: 0, value: `ElementalWeapon ${$("input[type='radio'][name='weapon']:checked").val()} ${bonus} ${$("select[name=types]")[0].value}`, priority: 20 }],
                                     duration: { seconds: 3600 },
                                     origin: args[0].uuid,
                                     disabled: false,
@@ -54,16 +60,17 @@ try {
     } else if (args[0] === "on") {
         const weapon = actor.items.find(i => i.id == args[1]); 
         const bonus = !isNaN(args[2]) ? `${args[2]}` : "1";
+        const type = args[3] ? args[3].toLowerCase() : "acid";
         if (weapon.flags["midi-qol"].tempSystem) { 
-            await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.concat([{ source: "elementalWeapon", id: lastArg.efData._id, system: { properties: { mgc: true } }, attackBonus: bonus, damageBonus: [[bonus, ""]]  }]));
+            await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.concat([{ source: "elementalWeapon", id: lastArg.efData._id, system: { properties: { mgc: true } }, attackBonus: bonus, damageBonus: [[bonus, ""],[`${bonus}d4`, type]]  }]));
         }
         if (!weapon.flags["midi-qol"].tempSystem) { 
-            await weapon.setFlag("midi-qol", "tempSystem", [{ source: "core", id: weapon.id, system: JSON.parse(JSON.stringify(weapon.system)) }, { source: "elementalWeapon", id: lastArg.efData._id, system: { properties: { mgc: true } }, attackBonus: bonus, damageBonus: [[bonus, ""]] }]); 
+            await weapon.setFlag("midi-qol", "tempSystem", [{ source: "core", id: weapon.id, system: JSON.parse(JSON.stringify(weapon.system)) }, { source: "elementalWeapon", id: lastArg.efData._id, system: { properties: { mgc: true } }, attackBonus: bonus, damageBonus: [[bonus, ""],[`${bonus}d4`, type]] }]); 
         }
         await weapon.setFlag("midi-qol", "elementalWeapon", lastArg.efData._id);
         await weapon.update({
             name: weapon.name + " (Elemental Weapon)",
-            system: { attackBonus: weapon.system.attackBonus + "+" + bonus, properties: { mgc: true }, "damage.parts": weapon.system.damage.parts.concat([[bonus, ""]]), "damage.versatile": weapon.system.damage.versatile + "+" + bonus }
+            system: { attackBonus: weapon.system.attackBonus + "+" + bonus, properties: { mgc: true }, "damage.parts": weapon.system.damage.parts.concat([[bonus, ""],[`${bonus}d4`, type]]), "damage.versatile": weapon.system.damage.versatile + "+" + bonus + "+" + `${bonus}d4[${type}]` }
         });
         console.error("on", weapon, lastArg)
     } else if (args[0] === "off") { 
@@ -80,7 +87,7 @@ try {
             }
             if (s.dieReplace) {
                 const parts = tempSystem.damage.parts;
-                parts[0][0] = parts[0][0].replace(s.dieReplace[0], s.dieReplace[1]);
+                parts[0][0] = parts[0][0].replace(new RegExp(s.dieReplace[0]), s.dieReplace[1]);
                 tempSystem.damage.parts = parts;
             }
         });

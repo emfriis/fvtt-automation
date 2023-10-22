@@ -1,6 +1,6 @@
 try {
     if (args[0].tag !== "OnUse" || args[0].macroPass !== "postActiveEffects" || !args[0].targets.length || !args[0].targets[0]?.actor) return;
-    const options = ["Acid", "Cold", "Fire", "Lightning", "Poison"];
+    const options = ["Acid", "Cold", "Fire", "Lightning", "Thunder"];
     const optionContent = options.map((o) => { return `<option value="${o}">${o}</option>` });
     let dialog = new Promise((resolve,) => {
         new Dialog({

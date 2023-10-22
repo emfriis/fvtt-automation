@@ -8,16 +8,16 @@ try {
             const weapon = equipped[0];
             const parts = weapon.system.damage.parts;
             parts[0][0] = parts[0][0].replace(/d(4|6)/, "d8"); 
-            if (weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.concat([{ source: "shillelagh", id: lastArg.efData._id, system: { properties: { mgc: true }, ability: `${actor.system.attributes.spellcasting ? actor.system.attributes.spellcasting : "int"}` }, dieReplace: [/d(4|6)/, "d8"] }]));
-			if (!weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", [{ source: "core", id: weapon.id, system: JSON.parse(JSON.stringify(weapon.system)) }, { source: "shillelagh", id: lastArg.efData._id, system: { properties: { mgc: true }, ability: `${actor.system.attributes.spellcasting ? actor.system.attributes.spellcasting : "int"}` }, dieReplace: [/d(4|6)/, "d8"] }]); 
+            if (weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.concat([{ source: "shillelagh", id: lastArg.efData._id, system: { properties: { mgc: true }, ability: `${actor.system.attributes.spellcasting ? actor.system.attributes.spellcasting : "int"}` }, dieReplace: ["d(4|6)", "d8"] }]));
+			if (!weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", [{ source: "core", id: weapon.id, system: JSON.parse(JSON.stringify(weapon.system)) }, { source: "shillelagh", id: lastArg.efData._id, system: { properties: { mgc: true }, ability: `${actor.system.attributes.spellcasting ? actor.system.attributes.spellcasting : "int"}` }, dieReplace: ["d(4|6)", "d8"] }]); 
 			await weapon.setFlag("midi-qol", "shillelagh", lastArg.efData._id);
 			await weapon.update({
                 name: weapon.name + " (Shillelagh)",
 				system: { ability: `${actor.system.attributes.spellcasting ? actor.system.attributes.spellcasting : "int"}`, properties: { mgc: true }, "damage.parts": parts}
 			});
         } else if (equipped.length > 1) {
-            let weapon_content = "";
-            equipped.forEach((weapon) => { weapon_content += `<label class="radio-label"><input type="radio" name="weapon" value="${weapon.id}"><img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">${weapon.name}</label>`; });
+            let weaponContent = "";
+            equipped.forEach((weapon) => { weaponContent += `<label class="radio-label"><input type="radio" name="weapon" value="${weapon.id}"><img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">${weapon.name}</label>`; });
             const content = `
                 <style>
                 .weapon .form-group { display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start; }
@@ -28,7 +28,7 @@ try {
                 </style>
                 <form class="weapon">
                 <div class="form-group" id="weapons">
-                    ${weapon_content}
+                    ${weaponContent}
                 </div>
                 </form>
             `;
@@ -42,8 +42,8 @@ try {
                             const weapon = actor.items.find(i => i.id == $("input[type='radio'][name='weapon']:checked").val());
                             const parts = weapon.system.damage.parts;
                             parts[0][0] = parts[0][0].replace(/d(4|6)/, "d8"); 
-							if (weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.concat([{ source: "shillelagh", id: lastArg.efData._id, system: { properties: { mgc: true }, ability: `${actor.system.attributes.spellcasting ? actor.system.attributes.spellcasting : "int"}` }, dieReplace: [/d(4|6)/, "d8"] }]));
-							if (!weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", [{ source: "core", id: weapon.id, system: JSON.parse(JSON.stringify(weapon.system)) }, { source: "shillelagh", id: lastArg.efData._id, system: { properties: { mgc: true }, ability: `${actor.system.attributes.spellcasting ? actor.system.attributes.spellcasting : "int"}` }, dieReplace: [/d(4|6)/, "d8"] }]); 
+							if (weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.concat([{ source: "shillelagh", id: lastArg.efData._id, system: { properties: { mgc: true }, ability: `${actor.system.attributes.spellcasting ? actor.system.attributes.spellcasting : "int"}` }, dieReplace: ["d(4|6)", "d8"] }]));
+							if (!weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", [{ source: "core", id: weapon.id, system: JSON.parse(JSON.stringify(weapon.system)) }, { source: "shillelagh", id: lastArg.efData._id, system: { properties: { mgc: true }, ability: `${actor.system.attributes.spellcasting ? actor.system.attributes.spellcasting : "int"}` }, dieReplace: ["d(4|6)", "d8"] }]); 
 							await weapon.setFlag("midi-qol", "shillelagh", lastArg.efData._id);
 							await weapon.update({
 								name: weapon.name + " (Shillelagh)",
@@ -70,7 +70,7 @@ try {
             } 
             if (s.dieReplace) {
                 const parts = tempSystem.damage.parts;
-                parts[0][0] = parts[0][0].replace(s.dieReplace[0], s.dieReplace[1]);
+                parts[0][0] = parts[0][0].replace(new RegExp(s.dieReplace[0]), s.dieReplace[1]);
                 tempSystem.damage.parts = parts;
             }
         });

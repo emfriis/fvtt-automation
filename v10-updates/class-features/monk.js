@@ -1,8 +1,8 @@
 //stunning strike
 try {
-    if (args[0].tag !== "OnUse" || args[0].macroPass !== "postDamageRoll" || args[0].item.system.actionType !== "mwak" || !args[0].hitTargets.length) return;
+    if (args[0].tag !== "OnUse" || args[0].macroPass !== "postDamageRoll" || args[0].item.system.actionType !== "mwak" || !args[0].targets.length) return;
     const usesItem = args[0].actor.items.find(i => i.name === "Ki" && i.system.uses.value);
-    const target = args[0].hitTargets[0].actor;
+    const target = args[0].targets[0].actor;
     if (!usesItem || !target) return;
     let dialog = new Promise((resolve) => {
         new Dialog({
@@ -29,7 +29,7 @@ try {
         close: () => {resolve(false)}
         }).render(true);
     });
-    ki = await dialog;
+    useFeat = await dialog;
     const itemData = {
         name: "Ki: Stunning Strike",
         img: "icons/skills/melee/unarmed-punch-fist-blue.webp",

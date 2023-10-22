@@ -14,8 +14,8 @@ try {
                 system: { attackBonus: weapon.system.attackBonus + "+@abilities.cha.mod", properties: { mgc: true } }
             });
         } else {
-            let weapon_content = "";
-            equipped.forEach((weapon) => { weapon_content += `<label class="radio-label"><input type="radio" name="weapon" value="${weapon.id}"><img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">${weapon.name}</label>`; });
+            let weaponContent = "";
+            equipped.forEach((weapon) => { weaponContent += `<label class="radio-label"><input type="radio" name="weapon" value="${weapon.id}"><img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">${weapon.name}</label>`; });
             const content = `
                 <style>
                 .weapon .form-group { display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start; }
@@ -26,7 +26,7 @@ try {
                 </style>
                 <form class="weapon">
                 <div class="form-group" id="weapons">
-                    ${weapon_content}
+                    ${weaponContent}
                 </div>
                 </form>
             `;
@@ -64,7 +64,7 @@ try {
             }
             if (s.dieReplace) {
                 const parts = tempSystem.damage.parts;
-                parts[0][0] = parts[0][0].replace(s.dieReplace[0], s.dieReplace[1]);
+                parts[0][0] = parts[0][0].replace(new RegExp(s.dieReplace[0]), s.dieReplace[1]);
                 tempSystem.damage.parts = parts;
             }
         });
