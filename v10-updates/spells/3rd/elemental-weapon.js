@@ -3,7 +3,7 @@ try {
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
 	const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
-        const bonus = args[0].spellLevel > 5 ? 3 : args[0].spellLevel > 3 ? 2 : 1;
+        const bonus = args[0].spellLevel > 6 ? 3 : args[0].spellLevel > 4 ? 2 : 1;
         args[0].targets.forEach(async target => {
             const equipped = target.actor.items.filter(i => i.type === "weapon" && i.system.equipped && !i.system.properties.mgc && ["simple","martial"].find(t => i.system.weaponType.toLowerCase().includes(t)));
             if (equipped.length) {
