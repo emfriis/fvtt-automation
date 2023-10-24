@@ -243,8 +243,8 @@ try {
         if (!useReroll) return;
         let reroll = await new Roll("1d20").evaluate({async: true});
         if (game.dice3d) game.dice3d.showForRoll(reroll);
-        let highRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && prev.result > current.result ? prev : current);
-        let lowRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && prev.result < current.result ? prev : current);
+        let highRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && !prev.rerolled && prev.result > current.result ? prev : current);
+        let lowRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && ! prev.rerolled && prev.result < current.result ? prev : current);
         if ((!args[0].attackRoll.hasAdvantage && !args[0].attackRoll.hasDisadvantage) || (args[0].attackRoll.hasAdvantage && args[0].attackRoll.hasDisadvantage) || (args[0].attackRoll.hasAdvantage && reroll.total > highRoll.result)) {
             Object.assign(lowRoll, { disacrded: false, rerolled: true, active: false });
             Object.assign(highRoll, { discarded: true, rerolled: false, active: false });
@@ -258,7 +258,8 @@ try {
             Object.assign(highRoll, { discarded: true, rerolled: false, active: false });
             args[0].attackRoll.terms[0].results.push({ result: reroll.total, discarded: false, rerolled: false, active: true, hidden: true });
         } else {
-            args[0].attackRoll.terms[0].results.push({ result: reroll.total, disacrded: true, rerolled: true, active: false, hidden: true });
+            Object.assign(lowRoll, { discarded: false, discarded: falase, rerolled: true, active: false });
+            args[0].attackRoll.terms[0].results.push({ result: reroll.total, disacrded: true, rerolled: false, active: false, hidden: true });
         }
         args[0].attackRoll._total = args[0].attackRoll._evaluateTotal();
         await args[0].workflow.setAttackRoll(args[0].attackRoll);
