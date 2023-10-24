@@ -243,14 +243,24 @@ try {
         if (!useReroll) return;
         let reroll = await new Roll("1d20").evaluate({async: true});
         if (game.dice3d) game.dice3d.showForRoll(reroll);
-        let prevRoll = args[0].attackRoll.terms[0].results.find(r => r.active && !r.rerolled);
-        if (args[0].attackRoll.terms[0].results.length > 1 && reroll.total < prevRoll.result) {
-            args[0].attackRoll.terms[0].results.push({ result: reroll.total, rerolled: true, active: false, hidden: true });
+        let highRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && prev.result > current.result ? prev : current);
+        let lowRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && prev.result < current.result ? prev : current);
+        if ((!args[0].attackRoll.hasAdvantage && !args[0].attackRoll.hasDisadvantage) || (args[0].attackRoll.hasAdvantage && args[0].attackRoll.hasDisadvantage) || (args[0].attackRoll.hasAdvantage && reroll.total > highRoll.result)) {
+            Object.assign(lowRoll, { disacrded: false, rerolled: true, active: false });
+            Object.assign(highRoll, { discarded: true, rerolled: false, active: false });
+            args[0].attackRoll.terms[0].results.push({ result: reroll.total, discarded: false, rerolled: false, active: true, hidden: true });
+        } else if (args[0].attackRoll.hasDisadvantage && reroll.total > highRoll.result) {
+            Object.assign(lowRoll, { discarded: false, rerolled: true, active: false });
+            Object.assign(highRoll, { discarded: false, rerolled: false, active: true });
+            args[0].attackRoll.terms[0].results.push({ result: reroll.total, discarded: true, rerolled: false, active: false, hidden: true });
+        } else if (args[0].attackRoll.hasDisadvantage && reroll.total < highRoll.result) {
+            Object.assign(lowRoll, { discarded: false, rerolled: true, active: false });
+            Object.assign(highRoll, { discarded: true, rerolled: false, active: false });
+            args[0].attackRoll.terms[0].results.push({ result: reroll.total, discarded: false, rerolled: false, active: true, hidden: true });
         } else {
-            Object.assign(prevRoll, { rerolled: true, active: false });
-            args[0].attackRoll.terms[0].results.push({ result: reroll.total, active: true, hidden: true });
-            args[0].attackRoll._total += reroll.total - prevRoll.result;
+            args[0].attackRoll.terms[0].results.push({ result: reroll.total, disacrded: true, rerolled: true, active: false, hidden: true });
         }
+        args[0].attackRoll._total = args[0].attackRoll._evaluateTotal();
         await args[0].workflow.setAttackRoll(args[0].attackRoll);
     } else if (args[0].tag === "DamageBonus" && args[0].actor.items.find(i => i.name === "Metamagic: Empowered Spell") && args[0].item.system.damage?.parts?.length && !["healing", "temphp", "", "midiNone"].includes(args[0].item.system.damage.parts[0][1]) && args[0].damageRoll) {
         // empowered spell
