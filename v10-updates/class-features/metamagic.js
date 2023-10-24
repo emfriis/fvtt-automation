@@ -75,12 +75,12 @@ try {
                     title: "Metamagic: Careful Spell",
                     content: `<p>Target any creatures you want to protect.<br>(Up to ${Math.max(1, args[0].actor.system.abilities.cha.mod)} Creatures)</p>`,
                     buttons: {
-                        Ok: {
-                            label: "Ok",
+                        Confirm: {
+                            label: "Confirm",
                             callback: () => { resolve(Array.from(game.user?.targets)) },
                         },
                     },
-                    default: "Ok",
+                    default: "Confirm",
                     close: () => { resolve(false) },
                 }).render(true);
             });
@@ -144,12 +144,12 @@ try {
                         title: "Metamagic: Heightened Spell",
                         content: `<p>Target a creature to weaken.</p>`,
                         buttons: {
-                            Ok: {
-                                label: "Ok",
+                            Confirm: {
+                                label: "Confirm",
                                 callback: () => { resolve(Array.from(game.user?.targets)) },
                             },
                         },
-                        default: "Ok",
+                        default: "Confirm",
                         close: () => { resolve(false) },
                     }).render(true);
                 });
@@ -185,12 +185,12 @@ try {
                     title: "Metamagic: Transmuted Spell",
                     content,
                     buttons: {
-                        Ok: {
-                            label: "Ok",
+                        Confirm: {
+                            label: "Confirm",
                             callback: (html) => {resolve(html.find("[name=types]")[0].value)},
                         },
                     },
-                    default: "Ok",
+                    default: "Confirm",
                     close: () => { resolve(false) },
                 }).render(true);
             });
@@ -219,16 +219,15 @@ try {
             });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
         }
-    } else if (args[0].macroPass === "preCheckHits" && ["msak","rsak"].includes(args[0].item.system.actionType) && args[0].attackRoll && args[0].targets[0].actor.system.attributes.ac.value > args[0].attackRoll.total) {        
+    } else if (args[0].macroPass === "preCheckHits" && args[0].actor.items.find(i => i.name === "Metamagic: Seeking Spell") && usesItem.system.uses.value > 1 && ["msak","rsak"].includes(args[0].item.system.actionType) && args[0].attackRoll && args[0].targets[0].actor.system.attributes.ac.value > args[0].attackRoll.total) {        
         // seeking spell
-        if (!args[0].actor.items.find(i => i.name === "Metamagic: Seeking Spell") || usesItem.system.uses.value < 2) return;
         let seekingDialog = await new Promise((resolve) => {
             new Dialog({
                 title: "Metamagic: Seeking Spell",
-                content: `<div><p>Spend 2 Sorcery Points to reroll the attack roll? (Attack Total: ${args[0].attackRoll.total})</p><p>(${usesItem.system.uses.value} Sorcery Point${usesItem.system.uses.value > 1 ? "s" : ""} Remaining)</p></div>`,
+                content: `<div><p>Spend 2 Sorcery Points to reroll the attack roll?</p><p>(${usesItem.system.uses.value} Sorcery Point${usesItem.system.uses.value > 1 ? "s" : ""} Remaining)</p></div>`,
                 buttons: {
-                    Ok: {
-                        label: "Ok",
+                    Confirm: {
+                        label: "Confirm",
                         callback: async () => {resolve(true)},
                     },
                     Cancel: {
@@ -244,17 +243,17 @@ try {
         if (!useReroll) return;
         let reroll = await new Roll("1d20").evaluate({async: true});
         if (game.dice3d) game.dice3d.showForRoll(reroll);
-        let prevRoll = 0;
-        args[0].attackRoll.terms[0].results.forEach(r => {
-            if (r.active && !r.rerolled) prevRoll += r.result;
-            Object.assign(r, { rerolled: true, active: false }); 
-        });
-        args[0].attackRoll.terms[0].results.push({ result: reroll.total, active: true, hidden: true });
-        args[0].attackRoll._total += reroll.total - prevRoll;
+        let prevRoll = args[0].attackRoll.terms[0].results.find(r => r.active && !r.rerolled);
+        if (args[0].attackRoll.terms[0].results.length > 1 && reroll.total < prevRoll.result) {
+            args[0].attackRoll.terms[0].results.push({ result: reroll.total, rerolled: true, active: false, hidden: true });
+        } else {
+            Object.assign(prevRoll, { rerolled: true, active: false });
+            args[0].attackRoll.terms[0].results.push({ result: reroll.total, active: true, hidden: true });
+            args[0].attackRoll._total += reroll.total - prevRoll.result;
+        }
         await args[0].workflow.setAttackRoll(args[0].attackRoll);
-    } else if (args[0].tag === "DamageBonus" && args[0].damageRoll) {
+    } else if (args[0].tag === "DamageBonus" && args[0].actor.items.find(i => i.name === "Metamagic: Empowered Spell") && args[0].item.system.damage?.parts?.length && !["healing", "temphp", "", "midiNone"].includes(args[0].item.system.damage.parts[0][1]) && args[0].damageRoll) {
         // empowered spell
-        if (!(args[0].actor.items.find(i => i.name === "Metamagic: Empowered Spell") && args[0].item.system.damage?.parts?.length && !["healing", "temphp", "", "midiNone"].includes(args[0].item.system.damage.parts[0][1]))) return;
         let dice = args[0].damageRoll.dice;
         let diceContent = "";
         for (let d = 0; d < dice.length; d++) {
@@ -290,8 +289,8 @@ try {
                 title: "Metamagic: Empowered Spell",
                 content,
                 buttons: {
-                    Ok: {
-                        label: "Ok",
+                    Confirm: {
+                        label: "Confirm",
                         callback: async () => {
                             let rerolls = [];
                             let checked = $("input[type='checkbox'][name='die']:checked"); 
