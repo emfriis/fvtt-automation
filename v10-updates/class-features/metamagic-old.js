@@ -1,6 +1,6 @@
 try {
     const usesItem = args[0].actor.items.find(i => i.name === "Font of Magic" && i.system.uses.value);
-    if (!usesItem || args[0].item.type !== "spell") return;
+    if (!usesItem || args[0].tag !== "OnUse" || args[0].item.type !== "spell") return;
     if (args[0].macroPass === "preItemRoll" && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type)) {
         let metamagicContent = "";
         let carefulItem = args[0].actor.items.find(i => i.name === "Metamagic: Careful Spell");
@@ -58,17 +58,7 @@ try {
         });
         let metamagic = await dialog;
         if (!metamagic) return;
-        if (metamagic === "quickened") {
-            // quickened spell
-            if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: args[0].actor.uuid });
-            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
-        } else if (metamagic === "subtle") {
-            // subtle spell
-            await usesItem.update({ "system.uses.value": usesItem.system.uses.value - 1 });
-	    } else if (metamagic === "twinned") {
-            // twinned spell
-            await usesItem.update({ "system.uses.value": Math.max(1, usesItem.system.uses.value - args[0].spellLevel) });
-        }   if (metamagic === "careful") {
+        if (metamagic === "careful") {
             // careful spell
             let carefulDialog =  new Promise(async (resolve) => {
                 new Dialog({
@@ -111,17 +101,17 @@ try {
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
         } else if (metamagic === "extended") {  
             // extended spell
-            let hook = Hooks.on("midi-qol.RollComplete", async workflowComplete => {
-                if (workflowComplete.uuid === args[0].uuid) {
-                    let effects = workflowComplete.actor.effects.filter(e => e.origin === args[0].uuid);   
+            let hook = Hooks.on("midi-qol.RollComplete", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
+                    let effects = workflowNext.actor.effects.filter(e => e.origin === args[0].uuid);   
                     for (let e = 0; e < effects.length; e++) {
                         let effect = effects[e];
                         if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: args[0].actor.uuid, updates: [{ _id: effect.id, duration: { seconds: (effect.duration.seconds ? effect.duration.seconds * 2 : null), turns: (effect.duration.turns ? effect.duration.turns * 2 : null), rounds: (effect.duration.rounds ? effect.duration.rounds * 2 : null), startTime: effect.duration.startTime, startTurn: effect.duration.startTurn, startRound: effect.duration.startRound } }] });
                     }
-                    let targets = Array.from(wworkflowComplete.targets);
+                    let targets = Array.from(workflowNext.targets);
                     for (let t = 0; t < targets.length; t++) {
                         let target = targets[t].actor;
-                        if (target && target.uuid !== workflowComplete.actor.uuid) {
+                        if (target && target.uuid !== workflowNext.actor.uuid) {
                             let effects = target.effects.filter(e => e.origin === args[0].uuid);
                             for (let e = 0; e < effects.length; e++) {
                                 let effect = effects[e];
@@ -163,14 +153,18 @@ try {
                 label: "Metamagic: Heightened Spell",
             };
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targets[0].actor.uuid, effects: [effectData] });
-            let hook = Hooks.on("midi-qol.RollComplete", async workflowComplete => {
-                if (workflowComplete.uuid === args[0].uuid) {
+            let hook = Hooks.on("midi-qol.RollComplete", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
                     MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: targets[0].actor.uuid, effects: [targets[0].actor.effects.find(e => e.label === "Metamagic: Heightened Spell").id] });
                     Hooks.off("midi-qol.RollComplete", hook);
                 }
             });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 3) });
-	    } else if (metamagic === "transmuted") {
+	    } else if (metamagic === "quickened") {
+            // quickened spell
+            if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: args[0].actor.uuid });
+            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+        } else if (metamagic === "transmuted") {
             // transmuted spell
             let options = ["Acid", "Cold", "Fire", "Lightning", "Poison", "Thunder"];
             const optionContent = options.map((o) => { return `<option value="${o}">${o}</option>` })
@@ -180,7 +174,7 @@ try {
                 <select name="types"}>${optionContent}</select>
             </div>
             `;
-            let transmutedDialog =  new Promise(async (resolve) => {
+            let transmutedDialog =  new Promise(async (resolve, reject) => {
                 new Dialog({
                     title: "Metamagic: Transmuted Spell",
                     content,
@@ -211,60 +205,50 @@ try {
                     Hooks.off("midi-qol.preDamageRollComplete", hook1);
                 }
             });
-            let hook2 = Hooks.on("midi-qol.RollComplete", async workflowComplete => {
-                if (workflowComplete.uuid === args[0].uuid) {
+            let hook2 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
                     Hooks.off("midi-qol.preDamageRollComplete", hook1);
                     Hooks.off("midi-qol.RollComplete", hook2);
                 }
             });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+        } else if (metamagic === "subtle") {
+            // subtle spell
+            await usesItem.update({ "system.uses.value": usesItem.system.uses.value - 1 });
+	    } else if (metamagic === "twinned") {
+            // twinned spell
+            await usesItem.update({ "system.uses.value": Math.max(1, usesItem.system.uses.value - args[0].spellLevel) });
         }
-    } else if (args[0].macroPass === "preCheckHits" && ["msak","rsak"].includes(args[0].item.system.actionType) && args[0].attackRoll && args[0].targets[0].actor.system.attributes.ac.value > args[0].attackRoll.total) {        
+    } else if (args[0].macroPass === "preAttackRoll" && ["msak","rsak"].includes(args[0].item.system.actionType)) {        
         // seeking spell
         if (!args[0].actor.items.find(i => i.name === "Metamagic: Seeking Spell") || usesItem.system.uses.value < 2) return;
-        let seekingDialog = await new Promise((resolve) => {
-            new Dialog({
-                title: "Metamagic: Seeking Spell",
-                content: `<div><p>Spend 2 Sorcery Points to reroll the attack roll? (Attack Total: ${args[0].attackRoll.total})</p><p>(${usesItem.system.uses.value} Sorcery Point${usesItem.system.uses.value > 1 ? "s" : ""} Remaining)</p></div>`,
-                buttons: {
-                    Ok: {
-                        label: "Ok",
-                        callback: async () => {resolve(true)},
-                    },
-                    Cancel: {
-                        label: "Cancel",
-                        callback: async () => {resolve(false)},
-                    },
-                },
-                default: "Cancel",
-                close: () => {resolve(false)}
-            }).render(true);
-        });
-        let useReroll = await seekingDialog;
-        if (!useReroll) return;
-        let reroll = await new Roll("1d20").evaluate({async: true});
-        if (game.dice3d) game.dice3d.showForRoll(reroll);
-        let prevRoll = 0;
-        args[0].attackRoll.terms[0].results.forEach(r => {
-            if (r.active && !r.rerolled) prevRoll += r.result;
-            Object.assign(r, { rerolled: true, active: false }); 
-        });
-        args[0].attackRoll.terms[0].results.push({ result: reroll.total, active: true, hidden: true });
-        args[0].attackRoll._total += reroll.total - prevRoll;
-        await args[0].workflow.setAttackRoll(args[0].attackRoll);
-    } else if (args[0].tag === "DamageBonus" && args[0].damageRoll) {
+        const effectData = {
+            changes: [
+                { key: "flags.midi-qol.optional.ss.count", mode: 5, value: "ItemUses.Sorcery Points", priority: 20, },
+                { key: "flags.midi-qol.optional.ss.countAlt", mode: 5, value: "ItemUses.Sorcery Points", priority: 20, },
+                { key: "flags.midi-qol.optional.ss.label", mode: 5, value: "Metamagic: Seeking Spell", priority: 20, },
+                { key: "flags.midi-qol.optional.ss.attack.fail.all", mode: 5, value: "reroll", priority: 20, },
+            ],
+            disabled: false,
+            flags: { dae: { specialDuration: ["1Attack", "1Spell"] } },
+            icon: "icons/magic/light/projectile-flare-blue.webp",
+            label: "Metamagic: Seeking Spell",
+        };
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });   
+    } else if (args[0].macroPass === "postDamageRoll" && args[0].hitTargets.length) {
         // empowered spell
-        if (!(args[0].actor.items.find(i => i.name === "Metamagic: Empowered Spell") && args[0].item.system.damage?.parts?.length && !["healing", "temphp", "", "midiNone"].includes(args[0].item.system.damage.parts[0][1]))) return;
-        let dice = args[0].damageRoll.dice;
-        let diceContent = "";
+        if (!(args[0].actor.items.find(i => i.name === "Metamagic: Empowered Spell") && args[0].item.system.damage?.parts?.length && !["healing", "temphp"].includes(args[0].item.system.damage.parts[0][1]))) return;
+        let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
+        let dice = workflow.damageRoll.dice;
+        let die_content = "";
         for (let d = 0; d < dice.length; d++) {
             let results = dice[d].results;
             for (let r = 0; r < results.length; r++) {
-                if (results[r].rerolled || !results[r].active) continue;
-                diceContent += `<label class='checkbox-label' for='die${d}${r}'>
+                if (results[r]?.rerolled) continue;
+                die_content += `<label class='checkbox-label' for='die${d}${r}'>
                     <input type='checkbox' id='die${d}${r}' name='die' value='${results[r].result},${dice[d].faces},${d}'/>
                     <div style="border:0px; width: 50px; height:50px;">
-                        <img src="icons/svg/d${dice[d].faces}-grey.svg" style="position: relative;">
+                        <img src="icons/svg/d${workflow.damageRoll.dice[d].faces}-grey.svg" style="position: relative;">
                         <p style="position: relative; bottom: 55px; font-weight: bolder; font-size: 25px">${results[r].result}</p>
                     </div>
                     <p>(${dice[d].flavor})</p>
@@ -281,13 +265,13 @@ try {
         </style>
         <form class="dice">
             <div><p>Choose up to ${Math.max(1, args[0].actor.system.abilities.cha.mod)} damage dice to reroll:</p></div>
-            <div class="form-group" id="dice-group">${diceContent}</div>
+            <div class="form-group" id="dice-group">${die_content}</div>
             <div><p>(${usesItem.system.uses.value} Sorcery Points Remaining)</p></div>
         </form>
         `;
-        let empoweredDialog = await new Promise((resolve) => {
+        let empoweredRerolls = await new Promise((resolve) => {
             new Dialog({
-                title: "Metamagic: Empowered Spell",
+                title: "Metamagic: Heightened Spell",
                 content,
                 buttons: {
                     Ok: {
@@ -311,22 +295,30 @@ try {
                 close: () => {resolve(false)}
             }).render(true);
         });
-        let rerolls = await empoweredDialog;
-        if (rerolls.length > Math.max(1, args[0].actor.system.abilities.cha.mod)) {
-            ui.notifications.warn(`Too many dice selected (Maximum ${Math.max(1, args[0].actor.system.abilities.cha.mod)})`);
-        } else if (rerolls.length) {
-            newDamageRoll = args[0].workflow.damageRoll;
-            rerolls.forEach(async r => {
-                let newRoll = new Roll(`1d${r.faces}`).evaluate({ async: false });
-                if (game.dice3d) game.dice3d.showForRoll(newRoll);
-                let replaceRoll = newDamageRoll.terms[r.index].results.find(d => d.result == parseInt(r.result) && d.active);
-                if (replaceRoll) {
-                    Object.assign(replaceRoll, { rerolled: true, active: false });
-                    newDamageRoll.terms[r.index].results.push({ result: parseInt(newRoll.result), active: true, hidden: true });
-                    newDamageRoll._total = newDamageRoll._evaluateTotal();
-                }
-            });
-            await args[0].workflow.setDamageRoll(newDamageRoll);
+        let rerolls = await empoweredRerolls;
+        if (!rerolls) return;
+        if (rerolls.length > Math.max(1, args[0].actor.system.abilities.cha.mod)) return ui.notifications.warn(`Too many dice selected (Maximum ${Math.max(1, args[0].actor.system.abilities.cha.mod)})`);
+	    for (let r = 0; r < rerolls.length; r++) {
+            let result = rerolls[r].result;
+            let faces = rerolls[r].faces;
+            let index = rerolls[r].index;
+            let newRoll = new Roll(`1d${faces}`).evaluate({ async: false });
+            if (game.dice3d) game.dice3d.showForRoll(newRoll);
+            let replaceRoll = workflow.damageRoll.dice[index].results.find(d => d.result == parseInt(result) && d.active);
+            if (!replaceRoll) continue;
+            replaceRoll.rerolled = true;
+            replaceRoll.active = false;
+            workflow.damageRoll.dice[index].results.push({ result: parseInt(newRoll.result), active: true });
+            let newSubTotal = parseInt(workflow.damageRoll.dice[index].total) + parseInt(newRoll.total) - parseInt(replaceRoll.result);
+            workflow.damageRoll.dice[index].total = newSubTotal;
+            workflow.damageRoll.dice[index]._total = newSubTotal;
+            workflow.damageRoll.dice[index].result = newSubTotal;
+            let newTotal = parseInt(workflow.damageRoll.total) + parseInt(newRoll.total) - parseInt(replaceRoll.result);
+            workflow.damageRoll.total = newTotal;
+            workflow.damageRoll._total = newTotal;
+            workflow.damageRoll.result = newTotal;
+            workflow.damageRollHTML = await workflow.damageRoll.render();
         }
+        await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
     }
 } catch (err) {console.error("Metamagic Macro - ", err);}
