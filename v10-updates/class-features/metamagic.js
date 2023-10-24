@@ -244,7 +244,7 @@ try {
         let reroll = await new Roll("1d20").evaluate({async: true});
         if (game.dice3d) game.dice3d.showForRoll(reroll);
         let highRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && !prev.rerolled && prev.result > current.result ? prev : current);
-        let lowRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && ! prev.rerolled && prev.result < current.result ? prev : current);
+        let lowRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && !prev.rerolled && prev.result < current.result ? prev : current);
         if ((!args[0].attackRoll.hasAdvantage && !args[0].attackRoll.hasDisadvantage) || (args[0].attackRoll.hasAdvantage && args[0].attackRoll.hasDisadvantage) || (args[0].attackRoll.hasAdvantage && reroll.total > highRoll.result)) {
             Object.assign(lowRoll, { discarded: false, rerolled: true, active: false });
             Object.assign(highRoll, { discarded: true, rerolled: false, active: false });
