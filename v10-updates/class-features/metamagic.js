@@ -246,8 +246,8 @@ try {
         let highRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && !prev.rerolled && prev.result > current.result ? prev : current);
         let lowRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && !prev.rerolled && prev.result < current.result ? prev : current);
         if ((!args[0].attackRoll.hasAdvantage && !args[0].attackRoll.hasDisadvantage) || (args[0].attackRoll.hasAdvantage && args[0].attackRoll.hasDisadvantage) || (args[0].attackRoll.hasAdvantage && reroll.total > highRoll.result)) {
-            Object.assign(lowRoll, { discarded: false, rerolled: true, active: false });
             Object.assign(highRoll, { discarded: true, rerolled: false, active: false });
+            Object.assign(lowRoll, { discarded: false, rerolled: true, active: false });
             args[0].attackRoll.terms[0].results.push({ result: reroll.total, discarded: false, rerolled: false, active: true, hidden: true });
         } else if (args[0].attackRoll.hasDisadvantage && reroll.total > highRoll.result) {
             Object.assign(lowRoll, { discarded: false, rerolled: true, active: false });
