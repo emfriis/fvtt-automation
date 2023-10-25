@@ -91,6 +91,7 @@ if (lastArg.tag === "OnUse" && lastArg.macroPass === "postDamageRoll" && lastArg
         args[0].damageRoll.terms.push(bonusRoll.terms[i]);
     }
     args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}d6[necrotic]`;
+    if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
     args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
 	await args[0].workflow.setDamageRoll(args[0].damageRoll);
 }

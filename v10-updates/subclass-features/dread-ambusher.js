@@ -38,6 +38,7 @@ try {
 			args[0].damageRoll.terms.push(bonusRoll.terms[i]);
 		}
 		args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}d8`;
+		if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
 		args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
 		await args[0].workflow.setDamageRoll(args[0].damageRoll);
 	} else if (args[0] === "each") {

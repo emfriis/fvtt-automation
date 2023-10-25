@@ -50,6 +50,7 @@ try {
     }
     let diceMult = args[0].isCritical ? 2 : 1;
 	let bonusRoll = await new Roll('0 + ' + `${diceMult}d8[radiant]`).evaluate({async: true});
+    if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
     for (let i = 1; i < bonusRoll.terms.length; i++) {
         args[0].damageRoll.terms.push(bonusRoll.terms[i]);
     }

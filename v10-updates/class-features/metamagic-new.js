@@ -266,19 +266,20 @@ try {
         await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 2) });
     } else if (args[0].tag === "DamageBonus" && args[0].actor.items.find(i => i.name === "Metamagic: Empowered Spell") && args[0].item.system.damage?.parts?.length && !["healing", "temphp", "", "midi-none"].includes(args[0].item.system.damage.parts[0][1]) && args[0].damageRoll) {
         // empowered spell
-        let dice = args[0].damageRoll.dice;
-        let diceContent = "";
-        for (let d = 0; d < dice.length; d++) {
-            let results = dice[d].results;
+        let terms = args[0].damageRoll.terms;
+        let termsContent = "";
+        for (let t = 0; t < terms.length; t++) {
+            if (!terms[t].faces) continue;
+            let results = terms[t].results;
             for (let r = 0; r < results.length; r++) {
                 if (results[r].rerolled || !results[r].active) continue;
-                diceContent += `<label class='checkbox-label' for='die${d}${r}'>
-                    <input type='checkbox' id='die${d}${r}' name='die' value='${results[r].result},${dice[d].faces},${d}'/>
-                    <div style="border:0px; width: 50px; height:50px;">
-                        <img src="icons/svg/d${dice[d].faces}-grey.svg" style="position: relative;">
+                termsContent += `<label class='checkbox-label' for='die${t}${r}'>
+                    <input type='checkbox' id='die${t}${r}' name='die' value='${results[r].result},${terms[t].faces},${t}'/>
+                    <tiv style="border:0px; witth: 50px; height:50px;">
+                        <img src="icons/svg/d${terms[t].faces}-grey.svg" style="position: relative;">
                         <p style="position: relative; bottom: 55px; font-weight: bolder; font-size: 25px">${results[r].result}</p>
-                    </div>
-                    <p>(${dice[d].flavor})</p>
+                    </tiv>
+                    <p>(${terms[t].flavor})</p>
                 </label>
                 `;
             }
@@ -292,7 +293,7 @@ try {
         </style>
         <form class="dice">
             <div><p>Choose up to ${Math.max(1, args[0].actor.system.abilities.cha.mod)} damage dice to reroll:</p></div>
-            <div class="form-group" id="dice-group">${diceContent}</div>
+            <div class="form-group" id="dice-group">${termsContent}</div>
             <div><p>(${usesItem.system.uses.value} Sorcery Points Remaining)</p></div>
         </form>
         `;

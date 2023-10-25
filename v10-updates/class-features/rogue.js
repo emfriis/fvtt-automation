@@ -39,9 +39,10 @@ try {
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     }
-    const dice = args[0].actor.system.scale?.rogue?.["sneak-attack"] ?? 1;
+    const dice = args[0].actor.system.scale?.rogue?.["sneak-attack"];
     const diceMult = args[0].isCritical ? 2 : 1;
     let bonusRoll = await new Roll('0 + ' + `${dice * diceMult}d6`).evaluate({async: true});
+    if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
     for (let i = 1; i < bonusRoll.terms.length; i++) {
         args[0].damageRoll.terms.push(bonusRoll.terms[i]);
     }
