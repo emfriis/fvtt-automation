@@ -26,7 +26,7 @@ try {
         }]
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: actor });
-    const workflow = await MidiQOL.completeItemRoll(item, { showFullCard: false, createWorkflow: true, configureDialog: false });
+    const workflow = await MidiQOL.completeItemUse(item, { showFullCard: false, createWorkflow: true, configureDialog: false });
 	if (workflow.failedSaves.size) return;
 	const effectData = {
         label: "Stench Immunity",
