@@ -46,7 +46,7 @@ try {
         spellUpdate[`system.spells.${slot.type}.value`] = Math.max(args[0].actor.system.spells[slot.type].value - 1, 0);
         args[0].actor.update(spellUpdate);
     }
-    let typeBonus = ["undead", "fiend"].some(t => args[0].targets[0]?.actor.system.details?.type.value.toLowerCase().includes(t)) || ["undead", "fiend"].some(t => args[0].targets[0]?.actor.system.details?.type.value.toLowerCase().includes(t));
+    let typeBonus = ["undead", "fiend"].some(t => args[0].targets[0]?.actor.system.details?.type?.value.toLowerCase().includes(t)) || ["undead", "fiend"].some(t => args[0].targets[0]?.actor.system.details?.type?.value.toLowerCase().includes(t));
     let dice = Math.min(+slot.level + 1 + (typeBonus ? 1 : 0), 6);
     let diceMult = args[0].isCritical ? 2: 1;
     let bonusRoll = await new Roll('0 + ' + `${dice * diceMult}d8[radiant]`).evaluate({async: true});
