@@ -211,10 +211,10 @@ try {
                     Hooks.off("midi-qol.preDamageRollComplete", hook1);
                 }
             });
-            let hook2 = Hooks.on("midi-qol.RollComplete", async workflowComplete => {
+            let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowComplete => {
                 if (workflowComplete.uuid === args[0].uuid) {
                     Hooks.off("midi-qol.preDamageRollComplete", hook1);
-                    Hooks.off("midi-qol.RollComplete", hook2);
+                    Hooks.off("midi-qol.preItemRoll", hook2);
                 }
             });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
