@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag !== "DamageBonus" || !args[0].targets.length) return;
+    if (args[0].tag !== "OnUse" || args[0].macroPass !== "postDamageRoll" || !args[0].targets.length) return;
     let isCantrip = args[0].item.type === "spell" && args[0].spellLevel === 0;
     let isWeapon = args[0].item.type === "weapon" && ["mwak", "rwak"].includes(args[0].item.system.actionType);
     if (!isCantrip && !isWeapon) return;
@@ -49,5 +49,11 @@ try {
         });
     }
     let diceMult = args[0].isCritical ? 2 : 1;
-    return { damageRoll: `${diceMult}d8[radiant]`, flavor: "Blessed Strikes" };
+	let bonusRoll = await new Roll('0 + ' + `${diceMult}d8[radiant]`).evaluate({async: true});
+    for (let i = 1; i < bonusRoll.terms.length; i++) {
+        args[0].damageRoll.terms.push(bonusRoll.terms[i]);
+    }
+    args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}d8[radiant]`;
+    args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
+    await args[0].workflow.setDamageRoll(args[0].damageRoll);
 } catch (err) {console.error("Blessed Strikes Macro - ", err); }

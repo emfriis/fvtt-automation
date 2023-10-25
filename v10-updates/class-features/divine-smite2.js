@@ -56,4 +56,4 @@ try {
     args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${dice * diceMult}d8[radiant]`;
     args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
     await args[0].workflow.setDamageRoll(args[0].damageRoll);
-} catch (err)  {console.error("Divine Smite Macro - ", err); }
+} catch (err)  {console.error("Divine Smite Macro - ", err)}

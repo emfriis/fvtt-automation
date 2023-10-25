@@ -1,20 +1,5 @@
 try {
 	if (!game.combat || game.combat?.round !== 1) return;
-    const effectData = {
-        label: "Dread Ambusher Movement Bonus",
-        icon: "icons/skills/ranged/bow-arrows-blue.webp",
-        changes: [
-			{ key: "system.attributes.movement.walk", mode: 2, value: "10", priority: 20 }
-		],
-        disabled: false,
-		duration: { turns: 1 },
-        flags: { dae: { specialDuration: ["turnEnd"] } }
-    }
-    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: actor.uuid, effects: [effectData] });
-} catch (err)  {console.error("Dread Ambusher Macro - ", err)}
-
-try {
-	if (!game.combat || game.combat?.round !== 1) return;
 	if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll" && !actor.effects.find(e => e.label === "Used Dread Ambusher")) {
 		let useFeat = true;
 		let dialog = new Promise((resolve) => {
@@ -46,9 +31,15 @@ try {
 		}
 		await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: actor.uuid, effects: [effectData] });
 		args[0].workflow.dreadAmbusher = true;
-	} else if (args[0].tag === "DamageBonus" && args[0].damageRoll && args[0].workflow.dreadAmbusher) {
+	} else if (args[0].tag === "OnUse" && args[0].macroPass === "postDamageRoll" && args[0].damageRoll && args[0].workflow.dreadAmbusher) {
 		const diceMult = args[0].isCritical ? 2 : 1;
-		return { damageRoll: `${diceMult}d8`, flavor: "Dread Ambusher" };
+		let bonusRoll = await new Roll('0 + ' + `${diceMult}d8`).evaluate({async: true});
+		for (let i = 1; i < bonusRoll.terms.length; i++) {
+			args[0].damageRoll.terms.push(bonusRoll.terms[i]);
+		}
+		args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}d8`;
+		args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
+		await args[0].workflow.setDamageRoll(args[0].damageRoll);
 	} else if (args[0] === "each") {
 		const effectData = {
 			label: "Dread Ambusher Movement Bonus",

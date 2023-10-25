@@ -47,7 +47,7 @@ try {
 
 //eldritch smite
 try {
-    if (args[0].tag !== "DamageBonus" || !args[0].targets.length || !["mwak"].includes(args[0].item.system.actionType) || args[0].actor.system.spells.pact.value < 1 || args[0].actor.effects.find(e => e.label === "Used Eldritch Smite")) return;
+    if (args[0].tag !== "OnUse" || args[0].macroPass !== "postDamageRoll" || !args[0].damageRoll || !args[0].item.name.includes("(Pact Weapon)") || args[0].actor.system.spells.pact.value < 1 || args[0].actor.effects.find(e => e.label === "Used Eldritch Smite")) return;
     let slot = await new Promise((resolve) => {
         new Dialog({
             title: "Eldritch Smite",
@@ -100,5 +100,11 @@ try {
     }
     let dice = args[0].actor.system.spells.pact.level + 1;
     let diceMult = args[0].isCritical ? 2: 1;
-    return {damageRoll: `${dice * diceMult}d8[force]`, flavor: `Eldritch Smite`};
-} catch (err) {console.error("Eldritch Smite Macro - ", err); }
+    let bonusRoll = await new Roll('0 + ' + `${dice * diceMult}d8[force]`).evaluate({async: true});
+    for (let i = 1; i < bonusRoll.terms.length; i++) {
+        args[0].damageRoll.terms.push(bonusRoll.terms[i]);
+    }
+    args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${dice * diceMult}d8[force]`;
+    args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
+	await args[0].workflow.setDamageRoll(args[0].damageRoll);
+} catch (err) {console.error("Eldritch Smite Macro - ", err)}
