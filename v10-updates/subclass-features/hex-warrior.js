@@ -3,7 +3,7 @@ try {
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
 	const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     if (args[0] === "on") {
-        const equipped = actor.items.filter(i => i.type === "weapon" && (i.system.proficient == 1 || i.system.proficient == "") && !i.system.properties.two && ["simple","martial"].find(t => i.system.weaponType.toLowerCase().includes(t)));
+        const equipped = actor.items.filter(i => i.type === "weapon" && !i.system.properties.two && actor.system.traits.weaponProf.value.has(i.system.baseItem));
         if (equipped.length == 1) {
             const weapon = equipped[0];
             if (weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.concat([{ source: "hexWeapon", id: lastArg.efData._id, system: { ability: "cha" } }]));
@@ -55,6 +55,7 @@ try {
 		}
     } else if (args[0] === "off") { 
         const weapon = actor.items.find(i => i.flags["midi-qol"].hexWarrior === lastArg.efData._id);
+        if (!weapon) weapon = game.actors.contents.find(a => a.items.find(i => i.flags["midi-qol"].hexWarrior === lastArg.efData._id)).items.find(i => i.flags["midi-qol"].hexWarrior === lastArg.efData._id);
 		await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.filter(s => s.source !== "hexWarrior" && s.id !== lastArg.efData._id));
 		const tempSystem = JSON.parse(JSON.stringify(weapon.flags["midi-qol"].tempSystem.find(s => s.source === "core").system)); 
 		weapon.flags["midi-qol"].tempSystem.filter(s => s.source !== "core").forEach(s => {

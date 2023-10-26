@@ -64,16 +64,15 @@ try {
             item.update({"system.uses.value": uses});
             return;
         }
-        let workflow = MidiQOL.Workflow.getWorkflow(args[0].uuid);
         if (heal.type === "heal") {
             let newDamageFormula = `${heal.value}`;
-            workflow.damageRoll = await new Roll(newDamageFormula).roll();
-            workflow.damageTotal = workflow.damageRoll.total;
-            workflow.damageRollHTML = await workflow.damageRoll.render();
+            args[0].workflow.damageRoll = await new Roll(newDamageFormula).roll();
+            args[0].workflow.damageTotal = args[0].workflow.damageRoll.total;
+            args[0].workflow.damageRollHTML = await args[0].workflow.damageRoll.render();
             item.update({"system.uses.value": uses - heal.value});
         } else if (heal.type === "cure") {
             let hook = Hooks.on("midi-qol.RollComplete", async workflowNext => {
-                if (workflowNext.itemCardId === workflow.itemCardId) {
+                if (workflowNext.uuid === args[0].workflow.uuid) {
                     let chatMessage = await game.messages.get(args[0].itemCardId);
                     let content = duplicate(chatMessage.content);
                     let newContent = content.replace("Healing", "Cure").replace(/<div class="midi-qol-saves-display">[\s\S]*<div class="end-midi-qol-saves-display">/g, `Target is cured of one disease or poison.`);

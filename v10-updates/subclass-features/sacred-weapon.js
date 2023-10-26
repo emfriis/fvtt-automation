@@ -53,6 +53,7 @@ try {
         }
     } else if (args[0] === "off") { 
         const weapon = actor.items.find(i => i.flags["midi-qol"].sacredWeapon === lastArg.efData._id);
+        if (!weapon) weapon = game.actors.contents.find(a => a.items.find(i => i.flags["midi-qol"].sacredWeapon === lastArg.efData._id)).items.find(i => i.flags["midi-qol"].sacredWeapon === lastArg.efData._id);
 		await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.filter(s => s.source !== "sacredWeapon" && s.id !== lastArg.efData._id));
 		const tempSystem = JSON.parse(JSON.stringify(weapon.flags["midi-qol"].tempSystem.find(s => s.source === "core").system)); 
 		weapon.flags["midi-qol"].tempSystem.filter(s => s.source !== "core").forEach(s => {
