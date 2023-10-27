@@ -5,6 +5,7 @@
 // range - i.e., range=5 WHAT RANGE DOES ATTACK NEED TO BE IN TO TRIGGER DAMAGE
 // damageRoll - rollable string i.e., damageRoll=3d6 HOW MUCH DAMAGE
 // damageType - damage type i.e., damageType=fire WHAT TYPE OF DAMAGE 
+// killAnim - i.e., killAnim=true WHETHER TO KILL ITEM ANIMATION
 
 try {
 	if (args[0].tag != "OnUse" && args[0].macroPass != "isAttacked") return;
@@ -20,15 +21,17 @@ try {
         const range = !rangeValue ? 9999 : isNaN(rangeValue) ? undefined : +rangeValue;
         const damageRoll = damageItem.find(i => i?.includes("damageRoll="))?.replace("damageRoll=","");
         const damageType = damageItem.find(i => i?.includes("damageType="))?.replace("damageType=","");
+        const killAnimValue = damageItem.find(i => i?.includes("killAnim="))?.replace("killAnim=","");
+        const killAnim = !killAnimValue || killAnimValue == "false" ? false : true;
         const sourceEffect = args[0].options.actor.effects.find(e => e.changes.find(c => c.value.replace(" ", "").replace(";", "") == d));
         const itemName = sourceEffect ? sourceEffect.label : "Damage";
         const itemImg = sourceEffect ? sourceEffect.icon : "icons/svg/explosion.svg";
-        if (!actionTypes || !range || !damageRoll || !damageType) return console.error("Invalid Damage On Attacked arguments:", "actor =", args[0].options.actor, "token =", args[0].options.token, "actionTypes =", actionTypes, "isHit =", isHit, "range =", range, "damageRoll =", damageRoll, "damageType =", damageType);
+        if (!actionTypes || !range || !damageRoll || !damageType) return console.error("Invalid Damage On Attacked arguments:", "actor =", args[0].options.actor, "token =", args[0].options.token, "actionTypes =", actionTypes, "isHit =", isHit, "range =", range, "damageRoll =", damageRoll, "damageType =", damageType, "killAnim =", killAnim);
         if (!actionTypes.includes(args[0].item.system.actionType) || MidiQOL.computeDistance(args[0].workflow.token, args[0].options.token, false) > range) return console.warn("Damage On Attacked conditions not met");
         if (isHit) {
             let hook1 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid) {
-                    await applyDamage(args[0].workflow.actor, damageRoll, damageType, itemName, itemImg);
+                    await applyDamage(args[0].workflow.actor, damageRoll, damageType, itemName, itemImg, killAnim);
                     Hooks.off("midi-qol.postActiveEffects", hook1);
                 }
             });
@@ -39,12 +42,12 @@ try {
                 }
             });
         } else {
-            await applyDamage(args[0].workflow.actor, damageRoll, damageType, itemName, itemImg);
+            await applyDamage(args[0].workflow.actor, damageRoll, damageType, itemName, itemImg, killAnim);
         }
     });
 } catch (err) {console.error("Damage On Attacked Macro - ", err)}
 
-async function applyDamage(actor, damageRoll, damageType, itemName, itemImg) {
+async function applyDamage(actor, damageRoll, damageType, itemName, itemImg, killAnim) {
     const itemData = {
         name: itemName,
         img: itemImg,
@@ -56,7 +59,7 @@ async function applyDamage(actor, damageRoll, damageType, itemName, itemImg) {
             actionType: "other",
             damage: { parts: [[damageRoll, damageType]] }
         },
-        flags: { autoanimations: { isEnabled: false } }
+        flags: { autoanimations: { isEnabled: killAnim } }
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: actor });
     await MidiQOL.completeItemUse(item, { showFullCard: false, createWorkflow: true, configureDialog: false });
