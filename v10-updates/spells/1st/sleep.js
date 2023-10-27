@@ -1,6 +1,6 @@
 try {
 	if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects") return;
-	const targets = await args[0].targets.filter(t => t.actor && !((t.actor.system.details?.type?.value == "custom" || t.actor.system.details?.type?.value == "") && t.actor.system.details?.type?.custom == "") && t.actor.system.attributes.hp.value && !t.actor.effects.find(e => e.label === "Unconscious")).sort((prev, curr) => prev.actor.system.attributes.hp.value < prev.actor.system.attributes.hp.value ? -1 : 1);
+	const targets = await args[0].targets.filter(t => t.actor && !((t.actor.system.details?.type?.value == "custom" || t.actor.system.details?.type?.value == "") && t.actor.system.details?.type?.custom == "") && t.actor.system.attributes.hp.value && !t.actor.effects.find(e => e.label === "Unconscious" && !e.disabled)).sort((prev, curr) => prev.actor.system.attributes.hp.value < prev.actor.system.attributes.hp.value ? -1 : 1);
 	let sleepHp = args[0].damageTotal;
 	let sleepTargets = [];
 	for (let target of targets) {

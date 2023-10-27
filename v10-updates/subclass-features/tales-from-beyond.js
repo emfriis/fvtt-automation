@@ -1,5 +1,5 @@
 try {
-	if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && args[0].item.name.toLowerCase().includes("tales from beyond")) {
+	if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && args[0].item.type == "feat") {
         const oldItems = args[0].actor.items.filter(i => i.name.toLowerCase().includes("spirit tale: ")).map(i => i.id);
         if (oldItems) await args[0].actor.deleteEmbeddedDocuments("Item", oldItems);
 		const oldEffect = args[0].actor.effects.find(e => e.label.toLowerCase().includes("tales from beyond: tale of the"));
@@ -23,7 +23,7 @@ try {
                 default: "Cancel",
             }).render(true);
 		}	
-	} else if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && !args[0].item.name.toLowerCase().includes("tales from beyond")) {
+	} else if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && args[0].item.type == "consumable") {
 		const effect = args[0].actor.effects.find(e => e.label.toLowerCase().includes("tales from beyond: tale of the "));
 		const targetEffect = args[0].targets[0].actor.effects.find(e => e.label.toLowerCase().includes(`spirit tale: ${effect.label.toLowerCase().replace("tales from beyond: ", "")}`));
 		if (effect && targetEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: args[0].actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.concat([{ key: "flags.dae.deleteUuid", mode: 5, value: `${targetEffect.uuid}`, priority: 20 }]) }] });
@@ -36,6 +36,29 @@ try {
                 } 
             });
         }
+    } else if (args[0].tag == "OnUse" && args[0].macroPass == "isAttacked" && ["mwak", "msak"].includes(args[0].item.system.actionType)) {
+        const itemData = {
+            name: "Tale of the Avenger",
+            img: "icons/commodities/tech/smoke-bomb-purple.webp",
+            type: "feat",
+            system: {
+                activation: { type: "special" },
+                target: { type: "self" },
+                range: { units: "self" },
+                actionType: "other",
+                damage: { parts: [[args[0].options.actor.flags["midi-qol"]?.taleOfTheAvenger, "force"]] }
+            }
+        }
+        const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].actor });
+        await MidiQOL.completeItemUse(item, { showFullCard: false, createWorkflow: true, configureDialog: false });
+    } else if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].targets.length) {
+        const effectData = { changes: [{ key: "macro.CE", mode: 0, value: "Frightened", priority: 20 }], disabled: false, icon: "icons/creatures/magical/humanoid-silhouette-glowing-pink.webp", name: "Tale of the Phantom", duration: { rounds: 1 }, flags: { dae: { specialDuration: ["turnEnd"] } } };
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: effectTarget.uuid, effects: [effectData] });
+        const targetEffect = args[0].targets[0].actor.effects.find(e => e.label == "Tale of the Phantom");
+        const source = await fromUuid(args[0].actor.flags["midi-qol"].taleOfThePhantom);
+        const sourceActor = source.actor ? source.actor : source;
+        const sourceEffect = sourceActor.effects.find(e => e.label.toLowerCase().includes("tales from beyond: tale of the"));
+        if (targetEffect && sourceEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: source.uuid, updates: [{ _id: sourceEffect.id, changes: sourceEffect.changes.concat([{ key: "flags.dae.deleteUuid", mode: 5, value: `${targetEffect.uuid}`, priority: 20 }]) }] });
     } else if (args[0].tag == "OnUse" && args[0].macroPass == "preambleComplete" && !args[0].item.name.toLowerCase().includes("tales from beyond")) {
 		game.user.updateTokenTargets(args[0].targets.filter(t => t.disposition == -canvas.tokens.get(args[0].tokenId).document.disposition).map(t => t.id));
 	}
@@ -50,6 +73,7 @@ async function createTale (tale, die) {
                 name: "Spirit Tale: Tale of the Clever Animal",
                 img: "icons/creatures/abilities/paw-print-pair-purple.webp",
                 type: "consumable",
+                description: "For the next 10 minutes, whenever the target makes an Intelligence, a Wisdom, or a Charisma check, the target can roll an extra die immediately after rolling the d20 and add the extra die's number to the check. The extra die is the same type as your Bardic Inspiration die.",
                 system: {
                     consumableType: "trinket",
                     equipped: true,
@@ -84,7 +108,7 @@ async function createTale (tale, die) {
                     duration: { seconds: 600 },
                     flags: { dae: { transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } } }
             };
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -93,6 +117,7 @@ async function createTale (tale, die) {
                 name: "Spirit Tale: Tale of the Renowned Duelist",
                 img: "icons/weapons/swords/sword-runed-glowing.webp",
                 type: "consumable",
+                description: "You make a melee spell attack against the target. On a hit, the target takes force damage equal to two rolls of your Bardic Inspiration die + your Charisma modifier.",
                 system: {
                     consumableType: "trinket",
                     equipped: true,
@@ -111,6 +136,7 @@ async function createTale (tale, die) {
                 name: "Spirit Tale: Tale of the Beloved Friends",
                 img: "icons/magic/light/explosion-star-glow-silhouette.webp",
                 type: "consumable",
+                description: "The target and another creature of its choice it can see within 5 feet of it gains temporary hit points equal to a roll of your Bardic Inspiration die + your Charisma modifier.",
                 system: {
                     consumableType: "trinket",
                     equipped: true,
@@ -130,7 +156,7 @@ async function createTale (tale, die) {
                     transfer: false,
                     flags: { dae: { transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } } }
             }
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -139,6 +165,7 @@ async function createTale (tale, die) {
                 name: "Spirit Tale: Tale of the Runaway",
                 img: "icons/creatures/fish/fish-fangtooth-skeletal-pink.webp",
                 type: "consumable",
+                description: "The target can immediately use its reaction to teleport up to 30 feet to an unoccupied space it can see. When the target teleports, it can choose a number of creatures it can see within 30 feet of it up to your Charisma modifier (minimum of 0) to immediately use the same reaction.",
                 system: {
                     consumableType: "trinket",
                     equipped: true,
@@ -156,6 +183,7 @@ async function createTale (tale, die) {
                 name: "Spirit Tale: Tale of the Avenger",
                 img: "icons/skills/melee/spear-tips-double-purple.webp",
                 type: "consumable",
+                description: "For 1 minute, any creature that hits the target with a melee attack takes force damage equal to a roll of your Bardic Inspiration die.",
                 system: {
                     consumableType: "trinket",
                     equipped: true,
@@ -166,6 +194,10 @@ async function createTale (tale, die) {
                     actionType: "other"
                 },
                 effects: [{ 
+                    changes: [
+                        { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "TalesFromBeyond, isAttacked", priority: "20" },
+                        { key: "flags.midi-qol.taleOfTheAvenger", mode: 5, value: `1${die}`, priority: "20" }
+                    ],
                     disabled: false,
                     isSuppressed: false,
                     icon: "icons/skills/melee/spear-tips-double-purple.webp",
@@ -174,7 +206,7 @@ async function createTale (tale, die) {
                     duration: { seconds: 60 },
                     flags: { dae: { transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } } }
             };
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -183,6 +215,7 @@ async function createTale (tale, die) {
                 name: "Spirit Tale: Tale of the Traveller",
                 img: "icons/skills/movement/arrow-down-pink.webp",
                 type: "consumable",
+                description: "The target gains temporary hit points equal to a roll of your Bardic Inspiration die + your bard level. While it has these temporary hit points, the target's walking speed increases by 10 feet and it gains a +1 bonus to its AC.",
                 system: {
                     consumableType: "trinket",
                     equipped: true,
@@ -206,7 +239,7 @@ async function createTale (tale, die) {
                     transfer: false,
                     flags: { dae: { specialDuration: ["turnStartSource"], transfer: false, showIcon: true } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } } }
             };
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -215,6 +248,7 @@ async function createTale (tale, die) {
                 name: "Spirit Tale: Tale of the Beguiler",
                 img: "icons/creatures/eyes/void-single-black-purple.webp",
                 type: "consumable",
+                description: "The target must succeed on a Wisdom saving throw or take psychic damage equal to two rolls of your Bardic Inspiration die, and the target is incapacitated until the end of its next turn.",
                 system: {
                     consumableType: "trinket",
                     equipped: true,
@@ -236,7 +270,7 @@ async function createTale (tale, die) {
                     duration: { rounds: 1 },
                     flags: { dae: { specialDuration: ["turnEnd"], transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } }, midiProperties: { magiceffect: true } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } }, midiProperties: { magiceffect: true } }
             }
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -245,6 +279,7 @@ async function createTale (tale, die) {
                 name: "Spirit Tale: Tale of the Phantom",
                 img: "icons/creatures/magical/humanoid-silhouette-glowing-pink.webp",
                 type: "consumable",
+                description: "The target becomes invisible until the end of its next turn or until it hits a creature with an attack. If the target hits a creature with an attack during this invisibility, the creature it hits takes necrotic damage equal to a roll of your Bardic Inspiration die and is frightened of the target until the end of the frightened creature's next turn.",
                 system: {
                     consumableType: "trinket",
                     equipped: true,
@@ -260,7 +295,9 @@ async function createTale (tale, die) {
                         { key: "system.bonuses.mwak.damage", mode: 2, value: `1${die}`, priority: "20" },
                         { key: "system.bonuses.rwak.damage", mode: 2, value: `1${die}`, priority: "20" },
                         { key: "system.bonuses.msak.damage", mode: 2, value: `1${die}`, priority: "20" },
-                        { key: "system.bonuses.rsak.damage", mode: 2, value: `1${die}`, priority: "20" }
+                        { key: "system.bonuses.rsak.damage", mode: 2, value: `1${die}`, priority: "20" },
+                        { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "TalesFromBeyond, postActiveEffects", priority: "20" },
+                        { key: "flags.midi-qol.taleOfThePhantom", mode: 5, value: args[0].actor.uuid, priority: "20" }
                     ],
                     disabled: false,
                     isSuppressed: false,
@@ -268,9 +305,9 @@ async function createTale (tale, die) {
                     name: "Spirit Tale: Tale of the Phantom",
                     transfer: false,
                     duration: { rounds: 1 },
-                    flags: { dae: { specialDuration: ["turnEnd", "1Hit"], transfer: false }, effectmacro: { dnd5e: { rollDamage: { script: `try {\nworkflow = MidiQOL.Workflow.getWorkflow(this.item.uuid);\nif (!["mwak","rwak","msak","rsak"].includes(workflow.item.system.actionType) || !workflow.hitTargets.size) return;\nconst effectTarget = workflow.hitTargets.values().next().value.actor;\nconst effectData = { changes: [{ key: "macro.CE", mode: 0, value: "Frightened", priority: 20 }], disabled: false, icon: "icons/creatures/magical/humanoid-silhouette-glowing-pink.webp", name: "Tale of the Phantom", duration: { rounds: 1 }, flags: { dae: { specialDuration: ["turnEnd"] } } };\nawait MidiQOL.socket().executeAsGM("createEffects", { actorUuid: effectTarget.uuid, effects: [effectData] });\nconst targetEffect = effectTarget.effects.find(e => e.label == "Tale of the Phantom");\nconst source = await fromUuid("${args[0].actor.uuid}");\nconst sourceEffect = source.effects.find(e => e.label.toLowerCase().includes("tales from beyond: tale of the"));\nawait MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: source.uuid, updates: [{ _id: sourceEffect.id, changes: sourceEffect.changes.concat([{ key: "flags.dae.deleteUuid", mode: 5, value: ${"`${targetEffect.uuid}`"}, priority: 20 }]) }] });\n} catch (err) {console.error("Spirit Tale: Tale of the Phantom Macro - ", err)}` } } } }
+                    flags: { dae: { specialDuration: ["turnEnd", "1Attack"], transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } } }
             };
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -279,6 +316,7 @@ async function createTale (tale, die) {
                 name: "Spirit Tale: Tale of the Brute",
                 img: "icons/creatures/claws/claw-talons-glowing-purple.webp",
                 type: "consumable",
+                description: "Each creature of the target's choice it can see within 30 feet of it must make a Strength saving throw. On a failed save, a creature takes thunder damage equal to three rolls of your Bardic Inspiration die and is knocked prone. A creature that succeeds on its saving throw takes half as much damage and isn't knocked prone.",
                 system: {
                     consumableType: "trinket",
                     equipped: true,
@@ -297,7 +335,7 @@ async function createTale (tale, die) {
                     name: "Prone",
                     transfer: false
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[preambleComplete]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "preambleComplete" }] } }, midiProperties: { halfdam: true, magiceffect: true } }
+                flags: { "midi-qol": { onUseMacroName: "[preambleComplete]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "preambleComplete" }] } }, midiProperties: { halfdam: true, magiceffect: true } }
             }
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -306,6 +344,7 @@ async function createTale (tale, die) {
                 name: "Spirit Tale: Tale of the Dragon",
                 img: "icons/creatures/abilities/dragon-breath-purple.webp",
                 type: "consumable",
+                description: "The target spews fire from the mouth in a 30-foot cone. Each creature in that area must make a Dexterity saving throw, taking fire damage equal to four rolls of your Bardic Inspiration die on a failed save, or half as much damage on a successful one.",
                 system: {
                     consumableType: "trinket",
                     equipped: true,
@@ -326,6 +365,7 @@ async function createTale (tale, die) {
                 name: "Spirit Tale: Tale of the Angel",
                 img: "icons/creatures/mammals/bat-giant-tattered-purple.webp",
                 type: "consumable",
+                description: "The target regains hit points equal to two rolls of your Bardic Inspiration die + your Charisma modifier, and you end one condition from the following list affecting the target: blinded, deafened, paralyzed, petrified, or poisoned.",
                 system: {
                     consumableType: "trinket",
                     equipped: true,
@@ -345,6 +385,7 @@ async function createTale (tale, die) {
                 name: "Spirit Tale: Tale of the Mind-Bender",
                 img: "icons/creatures/tentacles/tentacles-octopus-black-pink.webp",
                 type: "consumable",
+                description: "You evoke an incomprehensible fable from an otherworldly being. The target must succeed on an Intelligence saving throw or take psychic damage equal to three rolls of your Bardic Inspiration die and be stunned until the end of its next turn.",
                 system: {
                     consumableType: "trinket",
                     equipped: true,
@@ -366,7 +407,7 @@ async function createTale (tale, die) {
                     duration: { rounds: 1 },
                     flags: { dae: { specialDuration: ["turnEnd"], transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]ItemMacro.Tales from Beyond", onUseMacroParts: { items: [{ macroName: "ItemMacro.Tales from Beyond", option: "postActiveEffects" }] } }, midiProperties: { magiceffect: true } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } }, midiProperties: { magiceffect: true } }
             }
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;

@@ -13,5 +13,5 @@ try {
 //danger sense
 
 try {
-    if (args[0].tag === "OnUse" && args[0].macroPass === "preTargetSave" && args[0].workflow.item && args[0].workflow.saveDetails && args[0].workflow.item.system?.save?.ability === "dex" && !args[0].actor.effects.find(e => ["Blinded", "Deafened", "Incapacitated", "Unconscious", "Paralyzed", "Petrified", "Stunned"].includes(e.label))) args[0].workflow.saveDetails.advantage = true;
+    if (args[0].tag === "TargetOnUse" && args[0].macroPass === "preTargetSave" && args[0].workflow.item && args[0].workflow.saveDetails && args[0].workflow.item.system?.save?.ability === "dex" && !checkIncapacitated(args[0].actor)) args[0].workflow.saveDetails.advantage = true;
 } catch (err) {console.error("Danger Sense Macro - ", err)}

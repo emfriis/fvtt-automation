@@ -23,7 +23,8 @@ try {
             name: "Stench", 
             duration: { rounds: 1, seconds: 7 },
 			flags: { dae: { specialDuration: ["turnStart"] } }	
-        }]
+        }],
+        flags: { autoanimations: { isEnabled: false } }
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: actor });
     const workflow = await MidiQOL.completeItemUse(item, { showFullCard: false, createWorkflow: true, configureDialog: false });

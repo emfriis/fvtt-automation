@@ -23,7 +23,8 @@ try {
             name: "Viral Aura", 
             duration: { rounds: 1, turns: 1, seconds: 7 },
 			flags: { dae: { specialDuration: ["turnEnd"] } }	
-        }]
+        }],
+        flags: { autoanimations: { isEnabled: false } }
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: actor });
     const workflow = await MidiQOL.completeItemRolUse(item, { showFullCard: false, createWorkflow: true, configureDialog: false });
