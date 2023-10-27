@@ -8,7 +8,7 @@
 // killAnim - i.e., killAnim=true WHETHER TO KILL ITEM ANIMATION
 
 try {
-	if (args[0].tag != "OnUse" && args[0].macroPass != "isAttacked") return;
+	if (args[0].tag != "TargetOnUse" || args[0].macroPass != "isAttacked" || args[0].workflow.damageOnAttacked?.includes(args[0].options.actor.uuid)) return;
     const damageItems = args[0].options.actor.flags["midi-qol"]?.damageOnAttacked?.replace(" ", "")?.split(";");
     damageItems.forEach(async d => {
         const damageItem = d?.split(",");
@@ -44,6 +44,7 @@ try {
         } else {
             await applyDamage(args[0].workflow.actor, damageRoll, damageType, itemName, itemImg, killAnim);
         }
+        args[0].workflow.damageOnAttacked = args[0].workflow.damageOnAttacked ? args[0].workflow.damageOnAttacked?.concat([args[0].options.actor.uuid]) : [args[0].options.actor.uuid];
     });
 } catch (err) {console.error("Damage On Attacked Macro - ", err)}
 
