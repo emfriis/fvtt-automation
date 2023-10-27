@@ -36,21 +36,6 @@ try {
                 } 
             });
         }
-    } else if (args[0].tag == "OnUse" && args[0].macroPass == "isAttacked" && ["mwak", "msak"].includes(args[0].item.system.actionType)) {
-        const itemData = {
-            name: "Tale of the Avenger",
-            img: "icons/commodities/tech/smoke-bomb-purple.webp",
-            type: "feat",
-            system: {
-                activation: { type: "special" },
-                target: { type: "self" },
-                range: { units: "self" },
-                actionType: "other",
-                damage: { parts: [[args[0].options.actor.flags["midi-qol"]?.taleOfTheAvenger, "force"]] }
-            }
-        }
-        const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].actor });
-        await MidiQOL.completeItemUse(item, { showFullCard: false, createWorkflow: true, configureDialog: false });
     } else if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].targets.length) {
         const effectData = { changes: [{ key: "macro.CE", mode: 0, value: "Frightened", priority: 20 }], disabled: false, icon: "icons/creatures/magical/humanoid-silhouette-glowing-pink.webp", name: "Tale of the Phantom", duration: { rounds: 1 }, flags: { dae: { specialDuration: ["turnEnd"] } } };
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: effectTarget.uuid, effects: [effectData] });
@@ -195,8 +180,8 @@ async function createTale (tale, die) {
                 },
                 effects: [{ 
                     changes: [
-                        { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "TalesFromBeyond, isAttacked", priority: "20" },
-                        { key: "flags.midi-qol.taleOfTheAvenger", mode: 5, value: `1${die}`, priority: "20" }
+                        { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "DamageOnAttacked, isAttacked", priority: "20" },
+                        { key: "flags.midi-qol.damageOnAttacked", mode: 2, value: `mwak+msak+hit,any,1${die},force;`, priority: "20" }
                     ],
                     disabled: false,
                     isSuppressed: false,

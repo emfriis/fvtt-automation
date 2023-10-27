@@ -1,39 +1,34 @@
 // damageItems - semicolon separated
-// itemArgs format - comma separated - FIRST ARG 0 = action types plus separated i.e., mwak+msak+hit (hit for attack must have damage rolled) - SECOND ARG 1 = range i.e., 5 (any for any range) - THIRD ARG = damage rollable i.e., 1d8 - FOURTH ARG = damage type i.e., fire
+// itemArgs format - comma separated 
+// actionTypes - breakline separated i.e., actionTypes=mwak|msak WHICH ACTION TYPES TRIGGER DAMAGE
+// isHit - i.e., isHit=true DOES ATTACK NEED TO DEAL DAMAGE TO TRIGGER DAMAGE
+// range - i.e., range=5 WHAT RANGE DOES ATTACK NEED TO BE IN TO TRIGGER DAMAGE
+// damageRoll - rollable string i.e., damageRoll=3d6 HOW MUCH DAMAGE
+// damageType - damage type i.e., damageType=fire WHAT TYPE OF DAMAGE 
 
 try {
 	if (args[0].tag != "OnUse" && args[0].macroPass != "isAttacked") return;
-    const damageItems = args[0].options.actor.flags["midi-qol"]?.damageOnAttacked?.trim()?.split(";");
+    const damageItems = args[0].options.actor.flags["midi-qol"]?.damageOnAttacked?.replace(" ", "")?.split(";");
     damageItems.forEach(async d => {
-        const damageItem = d?.trim()?.split(",");
-        if (damageItem?.length < 4) return;
-        const actionTypes = damageItem[0]?.trim()?.split("+");
-        const range = damageItem[1]?.trim() == "any" ? 9999 : isNaN(damageItem[1]?.trim()) ? null : +(damageItem[1]?.trim());
-        const damageRoll = damageItem[2]?.trim();
-        const damageType = damageItem[3]?.trim();
-        const sourceEffect = args[0].options.actor.effects.find(e => e.changes.find(c => c.value.replace(";", "") == d));
+        const damageItem = d?.split(",");
+        if (damageItem?.length < 2) return;
+        const actionTypesValue = damageItem.find(i => i?.includes("attackTypes="))?.replace("attackTypes=","");
+        const actionTypes = actionTypesValue ? actionTypesValue[0]?.split("+") : ["mwak", "rwak", "msak", "rsak"];
+        const isHitValue = damageItem.find(i => i?.includes("isHit="))?.replace("isHit=","");
+        const isHit = !isHitValue || isHitValue == "false" ? false : true;
+        const rangeValue = damageItem.find(i => i?.includes("range="))?.replace("range=","");
+        const range = !rangeValue ? 9999 : isNaN(rangeValue) ? undefined : +rangeValue;
+        const damageRoll = damageItem.find(i => i?.includes("damageRoll="))?.replace("damageRoll=","");
+        const damageType = damageItem.find(i => i?.includes("damageType="))?.replace("damageType=","");
+        const sourceEffect = args[0].options.actor.effects.find(e => e.changes.find(c => c.value.replace(" ", "").replace(";", "") == d));
         const itemName = sourceEffect ? sourceEffect.label : "Damage";
         const itemImg = sourceEffect ? sourceEffect.icon : "icons/svg/explosion.svg";
-        if (!actionTypes || !range || !damageRoll || !damageType) return console.error("Invalid Damage On Attacked arguments:", "actor =", args[0].options.actor, "token =", args[0].options.token, "actionTypes =", actionTypes, "range =", range, "damageRoll =", damageRoll, "damageType =", damageType);
-        if (!(actionTypes.includes(args[0].item.system.actionType) || (actionTypes.includes("any") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType))) || MidiQOL.computeDistance(args[0].workflow.token, args[0].options.token, false) > range) return console.warn("Damage On Attacked conditions not met");
-        if (actionTypes.includes("hit")) {
+        if (!actionTypes || !range || !damageRoll || !damageType) return console.error("Invalid Damage On Attacked arguments:", "actor =", args[0].options.actor, "token =", args[0].options.token, "actionTypes =", actionTypes, "isHit =", isHit, "range =", range, "damageRoll =", damageRoll, "damageType =", damageType);
+        if (!actionTypes.includes(args[0].item.system.actionType) || MidiQOL.computeDistance(args[0].workflow.token, args[0].options.token, false) > range) return console.warn("Damage On Attacked conditions not met");
+        if (isHit) {
             let hook1 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid) {
-                    const itemData = {
-                        name: itemName,
-                        img: itemImg,
-                        type: "feat",
-                        system: {
-                            activation: { type: "special" },
-                            target: { type: "self" },
-                            range: { units: "self" },
-                            actionType: "other",
-                            damage: { parts: [[damageRoll, damageType]] }
-                        },
-                        flags: { autoanimations: { isEnabled: false } }
-                    }
-                    const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].workflow.actor });
-                    await MidiQOL.completeItemUse(item, { showFullCard: false, createWorkflow: true, configureDialog: false });
+                    await applyDamage(args[0].workflow.actor, damageRoll, damageType, itemName, itemImg);
                     Hooks.off("midi-qol.postActiveEffects", hook1);
                 }
             });
@@ -44,21 +39,25 @@ try {
                 }
             });
         } else {
-            const itemData = {
-                name: itemName,
-                img: itemImg,
-                type: "feat",
-                system: {
-                    activation: { type: "special" },
-                    target: { type: "self" },
-                    range: { units: "self" },
-                    actionType: "other",
-                    damage: { parts: [[damageRoll, damageType]] }
-                },
-                flags: { autoanimations: { isEnabled: false } }
-            }
-            const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].workflow.actor });
-            await MidiQOL.completeItemUse(item, { showFullCard: false, createWorkflow: true, configureDialog: false });
+            await applyDamage(args[0].workflow.actor, damageRoll, damageType, itemName, itemImg);
         }
     });
 } catch (err) {console.error("Damage On Attacked Macro - ", err)}
+
+async function applyDamage(actor, damageRoll, damageType, itemName, itemImg) {
+    const itemData = {
+        name: itemName,
+        img: itemImg,
+        type: "feat",
+        system: {
+            activation: { type: "special" },
+            target: { type: "self" },
+            range: { units: "self" },
+            actionType: "other",
+            damage: { parts: [[damageRoll, damageType]] }
+        },
+        flags: { autoanimations: { isEnabled: false } }
+    }
+    const item = new CONFIG.Item.documentClass(itemData, { parent: actor });
+    await MidiQOL.completeItemUse(item, { showFullCard: false, createWorkflow: true, configureDialog: false });
+}
