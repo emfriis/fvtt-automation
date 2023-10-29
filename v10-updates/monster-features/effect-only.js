@@ -7,7 +7,7 @@ game?.canvas?.tokens?.placeables?.find(t=>t.actor&&!((t.actor?.system?.details?.
 //-------- blood frenzy - flags.midi-qol.advantage.attack.all
 //game.user.targets?.first()?.actor?.system?.attributes?.hp?.value < game.user.targets?.first()?.actor?.system?.attributes?.hp?.max
 //game.user.targets?.first()?.actor?.system?.attributes?.hp?.value<game.user.targets?.first()?.actor?.system?.attributes?.hp?.max
-[...workflow.targets][0].actor.system.attributes.hp.value<[...workflow.targets][0].actor.system.attributes.hp.max
+//-------- [...workflow.targets][0].actor.system.attributes.hp.value<[...workflow.targets][0].actor.system.attributes.hp.max
 
 //--------- ambusher - flags.midi-qol.advantage.attack.all
 //game.combat?.round === 1 && game.user.targets?.first()?.actor?.effects?.find(e => e.label === "Surprised")
