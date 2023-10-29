@@ -293,7 +293,7 @@ try {
                         <img src="icons/svg/d${terms[t].faces}-grey.svg" style="position: relative;">
                         <p style="position: relative; bottom: 55px; font-weight: bolder; font-size: 25px">${results[r].result}</p>
                     </tiv>
-                    <p>(${terms[t].flavor})</p>
+                    <p>(${terms[t].flavor ? terms[t].flavor : args[0].workflow.defaultDamageType})</p>
                 </label>
                 `;
             }
