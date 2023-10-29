@@ -6,25 +6,25 @@
 
 try {
     if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects") return;
-    const filters = args[0].item.system?.activation?.condition?.replace(" ", "")?.split(",");
+    const filters = args[0].item.system?.activation?.condition?.split(",");
     let summonFilters = [];
     let summonAmount = 1;
     for (let f = 0; f < filters.length; f++) {
         const filter = filters[f]?.split("=");
         if (!filter || filter.length != 2) return ui.notifications.warn("Invalid summon filter provided");
-        const filterType = filter[0];
-        const filterStrings = filter[1]?.split("|");
+        const filterType = filter[0]?.trim()?.toLowerCase();
+        const filterStrings = filter[1]?.split("|").map(s => s?.trim());
         switch (filterType) {
             case "type":
-                summonFilters.push({ name: `Creature Types: ${filterStrings.join(", ")}`, locked: true, function: (index) => { return index.filter(i => filterStrings.find(s => i.system.details?.type?.value?.toLowerCase().includes(s.toLowerCase()) || i.system.details?.race?.toLowerCase().includes(s.toLowerCase()))) } });
+                summonFilters.push({ name: `Creature Types: ${filterStrings.join(", ")}`, locked: true, function: (index) => { return index.filter(i => filterStrings.find(s => i.system.details?.type?.value?.toLowerCase().includes(s?.toLowerCase()) || i.system.details?.race?.toLowerCase().includes(s.toLowerCase()))) } });
                 break;
             case "name":
-                summonFilters.push({ name: `Names: ${filterStrings.join(", ")}`, locked: true, function: (index) => { return index.filter(i => filterStrings.find(s => i.name.trim().toLowerCase() == s.toLowerCase())) } });
+                summonFilters.push({ name: `Names: ${filterStrings.join(", ")}`, locked: true, function: (index) => { return index.filter(i => filterStrings.find(s => i.name.trim().toLowerCase() == s?.toLowerCase())) } });
                 break;
             case "cr":
                 const range = filterStrings[0]?.split("-");
-                const minCR = +range[0];
-                const maxCR = +range[range.length - 1];
+                const minCR = +range[0]?.trim();
+                const maxCR = +range[range.length - 1]?.trim();
                 if (isNaN(minCR) || isNaN(maxCR)) return ui.notifications.warn("Invalid CR range provided for summoning");
                 funcs.push({ name: `Challenge Ratings: ${minCR}-${maxCR}`, locked: true, function: (index) => { return index.filter(i => i.system.details?.cr >= minCR && i.system.details?.cr <= maxCR) } });
                 break;
@@ -58,7 +58,6 @@ try {
     }
     let hook = Hooks.on("fs-postSummon", async () => {
         const summons = game.canvas.tokens.placeables.filter(t => t.document.flags.summonId == args[0].item.id + '-' + args[0].itemCardId);
-        console.error(summons);
         if (summons.length) {
             let changes = [];
             summons.forEach(s => { changes.push({ key: "flags.dae.deleteUuid", mode: 5, value: s.document.uuid, priority: "20" }) });
