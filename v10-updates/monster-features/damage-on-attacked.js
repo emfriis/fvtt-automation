@@ -14,7 +14,7 @@ try {
         const damageItem = d?.split(",");
         if (damageItem?.length < 2) return;
         const actionTypesValue = damageItem.find(i => i?.includes("attackTypes="))?.replace("attackTypes=","");
-        const actionTypes = actionTypesValue ? actionTypesValue[0]?.split("+") : ["mwak", "rwak", "msak", "rsak"];
+        const actionTypes = actionTypesValue ? actionTypesValue[0]?.split("|") : ["mwak", "rwak", "msak", "rsak"];
         const isHitValue = damageItem.find(i => i?.includes("isHit="))?.replace("isHit=","");
         const isHit = !isHitValue || isHitValue == "false" ? false : true;
         const rangeValue = damageItem.find(i => i?.includes("range="))?.replace("range=","");

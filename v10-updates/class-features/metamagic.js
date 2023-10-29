@@ -87,7 +87,7 @@ try {
             let targets = await carefulDialog;
 		    if (!targets) return;
 		    if (targets.length > Math.max(1, args[0].actor.system.abilities.cha.mod)) return ui.notifications.warn(`Too many targets selected for Careful Spell (Maximum ${Math.max(1, args[0].actor.system.abilities.cha.mod)})`);
-	        let hook = Hooks.on("midi-qol.postCheckSaves", async workflowNext => {
+	        let hook1 = Hooks.on("midi-qol.postCheckSaves", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid) {
                     for (let t = 0; t < targets.length; t++) {
                         if (workflowNext.failedSaves.has(targets[t]) && !workflowNext.saves.has(targets[t])) {
@@ -96,7 +96,14 @@ try {
                             Object.assign(workflowNext.saveDisplayData.find(d => d.target === targets[t]), { saveString: "succeeds", saveStyle: "color: green" });
                         }
                     }
-                    Hooks.off("midi-qol.postCheckSaves", hook);
+                    Hooks.off("midi-qol.postCheckSaves", hook1);
+                    Hooks.off("midi-qol.preItemRoll", hook2);
+                }
+            });
+            let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
+                    Hooks.off("midi-qol.postCheckSaves", hook1);
+                    Hooks.off("midi-qol.preItemRoll", hook2);
                 }
             });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
@@ -111,17 +118,17 @@ try {
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
         } else if (metamagic === "extended") {  
             // extended spell
-            let hook = Hooks.on("midi-qol.RollComplete", async workflowComplete => {
-                if (workflowComplete.uuid === args[0].uuid) {
-                    let effects = workflowComplete.actor.effects.filter(e => e.origin === args[0].uuid);   
+            let hook1 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
+                    let effects = workflowNext.actor.effects.filter(e => e.origin === args[0].uuid);   
                     for (let e = 0; e < effects.length; e++) {
                         let effect = effects[e];
                         if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: args[0].actor.uuid, updates: [{ _id: effect.id, duration: { seconds: (effect.duration.seconds ? effect.duration.seconds * 2 : null), turns: (effect.duration.turns ? effect.duration.turns * 2 : null), rounds: (effect.duration.rounds ? effect.duration.rounds * 2 : null), startTime: effect.duration.startTime, startTurn: effect.duration.startTurn, startRound: effect.duration.startRound } }] });
                     }
-                    let targets = Array.from(wworkflowComplete.targets);
+                    let targets = Array.from(wworkflowNext.targets);
                     for (let t = 0; t < targets.length; t++) {
                         let target = targets[t].actor;
-                        if (target && target.uuid !== workflowComplete.actor.uuid) {
+                        if (target && target.uuid !== workflowNext.actor.uuid) {
                             let effects = target.effects.filter(e => e.origin === args[0].uuid);
                             for (let e = 0; e < effects.length; e++) {
                                 let effect = effects[e];
@@ -129,7 +136,14 @@ try {
                             }
                         }
                     }
-                    Hooks.off("midi-qol.RollComplete", hook);
+                    Hooks.off("midi-qol.RollComplete", hook1);
+                    Hooks.off("midi-qol.preItemRoll", hook2);
+                }
+            });
+            let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
+                    Hooks.off("midi-qol.RollComplete", hook1);
+                    Hooks.off("midi-qol.preItemRoll", hook2);
                 }
             });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
@@ -163,8 +177,8 @@ try {
                 label: "Metamagic: Heightened Spell",
             };
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targets[0].actor.uuid, effects: [effectData] });
-            let hook = Hooks.on("midi-qol.RollComplete", async workflowComplete => {
-                if (workflowComplete.uuid === args[0].uuid) {
+            let hook = Hooks.on("midi-qol.RollComplete", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
                     MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: targets[0].actor.uuid, effects: [targets[0].actor.effects.find(e => e.label === "Metamagic: Heightened Spell").id] });
                     Hooks.off("midi-qol.RollComplete", hook);
                 }
@@ -198,23 +212,23 @@ try {
             if (!type) return;
             args[0].workflow.newDefaultDamageType = type;
             let hook1 = Hooks.on("midi-qol.preDamageRollComplete", async workflowNext => {
-                if (workflowNext.uuid === args[0].uuid) {
-                    workflowNext.defaultDamageType = type;
-                    workflowNext.damageRoll.dice.forEach((d) => { 
-                        if (options.includes(d.flavor)) {
-                            d.flavor = type;
-                            d.options.flavor = type;
-                            d.formula.replace(d.options.flavor, type);
+                if (workflowNext.uuid === args[0].uuid && workflowNext.newDefaultDamageType) {
+                    workflowNext.defaultDamageType = workflowNext.newDefaultDamageType;
+                    let newDamageRoll = workflowNext.damageRoll;
+                    newDamageRoll.terms.forEach(t => { 
+                        if (options.includes(t.options.flavor)) {
+                            t.options.flavor = type;
+                            t.formula.replace(d.options.flavor, type);
                         }
                     });
-                    workflowNext.damageRollHTML = await workflowNext.damageRoll.render();
+                    await args[0].workflow.setDamageRoll(newDamageRoll);
                     Hooks.off("midi-qol.preDamageRollComplete", hook1);
                 }
             });
-            let hook2 = Hooks.on("midi-qol.RollComplete", async workflowComplete => {
-                if (workflowComplete.uuid === args[0].uuid) {
+            let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.uuid === args[0].uuid) {
                     Hooks.off("midi-qol.preDamageRollComplete", hook1);
-                    Hooks.off("midi-qol.RollComplete", hook2);
+                    Hooks.off("midi-qol.preItemRoll", hook2);
                 }
             });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
@@ -266,19 +280,20 @@ try {
         await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 2) });
     } else if (args[0].tag === "DamageBonus" && args[0].actor.items.find(i => i.name === "Metamagic: Empowered Spell") && args[0].item.system.damage?.parts?.length && !["healing", "temphp", "", "midi-none"].includes(args[0].item.system.damage.parts[0][1]) && args[0].damageRoll) {
         // empowered spell
-        let dice = args[0].damageRoll.dice;
-        let diceContent = "";
-        for (let d = 0; d < dice.length; d++) {
-            let results = dice[d].results;
+        let terms = args[0].damageRoll.terms;
+        let termsContent = "";
+        for (let t = 0; t < terms.length; t++) {
+            if (!terms[t].faces) continue;
+            let results = terms[t].results;
             for (let r = 0; r < results.length; r++) {
                 if (results[r].rerolled || !results[r].active) continue;
-                diceContent += `<label class='checkbox-label' for='die${d}${r}'>
-                    <input type='checkbox' id='die${d}${r}' name='die' value='${results[r].result},${dice[d].faces},${d}'/>
-                    <div style="border:0px; width: 50px; height:50px;">
-                        <img src="icons/svg/d${dice[d].faces}-grey.svg" style="position: relative;">
+                termsContent += `<label class='checkbox-label' for='die${t}${r}'>
+                    <input type='checkbox' id='die${t}${r}' name='die' value='${results[r].result},${terms[t].faces},${t}'/>
+                    <tiv style="border:0px; witth: 50px; height:50px;">
+                        <img src="icons/svg/d${terms[t].faces}-grey.svg" style="position: relative;">
                         <p style="position: relative; bottom: 55px; font-weight: bolder; font-size: 25px">${results[r].result}</p>
-                    </div>
-                    <p>(${dice[d].flavor})</p>
+                    </tiv>
+                    <p>(${terms[t].flavor})</p>
                 </label>
                 `;
             }
@@ -292,7 +307,7 @@ try {
         </style>
         <form class="dice">
             <div><p>Choose up to ${Math.max(1, args[0].actor.system.abilities.cha.mod)} damage dice to reroll:</p></div>
-            <div class="form-group" id="dice-group">${diceContent}</div>
+            <div class="form-group" id="dice-group">${termsContent}</div>
             <div><p>(${usesItem.system.uses.value} Sorcery Points Remaining)</p></div>
         </form>
         `;

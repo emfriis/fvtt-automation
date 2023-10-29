@@ -18,4 +18,5 @@ try {
     args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${dice * diceMult}d6`;
     args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
     await args[0].workflow.setDamageRoll(args[0].damageRoll);
+    args[0].workflow.sneakAttack = true;
 } catch (err) {console.error("Sneak Attack Macro - ", err)}

@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag !== "DamageBonus" || !["mwak"].includes(args[0].item.system.actionType) || !args[0].damageRoll.total) return;
+    if (args[0].tag !== "OnUse" || args[0].macroPass !== "postDamageRoll" || !["mwak"].includes(args[0].item.system.actionType) || !args[0].damageRoll) return;
     let options = "";
     Object.keys(args[0].actor.system.spells).forEach(key => {
         if (key === "pact" && args[0].actor.system.spells.pact.value > 0) options += `<option id="${args[0].actor.system.spells.pact.level}" value="${key}">Pact Magic: Level ${game.i18n.format('DND5E.SpellLevelSlot', {level: args[0].actor.system.spells.pact.level, n: args[0].actor.system.spells.pact.value})}</option>`;
@@ -46,8 +46,16 @@ try {
         spellUpdate[`system.spells.${slot.type}.value`] = Math.max(args[0].actor.system.spells[slot.type].value - 1, 0);
         args[0].actor.update(spellUpdate);
     }
-    let typeBonus = ["undead", "fiend"].some(t => args[0].targets[0]?.actor.system.details?.type.value.toLowerCase().includes(t)) || ["undead", "fiend"].some(t => args[0].targets[0]?.actor.system.details?.type.value.toLowerCase().includes(t));
+    let typeBonus = ["undead", "fiend"].some(t => args[0].targets[0]?.actor.system.details?.type?.value.toLowerCase().includes(t)) || ["undead", "fiend"].some(t => args[0].targets[0]?.actor.system.details?.type?.value.toLowerCase().includes(t));
     let dice = Math.min(+slot.level + 1 + (typeBonus ? 1 : 0), 6);
     let diceMult = args[0].isCritical ? 2: 1;
-    return {damageRoll: `${dice * diceMult}d8[radiant]`, flavor: `Divine Smite`};
-} catch (err)  {console.error("Divine Smite Macro - ", err); }
+    let bonusRoll = await new Roll('0 + ' + `${dice * diceMult}d8[radiant]`).evaluate({async: true});
+    if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
+    for (let i = 1; i < bonusRoll.terms.length; i++) {
+        args[0].damageRoll.terms.push(bonusRoll.terms[i]);
+    }
+    args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${dice * diceMult}d8[radiant]`;
+    args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
+    await args[0].workflow.setDamageRoll(args[0].damageRoll);
+    args[0].workflow.divineSmite = true;
+} catch (err)  {console.error("Divine Smite Macro - ", err)}
