@@ -10,7 +10,8 @@ try {
                 icon: '<i class="fas fa-bolt"></i>',
                 label: "Restore",
                 callback: () => {
-                    let slot = {type: $('input[name="spellSlot"]:checked').attr('id'), level: +$('input[name="spellSlot"]:checked').val()};
+                    let slot = { type: $('input[name="spellSlot"]:checked')?.attr('id'), level: +$('input[name="spellSlot"]:checked')?.val() };
+                    if (!slot.type || !slot.level) return ui.notifications.warn("No Spell Slot was selected");
                     let spellUpdate = new Object();
                     spellUpdate[`system.spells.${slot.type}.value`] = args[0].actor.system.spells[slot.type].value + 1;
                     args[0].actor.update(spellUpdate);
