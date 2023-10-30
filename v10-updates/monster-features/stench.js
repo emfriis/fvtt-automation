@@ -33,7 +33,7 @@ try {
         label: "Stench Immunity",
 		changes: [{ key: "flags.midi-qol.stenchImmunity", mode: 2, value: args[2] ? args[2] : "all", priority: 20 }], 
         disabled: false,
-		duration: { seconds: 86400 }
+		flags: { dae: { specialDuration: ["longRest"] } }
     }
     await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: actor.uuid, effects: [effectData] });
 } catch (err)  {console.error("Stench Macro - ", err)}
