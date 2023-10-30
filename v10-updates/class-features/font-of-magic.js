@@ -31,7 +31,8 @@ try {
                             icon: '<i class="fas fa-bolt"></i>',
                             label: "Convert",
                             callback: async () => {
-                                let slot = {type: $('input[name="spellSlot"]:checked').attr('id'), level: +$('input[name="spellSlot"]:checked').val()};
+                                let slot = { type: $('input[name="spellSlot"]:checked')?.attr('id'), level: +$('input[name="spellSlot"]:checked')?.val() };
+                                if (!slot.type || !slot.level) return ui.notifications.warn("No Spell Slot was selected");
                                 if (!args[0].actor.system.spells[slot.type].max) {
                                     const effectData = {
                                         changes: [{ key: `system.spells.${slot.type}.max`, mode: 2, value: 1, priority: 20 }],
@@ -71,7 +72,8 @@ try {
                             icon: '<i class="fas fa-brain"></i>',
                             label: "Convert",
                             callback: async () => {
-                                let slot = {type: $('input[name="spellSlot"]:checked').attr('id'), level: +$('input[name="spellSlot"]:checked').val()};
+                                let slot = { type: $('input[name="spellSlot"]:checked')?.attr('id'), level: +$('input[name="spellSlot"]:checked')?.val() };
+                                if (!slot.type || !slot.level) return ui.notifications.warn("No Spell Slot was selected");
                                 let spellUpdate = new Object();
                                 spellUpdate[`system.spells.${slot.type}.value`] = args[0].actor.system.spells[slot.type].value - 1;
                                 await args[0].actor.update(spellUpdate);
