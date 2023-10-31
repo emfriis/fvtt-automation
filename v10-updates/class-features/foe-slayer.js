@@ -1,5 +1,5 @@
 try {
-	if (!args[0].targets.length || !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) || (game.combat && args[0].actor.effects.find(e => e.label === "Used Foe Slayer" && disabled == false)))	 return;
+	if (!args[0].targets.length || !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) || (game.combat && args[0].actor.effects.find(e => e.label === "Used Foe Slayer" && disabled == false)) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId))	 return;
 	const monsterType = args[0].targets[0].actor.system.details?.type ? (args[0].targets[0].actor.system.details?.type?.value.toLowerCase().includes("humanoid") ? args[0].targets[0].actor.system.details?.type?.subtype.toLowerCase() : args[0].targets[0].actor.system.details?.type?.value.toLowerCase()) : (args[0].targets[0].actor.system.details?.race.toLowerCase().includes("humanoid") ? args[0].targets[0].actor.system.details?.race.toLowerCase().replace("humanoid", "") : args[0].targets[0].actor.system.details?.race.toLowerCase());
 	if (!((args[0].targets[0].actor.effects.find(e => e.label === "Favored Foe") && args[0].targets[0].actor.flags["midi-qol"]?.favoredFoe.includes(args[0].actor.uuid)) || args[0].actor.flags["midi-qol"]?.favoredEnemy?.split(" ").find(c => monsterType.includes(c)))) return;
 	if (args[0].tag === "OnUse" && args[0].macroPass === "preCheckHits" && args[0].attackRoll) {
@@ -31,9 +31,9 @@ try {
 		if (game.combat) {
 			const effectData = {
 				disabled: false,
-				duration: { rounds: 1, seconds: 7 },
-				flags: { dae: { specialDuration: ["turnStart"] } },
-				label: "Used Foe Slayer",
+				flags: { dae: { specialDuration: ["turnStart", "combatEnd"] } },
+				icon: "icons/skills/ranged/arrow-flying-poisoned-green.webp",
+				label: "Used Foe Slayer"
 			}
 			await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
 		}
@@ -73,9 +73,9 @@ try {
 		if (game.combat) {
 			const effectData = {
 				disabled: false,
-				duration: { rounds: 1, seconds: 7 },
-				flags: { dae: { specialDuration: ["turnStart"] } },
-				label: "Used Foe Slayer",
+				flags: { dae: { specialDuration: ["turnStart", "combatEnd"] } },
+				icon: "icons/skills/ranged/arrow-flying-poisoned-green.webp",
+				label: "Used Foe Slayer"
 			}
 			await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
 		}

@@ -32,9 +32,9 @@ try {
     if (game.combat) {
         const effectData = {
             disabled: false,
-            duration: { rounds: 1, seconds: 7 },
-            flags: { dae: { specialDuration: ["turnStart"] } },
-            label: "Used Blessed Strikes",
+            flags: { dae: { specialDuration: ["turnStart", "combatEnd"] } },
+			icon: "icons/magic/light/swords-light-glowing-white.webp",
+            label: "Used Blessed Strikes"
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     }

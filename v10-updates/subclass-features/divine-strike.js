@@ -28,8 +28,8 @@ try {
     if (game.combat) {
         const effectData = {
             disabled: false,
-            duration: { rounds: 1, seconds: 7 },
-            flags: { dae: { specialDuration: ["turnStart"] } },
+            flags: { dae: { specialDuration: ["turnStart", "combatEnd"] } },
+			icon: "icons/weapons/clubs/club-spiked-glowing.webp",
             label: "Used Divine Strike",
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
