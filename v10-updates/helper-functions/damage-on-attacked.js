@@ -6,6 +6,7 @@
 // damageRoll - rollable string i.e., damageRoll=3d6 HOW MUCH DAMAGE
 // damageType - damage type i.e., damageType=fire WHAT TYPE OF DAMAGE 
 // killAnim - i.e., killAnim=true WHETHER TO KILL ITEM ANIMATION
+// checkIncapacitated - i.e., checkIncapacitated=true - WHETHER TARGTET MUST NOT BE INCAPACITATED
 
 try {
 	if (args[0].tag != "TargetOnUse" || args[0].macroPass != "isAttacked" || args[0].workflow.damageOnAttacked?.includes(args[0].options.actor.uuid)) return;
@@ -23,11 +24,13 @@ try {
         const damageType = damageItem.find(i => i?.includes("damageType="))?.replace("damageType=","");
         const killAnimValue = damageItem.find(i => i?.includes("killAnim="))?.replace("killAnim=","");
         const killAnim = !killAnimValue || killAnimValue == "false" ? false : true;
+        const checkIncapacitatedValue = damageItem.find(i => i?.includes("checkIncapacitated"))?.replace("checkIncapacitated=","");
+        const checkIncapacitated = !checkIncapacitatedValue || checkIncapacitatedValue == "false" ? false : MidiQOL.checkIncapacitated(args[0].options.actor);
         const sourceEffect = args[0].options.actor.effects.find(e => e.changes.find(c => c.value.replace(" ", "").replace(";", "") == d));
         const itemName = sourceEffect ? sourceEffect.label : "Damage";
         const itemImg = sourceEffect ? sourceEffect.icon : "icons/svg/explosion.svg";
         if (!actionTypes || !range || !damageRoll || !damageType) return console.error("Invalid Damage On Attacked arguments:", "actor =", args[0].options.actor, "token =", args[0].options.token, "actionTypes =", actionTypes, "isHit =", isHit, "range =", range, "damageRoll =", damageRoll, "damageType =", damageType, "killAnim =", killAnim);
-        if (!actionTypes.includes(args[0].item.system.actionType) || MidiQOL.computeDistance(args[0].workflow.token, args[0].options.token, false) > range) return console.warn("Damage On Attacked conditions not met");
+        if (!actionTypes.includes(args[0].item.system.actionType) || MidiQOL.computeDistance(args[0].workflow.token, args[0].options.token, false) > range || checkIncapacitated) return console.warn("Damage On Attacked conditions not met");
         if (isHit) {
             let hook1 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid) {

@@ -10,8 +10,8 @@ try {
         });
     } else if (args[0].tag === "OnUse" && args[0].macroPass === "postDamageRoll") {
         let target = args[0].hitTargets[0].actor;
-        let item = args[0].actor.items.find(i => i.name === "Lay on Hands" && i.system.uses);
-        let uses = item.system.uses.value;
+        let usesItem = args[0].actor.items.find(i => i.name === "Lay on Hands" && i.system.uses?.value);
+        let uses = usesItem.system.uses.value;
         if (!target || !uses || ["undead", "fiend"].some(t => target.system.details?.type?.value?.toLowerCase()?.includes(t)) || ["undead", "fiend"].some(t => target.system.details?.type?.value?.toLowerCase()?.includes(t))) return;
         let heal = await new Promise((resolve) => {
             new Dialog({
@@ -60,16 +60,13 @@ try {
                 close: () => {resolve(false)}
             }).render(true);
         });
-        if (!heal) {
-            item.update({"system.uses.value": uses});
-            return;
-        }
+        if (!heal || !heal.type || !heal.value) return;
         if (heal.type === "heal") {
             let newDamageFormula = `${heal.value}`;
             args[0].workflow.damageRoll = await new Roll(newDamageFormula).roll();
             args[0].workflow.damageTotal = args[0].workflow.damageRoll.total;
             args[0].workflow.damageRollHTML = await args[0].workflow.damageRoll.render();
-            item.update({"system.uses.value": uses - heal.value});
+            usesItem.update({"system.uses.value": uses - heal.value});
         } else if (heal.type === "cure") {
             let hook = Hooks.on("midi-qol.RollComplete", async workflowNext => {
                 if (workflowNext.uuid === args[0].workflow.uuid) {
@@ -80,7 +77,7 @@ try {
                     Hooks.off("midi-qol.RollComplete", hook);
                 }
             });
-            item.update({"system.uses.value": uses - 5});
+            usesItem.update({"system.uses.value": uses - 5});
         }
     }
 } catch (err)  {console.error("Lay on Hands Macro - ", err); }

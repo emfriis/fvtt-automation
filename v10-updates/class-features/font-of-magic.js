@@ -10,7 +10,7 @@ try {
         });
     } else if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
         let spend = { spell1: 2, spell2: 3, spell3: 5, spell4: 6, spell5: 7 };
-        let item = args[0].actor.items.find(i => i.name === "Font of Magic" && i.system.uses);
+        let usesItem = args[0].actor.usesItems.find(i => i.name === "Font of Magic" && i.system.uses);
         let spells = [];
         Object.keys(args[0].actor.system.spells).forEach(key => {
             if (key === "pact" && args[0].actor.system.spells.pact.max > 0) spells.push({type: key, level: args[0].actor.system.spells.pact.level, value: args[0].actor.system.spells.pact.value, max: args[0].actor.system.spells.pact.max});
@@ -18,11 +18,11 @@ try {
         });
         let buttonList = {};
         let inputText = ""
-        if (spells.find(spell => spell.type !== "pact" && item.system.uses.value >= spend[spell.type])) buttonList.sorcSlot = {
+        if (spells.find(spell => spell.type !== "pact" && usesItem.system.uses.value >= spend[spell.type])) buttonList.sorcSlot = {
             icon: '<i class="fas fa-bolt"></i>',
             label: "Spell Slot",
             callback: () => {
-                spells.filter(spell => spell.type !== "pact" && item.system.uses.value >= spend[spell.type]).forEach(spell => inputText += `<div class="form-group"><label for="${spell.type}">Spell Slot Level ${spell.level} [${spell.value}/${spell.max}]</label><input id="${spell.type}" name="spellSlot" value="${spell.level}" type="radio"></div>`);
+                spells.filter(spell => spell.type !== "pact" && usesItem.system.uses.value >= spend[spell.type]).forEach(spell => inputText += `<div class="form-group"><label for="${spell.type}">Spell Slot Level ${spell.level} [${spell.value}/${spell.max}]</label><input id="${spell.type}" name="spellSlot" value="${spell.level}" type="radio"></div>`);
                 new Dialog({
                     title: "Font of Magic",
                     content: `<form><p>Choose a spell slot to create:</p><hr>${inputText}</form>`,
@@ -46,9 +46,9 @@ try {
                                 let spellUpdate = new Object();
                                 spellUpdate[`system.spells.${slot.type}.value`] = args[0].actor.system.spells[slot.type].value + 1;
                                 await args[0].actor.update(spellUpdate);
-                                await item.update({"system.uses.value": item.system.uses.value - spend[slot.type]});
+                                await usesItem.update({"system.uses.value": usesItem.system.uses.value - spend[slot.type]});
                                 let roll_results = `<div><i>Converted ${spend[slot.type]} Sorcery Points. Level ${slot.level} spell slot created.</i></div>`;
-                                const chatMessage = game.messages.get(args[0].itemCardId);
+                                const chatMessage = game.messages.get(args[0].usesItemCardId);
                                 let content = duplicate(chatMessage.content);
                                 const replaceString = `<div class="midi-qol-saves-display"><div class="end-midi-qol-saves-display">${roll_results}`;
                                 content = content.replace(/<div class="midi-qol-saves-display">[\s\S]*<div class="end-midi-qol-saves-display">/g, replaceString);
@@ -59,7 +59,7 @@ try {
                 }).render(true);
             }
         };
-        if (spells.length > 0 && item.system.uses.value !== item.system.uses.max) buttonList.spellSlot = {    
+        if (spells.length > 0 && usesItem.system.uses.value !== usesItem.system.uses.max) buttonList.spellSlot = {    
             icon: '<i class="fas fa-brain"></i>',
             label:  "Sorcery Point(s)",
             callback: () => {
@@ -77,9 +77,9 @@ try {
                                 let spellUpdate = new Object();
                                 spellUpdate[`system.spells.${slot.type}.value`] = args[0].actor.system.spells[slot.type].value - 1;
                                 await args[0].actor.update(spellUpdate);
-                                await item.update({"system.uses.value": item.system.uses.value + slot.level});
+                                await usesItem.update({"system.uses.value": usesItem.system.uses.value + slot.level});
                                 let roll_results = `<div><i>Converted a Level ${slot.level} spell slot. ${slot.level} Sorcery Points created.</i></div>`;
-                                const chatMessage = game.messages.get(args[0].itemCardId);
+                                const chatMessage = game.messages.get(args[0].usesItemCardId);
                                 let content = duplicate(chatMessage.content);
                                 const replaceString = `<div class="midi-qol-saves-display"><div class="end-midi-qol-saves-display">${roll_results}`;
                                 content = content.replace(/<div class="midi-qol-saves-display">[\s\S]*<div class="end-midi-qol-saves-display">/g, replaceString);

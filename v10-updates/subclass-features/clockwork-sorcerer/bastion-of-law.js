@@ -1,13 +1,13 @@
 try {
     if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects") {
-		let target = args[0].hitTargets[0].actor;
-		let usesItem = args[0].actor.items.find(i => i.name === "Font of Magic" && i.system.uses);
+		let usesItem = args[0].actor.items.find(i => i.name === "Font of Magic" && i.system.uses?.value);
+        if (!usesItem) return;
 		let uses = usesItem.system.uses.value;
 		let shield = await new Promise((resolve) => {
 			new Dialog({
 				title: "Bastion of Law",
 				content: `
-				<form id="use-form">
+                <form id="use-form">
 					<p>` + game.i18n.format("DND5E.AbilityUseHint", {name: "Bastion of Law", type: "feature"}) + `</p>
 					<p>Expend 1 to 5 Sorcery Points to create a magical ward:</p>
 					<div class="form-group">
