@@ -36,7 +36,7 @@ try {
                 return ui.notifications.warn("Invalid summon filter provided");
         }
     }
-    await foundrySummons.openMenu({ sourceTokens: [args[0].workflow.token], filters: summonFilters, amount: { value: summonAmount, locked: true }, updates: { actor: { permissions: { [game.user._id]: 3 } }, token: { disposition: args[0].workflow.token.document.disposition, flags: { summonId: args[0].item.id + '-' + args[0].itemCardId } } }, options: { autoPick: true, defaultFilters: true, defaultSorting: true } });
+    await foundrySummons.openMenu({ sourceTokens: [args[0].workflow.token], filters: summonFilters, amount: { value: summonAmount, locked: true }, updates: { actor: { permissions: { [game.user._id]: 3 } }, token: { disposition: args[0].workflow.token.document.disposition, flags: { "midi-qol.summonId": args[0].item.id + '-' + args[0].itemCardId } } }, options: { autoPick: true, defaultFilters: true, defaultSorting: true } });
     const duration = args[0].item.system.duration;
     if (!duration.value || !["round", "minute", "hour", "day"].includes(duration.units)) return;
     let seconds = duration.value;
@@ -56,9 +56,19 @@ try {
         default:
             return;
     }
+	const effectData = {
+		label: args[0].item.name,
+		icon: args[0].item.img,
+		origin: args[0].item.uuid,
+		disabled: false,
+		duration: { seconds: seconds },
+		flags: { "midi-qol.summonId": args[0].item.id + '-' + args[0].itemCardId }
+	}
+	await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     let hook = Hooks.on("fs-postSummon", async () => {
-        const summons = game.canvas.tokens.placeables.filter(t => t.document.flags.summonId == args[0].item.id + '-' + args[0].itemCardId);
+        const summons = game.canvas.tokens.placeables.filter(t => t.document.flags["midi-qol"]?.summonId == args[0].item.id + '-' + args[0].itemCardId);
         if (summons.length) {
+			const effect = args[0].actor.effects.find(e => e.flags["midi-qol"]?.summonId == args[0].item.id + '-' + args[0].itemCardId);
             let changes = [];
             summons.forEach(s => { changes.push({ key: "flags.dae.deleteUuid", mode: 5, value: s.document.uuid, priority: "20" }) });
             const effectData = {
@@ -69,7 +79,7 @@ try {
                 disabled: false,
                 duration: { seconds: seconds }
             }
-            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
+            if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: args[0].actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.concat(changes) }] });
             Hooks.off("fs.postSummon", hook);
         }
     });
