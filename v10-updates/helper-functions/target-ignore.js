@@ -1,0 +1,3 @@
+try {
+    if (args[0].tag == "OnUse" && args[0].macroPass == "preambleComplete") game.user.updateTokenTargets(args[0].targets.filter(t => ["aberration", "celestial", "elemental", "fey", "fiend"].find(c => t.actor.system.details?.race?.toLowerCase()?.includes(c)) || ["aberration", "celestial", "elemental", "fey", "fiend"].find(c => t.actor.system.details?.type?.value?.toLowerCase()?.includes(c))).map(t => t.id));
+} catch (err) {console.error("Target Ignore Macro - ", err);}
