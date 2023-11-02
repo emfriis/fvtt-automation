@@ -1,6 +1,5 @@
 try {
     if (args[0].item.type != "spell") return;
-    console.error(1)
     const usesItem = args[0].actor.items.find(i => i.name == "Font of Magic" && i.system.uses.value);
     if (args[0].macroPass == "preItemRoll" && usesItem.system.uses.value && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type)) {
         let metamagicContent = "";
@@ -345,8 +344,7 @@ try {
             await args[0].workflow.setDamageRoll(newDamageRoll);
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
         }
-    } else if (args[0].tag == "TargetOnUse" && args[0].macroPass == "preTargetSave"){// && args[0].workflow.saveDetails && args[0].options.actor.flags["midi-qol"]?.heightenedSpell?.includes(args[0].uuid)) {
-        console.error(args[0].workflow.saveDetails, args[0].options.actor.flags["midi-qol"]?.heightenedSpell?.includes(args[0].uuid))
+    } else if (args[0].tag == "TargetOnUse" && args[0].macroPass == "preTargetSave" && args[0].workflow.saveDetails && args[0].options.actor.flags["midi-qol"]?.heightenedSpell?.includes(args[0].uuid)) {
         args[0].workflow.saveDetails.disadvantage = true;
         await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].options.actor.uuid, effects: [args[0].options.actor.effects.find(e => e.label == "Heightened Spell Save Disadvantage").id] });
     }
