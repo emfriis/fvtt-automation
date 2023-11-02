@@ -54,4 +54,4 @@ try {
         spellUpdate[`system.spells.${slot.type}.value`] = Math.max(args[0].actor.system.spells[slot.type].value - 1, 0);
         args[0].actor.update(spellUpdate);
     }
-} catch (err)  {console.error("Expend Spell Slot Macro - ", err)}
+} catch (err)  {console.error("Mortal Bulwark Macro - ", err)}
