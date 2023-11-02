@@ -22,14 +22,18 @@ try {
                 summonFilters.push({ name: `Names: ${filterStrings.join(", ")}`, locked: true, function: (index) => { return index.filter(i => filterStrings.find(s => i.name.trim().toLowerCase() == s?.toLowerCase())) } });
                 break;
             case "cr":
-                const range = filterStrings[0]?.replace(/@([^+*^\/()@]+)(?=[+*^\/()]|$)/g, (i) => (args[0][i.replace("@","")]));
+                const range = filterStrings[0]?.replace("damageRoll=","")?.replace(/@([^-+*^\/()@]+)(?=[-+*^\/()]|$)/g, i => i.replace("@","").split(".").reduce((val, prop) => { return val ? val[prop] : undefined }, args[0]));
                 const minCR = +range[0]?.trim();
                 const maxCR = +range[range.length - 1]?.trim();
                 if (isNaN(minCR) || isNaN(maxCR)) return ui.notifications.warn("Invalid CR range provided for summoning");
                 funcs.push({ name: `Challenge Ratings: ${minCR}-${maxCR}`, locked: true, function: (index) => { return index.filter(i => i.system.details?.cr >= minCR && i.system.details?.cr <= maxCR) } });
                 break;
             case "amount":
-                summonAmount = eval(filterStrings[0]?.replace(/[A-Za-z.]+|\[\d+\]/g, (i) => (args[0][i])));
+                summonAmount = eval(filterStrings[0]?.replace("damageRoll=","")?.replace(/@([^-+*^\/()@]+)(?=[-+*^\/()]|$)/g, i => i.replace("@","").split(".").reduce((val, prop) => { return val ? val[prop] : undefined }, args[0])));
+                console.error(filterStrings[0]?.replace("damageRoll=","")?.replace(/@([^-+*^\/()@]+)(?=[-+*^\/()]|$)/g, i => i.replace("@","").split(".").reduce((val, prop) => { 
+                    console.error(val, prop)
+                    return val ? val[prop] : undefined 
+                }, args[0])))
                 if (isNaN(summonAmount)) return ui.notifications.warn("Invalid amount provided for summoning");
                 break;
             default:
