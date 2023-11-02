@@ -3,7 +3,8 @@ try {
 	const tokenOrActor = await fromUuid(lastArg.actorUuid);
 	const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     const source = game.actors.get(lastArg.efData.origin.match(/Actor\.(.*?)\./)[1]);
-	if ((args[0] != "on" && args[0] != "each") || actor.system.traits.ci.value.has("frightened")) return;
+    console.error(1)
+	if (!((args[0] == "on" && game.combat?.current?.tokenId == args[0].tokenId) || args[0] == "each") || actor.system.traits.ci.value.has("frightened") || actor.id == source.id) return;
 	const itemData = {
         name: "Avenging Angel",
         img: "icons/creatures/mammals/bat-giant-tattered-purple.webp",
@@ -23,7 +24,8 @@ try {
             icon: "icons/creatures/mammals/bat-giant-tattered-purple.webp", 
             name: "Avenging Angel", 
             duration: { seconds: 60 },
-			flags: { dae: { specialDuration: ["isDamaged"] } }	
+			flags: { dae: { specialDuration: ["isDamaged"] } },
+            origin: lastArg.efData.origin
         }],
         flags: { autoanimations: { isEnabled: false } }
     }
