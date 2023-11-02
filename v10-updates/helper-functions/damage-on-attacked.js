@@ -20,7 +20,7 @@ try {
         const isHit = !isHitValue || isHitValue == "false" ? false : true;
         const rangeValue = damageItem.find(i => i?.includes("range="))?.replace("range=","");
         const range = !rangeValue ? 9999 : isNaN(rangeValue) ? undefined : +rangeValue;
-        const damageRoll = damageItem.find(i => i?.includes("damageRoll="))?.replace("damageRoll=","");
+        const damageRoll = damageItem.find(i => i?.includes("damageRoll="))?.replace("damageRoll=","")?.replace(/@([^+*^\/()@]+)(?=[+*^\/()]|$)/g, (i) => (args[0][i.replace("@","")]));
         const damageType = damageItem.find(i => i?.includes("damageType="))?.replace("damageType=","");
         const killAnimValue = damageItem.find(i => i?.includes("killAnim="))?.replace("killAnim=","");
         const killAnim = !killAnimValue || killAnimValue == "false" ? false : true;

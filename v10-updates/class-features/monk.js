@@ -60,7 +60,7 @@ try {
 
 //ki: focused aim
 try {
-    if (args[0].tag === "OnUse" && args[0].macroPass === "preCheckHits" && args[0].attackRoll && !args[0].isFumble && args[0].targets[0]?.actor && args[0].targets[0].actor.system.attributes.ac.value < args[0].attackRoll.total) return;
+    if (args[0].tag != "OnUse" || args[0].macroPass != "preCheckHits" || !args[0].attackRoll || args[0].isFumble || args[0].isCritical || !args[0].targets[0]?.actor || args[0].targets[0].actor.system.attributes.ac.value < args[0].attackRoll.total) return;
     const usesItem = args[0].actor.items.find(i => i.name === "Ki" && i.system.uses.value);
     if (!usesItem) return;
     let dialog = new Promise((resolve) => {
@@ -99,6 +99,7 @@ try {
         }).render(true);
     });
     ki = await dialog;
+    if (!ki) return;
     if (ki > usesItem.system.uses.value) return ui.notifications.warn("Not enough Ki Points remaining");
     let bonusRoll = await new Roll('0 + ' + `${2 * ki}`).evaluate({async: true});
     for (let i = 1; i < bonusRoll.terms.length; i++) {

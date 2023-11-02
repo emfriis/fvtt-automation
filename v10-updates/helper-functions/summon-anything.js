@@ -22,7 +22,7 @@ try {
                 summonFilters.push({ name: `Names: ${filterStrings.join(", ")}`, locked: true, function: (index) => { return index.filter(i => filterStrings.find(s => i.name.trim().toLowerCase() == s?.toLowerCase())) } });
                 break;
             case "cr":
-                const range = filterStrings[0]?.replace(/[A-Za-z.]+|\[\d+\]/g, (i) => (args[0][i]))?.split("-");
+                const range = filterStrings[0]?.replace(/@([^+*^\/()@]+)(?=[+*^\/()]|$)/g, (i) => (args[0][i.replace("@","")]));
                 const minCR = +range[0]?.trim();
                 const maxCR = +range[range.length - 1]?.trim();
                 if (isNaN(minCR) || isNaN(maxCR)) return ui.notifications.warn("Invalid CR range provided for summoning");
