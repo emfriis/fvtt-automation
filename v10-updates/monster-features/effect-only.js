@@ -34,3 +34,7 @@ MidiQOL.computeDistance(workflow.token,[...workflow.targets][0],false)>Math.max(
 
 //------protection from evil and good flags.midi-qol.grants.disadvantage.attack.all
 ["aberration","celestial","elemental","fey","fiend","undead"].find(t=>workflow.actor.system.details?.race?.toLowerCase().includes(t)||workflow.actor.system.details?.type?.value?.toLowerCase().includes(t))
+
+//-------frightened
+//workflow.actor.flags["midi-qol"].frightened.split("Actor.").find(f => MidiQOL.canSense(workflow.token, canvas.tokens.placeables.find(p => p.actor && p.actor.id == f))) // USING FRIGHTENED FLAG
+workflow.actor.effects.find(e=>e.label=="Frightened"&&MidiQOL.canSense(workflow.token,canvas.tokens.placeables.find(t=>t.actor&&t.actor.id==e.origin.match(/Actor\.(.*?)\./)[1])))

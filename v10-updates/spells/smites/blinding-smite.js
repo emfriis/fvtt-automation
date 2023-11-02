@@ -33,7 +33,7 @@ try {
             save: { ability: "con", dc: `${actor.system.attributes.spelldc}`, scaling: "flat" },
         },
         effects: [{ 
-            changes: [{ key: "macro.CE", mode: 0, value: "Blinded", priority: 20 }, { key: "flags.midi-qol.OverTime", mode: 0, value: `turn=end,label=Blinding Smite,saveAbility=con,saveDC=${actor.system.attributes.spelldc},saveMagic=true,killAnim=true`, priority: 20 }], 
+            changes: [{ key: "macro.CE", mode: 0, value: "Blinded", priority: 20 }, { key: "flags.midi-qol.OverTime", mode: 0, value: `turn=end,label=Blinding Smite (Blinded),saveAbility=con,saveDC=${actor.system.attributes.spelldc},saveMagic=true,killAnim=true`, priority: 20 }], 
             disabled: false, 
             transfer: false,
             isSuppressed: false,
@@ -81,7 +81,7 @@ try {
                 save: { ability: "con", dc: `${args[0].actor.system.attributes.spelldc}`, scaling: "flat" },
             },
             effects: [{ 
-                changes: [{ key: "macro.CE", mode: 0, value: "Blinded", priority: 20 }, { key: "flags.midi-qol.OverTime", mode: 0, value: `turn=end,label=Blinding Smite,saveAbility=con,saveDC=${args[0].actor.system.attributes.spelldc},saveMagic=true,killAnim=true`, priority: 20 }], 
+                changes: [{ key: "macro.CE", mode: 0, value: "Blinded", priority: 20 }, { key: "flags.midi-qol.OverTime", mode: 0, value: `turn=end,label=Blinding Smite (Blinded),saveAbility=con,saveDC=${args[0].actor.system.attributes.spelldc},saveMagic=true,killAnim=true`, priority: 20 }], 
                 disabled: false, 
                 transfer: false,
                 isSuppressed: false,
