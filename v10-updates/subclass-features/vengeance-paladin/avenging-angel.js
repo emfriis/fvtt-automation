@@ -27,7 +27,7 @@ try {
 			flags: { dae: { specialDuration: ["isDamaged"] } },
             origin: lastArg.efData.origin
         }],
-        flags: { autoanimations: { isEnabled: false } }
+        flags: { midiProperties: { magiceffect: true }, autoanimations: { isEnabled: false } }
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: actor });
     await MidiQOL.completeItemUse(item, { showFullCard: false, createWorkflow: true, configureDialog: false });

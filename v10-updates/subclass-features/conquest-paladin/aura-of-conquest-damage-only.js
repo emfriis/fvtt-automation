@@ -3,7 +3,7 @@ try {
     const lastArg = args[args.length - 1];
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-    const source = game.actors.get(lastArg.efData.origin.match(/Actor\.(.*?)\./)[1]);
+    const source = canvas.tokens.placeables.find(t => t.actor && t.actor.id == lastArg.efData.origin.match(/Actor\.(.*?)\./)[1]).actor;
     const damage = Math.floor(source.classes.paladin.system.levels / 2);
     if (!source || !damage) return;
     const hasFear = actor.effects.find(e => e.label == "Frightened" && e.origin.includes(source.id));
