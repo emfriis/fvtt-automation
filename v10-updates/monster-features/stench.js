@@ -1,8 +1,6 @@
 try {
 	const lastArg = args[args.length - 1];
-	const tokenOrActor = await fromUuid(lastArg.actorUuid);
-	const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-	if (args[0] !== "each" || actor.flags["midi-qol"]?.stenchImmunity?.includes(args[2] ? args[2] : "all") || actor.system.traits.ci.value.has("poisoned")) return;
+	if (args[0] !== "each" || lastArg.actor.flags["midi-qol"]?.stenchImmunity?.includes(args[2] ? args[2] : "all") || lastArg.actor.system.traits.ci.value.has("poisoned")) return;
 	const itemData = {
         name: "Stench",
         img: "icons/commodities/tech/smoke-bomb-purple.webp",
@@ -26,8 +24,8 @@ try {
         }],
         flags: { autoanimations: { isEnabled: false } }
     }
-    const item = new CONFIG.Item.documentClass(itemData, { parent: actor });
-    const workflow = await MidiQOL.completeItemUse(item, { showFullCard: false, createWorkflow: true, configureDialog: false });
+    const item = new CONFIG.Item.documentClass(itemData, { parent: lastArg.actor });
+    const workflow = await MidiQOL.completeItemUse(item, { showFullCard: true, createWorkflow: true, configureDialog: false });
 	if (workflow.failedSaves.size) return;
 	const effectData = {
         label: "Stench Immunity",
@@ -35,5 +33,5 @@ try {
         disabled: false,
 		flags: { dae: { specialDuration: ["longRest"] } }
     }
-    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: actor.uuid, effects: [effectData] });
+    await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: lastArg.actor.uuid, effects: [effectData] });
 } catch (err)  {console.error("Stench Macro - ", err)}

@@ -36,6 +36,7 @@ try {
             disabled: false,
             duration: { turns: 1 },
             label: "Used Sneak Attack",
+            flags: { dae: { specialDuration: ["combatEnd"] } }
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     }

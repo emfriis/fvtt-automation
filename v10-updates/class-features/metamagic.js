@@ -163,7 +163,7 @@ try {
                     close: () => { resolve(false) },
                 }).render(true);
             });
-            targets = await heightenedDialog;
+            let targets = await heightenedDialog;
             if (!targets || targets.length != 1) return ui.notifications.warn("Invalid number of targets selected");
             const effectData = {
                 changes: [{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Metamagic, preTargetSave", priority: 20 }, { key: "flags.midi-qol.heightenedSpell", mode: 2, value: args[0].uuid, priority: 20 }],
