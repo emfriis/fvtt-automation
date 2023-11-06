@@ -1,10 +1,12 @@
 try {
     if (args[0] != "each") return;
     const lastArg = args[args.length - 1];
+    const tokenOrActor = await fromUuid(lastArg.actorUuid);
+    const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     const source = game.actors.get(lastArg.efData.origin.match(/Actor\.(.*?)\./)[1]) ?? canvas.tokens.placeables.find(t => t.actor && t.actor.id == lastArg.efData.origin.match(/Actor\.(.*?)\./)[1])?.actor;
     const damage = Math.floor(source.classes.paladin.system.levels / 2);
-    if (!damage || lastArg.actor.id == source.id) return;
-    const hasFear = lastArg.actor.effects.find(e => e.label == "Frightened" && e.origin.includes(source.id));
+    if (!damage || actor.id == source.id) return;
+    const hasFear = actor.effects.find(e => e.label == "Frightened" && e.origin.includes(source.id));
     if (!hasFear) return;
     const itemData = {
         name: "Aura of Conquest",
@@ -19,6 +21,6 @@ try {
         },
         effects: [effectData],
     }
-    const item = new CONFIG.Item.documentClass(itemData, { parent: source ?? lastArg.actor });
+    const item = new CONFIG.Item.documentClass(itemData, { parent: source ?? actor });
     await MidiQOL.completeItemRoll(item, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
 } catch (err) {console.error("Aura of Conquest Macro - ", err)}
