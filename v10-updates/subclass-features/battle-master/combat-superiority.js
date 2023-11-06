@@ -204,8 +204,7 @@ try {
 			flags: { autoanimations: { isEnabled: false }, "midi-qol": {} },
 			system: {
 				activation: { type: "special" },
-				target: { type: "self" },
-				range: { units: "self" },
+				target: { type: "creature" },
                 save: {},
                 damage: {}
 			}
@@ -228,7 +227,7 @@ try {
                     icon: "icons/skills/melee/shield-damaged-broken-orange.webp", 
                     name: "Distracting Strike", 
                     duration: { seconds: 7, rounds: 1 },
-                    flags: { dae: { specialDuration: ["combatEnd"] } }
+                    flags: { dae: { specialDuration: ["turnStartSource", "combatEnd"] } }
                 }];
             } else if (args[0].workflow.combatSuperiority == "goadingAttack") {
                 itemData.name = "Goading Attack";
@@ -243,7 +242,7 @@ try {
                     icon: "icons/skills/wounds/injury-face-impact-orange.webp", 
                     name: "Goading Attack", 
                     duration: { seconds: 7, rounds: 1, turns: 1 },
-                    flags: { dae: { specialDuration: ["combatEnd"] } }
+                    flags: { dae: { specialDuration: ["turnEndSource", "combatEnd"] } }
                 }];
             } else if (args[0].workflow.combatSuperiority == "menacingAttack") {
                 itemData.name = "Menacing Attack";
@@ -258,7 +257,7 @@ try {
                     icon: "icons/magic/fire/flame-burning-skull-orange.webp", 
                     name: "Menacing Attack", 
                     duration: { seconds: 7, rounds: 1, turns: 1 },
-                    flags: { dae: { specialDuration: ["combatEnd"] } }
+                    flags: { dae: { specialDuration: ["turnEndSource", "combatEnd"] } }
                 }];
                 itemData.system.activation.condition = "!target.traits.ci.value.has('frightened')";
                 itemData.flags["midi-qol"].effectActivation = true;
@@ -284,9 +283,9 @@ try {
                 itemData.flags["midi-qol"].effectActivation = true;
             }
 		    const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].actor });
-		    await MidiQOL.completeItemRoll(item, { showFullCard: false, createWorkflow: true, configureDialog: false, target });
+                await MidiQOL.completeItemRoll(item, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
 		} else if (["sweepingAttack"].includes(args[0].workflow.combatSuperiority)) {
-            if (args[0].workflow.combatSuperiority == "sweeepingAttack") {
+            if (args[0].workflow.combatSuperiority == "sweepingAttack") {
                 let sweepingDialog =  new Promise(async (resolve) => {
                     new Dialog({
                         title: "Sweeping Attack",
@@ -309,8 +308,8 @@ try {
                 itemData.img = "icons/weapons/axes/axe-battle-orange.webp";
                 itemData.system.actionType = "other";
                 itemData.system.damage.parts = [[`1${die}`, `${args[0].workflow.defaultDamageType.toLowerCase()}`]];
-                const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].targets[0].actor });
-                await MidiQOL.completeItemRoll(item, { showFullCard: false, createWorkflow: true, configureDialog: false });
+                const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].actor });
+                await MidiQOL.completeItemRoll(item, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [targets[0].document.uuid] });
             }
 		}
 	}
