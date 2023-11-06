@@ -22,4 +22,4 @@ try {
         const usesItem = actor.items.find(i => i.name == "Divine Intervention" && i.system.uses);
         await usesItem.update({ "system.uses.value": 1 });
     }
-} catch (err) {console.error("Divine Invervention Macro - ", err)} ,
+} catch (err) {console.error("Divine Invervention Macro - ", err)}
