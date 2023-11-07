@@ -220,7 +220,7 @@ try {
                 itemData.img = "icons/skills/melee/shield-damaged-broken-orange.webp";
                 itemData.system.actionType = "other";
                 itemData.effects = [{
-                    changes: [{ key: "flags.midi-qol.grants.advantage.attack.all", mode: 0, value: `actorUuid!="${args[0].actor.uuid}"`, priority: 20 }, { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "RemoveEffectOnAttacked, isAttacked", priority: 20 }], 
+                    changes: [{ key: "flags.midi-qol.grants.advantage.attack.all", mode: 0, value: `actorUuid!="${args[0].actor.uuid}"`, priority: 20 }, { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "RemoveEffectPostAttacked, isAttacked", priority: 20 }], 
                     disabled: false, 
                     transfer: false,
                     isSuppressed: false,
