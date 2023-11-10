@@ -1,5 +1,5 @@
 try {
-	if (args[0].tag !== "OnUse" || args[0].macroPass != "postDamageRoll" || !args[0].damageRoll || !["mwak", "rwak"].includes(args[0].item.system.actionType) || (game.combat && args[0].actor.effects.find(e => e.label == "Used Favored Foe")) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId)) return;
+	if (args[0].tag !== "OnUse" || args[0].macroPass != "postDamageRoll" || !args[0].damageRoll || !["mwak", "rwak"].includes(args[0].item.system.actionType) || (game.combat && args[0].actor.effects.find(e => e.label == "Used Favored Foe" && !e.disabled)) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId)) return;
 	const item = args[0].actor.items.find(i => i.name == "Favored Foe" && i.system.uses.value);
 	if (args[0].targets[0].actor.effects.find(e => e.label == "Favored Foe") && args[0].targets[0].actor.flags["midi-qol"]?.favoredFoe.includes(args[0].actor.uuid) && !(game.combat && args[0].actor.effects.find(e => e.label == "Used Favored Foe" && disabled == false))) {
 		if (game.combat) {

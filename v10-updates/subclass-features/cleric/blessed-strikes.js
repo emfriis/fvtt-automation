@@ -3,7 +3,7 @@ try {
     let isCantrip = args[0].item.type === "spell" && args[0].spellLevel === 0;
     let isWeapon = args[0].item.type === "weapon" && ["mwak", "rwak"].includes(args[0].item.system.actionType);
     if (!isCantrip && !isWeapon) return;
-    if (game.combat && args[0].actor.effects.find(e => e.label === "Used Blessed Strikes" && disabled == false)) return;
+    if (game.combat && args[0].actor.effects.find(e => e.label === "Used Blessed Strikes" && !e.disabled)) return;
     let useFeat = true;
     if (game.combat) {
         let dialog = new Promise((resolve) => {
