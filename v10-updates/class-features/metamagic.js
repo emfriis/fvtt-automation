@@ -303,7 +303,6 @@ try {
             var limit = ${Math.max(1, args[0].actor.system.abilities.cha.mod)};
             $("input[type='checkbox'][name='die']").change(function() {
                 var bol = $("input[type='checkbox'][name='die']:checked").length >= limit;
-                console.error(bol, limit, $("input[type='checkbox'][name='die']:checked").length)
                 $("input[type='checkbox'][name='die']").not(":checked").attr("disabled", bol);
             });
         </script>
@@ -337,23 +336,20 @@ try {
             }).render(true);
         });
         let rerolls = await empoweredDialog;
-        if (rerolls.length > Math.max(1, args[0].actor.system.abilities.cha.mod)) {
-            ui.notifications.warn(`Too many dice selected (Maximum ${Math.max(1, args[0].actor.system.abilities.cha.mod)})`);
-        } else if (rerolls.length) {
-            newDamageRoll = args[0].workflow.damageRoll;
-            rerolls.forEach(async r => {
-                let newRoll = new Roll(`1d${r.faces}`).evaluate({ async: false });
-                if (game.dice3d) game.dice3d.showForRoll(newRoll);
-                let replaceRoll = newDamageRoll.terms[r.index].results.find(d => d.result == parseInt(r.result) && d.active);
-                if (replaceRoll) {
-                    Object.assign(replaceRoll, { rerolled: true, active: false });
-                    newDamageRoll.terms[r.index].results.push({ result: parseInt(newRoll.result), active: true, hidden: true });
-                    newDamageRoll._total = newDamageRoll._evaluateTotal();
-                }
-            });
-            await args[0].workflow.setDamageRoll(newDamageRoll);
-            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
-        }
+        if (!rerolls.length) return;
+        newDamageRoll = args[0].workflow.damageRoll;
+        rerolls.forEach(async r => {
+            let newRoll = new Roll(`1d${r.faces}`).evaluate({ async: false });
+            if (game.dice3d) game.dice3d.showForRoll(newRoll);
+            let replaceRoll = newDamageRoll.terms[r.index].results.find(d => d.result == parseInt(r.result) && d.active);
+            if (replaceRoll) {
+                Object.assign(replaceRoll, { rerolled: true, active: false });
+                newDamageRoll.terms[r.index].results.push({ result: parseInt(newRoll.result), active: true, hidden: true });
+                newDamageRoll._total = newDamageRoll._evaluateTotal();
+            }
+        });
+        await args[0].workflow.setDamageRoll(newDamageRoll);
+        await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
     } else if (args[0].tag == "TargetOnUse" && args[0].macroPass == "preTargetSave" && args[0].workflow.saveDetails && args[0].options.actor.flags["midi-qol"]?.heightenedSpell?.includes(args[0].uuid)) {
         args[0].workflow.saveDetails.disadvantage = true;
         await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].options.actor.uuid, effects: [args[0].options.actor.effects.find(e => e.label == "Heightened Spell Save Disadvantage").id] });

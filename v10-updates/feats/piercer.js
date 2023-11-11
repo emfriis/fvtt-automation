@@ -9,7 +9,7 @@ try {
         args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `1d${faces}[piercing]`;
         args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
         await args[0].workflow.setDamageRoll(args[0].damageRoll);
-    } else if (args[0].tag == "DamageBonus" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.flavor.toLowerCase() == "piercing")) {
+    } else if (args[0].tag == "DamageBonus" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.flavor.toLowerCase() == "piercing") && !(game.combat && args[0].actor.effects.find(e => e.label === "Used Piercer" && !e.disabled))) {
         let terms = args[0].damageRoll.terms;
         let termsContent = "";
         for (let t = 0; t < terms.length; t++) {
@@ -43,7 +43,6 @@ try {
             var limit = 1;
             $("input[type='checkbox'][name='die']").change(function() {
                 var bol = $("input[type='checkbox'][name='die']:checked").length >= limit;
-                console.error(bol, limit, $("input[type='checkbox'][name='die']:checked").length)
                 $("input[type='checkbox'][name='die']").not(":checked").attr("disabled", bol);
             });
         </script>
@@ -77,19 +76,28 @@ try {
             }).render(true);
         });
         let rerolls = await rerollDialog;
-        if (rerolls.length) {
-            newDamageRoll = args[0].workflow.damageRoll;
-            rerolls.forEach(async r => {
-                let newRoll = new Roll(`1d${r.faces}`).evaluate({ async: false });
-                if (game.dice3d) game.dice3d.showForRoll(newRoll);
-                let replaceRoll = newDamageRoll.terms[r.index].results.find(d => d.result == parseInt(r.result) && d.active);
-                if (replaceRoll) {
-                    Object.assign(replaceRoll, { rerolled: true, active: false });
-                    newDamageRoll.terms[r.index].results.push({ result: parseInt(newRoll.result), active: true, hidden: true });
-                    newDamageRoll._total = newDamageRoll._evaluateTotal();
-                }
-            });
-            await args[0].workflow.setDamageRoll(newDamageRoll);
+        if (!rerolls.length) return;
+        newDamageRoll = args[0].workflow.damageRoll;
+        rerolls.forEach(async r => {
+            let newRoll = new Roll(`1d${r.faces}`).evaluate({ async: false });
+            if (game.dice3d) game.dice3d.showForRoll(newRoll);
+            let replaceRoll = newDamageRoll.terms[r.index].results.find(d => d.result == parseInt(r.result) && d.active);
+            if (replaceRoll) {
+                Object.assign(replaceRoll, { rerolled: true, active: false });
+                newDamageRoll.terms[r.index].results.push({ result: parseInt(newRoll.result), active: true, hidden: true });
+                newDamageRoll._total = newDamageRoll._evaluateTotal();
+            }
+        });
+        await args[0].workflow.setDamageRoll(newDamageRoll);
+        if (game.combat) {
+            const effectData = {
+                disabled: false,
+                duration: { turns: 1, seconds: 1 }, 
+                flags: { dae: { specialDuration: ["combatEnd"] } },
+                icon: "icons/weapons/daggers/dagger-straight-blue.webp",
+                label: "Used Piercer",
+            }
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
         }
 	}
 } catch (err) {console.error("Piercer Macro - ", err)}

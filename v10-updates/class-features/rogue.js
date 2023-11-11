@@ -34,7 +34,7 @@ try {
     if (game.combat) {
         const effectData = {
             disabled: false,
-            duration: { turns: 1 },
+            duration: { turns: 1, seconds: 1 },
             label: "Used Sneak Attack",
             flags: { dae: { specialDuration: ["combatEnd"] } }
         }
