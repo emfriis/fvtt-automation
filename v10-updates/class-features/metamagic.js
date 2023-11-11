@@ -299,6 +299,14 @@ try {
             <div class="form-group" id="dice-group">${termsContent}</div>
             <div><p>(${usesItem.system.uses.value} Sorcery Points Remaining)</p></div>
         </form>
+        <script>
+            var limit = ${Math.max(1, args[0].actor.system.abilities.cha.mod)};
+            $("input[type='checkbox'][name='die']").change(function() {
+                var bol = $("input[type='checkbox'][name='die']:checked").length >= limit;
+                console.error(bol, limit, $("input[type='checkbox'][name='die']:checked").length)
+                $("input[type='checkbox'][name='die']").not(":checked").attr("disabled", bol);
+            });
+        </script>
         `;
         let empoweredDialog = await new Promise((resolve) => {
             new Dialog({
@@ -307,6 +315,7 @@ try {
                 buttons: {
                     Confirm: {
                         label: "Confirm",
+                        icon: '<i class="fas fa-check"></i>',
                         callback: async () => {
                             let rerolls = [];
                             let checked = $("input[type='checkbox'][name='die']:checked"); 
@@ -319,6 +328,7 @@ try {
                     },
                     Cancel: {
                         label: "Cancel",
+                        icon: '<i class="fas fa-times"></i>',
                         callback: async () => {resolve(false)},
                     },
                 },
