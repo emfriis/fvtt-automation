@@ -9,8 +9,10 @@ try {
                     name: "Spiritual Weapon",
                     img: "icons/weapons/swords/sword-winged-pink.webp",
                     type: "weapon",
+                    flags: { midiProperties: { magiceffect: true } },
                     system: {
                         weaponType: "natural",
+                        properties: { mgc: true },
                         description: { value: "You can make a melee spell attack against a creature within 5 feet of the weapon. On a hit, the target takes force damage equal to 1d8 + your spellcasting ability modifier." },
                         attackBonus: `${args[0].actor.system.abilities[args[0].actor.spellcasting ? args[0].actor.spellcasting : "wis"].mod} + ${args[0].actor.system.attributes.prof} - @attributes.prof`,
                         activation: { type: "bonus", cost: 1 },

@@ -60,7 +60,7 @@ try {
 		} else if (maneuver == "quickToss") {
 			if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: args[0].actor.uuid });
 		}
-	} else if (args[0].tag == "OnUse" && args[0].macroPass == "preCheckHits" && !args[0].workflow.combatSuperiority && ["mwak", "rwak"].includes(args[0].item.system.actionType)) {
+	} else if (args[0].tag == "OnUse" && args[0].macroPass == "preCheckHits" && !args[0].isFumble && !args[0].isCritical && !args[0].workflow.combatSuperiority && ["mwak", "rwak"].includes(args[0].item.system.actionType)) {
 		let maneuverContent = "";
 		let precisionAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Precision Attack");
         if (precisionAttackItem && ["mwak", "rwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="precisionAttack"><img src="${precisionAttackItem.img}" style="border:0px; width: 50px; height:50px;">Precision Attack</label>`;
