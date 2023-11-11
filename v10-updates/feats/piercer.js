@@ -1,7 +1,15 @@
 try {
-    if (args[0].tag == "OnUse" && args[0].macroPass == "postDamageRoll" && args[0].isCritical && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageDetail.find(d => d.type == "piercing")) {
-        return;
-    } else if (args[0].tag == "DamageBonus" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.flavor == "Piercing")) {
+    if (args[0].tag == "OnUse" && args[0].macroPass == "postDamageRoll" && args[0].isCritical && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.faces && t.flavor.toLowerCase() == "piercing")) {
+        let faces = args[0].damageRoll.terms.find(t => t.faces && t.flavor == "Piercing").faces;
+        let bonusRoll = await new Roll('0 + ' + `1d${faces}[piercing]`).evaluate({async: true});
+        if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
+        for (let i = 1; i < bonusRoll.terms.length; i++) {
+            args[0].damageRoll.terms.push(bonusRoll.terms[i]);
+        }
+        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `1d${faces}[piercing]`;
+        args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
+        await args[0].workflow.setDamageRoll(args[0].damageRoll);
+    } else if (args[0].tag == "DamageBonus" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.flavor.toLowerCase() == "piercing")) {
         let terms = args[0].damageRoll.terms;
         let termsContent = "";
         for (let t = 0; t < terms.length; t++) {
@@ -15,7 +23,7 @@ try {
                         <img src="icons/svg/d${terms[t].faces}-grey.svg" style="position: relative;">
                         <p style="position: relative; bottom: 55px; font-weight: bolder; font-size: 25px">${results[r].result}</p>
                     </tiv>
-                    <p>(${terms[t].flavor ? terms[t].flavor : args[0].workflow.defaultDamageType.charAt(0).toUpperCase() + args[0].workflow.defaultDamageType.toLowerCase().slice(1)})</p>
+                    <p>(${terms[t].flavor ? terms[t].flavor.charAt(0).toUpperCase() + terms[t].flavor.toLowerCase().slice(1) : args[0].workflow.defaultDamageType.charAt(0).toUpperCase() + args[0].workflow.defaultDamageType.toLowerCase().slice(1)})</p>
                 </label>
                 `;
             }

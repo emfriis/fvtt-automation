@@ -176,7 +176,7 @@ try {
 	    } else if (metamagic == "transmuted") {
             // transmuted spell
             let options = ["Acid", "Cold", "Fire", "Lightning", "Poison", "Thunder"];
-            const optionContent = options.map((o) => { return `<option value="${o}">${o}</option>` })
+            const optionContent = options.map((o) => { return `<option value="${o}">${o}</option>` });
             const content = `
             <div class="form-group">
                 <label>Damage Types: </label>
@@ -190,7 +190,7 @@ try {
                     buttons: {
                         Confirm: {
                             label: "Confirm",
-                            callback: (html) => {resolve(html.find("[name=types]")[0].value)},
+                            callback: () => {resolve($("[name=types]")[0].value)},
                         },
                     },
                     default: "Confirm",
@@ -207,7 +207,7 @@ try {
                     newDamageRoll.terms.forEach(t => { 
                         if (options.includes(t.options.flavor)) {
                             t.options.flavor = type;
-                            t.formula.replace(d.options.flavor, type);
+                            t.formula.replace(t.options.flavor, type);
                         }
                     });
                     await args[0].workflow.setDamageRoll(newDamageRoll);
@@ -282,7 +282,7 @@ try {
                         <img src="icons/svg/d${terms[t].faces}-grey.svg" style="position: relative;">
                         <p style="position: relative; bottom: 55px; font-weight: bolder; font-size: 25px">${results[r].result}</p>
                     </tiv>
-                    <p>(${terms[t].flavor ? terms[t].flavor : args[0].workflow.defaultDamageType.charAt(0).toUpperCase() + args[0].workflow.defaultDamageType.toLowerCase().slice(1)})</p>
+                    <p>(${terms[t].flavor ? terms[t].flavor.charAt(0).toUpperCase() + terms[t].flavor.toLowerCase().slice(1) : args[0].workflow.defaultDamageType.charAt(0).toUpperCase() + args[0].workflow.defaultDamageType.toLowerCase().slice(1)})</p>
                 </label>
                 `;
             }

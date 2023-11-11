@@ -4,10 +4,8 @@ let hook1 = Hooks.on("midi-qol.preDamageRollComplete", async workflowNext => {
         workflowNext.defaultDamageType = workflowNext.newDefaultDamageType;
         let newDamageRoll = workflowNext.damageRoll;
         newDamageRoll.terms.forEach(t => { 
-            if (options.includes(t.options.flavor)) {
-                t.options.flavor = type;
-                t.formula.replace(d.options.flavor, type);
-            }
+            t.options.flavor = workflowNext.newDefaultDamageType;
+            t.formula.replace(t.options.flavor, workflowNext.newDefaultDamageType);
         });
         await args[0].workflow.setDamageRoll(newDamageRoll);
         Hooks.off("midi-qol.preDamageRollComplete", hook1);
