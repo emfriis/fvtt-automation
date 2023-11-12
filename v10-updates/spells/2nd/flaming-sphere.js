@@ -1,8 +1,10 @@
 try {
     if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects") return;
+    const summonId = args[0].item._id + '-' + args[0].itemCardId
     let hook = Hooks.on("fs-postSummon", async () => {
-        const summons = game.canvas.tokens.placeables.filter(t => t.document.flags?.["midi-qol"]?.summonId == args[0].item.id + '-' + args[0].itemCardId);
+        const summons = game.canvas.tokens.placeables.filter(t => t.document.flags?.["midi-qol"]?.summonId == summonId);
         if (summons.length) {
+            console.error("fs", summons)
             summons.forEach(async s => { 
                 actor = s.actor;
                 itemData = {
@@ -35,4 +37,4 @@ try {
             Hooks.off("fs.postSummon", hook);
         }
     });
-} catch (err) {console.error("Spiritual Weapon Macro - ", err)}
+} catch (err) {console.error("Flaming Sphere Macro - ", err)}
