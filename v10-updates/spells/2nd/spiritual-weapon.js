@@ -1,7 +1,7 @@
 try {
     if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects") return;
     const summonId = args[0].item._id + '-' + args[0].itemCardId
-    let hook = Hooks.on("fs-postSummon", async () => {
+    let hook = Hooks.on("updateActor", async () => {
         const summons = game.canvas.tokens.placeables.filter(t => t.document.flags?.["midi-qol"]?.summonId == summonId);
         if (summons.length) {
             summons.forEach(async s => { 
@@ -25,7 +25,7 @@ try {
                 }
                 await actor.createEmbeddedDocuments("Item", [itemData]);
             });
-            Hooks.off("fs.postSummon", hook);
+            Hooks.off("updateActor", hook);
         }
     });
 } catch (err) {console.error("Spiritual Weapon Macro - ", err)}

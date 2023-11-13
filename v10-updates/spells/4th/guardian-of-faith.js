@@ -1,8 +1,7 @@
 try {
     if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && args[0].item.type == "spell") {
-        let hook = Hooks.on("fs-postSummon", async () => {
+        let hook = Hooks.on("updateActor", async () => {
             const summons = game.canvas.tokens.placeables.filter(t => t.document.flags?.["midi-qol"]?.summonId == args[0].item.id + '-' + args[0].itemCardId);
-            console.error(summons)
             if (summons.length) {
                 summons.forEach(async s => { 
                     actor = s.actor;
@@ -25,7 +24,7 @@ try {
                     }
                     await actor.createEmbeddedDocuments("Item", [itemData]);
                 });
-                Hooks.off("fs.postSummon", hook);
+                Hooks.off("updateActor", hook);
             }
         });
     } else if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && args[0].item.type == "weapon") {

@@ -1,10 +1,9 @@
 try {
     if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects") return;
     const summonId = args[0].item._id + '-' + args[0].itemCardId
-    let hook = Hooks.on("fs-postSummon", async () => {
+    let hook = Hooks.on("updateActor", async () => {
         const summons = game.canvas.tokens.placeables.filter(t => t.document.flags?.["midi-qol"]?.summonId == summonId);
         if (summons.length) {
-            console.error("fs", summons)
             summons.forEach(async s => { 
                 actor = s.actor;
                 itemData = {
@@ -34,7 +33,7 @@ try {
                 };
                 await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: actor.uuid, effects: [effectData] });
             });
-            Hooks.off("fs.postSummon", hook);
+            Hooks.off("updateActor", hook);
         }
     });
 } catch (err) {console.error("Flaming Sphere Macro - ", err)}

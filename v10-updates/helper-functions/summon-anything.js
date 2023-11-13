@@ -56,7 +56,7 @@ try {
             default:
                 return;
         }
-        let hook = Hooks.on("fs-postSummon", async () => {
+        let hook = Hooks.on("updateActor", async () => {
             const summons = game.canvas.tokens.placeables.filter(t => t.document.flags?.["midi-qol"]?.summonId == summonId);
             if (summons.length) {
                 let changes = [];
@@ -71,7 +71,7 @@ try {
                     changes: changes
                 }
                 await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
-                Hooks.off("fs.postSummon", hook);
+                Hooks.off("updateActor", hook);
             }
         });
     }
