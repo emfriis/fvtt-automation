@@ -17,21 +17,31 @@ try {
             if (key !== "pact") spells.push({type: key, level: +key.slice(-1), value: args[0].actor.system.spells[key].value, max: args[0].actor.system.spells[key].max});
         });
         let buttonList = {};
-        let inputText = ""
+        let options = ""
         if (spells.find(spell => usesItem.system.uses.value >= spend[spell.level])) buttonList.sorcSlot = {
             icon: '<i class="fas fa-bolt"></i>',
             label: "Spell Slot",
             callback: () => {
-                spells.filter(spell => usesItem.system.uses.value >= spend[spell.level]).forEach(spell => inputText += `<div class="form-group"><label for="${spell.type}">${spell.type === "pact" ? "Pact Magic" : "Spell Slot"}: Level ${spell.level} [${spell.value}/${spell.max}]</label><input id="${spell.type}" name="spellSlot" value="${spell.level}" type="radio"></div>`);
+                spells.filter(spell => usesItem.system.uses.value >= spend[spell.level]).forEach(spell => options += `<option id="${spell.level}" value="${spell.type}">${spell.type === "pact" ? `Pact Magic [Level ${spell.level}]` : `Level ${spell.level}`} (${spell.value}/${spell.max} Slots)</option>`);
                 new Dialog({
                     title: "Font of Magic",
-                    content: `<form><p>Choose a spell slot to create:</p><hr>${inputText}</form>`,
+                    content: `
+                    <form>
+                        <p>Choose a Spell Slot to create:</p>
+                        <div class="form-group">
+                            <label><b>Spell Slot Level</b></label>
+                            <div class="form-fields">
+                                <select id="slot" name="slot-level">` + options + `</select>
+                            </div>
+                        </div>
+                    </form>
+                    `,
                     buttons: {
                         recover: {
                             icon: '<i class="fas fa-bolt"></i>',
                             label: "Convert",
                             callback: async () => {
-                                let slot = { type: $('input[name="spellSlot"]:checked')?.attr('id'), level: +$('input[name="spellSlot"]:checked')?.val() };
+                                let slot = { type: $("#slot").find(":selected").val(), level: +$("#slot").find(":selected").attr("id") };
                                 if (!slot.type || !slot.level) return ui.notifications.warn("No Spell Slot was selected");
                                 if (!args[0].actor.system.spells[slot.type].max) {
                                     const effectData = {
@@ -64,16 +74,26 @@ try {
             icon: '<i class="fas fa-brain"></i>',
             label:  "Sorcery Point(s)",
             callback: () => {
-                spells.filter(spell => spell.value > 0).forEach(spell => inputText += `<div class="form-group"><label for="${spell.type}">${spell.type === "pact" ? "Pact Magic" : "Spell Slot"}: Level ${spell.level} [${spell.value}/${spell.max}]</label><input id="${spell.type}" name="spellSlot" value="${spell.level}" type="radio"></div>`);
+                spells.filter(spell => spell.value > 0).forEach(spell => options += `<option id="${spell.level}" value="${spell.type}">${spell.type === "pact" ? `Pact Magic [Level ${spell.level}]` : `Level ${spell.level}`} (${spell.value}/${spell.max} Slots)</option>`);
                 new Dialog({
                     title: "Font of Magic",
-                    content: `<form><p>Choose a spell slot to convert:</p><hr>${inputText}</form>`,
+                    content: `
+                    <form>
+                        <p>Choose a Spell Slot to convert:</p>
+                        <div class="form-group">
+                            <label><b>Spell Slot Level</b></label>
+                            <div class="form-fields">
+                                <select id="slot" name="slot-level">` + options + `</select>
+                            </div>
+                        </div>
+                    </form>
+                    `,
                     buttons: {
                         recover: {
                             icon: '<i class="fas fa-brain"></i>',
                             label: "Convert",
                             callback: async () => {
-                                let slot = { type: $('input[name="spellSlot"]:checked')?.attr('id'), level: +$('input[name="spellSlot"]:checked')?.val() };
+                                let slot = { type: $("#slot").find(":selected").val(), level: +$("#slot").find(":selected").attr("id") };
                                 if (!slot.type || !slot.level) return ui.notifications.warn("No Spell Slot was selected");
                                 let spellUpdate = new Object();
                                 spellUpdate[`system.spells.${slot.type}.value`] = args[0].actor.system.spells[slot.type].value - 1;

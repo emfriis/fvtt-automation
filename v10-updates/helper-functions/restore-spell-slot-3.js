@@ -1,12 +1,12 @@
 try {
     let options = "";
     Object.keys(args[0].actor.system.spells).forEach(key => {
-        if (key === "pact" && args[0].actor.system.spells[key].level <= Math.ceil(args[0].actor.system.attributes.prof / 2) && args[0].actor.system.spells[key].max > 0 && args[0].actor.system.spells[key].value < args[0].actor.system.spells[key].max) options += `<option id="${args[0].actor.system.spells.pact.level}" value="${key}">Pact Magic [Level ${args[0].actor.system.spells.pact.level}] (${args[0].actor.system.spells[key].value}/${args[0].actor.system.spells[key].max} Slots)</option>`;
-        if (key !== "pact" && +key.slice(-1) <= Math.ceil(args[0].actor.system.attributes.prof / 2) && args[0].actor.system.spells[key].max > 0 && args[0].actor.system.spells[key].value < args[0].actor.system.spells[key].max) options += `<option id="${key.slice(-1)}" value="${key}">Level ${key.slice(-1)} (${args[0].actor.system.spells[key].value}/${args[0].actor.system.spells[key].max} Slots)</option>`;
+        if (key === "pact" && args[0].actor.system.spells[key].level <= 3 && args[0].actor.system.spells[key].max > 0 && args[0].actor.system.spells[key].value < args[0].actor.system.spells[key].max) options += `<option id="${args[0].actor.system.spells.pact.level}" value="${key}">Pact Magic [Level ${args[0].actor.system.spells.pact.level}] (${args[0].actor.system.spells[key].value}/${args[0].actor.system.spells[key].max} Slots)</option>`;
+        if (key !== "pact" && +key.slice(-1) <= 3 && args[0].actor.system.spells[key].max > 0 && args[0].actor.system.spells[key].value < args[0].actor.system.spells[key].max) options += `<option id="${key.slice(-1)}" value="${key}">Level ${key.slice(-1)} (${args[0].actor.system.spells[key].value}/${args[0].actor.system.spells[key].max} Slots)</option>`;
     });
 	if (options === "") return ui.notifications.warn("No applicable Spell Slots have been expended");
     new Dialog({
-        title: "Harness Divine Power",
+        title: "Restore a Spell Slot",
         content: `
         <form>
             <p>Choose a Spell Slot to restore:</p>
@@ -38,4 +38,4 @@ try {
             }
         }
     }).render(true);
-} catch (err)  {console.error("Harness Divine Power Macro - ", err)}
+} catch (err)  {console.error("Restore Spell 3 Macro - ", err)}
