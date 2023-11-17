@@ -1,7 +1,10 @@
 try {
     let inputText = "";
-    Object.keys(args[0].actor.system.spells).forEach(key => {if (key !== "pact" && +key.slice(-1) <= Math.ceil(args[0].actor.system.attributes.prof/2) && args[0].actor.system.spells[key].max > args[0].actor.system.spells[key].value) inputText += `<div class="form-group"><label for="${key}">Spell Slot Level ${+key.slice(-1)} [${args[0].actor.system.spells[key].value}/${args[0].actor.system.spells[key].max}]</label><input id="${key}" name="spellSlot" value="${+key.slice(-1)}" type="radio"></div>`});
-    if (inputText === "") return ui.notifications.warn("No applicable Spell Slots have been expended");
+    Object.keys(args[0].actor.system.spells).forEach(key => {
+		if (key === "pact" && +args[0].actor.system.spells[key].level <= Math.ceil(args[0].actor.system.attributes.prof / 2) && args[0].actor.system.spells[key].max > args[0].actor.system.spells[key].value) inputText += `<div class="form-group"><label for="${key}">Pact Magic: Level ${+args[0].actor.system.spells[key].level} [${args[0].actor.system.spells[key].value}/${args[0].actor.system.spells[key].max}]</label><input id="${key}" name="spellSlot" value="${+args[0].actor.system.spells[key].level}" type="radio"></div>`
+		if (key !== "pact" && +key.slice(-1) <= Math.ceil(args[0].actor.system.attributes.prof / 2) && args[0].actor.system.spells[key].max > args[0].actor.system.spells[key].value) inputText += `<div class="form-group"><label for="${key}">Spell Slot: Level ${+key.slice(-1)} [${args[0].actor.system.spells[key].value}/${args[0].actor.system.spells[key].max}]</label><input id="${key}" name="spellSlot" value="${+key.slice(-1)}" type="radio"></div>`
+	});
+	if (inputText === "") return ui.notifications.warn("No applicable Spell Slots have been expended");
     new Dialog({
         title: "Harness Divine Power",
         content: `<form><p>Choose a spell slot to restore.</p><hr>${inputText}</form>`,
@@ -25,4 +28,4 @@ try {
             }
         }
     }).render(true);
-} catch (err)  {console.error("Harness Divine Power Macro - ", err); }
+} catch (err)  {console.error("Harness Divine Power Macro - ", err)}
