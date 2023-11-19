@@ -29,9 +29,5 @@ try {
         config.consumeResource = false;
 		return true;
 	});
-	Hooks.once("dnd5e.preItemUsageConsumption", (item, config, options) => {
-        config.consumeUsage = false;
-		return true;
-	});
     await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
-} catch (err)  {console.error("Amulet of the Devout Macro - ", err)}
+} catch (err) {console.error("Amulet of the Devout Macro - ", err)}

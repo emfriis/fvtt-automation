@@ -58,16 +58,17 @@ try {
         });
         let metamagic = await dialog;
         if (!metamagic) return;
+        args[0].workflow.metamagic = true;
         if (metamagic == "quickened") {
             // quickened spell
             if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: args[0].actor.uuid });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
         } else if (metamagic == "subtle") {
             // subtle spell
-            await usesItem.update({ "system.uses.value": usesItem.system.uses.value - 1 });
+            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
 	    } else if (metamagic == "twinned") {
             // twinned spell
-            await usesItem.update({ "system.uses.value": Math.max(1, usesItem.system.uses.value - args[0].spellLevel) });
+            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - Math.max(1, args[0].spellLevel)) });
         }   if (metamagic == "careful") {
             // careful spell
             let carefulDialog =  new Promise(async (resolve) => {
