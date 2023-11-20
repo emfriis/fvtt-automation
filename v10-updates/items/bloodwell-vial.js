@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects" || args[0].item.system.attunement != 2) return;
+    if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects" || args[0].item.system.attunement == 1) return;
     const usesItem = args[0].actor.items.find(i => i.name == "Font of Magic" && i.system.uses.value);
     if (!usesItem) return;
     let roll_results = `<div><i>${Math.min(usesItem.system.uses.max, usesItem.system.uses.value + 5) - usesItem.system.uses.value} Sorcery Points restored.</i></div>`;

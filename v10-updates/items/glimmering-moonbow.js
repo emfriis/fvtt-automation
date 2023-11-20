@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag == "OnUse" && args[0].macroPass == "preItemRoll" && event.shiftKey) {
+    if (args[0].tag == "OnUse" && args[0].macroPass == "preItemRoll" && event.shiftKey && args[0].item.system.attunement == 1) {
         usesItem = args[0].actor.items.find(i => i.uuid == args[0].item.uuid && i.system.uses.value);
         if (!usesItem) {
             ui.notifications.warn("No uses of Glimmering Moonbow remaining");
