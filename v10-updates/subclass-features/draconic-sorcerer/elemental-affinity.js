@@ -22,7 +22,7 @@ try {
                         const effectData = [{
                             changes: [{ key: "data.traits.dr.value", mode: 0, value: type, priority: 20, },],
                             disabled: false,
-                            label: "Elemental Affinity",
+                            name: "Elemental Affinity",
                             icon: "icons/magic/water/projectile-icecicles-salvo.webp",
                             duration: { seconds: 3600 }
                         }];

@@ -6,7 +6,7 @@ try {
     const source = game.actors.get(lastArg.efData.origin.match(/Actor\.(.*?)\./)[1]) ?? canvas.tokens.placeables.find(t => t.actor && t.actor.id == lastArg.efData.origin.match(/Actor\.(.*?)\./)[1])?.actor;
     const damage = Math.floor(source.classes.paladin.system.levels / 2);
     if (!damage || actor.id == source.id) return;
-    const hasFear = actor.effects.find(e => e.label == "Frightened" && e.origin.includes(source.id));
+    const hasFear = actor.effects.find(e => e.name == "Frightened" && e.origin.includes(source.id));
     if (!hasFear) return;
     const itemData = {
         name: "Aura of Conquest",
@@ -14,7 +14,7 @@ try {
         type: "feat",
         flags: { midiProperties: { magiceffect: true, effectActivation: true }, autoanimations: { isEnabled: false } },
         system: {
-            activation: { type: "special", condition: "!target.effects.find(e=>e.label=='Aura of Conquest Movement Reduction')" },
+            activation: { type: "special" },
             target: { type: "creature" },
             actionType: "other",
             damage: { parts: [[`${damage}`, "psychic"]] }

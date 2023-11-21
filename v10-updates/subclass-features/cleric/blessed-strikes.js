@@ -1,9 +1,9 @@
 try {
-    if (args[0].tag !== "OnUse" || args[0].macroPass !== "postDamageRoll" || !args[0].damageRoll || !["msak", "rsak", "save", "other"].includes(args[0].item.system.actionType)) return;
-    let isCantrip = args[0].item.type === "spell" && args[0].spellLevel === 0;
-    let isWeapon = args[0].item.type === "weapon" && ["mwak", "rwak"].includes(args[0].item.system.actionType);
+    if (args[0].tag != "OnUse" || args[0].macroPass != "postDamageRoll" || !args[0].damageRoll || !["msak", "rsak", "save", "other"].includes(args[0].item.system.actionType)) return;
+    let isCantrip = args[0].item.type == "spell" && args[0].spellLevel == 0;
+    let isWeapon = args[0].item.type == "weapon" && ["mwak", "rwak"].includes(args[0].item.system.actionType);
     if (!isCantrip && !isWeapon) return;
-    if (game.combat && args[0].actor.effects.find(e => e.label === "Used Blessed Strikes" && !e.disabled)) return;
+    if (game.combat && args[0].actor.effects.find(e => e.name == "Used Blessed Strikes" && !e.disabled)) return;
     let useFeat = true;
     if (game.combat) {
         let dialog = new Promise((resolve) => {
@@ -34,15 +34,15 @@ try {
             disabled: false,
             flags: { dae: { specialDuration: ["turnStart", "combatEnd"] } },
 			icon: "icons/magic/light/swords-light-glowing-white.webp",
-            label: "Used Blessed Strikes"
+            name: "Used Blessed Strikes"
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     }
-    if (game.combat && isCantrip && !isWeapon && args[0].item.system.actionType === "save" && !args[0].actor.flags["midi-qol"].potentCantrip) {
+    if (game.combat && isCantrip && !isWeapon && args[0].item.system.actionType == "save" && !args[0].actor.flags["midi-qol"].potentCantrip) {
         let hook1 = Hooks.on("midi-qol.postCheckSaves", async workflowNext => {
-            if (workflowNext.uuid === args[0].uuid && args[0].workflow.blessedStrikes) {
-                if (workflowNext.failedSaves.size === 0) {
-                    await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].actor.uuid, effects: [args[0].actor.effects.find(e => e.label === "Used Blessed Strikes").id] });
+            if (workflowNext.uuid == args[0].uuid && args[0].workflow.blessedStrikes) {
+                if (workflowNext.failedSaves.size == 0) {
+                    await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].actor.uuid, effects: [args[0].actor.effects.find(e => e.name == "Used Blessed Strikes").id] });
 					args[0].workflow.blessedStrikes = false;
                     Hooks.off("midi-qol.postCheckSaves", hook1);
                     Hooks.off("midi-qol.preItemRoll", hook2);
@@ -50,7 +50,7 @@ try {
             }
         });
         let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
-            if (workflowNext.uuid === args[0].uuid) {
+            if (workflowNext.uuid == args[0].uuid) {
                 Hooks.off("midi-qol.postCheckSaves", hook1);
                 Hooks.off("midi-qol.preItemRoll", hook2);
             }

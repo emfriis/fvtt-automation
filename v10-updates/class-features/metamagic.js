@@ -112,7 +112,7 @@ try {
             const effectData = {
                 changes: [{ key: "flags.midi-qol.distantSpell", mode: 0, value: 1, priority: 20, },],
                 disabled: false,
-                label: "Metamagic: Distant Spell",
+                name: "Metamagic: Distant Spell",
                 flags: { dae: { specialDuration: ["turnEnd","turnStart"] } }
             }
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
@@ -169,7 +169,7 @@ try {
             const effectData = {
                 changes: [{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Metamagic, preTargetSave", priority: 20 }, { key: "flags.midi-qol.heightenedSpell", mode: 2, value: args[0].uuid, priority: 20 }],
                 disabled: false,
-                label: "Heightened Spell Save Disadvantage",
+                name: "Heightened Spell Save Disadvantage",
                 icon: heightenedItem.img
             };
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targets[0].actor.uuid, effects: [effectData] });
@@ -353,6 +353,6 @@ try {
         await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
     } else if (args[0].tag == "TargetOnUse" && args[0].macroPass == "preTargetSave" && args[0].workflow.saveDetails && args[0].options.actor.flags["midi-qol"]?.heightenedSpell?.includes(args[0].uuid)) {
         args[0].workflow.saveDetails.disadvantage = true;
-        await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].options.actor.uuid, effects: [args[0].options.actor.effects.find(e => e.label == "Heightened Spell Save Disadvantage").id] });
+        await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].options.actor.uuid, effects: [args[0].options.actor.effects.find(e => e.name == "Heightened Spell Save Disadvantage").id] });
     }
 } catch (err) {console.error("Metamagic Macro - ", err);}

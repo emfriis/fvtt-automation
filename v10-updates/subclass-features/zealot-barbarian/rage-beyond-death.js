@@ -1,7 +1,7 @@
 try {
-    if (args[0].tag != "OnUse" || args[0].macroPass != "preActiveEffects" || !args[0].item.effects.find(e => e.label == "Rage")) return
+    if (args[0].tag != "OnUse" || args[0].macroPass != "preActiveEffects" || !args[0].item.effects.find(e => e.name == "Rage")) return
     let hook1 = Hooks.on("createActiveEffect", async (effect) => {
-        if (effect.label == "Rage" && effect.parent.uuid == args[0].actor.uuid) {
+        if (effect.name == "Rage" && effect.parent.uuid == args[0].actor.uuid) {
             let hook2 = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
                 if (args[0].uuid == workflowNext.uuid) {
                     const changes = args[0].actor.effects.find(e => e.id == effect.id).changes;

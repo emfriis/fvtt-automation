@@ -5,10 +5,10 @@ try {
     if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects") {
         const bonus = args[0].spellLevel > 5 ? 3 : args[0].spellLevel > 3 ? 2 : 1;
         args[0].targets.forEach(async target => {
-            const equipped = target.actor.items.filter(i => i.type === "weapon" && i.system.equipped && !i.system.properties.mgc && ["simple","martial"].find(t => i.system.weaponType.toLowerCase().includes(t)));
+            const equipped = target.actor.items.filter(i => i.type == "weapon" && i.system.equipped && !i.system.properties.mgc && ["simple","martial"].find(t => i.system.weaponType.toLowerCase().includes(t)));
             if (equipped.length == 1) {
                 const effectData = {
-                    label: "Magic Weapon",
+                    name: "Magic Weapon",
                     icon: "icons/magic/fire/dagger-rune-enchant-flame-blue.webp",
                     changes: [{ key: "macro.execute", mode: 0, value: `MagicWeapon ${equipped[0].id} ${bonus}`, priority: 20 }],
                     duration: { seconds: 3600 },
@@ -46,7 +46,7 @@ try {
                             label: "Confirm",
                             callback: async () => {
                                 const effectData = {
-                                    label: "Magic Weapon",
+                                    name: "Magic Weapon",
                                     icon: "icons/magic/fire/dagger-rune-enchant-flame-blue.webp",
                                     changes: [{ key: "macro.execute", mode: 0, value: `MagicWeapon ${$("input[type='radio'][name='weapon']:checked").val()} ${bonus}`, priority: 20 }],
                                     duration: { seconds: 3600 },
@@ -78,7 +78,7 @@ try {
         });
         console.error("on", weapon, lastArg)
     } else if (args[0] === "off") { 
-        let weapon = actor.items.find(i => i.flags["midi-qol"].magicWeapon === lastArg.efData._id);
+        let weapon = actor.items.find(i => i.flags["midi-qol"].magicWeapon == lastArg.efData._id);
         if (!weapon) weapon = game.actors.contents.find(a => a.items.find(i => i.flags["midi-qol"].magicWeapon === lastArg.efData._id)).items.find(i => i.flags["midi-qol"].magicWeapon === lastArg.efData._id);
 		await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.filter(s => s.source !== "magicWeapon" && s.id !== lastArg.efData._id));
 		const tempSystem = JSON.parse(JSON.stringify(weapon.flags["midi-qol"].tempSystem.find(s => s.source === "core").system)); 

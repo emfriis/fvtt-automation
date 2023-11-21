@@ -9,7 +9,7 @@ try {
 			changes: [{ key: "system.traits.dr.value", mode: 0, value: "bludgeoning", priority: 20 }, { key: "system.traits.dr.value", mode: 0, value: "piercing", priority: 20 }, { key: "system.traits.dr.value", mode: 0, value: "slashing", priority: 20 }],
 			disabled: false,
 			origin: args[0].item.uuid,
-			label: "Glimmering Moonbow",
+			name: "Glimmering Moonbow",
 			icon: "icons/weapons/bows/bow-ornamental-silver-black.webp",
 			duration: { rounds: 1, turns: 1, seconds: 7 },
 			flags: { dae: { specialDuration: ["turnStart", "combatEnd"], stackable: "noneName" } }

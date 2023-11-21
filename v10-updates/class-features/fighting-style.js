@@ -10,7 +10,7 @@ try {
 //great weapon fighting
 
 try {
-    if (args[0].tag !== "DamageBonus" || !args[0].damageRoll || args[0].item.system.actionType !== "mwak" || !args[0].item.system.properties?.hvy) return;
+    if (args[0].tag != "DamageBonus" || !args[0].damageRoll || args[0].item.system.actionType != "mwak" || !args[0].item.system.properties?.hvy) return;
 	let newDamageRoll = args[0].workflow.damageRoll;
 	newDamageRoll.terms.forEach(async t => {
 		if (!t.faces) return;

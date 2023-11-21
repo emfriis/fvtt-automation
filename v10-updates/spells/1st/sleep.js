@@ -1,6 +1,6 @@
 try {
 	if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects") return;
-	const targets = await args[0].targets.filter(t => t.actor && !((t.actor.system.details?.type?.value == "custom" || t.actor.system.details?.type?.value == "") && t.actor.system.details?.type?.custom == "") && t.actor.system.attributes.hp.value && !t.actor.effects.find(e => e.label === "Unconscious" && !e.disabled)).sort((prev, curr) => prev.actor.system.attributes.hp.value < prev.actor.system.attributes.hp.value ? -1 : 1);
+	const targets = await args[0].targets.filter(t => t.actor && MidiQOL.typeOrRace(t.actor) && t.actor.system.attributes.hp.value && !t.actor.effects.find(e => e.name == "Unconscious" && !e.disabled)).sort((prev, curr) => prev.actor.system.attributes.hp.value < curr.actor.system.attributes.hp.value ? -1 : 1);
 	let sleepHp = args[0].damageTotal;
 	let sleepTargets = [];
 	for (let target of targets) {
@@ -15,8 +15,8 @@ try {
 			sleepHp -= hp;
 			sleepTargets.push(`<div class="midi-qol-flex-container"><div>Slept</div><div class="midi-qol-target-npc midi-qol-target-name" id="${target.id}"> ${target.name}</div><div><img src="${target.img}" width="30" height="30" style="border:0px"></div></div>`);
 			const effectData = {
-				label: "Sleep",
-				icon: "",
+				name: "Sleep",
+				icon: "icons/magic/light/explosion-star-small-pink.webp",
 				disabled: false,
 				origin: args[0].uuid,
 				duration: { seconds: 60 },

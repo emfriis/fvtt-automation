@@ -46,7 +46,7 @@ try {
                                 if (!args[0].actor.system.spells[slot.type].max) {
                                     const effectData = {
                                         changes: [{ key: `system.spells.${slot.type}.max`, mode: 2, value: 1, priority: 20 }, { key: "macro.execute", mode: 0, value: `FontOfMagic ${slot.type}`, priority: 20 }],
-                                        label: `Font of Magic: Bonus ${slot.level}${slot.level == 1 ? "st" : slot.level == 2 ? "nd" : slot.level == 3 ? "rd" : "th"} Level Spell Slot`,
+                                        name: `Font of Magic: Bonus ${slot.level}${slot.level == 1 ? "st" : slot.level == 2 ? "nd" : slot.level == 3 ? "rd" : "th"} Level Spell Slot`,
                                         icon: "icons/magic/symbols/ring-circle-smoke-blue.webp",
 										origin: args[0].item.uuid,
                                         disabled: false,

@@ -28,7 +28,7 @@ try {
 			changes: [{ key: "StatusEffect", mode: 0, value: `Convenient Effect: ${condition}`, priority: 20 }],
 			disabled: false,
 			origin: args[0].item.uuid,
-			label: args[0].item.name,
+			name: args[0].item.name,
             icon: args[0].item.img,
 			duration: { seconds: 60 },
 			flags: { "midi-qol": { rollId: rollId } } 

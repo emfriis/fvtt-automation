@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag != "OnUse" || args[0].macroPass != "postDamageRoll" || !args[0].damageRoll || args[0].item.type != "weapon" || !["mwak", "rwak"].includes(args[0].item.system.actionType) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId) || (game.combat && args[0].actor.effects.find(e => e.label == "Used Divine Strike" && !e.disabled))) return;
+    if (args[0].tag != "OnUse" || args[0].macroPass != "postDamageRoll" || !args[0].damageRoll || args[0].item.type != "weapon" || !["mwak", "rwak"].includes(args[0].item.system.actionType) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId) || (game.combat && args[0].actor.effects.find(e => e.name == "Used Divine Strike" && !e.disabled))) return;
 	let useFeat = true;
     if (game.combat) {
         let dialog = new Promise((resolve) => {
@@ -30,7 +30,7 @@ try {
             disabled: false,
             flags: { dae: { specialDuration: ["turnStart", "combatEnd"] } },
 			icon: "icons/weapons/clubs/club-spiked-glowing.webp",
-            label: "Used Divine Strike",
+            name: "Used Divine Strike",
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     }

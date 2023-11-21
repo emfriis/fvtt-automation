@@ -1,6 +1,6 @@
 try {
 	const lastArg = args[args.length - 1];
-	if (args[0] !== "each" || lastArg.actor.flags["midi-qol"]?.viralAuraImmunity?.includes(args[2] ? args[2] : "all") || lastArg.actor.system.traits.ci.value.has("poisoned")) return;
+	if (args[0] != "each" || lastArg.actor.flags["midi-qol"]?.viralAuraImmunity?.includes(args[2] ? args[2] : "all") || lastArg.actor.system.traits.ci.value.has("poisoned")) return;
 	const itemData = {
         name: "Viral Aura",
         img: "icons/magic/acid/dissolve-bone-ribs-skull.webp",
@@ -28,7 +28,7 @@ try {
     const workflow = await MidiQOL.completeItemRolUse(item, { showFullCard: true, createWorkflow: true, configureDialog: false });
 	if (workflow.failedSaves.size) return;
 	const effectData = {
-        label: "Viral Aura Immunity",
+        name: "Viral Aura Immunity",
 		changes: [{ key: "flags.midi-qol.viralAuraImmunity", mode: 2, value: args[2] ? args[2] : "all", priority: 20 }], 
         disabled: false,
 		flags: { dae: { specialDuration: ["longRest"] } }

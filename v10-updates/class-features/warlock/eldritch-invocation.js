@@ -10,7 +10,7 @@ try {
 
 //lance of lethargy
 try {
-    if (args[0].tag === "OnUse" && args[0].macroPass === "postActiveEffects" && args[0].hitTargets.length && args[0].item.name == "Eldritch Blast" && !args[0].actor.effects.find(e => e.label === "Used Lance of Lethargy") && (!game.combat || game.combat?.current.tokenId === args[0].tokenId)) {
+    if (args[0].tag === "OnUse" && args[0].macroPass == "postActiveEffects" && args[0].hitTargets.length && args[0].item.name == "Eldritch Blast" && !args[0].actor.effects.find(e => e.name == "Used Lance of Lethargy") && (!game.combat || game.combat?.current.tokenId == args[0].tokenId)) {
         new Dialog({
             title: "Lance of Lethargy",
             content: "<p>Use Lance of Lethargy?</p>",
@@ -23,7 +23,7 @@ try {
                                 disabled: false,
                                 duration: { rounds: 1 },
                                 flags: { dae: { specialDuration: ["turnStart"] } },
-                                label: "Used Lance of Lethargy",
+                                name: "Used Lance of Lethargy",
                             }
                             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
                         }
@@ -31,7 +31,7 @@ try {
                             disabled: false,
                             duration: { rounds: 1, turns: 1 },
                             changes: [{key: "system.attributes.movement.all", mode: 0, value: "-10", priority: 20}],
-                            label: "Lance of Lethargy",
+                            name: "Lance of Lethargy",
                             icon: "icons/magic/unholy/beam-impact-green.webp"
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].hitTargets[0].actor.uuid, effects: [effectData] });
@@ -43,11 +43,11 @@ try {
             }
         }).render(true);
     }
-} catch (err) {console.error("Lance of Lethargy Macro - ", err); }
+} catch (err) {console.error("Lance of Lethargy Macro - ", err)}
 
 //eldritch smite
 try {
-    if (args[0].tag !== "OnUse" || args[0].macroPass !== "postDamageRoll" || !args[0].damageRoll || !args[0].item.name.includes("(Pact Weapon)") || args[0].actor.system.spells.pact.value < 1 || args[0].actor.effects.find(e => e.label === "Used Eldritch Smite")) return;
+    if (args[0].tag !== "OnUse" || args[0].macroPass != "postDamageRoll" || !args[0].damageRoll || !args[0].item.name.includes("(Pact Weapon)") || args[0].actor.system.spells.pact.value < 1 || args[0].actor.effects.find(e => e.name == "Used Eldritch Smite")) return;
     let slot = await new Promise((resolve) => {
         new Dialog({
             title: "Eldritch Smite",
@@ -86,15 +86,15 @@ try {
         let effectData = {
             disabled: false,
             duration: { turns: 1 },
-            label: "Used Eldritch Smite",
+            name: "Used Eldritch Smite",
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     }
-    if (args[0].targets[0]?.actor?.system.details.size !== "grg" && !args[0].targets[0]?.actor?.effects.find(e => e.label === "Prone")) {
+    if (args[0].targets[0]?.actor?.system.details.size != "grg" && !args[0].targets[0]?.actor?.effects.find(e => e.name === "Prone")) {
         let effectData = {
             disabled: false,
             changes: [{key: "StatusEffect", mode: 0, value: "Convenient Effect: Prone", priority: 20}],
-            label: "Prone"
+            name: "Prone"
         };
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
     }

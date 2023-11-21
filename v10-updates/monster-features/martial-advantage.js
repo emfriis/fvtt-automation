@@ -1,12 +1,12 @@
 try {
-  if (args[0].tag != "OnUse" || args[0].macroPass != "postDamageRoll" || !args[0].damageRoll || !["mwak", "rwak"].includes(args[0].item.system.actionType) || (game.combat && args[0].actor.effects.find(e => e.label === "Used Martial Advantage")) || !canvas.tokens.placeables.find(t=> t.actor && !((t.actor.system.details?.type?.value === "custom" || t.actor.system.details?.type?.value === "") && t.actor.system.details?.type?.custom === "") && t.id !== args[0].workflow.token.id && t.id !== args[0].targets[0].id && t.disposition === args[0].workflow.token.disposition && t.actor.system.attributes?.hp.value > 0 && !MidiQOL.checkIncapacitated(t.actor) && MidiQOL.computeDistance(t, args[0].targets[0], false) < 10)) return;
+  if (args[0].tag != "OnUse" || args[0].macroPass != "postDamageRoll" || !args[0].damageRoll || !["mwak", "rwak"].includes(args[0].item.system.actionType) || (game.combat && args[0].actor.effects.find(e => e.name == "Used Martial Advantage")) || !canvas.tokens.placeables.find(t=> t.actor && MidiQOL.typeOrRace(t.actor) && t.id != args[0].workflow.token.id && t.id != args[0].targets[0].id && t.disposition == args[0].workflow.token.disposition && t.actor.system.attributes?.hp.value > 0 && !MidiQOL.checkIncapacitated(t.actor) && MidiQOL.computeDistance(t, args[0].targets[0], false) < 10)) return;
   if (game.combat) {
-      const effectData = {
-          disabled: false,
-          duration: { turns: 1 },
-          label: "Used Martial Advantage",
-      }
-      await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
+        const effectData = {
+            disabled: false,
+            duration: { turns: 1 },
+            name: "Used Martial Advantage",
+        }
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
   }
   const dice = +args[0].actor.flags["midi-qol"].martialAdvantage ?? 1;
   const diceMult = args[0].isCritical ? 2 : 1;

@@ -1,8 +1,8 @@
 try {
     const lastArg = args[args.length - 1];
-    if (lastArg.tag == "OnUse" && lastArg.macroPass == "preActiveEffects" && lastArg.actor.system.details.alignment.toLowerCase().includes("evil") && lastArg.item.effects.find(e => e.label == "Spirit Guardians")) {
+    if (lastArg.tag == "OnUse" && lastArg.macroPass == "preActiveEffects" && lastArg.actor.system.details.alignment.toLowerCase().includes("evil") && lastArg.item.effects.find(e => e.name == "Spirit Guardians")) {
         let hook1 = Hooks.on("createActiveEffect", async (effect) => {
-            if (effect.label == "Spirit Guardians" && effect.parent.uuid == lastArg.actor.uuid) {
+            if (effect.name == "Spirit Guardians" && effect.parent.uuid == lastArg.actor.uuid) {
                 let hook2 = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
                     if (lastArg.uuid == workflowNext.uuid) {
                         let changes = lastArg.actor.effects.find(e => e.id == effect.id).changes;

@@ -5,7 +5,7 @@ try {
             duration: { rounds: 1, seconds: 7 },
             changes: [{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "OrdersWrath, isAttacked", priority: "20" }],
             flags: { dae: { specialDuration: ["turnStartSource"] } },
-            label: "Order's Wrath Damage Bonus",
+            name: "Order's Wrath Damage Bonus",
             icon: "icons/magic/light/beam-deflect-path-yellow.webp"
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
@@ -23,7 +23,7 @@ try {
                 newDamageRoll._formula = newDamageRoll._formula + ' + ' + `${2 * diceMult}d8[psychic]`;
                 newDamageRoll._total = newDamageRoll.total + bonusRoll.total;
                 await workflowNext.setDamageRoll(newDamageRoll);
-                let effect = [...workflowNext.targets][0].actor.effects.find(e => e.label == "Order's Wrath Damage Bonus");
+                let effect = [...workflowNext.targets][0].actor.effects.find(e => e.name == "Order's Wrath Damage Bonus");
                 if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: [...workflowNext.targets][0].actor.uuid, effects: [effect.id] });
                 Hooks.off("midi-qol.preDamageRollComplete", hook1);
 

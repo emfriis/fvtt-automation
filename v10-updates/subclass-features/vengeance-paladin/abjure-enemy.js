@@ -3,7 +3,7 @@ try {
         const effectData = {
             changes: [{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "AbjureEnemy, preTargetSave", priority: 20 }],
             disabled: false,
-            label: "Abjure Enemy Save Disadvantage",
+            name: "Abjure Enemy Save Disadvantage",
             icon: args[0].item.img
         };
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
@@ -11,7 +11,7 @@ try {
         const effectData = {
             changes: [{ key: "system.attributes.movement.all", mode: 0, value: "/2", priority: 20 }],
             disabled: false,
-            label: "Abjure Enemy",
+            name: "Abjure Enemy",
             icon: args[0].item.img,
             duration: { seconds: 60 },
             flags: { dae: { specialDuration: ["isDamaged"] } }
@@ -19,6 +19,6 @@ try {
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
     } else if (args[0].tag == "TargetOnUse" && args[0].macroPass == "preTargetSave" && args[0].workflow.saveDetails && args[0].item.name.toLowerCase().includes("abjure enemy")) {
         args[0].workflow.saveDetails.disadvantage = true;
-        await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].options.actor.uuid, effects: [args[0].options.actor.effects.find(e => e.label == "Abjure Enemy Save Disadvantage").id] });
+        await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].options.actor.uuid, effects: [args[0].options.actor.effects.find(e => e.name == "Abjure Enemy Save Disadvantage").id] });
     }
 } catch (err)  {console.error("Abjure Enemy Macro - ", err)}

@@ -1,8 +1,8 @@
 try {
-	if (!args[0].targets.length || !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) || (game.combat && args[0].actor.effects.find(e => e.label === "Used Foe Slayer" && !e.disabled)) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId))	 return;
+	if (!args[0].targets.length || !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) || (game.combat && args[0].actor.effects.find(e => e.name == "Used Foe Slayer" && !e.disabled)) || (game.combat && game.combat?.current?.tokenId != args[0].tokenId))	 return;
 	const monsterType = args[0].targets[0].actor.system.details?.type ? (args[0].targets[0].actor.system.details?.type?.value.toLowerCase().includes("humanoid") ? args[0].targets[0].actor.system.details?.type?.subtype.toLowerCase() : args[0].targets[0].actor.system.details?.type?.value.toLowerCase()) : (args[0].targets[0].actor.system.details?.race.toLowerCase().includes("humanoid") ? args[0].targets[0].actor.system.details?.race.toLowerCase().replace("humanoid", "") : args[0].targets[0].actor.system.details?.race.toLowerCase());
-	if (!((args[0].targets[0].actor.effects.find(e => e.label === "Favored Foe") && args[0].targets[0].actor.flags["midi-qol"]?.favoredFoe.includes(args[0].actor.uuid)) || args[0].actor.flags["midi-qol"]?.favoredEnemy?.split(" ").find(c => monsterType.includes(c)))) return;
-	if (args[0].tag === "OnUse" && args[0].macroPass === "preCheckHits" && args[0].attackRoll) {
+	if (!((args[0].targets[0].actor.effects.find(e => e.name == "Favored Foe") && args[0].targets[0].actor.flags["midi-qol"]?.favoredFoe.includes(args[0].actor.uuid)) || args[0].actor.flags["midi-qol"]?.favoredEnemy?.split(" ").find(c => monsterType.includes(c)))) return;
+	if (args[0].tag == "OnUse" && args[0].macroPass == "preCheckHits" && args[0].attackRoll) {
 		let useFeat = true;
 		if (game.combat) {
 			let dialog = new Promise((resolve) => {
@@ -33,7 +33,7 @@ try {
 				disabled: false,
 				flags: { dae: { specialDuration: ["turnStart", "combatEnd"] } },
 				icon: "icons/skills/ranged/arrow-flying-poisoned-green.webp",
-				label: "Used Foe Slayer"
+				name: "Used Foe Slayer"
 			}
 			await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
 		}
@@ -44,7 +44,7 @@ try {
 		args[0].attackRoll._total += bonusRoll.total;
 		args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `${args[0].actor.system.abilities.wis.mod}`;
 		args[0].workflow.setAttackRoll(args[0].attackRoll);
-	} else if (args[0].tag === "OnUse" && args[0].macroPass === "postDamageRoll" && args[0].damageRoll) {
+	} else if (args[0].tag == "OnUse" && args[0].macroPass == "postDamageRoll" && args[0].damageRoll) {
 		let useFeat = true;
 		if (game.combat) {
 			let dialog = new Promise((resolve) => {
@@ -75,7 +75,7 @@ try {
 				disabled: false,
 				flags: { dae: { specialDuration: ["turnStart", "combatEnd"] } },
 				icon: "icons/skills/ranged/arrow-flying-poisoned-green.webp",
-				label: "Used Foe Slayer"
+				name: "Used Foe Slayer"
 			}
 			await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
 		}

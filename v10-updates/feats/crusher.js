@@ -4,7 +4,7 @@ try {
         changes: [{ key: "flags.midi-qol.grants.advantage.attack.all", mode: 0, value: "1", priority: 20 }],
         disabled: false,
         origin: args[0].item.uuid,
-        label: "Crusher",
+        name: "Crusher",
         icon: "icons/weapons/hammers/shorthammer-double-stone-engraved.webp",
         duration: { rounds: 1, turns: 1, seconds: 7 },
         flags: { dae: { specialDuration: ["turnStartSource", "combatEnd"], stackable: "noneName" } }

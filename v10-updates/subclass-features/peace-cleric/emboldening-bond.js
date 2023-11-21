@@ -1,6 +1,6 @@
 try {
     if (!args[0].tag.includes("OnUse")) return;
-    const effect = args[0].actor.effects.find(e => e.label == "Emboldening Bond");
+    const effect = args[0].actor.effects.find(e => e.name == "Emboldening Bond");
     const source = game.actors.get(effect.origin.match(/Actor\.(.*?)\./)[1]) ?? canvas.tokens.placeables.find(t => t.actor && t.actor.id == effect.origin.match(/Actor\.(.*?)\./)[1]).actor;
     const range = source.classes.cleric.system.levels > 16 ? 60 : 30;
     const nearby = canvas.tokens.placeables.find(t => t.actor && t.actor.uuid != args[0].actor.uuid && t.actor.effects.find(e => e.origin == effect.origin) && MidiQOL.computeDistance(args[0].workflow.token, t, false) <= range);

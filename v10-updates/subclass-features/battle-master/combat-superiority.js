@@ -8,11 +8,11 @@ try {
 		let braceItem = args[0].actor.items.find(i => i.name == "Maneuver: Brace");
         if (braceItem && ["mwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="brace"><img src="${braceItem.img}" style="border:0px; width: 50px; height:50px;">Brace</label>`;
         let feintingAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Feinting Attack");
-        if (feintingAttackItem && ["mwak", "rwak"].includes(args[0].item.system.actionType) && !args[0].actor.effects.find(e => e.label == "Bonus Action")) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="feintingAttack"><img src="${feintingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Feinting Attack</label>`;
+        if (feintingAttackItem && ["mwak", "rwak"].includes(args[0].item.system.actionType) && !args[0].actor.effects.find(e => e.name == "Bonus Action")) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="feintingAttack"><img src="${feintingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Feinting Attack</label>`;
         let lungingAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Lunging Attack");
         if (lungingAttackItem && ["mwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="lungingAttack"><img src="${lungingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Lunging Attack</label>`;
 		let quickTossItem = args[0].actor.items.find(i => i.name == "Maneuver: Quick Toss");
-        if (quickTossItem && ["mwak", "rwak"].includes(args[0].item.system.actionType) && args[0].item.system.properties.thr && !args[0].actor.effects.find(e => e.label == "Bonus Action")) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="quickToss"><img src="${quickTossItem.img}" style="border:0px; width: 50px; height:50px;">Quick Toss</label>`;
+        if (quickTossItem && ["mwak", "rwak"].includes(args[0].item.system.actionType) && args[0].item.system.properties.thr && !args[0].actor.effects.find(e => e.name == "Bonus Action")) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="quickToss"><img src="${quickTossItem.img}" style="border:0px; width: 50px; height:50px;">Quick Toss</label>`;
 		let content = `
             <style>
             .maneuver .form-group {display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start;}
@@ -279,7 +279,7 @@ try {
                     icon: "icons/svg/falling.svg", 
                     name: "Prone"
                 }];
-                itemData.system.activation.condition = "!target.effects.find(e=>e.label=='Prone')";
+                itemData.system.activation.condition = "!target.effects.find(e=>e.name=='Prone')";
                 itemData.flags["midi-qol"].effectActivation = true;
             }
 		    const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].actor });

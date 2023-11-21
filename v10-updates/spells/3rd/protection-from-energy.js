@@ -23,7 +23,7 @@ try {
     type = await dialog;
     if (!type) return;
     let effectData = {
-        label: "Protection from Energy",
+        name: "Protection from Energy",
         icon: "icons/magic/defensive/shield-barrier-flaming-diamond-teal.webp",
         changes: [{ key: `data.traits.dr.value`, mode: 2, value: type.toLowerCase(), priority: 20 }],
         disabled: false,

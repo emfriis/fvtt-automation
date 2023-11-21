@@ -3,11 +3,11 @@ try {
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     //create effects and reapply item
-    if (lastArg.tag === "OnUse" && lastArg.macroPass === "postActiveEffects") {
-        const item = actor.items.find(i => i.name === "Hex" && i.type === "spell");
-        const effect = actor.effects.find(e => e.label == "Hex Damage Bonus");
-        const isReapply = lastArg.item.name !== "Hex";
-        const conc = actor.effects.find(e => e.label === "Concentrating");
+    if (lastArg.tag === "OnUse" && lastArg.macroPass == "postActiveEffects") {
+        const item = actor.items.find(i => i.name == "Hex" && i.type == "spell");
+        const effect = actor.effects.find(e => e.name == "Hex Damage Bonus");
+        const isReapply = lastArg.item.name != "Hex";
+        const conc = actor.effects.find(e => e.name == "Concentrating");
         const target = lastArg.targets[0]?.actor;
         if(!target) return;
         if (isReapply) {
@@ -15,7 +15,7 @@ try {
             if (prevTarget && prevTarget.actor.system.attributes.hp.value > 0) {
                 return ui.notifications.warn("Previous target still above 0 hit points");
             } else if (prevTarget && prevTarget.actor.system.attributes.hp.value < 1) {
-                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: prevTarget.actor.uuid, effects: [prevTarget.actor.effects.find(e => e.label === "Hex" && e.origin === item.uuid)?.id] });
+                await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: prevTarget.actor.uuid, effects: [prevTarget.actor.effects.find(e => e.name == "Hex" && e.origin == item.uuid)?.id] });
             }
         } else {
             const duration = lastArg.spellLevel > 4 ? 86400 : lastArg.spellLevel > 2 ? 28800 : 3600;
@@ -28,7 +28,7 @@ try {
                 system: { duration: { value: null, units: null}, components: {concentration: false, material: false, ritual: false, somatic: false, value: "", vocal: false} }
             }, {overwrite: true, inlace: true, insertKeys: true, insertValues: true});
             await actor.createEmbeddedDocuments("Item", [itemData]);
-            const reapplyItem = actor.items.find(i => i.name === "Reapply Hex");
+            const reapplyItem = actor.items.find(i => i.name == "Reapply Hex");
             if (reapplyItem && effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.concat([{ key: `flags.dae.deleteUuid`, mode: 5, value: reapplyItem.uuid, priority: 20 }]) }] });
         }
         //choose hex ability
@@ -69,7 +69,7 @@ try {
         if (!ability) return;
         //create target effect
         const effectData = {
-            label: item.name,
+            name: item.name,
             icon: item.img,
             changes: [
                 { key: `flags.midi-qol.disadvantage.ability.check.${ability}`, mode: 0, value: 1, priority: 20 },
@@ -81,11 +81,11 @@ try {
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.uuid, effects: [effectData] });
         //update self effect
-        const targetEffect =  target.effects.find(e => e.label === "Hex" && e.changes.find(c => c.key == "flags.midi-qol.hex" && c.value == lastArg.actor.uuid));
+        const targetEffect =  target.effects.find(e => e.name == "Hex" && e.changes.find(c => c.key == "flags.midi-qol.hex" && c.value == lastArg.actor.uuid));
         if (effect && targetEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.filter(c => c.key != "flags.midi-qol.hexTarget").concat([{ key: "flags.midi-qol.hexTarget", mode: 2, value: lastArg.targets[0].id, priority: 20 }, { key: `flags.dae.deleteUuid`, mode: 5, value: targetEffect.uuid, priority: 20 }]) }] });
     }
     //apply damage bonus
-    if (lastArg.tag === "OnUse" && lastArg.macroPass === "postDamageRoll" && lastArg.damageRoll && ["mwak","rwak","msak","rsak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.hex?.includes(lastArg.actor.uuid))) {
+    if (lastArg.tag == "OnUse" && lastArg.macroPass == "postDamageRoll" && lastArg.damageRoll && ["mwak","rwak","msak","rsak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.hex?.includes(lastArg.actor.uuid))) {
         const diceMult = lastArg.isCritical ? 2 : 1;
         let bonusRoll = await new Roll('0 + ' + `${diceMult}d6[necrotic]`).evaluate({async: true});
         for (let i = 1; i < bonusRoll.terms.length; i++) {
@@ -97,8 +97,8 @@ try {
         await args[0].workflow.setDamageRoll(args[0].damageRoll);
     }
     //remove reapply item
-    if (args[0] === "off" && lastArg.efData.label === "Hex Damage Bonus") {
-        const removeItem = actor.items.find(i => i.name === "Reapply Hex");
+    if (args[0] == "off" && lastArg.efData.name == "Hex Damage Bonus") {
+        const removeItem = actor.items.find(i => i.name == "Reapply Hex");
         if (removeItem) await actor.deleteEmbeddedDocuments("Item", [removeItem.id]);
     }
 } catch (err) {console.error("Hex Macro - ", err)}

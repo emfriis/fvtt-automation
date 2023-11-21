@@ -1,8 +1,8 @@
 try {
-    if (args[0].tag == "OnUse" && args[0].macroPass == "preActiveEffects" && args[0].item.effects.find(e => e.label == "Bardic Inspiration")) {
+    if (args[0].tag == "OnUse" && args[0].macroPass == "preActiveEffects" && args[0].item.effects.find(e => e.name == "Bardic Inspiration")) {
         const faces = args[0].actor.system.scale.bard.inspiration.faces;
         let hook1 = Hooks.on("createActiveEffect", async (effect) => {
-            if (effect.label == "Bardic Inspiration" && effect.parent.uuid == args[0].targets[0].actor.uuid && effect.parent != args[0].actor.uuid) {
+            if (effect.name == "Bardic Inspiration" && effect.parent.uuid == args[0].targets[0].actor.uuid && effect.parent != args[0].actor.uuid) {
                 let hook2 = Hooks.on("midi-qol.RollComplete", async (workflowNext) => {
                     if (args[0].uuid == workflowNext.uuid) {
                         const changes = args[0].targets[0].actor.effects.find(e => e.id == effect.id).changes;
@@ -46,7 +46,7 @@ try {
         args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}${die}`;
         args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
         await args[0].workflow.setDamageRoll(args[0].damageRoll);
-        const effects = args[0].actor.effects.filter(e => e.label == "Bardic Inspiration").map(e => e.id);
+        const effects = args[0].actor.effects.filter(e => e.name == "Bardic Inspiration").map(e => e.id);
         console.error(effects)
         if (effects) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].actor.uuid, effects: effects });
     }

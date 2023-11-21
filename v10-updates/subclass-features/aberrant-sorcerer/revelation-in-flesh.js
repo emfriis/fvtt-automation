@@ -1,6 +1,6 @@
 try {
     if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects") {
-		let usesItem = args[0].actor.items.find(i => i.name === "Font of Magic" && i.system.uses?.value);
+		let usesItem = args[0].actor.items.find(i => i.name == "Font of Magic" && i.system.uses?.value);
         if (!usesItem) return;
 		let uses = usesItem.system.uses.value;
         let changes = [];
@@ -57,7 +57,7 @@ try {
 		});
 		if (!changes.length) return;
 		const effectData = {
-			label: args[0].item.name,
+			name: args[0].item.name,
 			icon: args[0].item.img,
 			origin: args[0].item.uuid,
 			disabled: false,

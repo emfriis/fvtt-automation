@@ -14,7 +14,7 @@ target.attributes.hp.value<target.attributes.hp.max
 //--------- ambusher - flags.midi-qol.advantage.attack.all
 //game.combat?.round === 1 && game.user.targets?.first()?.actor?.effects?.find(e => e.label === "Surprised")
 //game.combat?.round===1&&game.user.targets?.first()?.actor?.effects?.find(e=>e.label==="Surprised")
-game.combat?.round===1&&[...workflow.targets][0].actor.effects.find(e=>e.label==="Surprised")
+game.combat?.round===1&&canvas.tokens.get(targetId).actor.effects.find(e=>e.name=="Surprised")
 
 //----------- chill touch - flags.midi-qol.disadvantage.attack.all
 //(["undead"].includes(canvas.tokens.controlled[0].actor.system.details?.race?.toLowerCase())||["undead"].includes(canvas.tokens.controlled[0].actor.system.details?.type?.value?.toLowerCase()))&&game.user.targets?.first()?.id=="@token"
@@ -28,7 +28,7 @@ MidiQOL.computeDistance(canvas.tokens.get(tokenId),canvas.tokens.get(targetId),f
 //game.combat?.round===1&&game.combat.turn<Object.entries(game.combat.turns).find(i=>i[1].tokenId===game.user.targets?.first().id)[0]
 //game.combat?.round===1&&game.user.targets?.first()?.actor?.effects?.find(e=>e.label==="Surprised")
 game.combat?.round===1&&game.combat.turn<Object.entries(game.combat.turns).find(t=>t[1].tokenId==targetId)[0]
-game.combat?.round===1&&[...workflow.targets][0].actor?.effects?.find(e=>e.label==="Surprised")
+game.combat?.round===1&&canvas.tokens.get(targetId).actor?.effects?.find(e=>e.name=="Surprised")
 
 //-------blur flags.midi-qol.grants.disadvantage.attack.all
 //MidiQOL.getDistance(workflow.token,[...workflow.targets][0],false)>Math.max(workflow.actor.attributes.senses.blindsight,workflow.actor.attributes.senses.tremorsense,workflow.actor.attributes.senses.truesight)
@@ -40,7 +40,7 @@ MidiQOL.computeDistance(workflow.token,[...workflow.targets][0],false)>Math.max(
 //-------frightened flags.midi-qol.disadvantage.attack.all
 //workflow.actor.flags["midi-qol"].frightened.split("Actor.").find(f => MidiQOL.canSense(workflow.token, canvas.tokens.placeables.find(p => p.actor && p.actor.id == f))) // USING FRIGHTENED FLAG
 //workflow.actor.effects.find(e=>e.label=="Frightened"&&MidiQOL.canSense(workflow.token,canvas.tokens.placeables.find(t=>t.actor&&t.actor.id==e.origin.match(/Actor\.(.*?)\./)[1])))
-workflow.actor.effects.find(e=>e.label=="Frightened"&&MidiQOL.canSense(canvas.tokens.get(tokenId),canvas.tokens.placeables.find(t=>t.actor&&t.actor.id==e.origin.match(/Actor\.(.*?)\./)[1])))
+workflow.actor.effects.find(e=>e.name=="Frightened"&&MidiQOL.canSense(canvas.tokens.get(tokenId),canvas.tokens.placeables.find(t=>t.actor&&t.actor.id==e.origin.match(/Actor\.(.*?)\./)[1])))
 
 //------mortal bulwark flags.midi-qol.advantage.attack.all
 ["aberration","celestial","elemental","fey","fiend"].find(t=>MidiQOL.typeOrRace(targetActorUuid)?.toLowerCase().includes(t))

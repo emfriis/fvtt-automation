@@ -9,7 +9,7 @@ try {
         args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `1d${faces}[piercing]`;
         args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
         await args[0].workflow.setDamageRoll(args[0].damageRoll);
-    } else if (args[0].tag == "DamageBonus" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.flavor.toLowerCase() == "piercing") && !(game.combat && args[0].actor.effects.find(e => e.label === "Used Piercer" && !e.disabled))) {
+    } else if (args[0].tag == "DamageBonus" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.flavor.toLowerCase() == "piercing") && !(game.combat && args[0].actor.effects.find(e => e.name == "Used Piercer" && !e.disabled))) {
         let terms = args[0].damageRoll.terms;
         let termsContent = "";
         for (let t = 0; t < terms.length; t++) {
@@ -95,7 +95,7 @@ try {
                 duration: { turns: 1, seconds: 1 }, 
                 flags: { dae: { specialDuration: ["combatEnd"] } },
                 icon: "icons/weapons/daggers/dagger-straight-blue.webp",
-                label: "Used Piercer",
+                name: "Used Piercer",
             }
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
         }

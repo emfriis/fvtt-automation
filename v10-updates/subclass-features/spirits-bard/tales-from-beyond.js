@@ -2,7 +2,7 @@ try {
 	if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && args[0].item.type == "feat") {
         const oldItems = args[0].actor.items.filter(i => i.name.toLowerCase().includes("spirit tale: ")).map(i => i.id);
         if (oldItems) await args[0].actor.deleteEmbeddedDocuments("Item", oldItems);
-		const oldEffect = args[0].actor.effects.find(e => e.label.toLowerCase().includes("tales from beyond: tale of the"));
+		const oldEffect = args[0].actor.effects.find(e => e.name.toLowerCase().includes("tales from beyond: tale of the"));
 		if (oldEffect) await MidiQOL.socket().executeAsGM("removeEffects", {actorUuid: args[0].actor.uuid, effects: [oldEffect.id]});
 		const die = args[0].actor.system.scale?.bard?.inspiration ?? "d6";
 		let tale;
@@ -24,13 +24,13 @@ try {
             }).render(true);
 		}	
 	} else if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && args[0].item.type == "consumable") {
-		const effect = args[0].actor.effects.find(e => e.label.toLowerCase().includes("tales from beyond: tale of the "));
-		const targetEffect = args[0].targets[0].actor.effects.find(e => e.label.toLowerCase().includes(`spirit tale: ${effect.label.toLowerCase().replace("tales from beyond: ", "")}`));
+		const effect = args[0].actor.effects.find(e => e.name.toLowerCase().includes("tales from beyond: tale of the "));
+		const targetEffect = args[0].targets[0].actor.effects.find(e => e.name.toLowerCase().includes(`spirit tale: ${effect.name.toLowerCase().replace("tales from beyond: ", "")}`));
 		if (effect && targetEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: args[0].actor.uuid, updates: [{ _id: effect.id, changes: effect.changes.concat([{ key: "flags.dae.deleteUuid", mode: 5, value: `${targetEffect.uuid}`, priority: 20 }]) }] });
-        if (targetEffect.label.toLowerCase().includes("traveller")) {
+        if (targetEffect.name.toLowerCase().includes("traveller")) {
             let hook = Hooks.on("preUpdateActor", async (actor, changes) => {
-                if (actor.uuid == args[0].actor.uuid && actor.effects.find(e => e.label.toLowerCase().includes("spirit tale: tale of the traveller")) && ((changes.system.attributes.hp.temp < 1 || (actor.system.attributes.hp.temp < changes.system.attributes.hp.temp && 0 < actor.system.attributes.hp.temp)))) {
-                    const effect = actor.effects.find(e => e.label.toLowerCase().includes("spirit tale: tale of the traveller"));
+                if (actor.uuid == args[0].actor.uuid && actor.effects.find(e => e.name.toLowerCase().includes("spirit tale: tale of the traveller")) && ((changes.system.attributes.hp.temp < 1 || (actor.system.attributes.hp.temp < changes.system.attributes.hp.temp && 0 < actor.system.attributes.hp.temp)))) {
+                    const effect = actor.effects.find(e => e.name.toLowerCase().includes("spirit tale: tale of the traveller"));
                     if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: actor.uuid, effects: [effect.id] });
                     Hooks.off("preUpdateActor", hook);
                 } 
@@ -39,10 +39,10 @@ try {
     } else if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].targets.length) {
         const effectData = { changes: [{ key: "macro.CE", mode: 0, value: "Frightened", priority: 20 }], disabled: false, icon: "icons/creatures/magical/humanoid-silhouette-glowing-pink.webp", name: "Tale of the Phantom", duration: { rounds: 1, turns: 1 }, flags: { dae: { specialDuration: ["turnEnd"] } } };
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
-        const targetEffect = args[0].targets[0].actor.effects.find(e => e.label == "Tale of the Phantom");
+        const targetEffect = args[0].targets[0].actor.effects.find(e => e.name == "Tale of the Phantom");
         const source = await fromUuid(args[0].actor.flags["midi-qol"].taleOfThePhantom);
         const sourceActor = source.actor ? source.actor : source;
-        const sourceEffect = sourceActor.effects.find(e => e.label.toLowerCase().includes("tales from beyond: tale of the"));
+        const sourceEffect = sourceActor.effects.find(e => e.name.toLowerCase().includes("tales from beyond: tale of the"));
         console.error(targetEffect, sourceEffect)
         if (targetEffect && sourceEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: source.uuid, updates: [{ _id: sourceEffect.id, changes: sourceEffect.changes.concat([{ key: "flags.dae.deleteUuid", mode: 5, value: `${targetEffect.uuid}`, priority: 20 }]) }] });
     } else if (args[0].tag == "OnUse" && args[0].macroPass == "preambleComplete" && !args[0].item.name.toLowerCase().includes("tales from beyond")) {

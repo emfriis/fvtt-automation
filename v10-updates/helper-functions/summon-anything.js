@@ -25,8 +25,9 @@ try {
                 const range = filterStrings[0]?.replace("damageRoll=","")?.replace(/@([^-+*^\/()@]+)(?=[-+*^\/()]|$)/g, i => i.replace("@","").split(".").reduce((val, prop) => { return val ? val[prop] : undefined }, args[0]));
                 const minCR = +range[0]?.trim();
                 const maxCR = +range[range.length - 1]?.trim();
+		console.error(minCR, maxCR)
                 if (isNaN(minCR) || isNaN(maxCR)) return ui.notifications.warn("Invalid CR range provided for summoning");
-                funcs.push({ name: `Challenge Ratings: ${minCR}-${maxCR}`, locked: true, function: (index) => { return index.filter(i => i.system.details?.cr >= minCR && i.system.details?.cr <= maxCR) } });
+                summonFilters.push({ name: `Challenge Ratings: ${minCR}-${maxCR}`, locked: true, function: (index) => { return index.filter(i => i.system.details?.cr >= minCR && i.system.details?.cr <= maxCR) } });
                 break;
             case "amount":
                 summonAmount = eval(filterStrings[0]?.replace("damageRoll=","")?.replace(/@([^-+*^\/()@]+)(?=[-+*^\/()]|$)/g, i => i.replace("@","").split(".").reduce((val, prop) => { return val ? val[prop] : undefined }, args[0])));
@@ -62,7 +63,7 @@ try {
                 let changes = [];
                 summons.forEach(s => { changes.push({ key: "flags.dae.deleteUuid", mode: 5, value: s.document.uuid, priority: "20" }) });
                 const effectData = {
-                    label: args[0].item.name,
+                    name: args[0].item.name,
                     icon: args[0].item.img,
                     origin: args[0].item.uuid,
                     disabled: false,
@@ -75,5 +76,6 @@ try {
             }
         });
     }
-    await foundrySummons.openMenu({ sourceTokens: [args[0].workflow.token], filters: summonFilters, amount: { value: summonAmount, locked: true }, updates: { actor: { permissions: { [game.user._id]: 3 } }, token: { disposition: args[0].workflow.token.document.disposition, flags: { "midi-qol": { summonId: summonId, parentUuid: args[0].actor.uuid } } } }, options: { autoPick: true, defaultFilters: true, defaultSorting: true } });
+    const summons = await foundrySummons.openMenu({ sourceTokens: [args[0].workflow.token], filters: summonFilters, amount: { value: summonAmount, locked: true }, updates: { actor: { permissions: { [game.user._id]: 3 } }, token: { disposition: args[0].workflow.token.document.disposition, flags: { "midi-qol": { summonId: summonId, parentUuid: args[0].actor.uuid } } } }, options: { autoPick: true, defaultFilters: true, defaultSorting: true } });
+    console.error(summons);
 } catch (err) {console.error("Summon Anything Macro - ", err)}

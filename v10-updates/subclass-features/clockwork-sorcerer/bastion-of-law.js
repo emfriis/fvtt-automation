@@ -42,7 +42,7 @@ try {
 		});
 		if (!shield) return;
 		const effectData = {
-			label: args[0].item.name,
+			name: args[0].item.name,
 			icon: args[0].item.img,
 			origin: args[0].item.uuid,
 			disabled: false,
