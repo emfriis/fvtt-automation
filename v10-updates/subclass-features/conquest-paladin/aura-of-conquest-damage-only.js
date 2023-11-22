@@ -12,14 +12,13 @@ try {
         name: "Aura of Conquest",
         img: "icons/magic/unholy/silhouette-evil-horned-giant.webp",
         type: "feat",
-        flags: { midiProperties: { magiceffect: true, effectActivation: true }, autoanimations: { isEnabled: false } },
+        flags: { midiProperties: { magiceffect: true }, autoanimations: { isEnabled: false } },
         system: {
             activation: { type: "special" },
             target: { type: "creature" },
             actionType: "other",
             damage: { parts: [[`${damage}`, "psychic"]] }
-        },
-        effects: [effectData],
+        }
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: source ?? actor });
     await MidiQOL.completeItemRoll(item, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
