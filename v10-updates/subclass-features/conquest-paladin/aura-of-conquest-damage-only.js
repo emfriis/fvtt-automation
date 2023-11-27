@@ -15,8 +15,10 @@ try {
         flags: { midiProperties: { magiceffect: true }, autoanimations: { isEnabled: false } },
         system: {
             activation: { type: "special" },
-            target: { type: "creature" },
+            target: { value: 1, type: "creature", prompt: false },
             actionType: "other",
+            consume: { type: null, target: null, amount: null, scale: false },
+            uses: { prompt: false },
             damage: { parts: [[`${damage}`, "psychic"]] }
         }
     }

@@ -6,9 +6,11 @@ try {
         type: "feat",
         system: {
             activation: { type: "special" },
-            target: { type: "self" },
+            target: { type: "self", prompt: false },
+            uses: { prompt: false },
             range: { units: "self" },
             actionType: "healing",
+            consume: { type: null, target: null, amount: null, scale: false },
             damage: { parts: [[`${2 + args[0].spellLevel}`, "healing"]] }
         },
         flags: { autoanimations: { isEnabled: false } }

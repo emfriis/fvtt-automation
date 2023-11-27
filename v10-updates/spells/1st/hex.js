@@ -3,7 +3,7 @@ try {
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     //create effects and reapply item
-    if (lastArg.tag === "OnUse" && lastArg.macroPass == "postActiveEffects") {
+    if (lastArg.tag == "OnUse" && lastArg.macroPass == "postActiveEffects") {
         const item = actor.items.find(i => i.name == "Hex" && i.type == "spell");
         const effect = actor.effects.find(e => e.name == "Hex Damage Bonus");
         const isReapply = lastArg.item.name != "Hex";
@@ -19,7 +19,8 @@ try {
             }
         } else {
             const duration = lastArg.spellLevel > 4 ? 86400 : lastArg.spellLevel > 2 ? 28800 : 3600;
-            if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: effect.id, duration: { seconds: duration } }] });
+            const damageType = lastArg.workflow.defaultDamageType ? lastArg.workflow.defaultDamageType.toLowerCase() : "necrotic";
+            if (effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: effect.id, duration: { seconds: duration }, changes: effect.changes.concat([{ key: `flags.midi-qol.hexDamageType`, mode: 5, value: damageType, priority: 20 }]) }] });
             if (conc) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: actor.uuid, updates: [{ _id: conc.id, duration: { seconds: duration } }] });
             const itemData = mergeObject(duplicate(item), {
                 name: "Reapply Hex",
@@ -87,11 +88,12 @@ try {
     //apply damage bonus
     if (lastArg.tag == "OnUse" && lastArg.macroPass == "postDamageRoll" && lastArg.damageRoll && ["mwak","rwak","msak","rsak"].includes(lastArg.item.system.actionType) && lastArg.targets.find(t => t.actor.flags["midi-qol"]?.hex?.includes(lastArg.actor.uuid))) {
         const diceMult = lastArg.isCritical ? 2 : 1;
-        let bonusRoll = await new Roll('0 + ' + `${diceMult}d6[necrotic]`).evaluate({async: true});
+        const damageType = actor.flags["midi-qol"]?.hexDamageType ? actor.flags["midi-qol"]?.hexDamageType : "necrotic";
+        let bonusRoll = await new Roll('0 + ' + `${diceMult}d6[${damageType}]`).evaluate({async: true});
         for (let i = 1; i < bonusRoll.terms.length; i++) {
             args[0].damageRoll.terms.push(bonusRoll.terms[i]);
         }
-        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}d6[necrotic]`;
+        args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}d6[${damageType}]`;
         if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
         args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
         await args[0].workflow.setDamageRoll(args[0].damageRoll);

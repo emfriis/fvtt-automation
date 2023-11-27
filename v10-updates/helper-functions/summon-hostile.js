@@ -18,23 +18,19 @@ try {
             default:
                 return;
         }
-        let hook = Hooks.on("updateActor", async () => {
-            const summons = game.canvas.tokens.placeables.filter(t => t.document.flags?.["midi-qol"]?.summonId == summonId);
-            if (summons.length) {
-                let summonIds = [];
-                summons.forEach(s => summonIds.push(s.id));
-                const effectData = {
-                    disabled: false,
-                    duration: { seconds: seconds },
-                    icon: args[0].item.img,
-                    name: args[0].item.name,
-                    origin: args[0].item.uuid,
-                    changes: [{ key: "macro.execute", mode: 0, value: "SummonHostile", priority: "20" }],
-                    flags: { "midi-qol": { summonIds: summonIds } }
-                }
-                await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
-                Hooks.off("updateActor", hook);
+        let hook = Hooks.on("summonComplete", async (summonIdNext, summons) => {
+            if (summonId != summonIdNext) return;
+            const effectData = {
+                disabled: false,
+                duration: { seconds: seconds },
+                icon: args[0].item.img,
+                name: args[0].item.name,
+                origin: args[0].item.uuid,
+                changes: [{ key: "macro.execute", mode: 0, value: "SummonHostile", priority: "20" }],
+                flags: { "midi-qol": { summonIds: summons.tokenIds } }
             }
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
+            Hooks.off("summonComplete", hook);
         });
     } else if (args[0] == "off" && args[args.length - 1].efData.flags["midi-qol"].summonIds) {
         const summonIds = args[args.length - 1].efData.flags["midi-qol"].summonIds;
@@ -43,4 +39,4 @@ try {
             summon.document.update({ disposition: -1 });
         });
     }
-} catch (err) {console.error("Summon Hostile Macro - ", err)}
+} catch (err) {console.error("Summon Hostile on Expire Macro - ", err)}

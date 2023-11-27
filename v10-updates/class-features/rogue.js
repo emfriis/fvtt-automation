@@ -36,6 +36,7 @@ try {
             disabled: false,
             duration: { turns: 1, seconds: 1 },
             name: "Used Sneak Attack",
+            icon: "icons/weapons/daggers/dagger-simple-pink.webp",
             flags: { dae: { specialDuration: ["combatEnd"] } }
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });

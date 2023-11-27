@@ -2,20 +2,21 @@ try {
     const lastArg = args[args.length - 1];
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
     const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
-    if (args[0] == "on") {
+    if (lastArg.tag == "OnUse" && lastArg.macroPass == "postActiveEffects") {
+        const damageType = args[0].workflow.defaultDamageType ? args[0].workflow.defaultDamageType.toLowerCase() : "fire";
         const itemData = {
             name: "Flame Blade",
             img: "icons/magic/fire/projectile-bolt-zigzag-orange.webp",
             type: "weapon",
             system: {
                 weaponType: "improv",
-                description: { value: "You can use your action to make a melee spell Attack with the fiery blade. On a hit, the target takes 3d6 fire damage." },
+                description: { value: `You can use your action to make a melee spell Attack with the fiery blade. On a hit, the target takes 3d6 ${damageType} damage.` },
                 equipped: true,
                 proficient: 2,
                 activation: { type: "action", cost: 1 },
                 range: { value: 5, units: "ft" },
                 actionType: "msak",
-                damage: { parts: [[`${Math.floor(2 + (isNaN(args[1]) ? 3 : +args[1]) / 2)}d6`, "fire"]] },
+                damage: { parts: [[`${Math.floor(2 + lastArg.spellLevel / 2)}d6`, damageType]] },
                 properties: { mgc: true }
             }
         }

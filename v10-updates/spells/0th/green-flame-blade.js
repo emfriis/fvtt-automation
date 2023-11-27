@@ -30,7 +30,7 @@ try {
 					const weaponCopy = await mergeObject(duplicate(weapon), { "_id": null, "system.damage.parts": cantripDice > 1 ? weapon.system.damage.parts.concat([[`${cantripDice - 1}d8`, args[0].workflow.defaultDamageType]]) : weapon.system.damage.parts, "system.damage.versatile": weapon.system.damage.versatile && cantripDice > 1 ? weapon.system.damage.versatile + `${cantripDice - 1}d8[${args[0].workflow.defaultDamageType}]` : "" });
 					const attackItem = await new CONFIG.Item.documentClass(weaponCopy, { parent: args[0].actor });
 					attackItem.system.prof = weapon.system.prof;
-					const attackWorkflow = await MidiQOL.completeItemRoll(attackItem, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
+					const attackWorkflow = await MidiQOL.completeItemRoll(attackItem, { versatile: args[0].workflow.pressedKeys.versatile, showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
 					if (!attackWorkflow.targets.size) return;
 					new Dialog({
 						title: "Green Flame Blade: Additional Target",
@@ -49,14 +49,16 @@ try {
 										type: "feat",
 										flags: { midiProperties: { magiceffect: true }, autoanimations: { isEnabled: false } },
 										system: {
-											activation: { type: "none", },
-											target: { value: 1, type: "creature", },
+											activation: { type: "special" },
+											target: { value: 1, type: "creature", prompt: false },
 											actionType: "other",
+											consume: { type: null, target: null, amount: null, scale: false },
+											uses: { prompt: false },
 											damage: { parts: [[`${cantripDice > 0 ? (cantripDice - 1) + "d8 + " + mod : mod}`, args[0].workflow.defaultDamageType]] }
 										}
 									}
 									const damageItem = new CONFIG.Item.documentClass(damageItemData, { parent: args[0].actor });
-									await MidiQOL.completeItemUse(damageItem, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [target.document.uuid] });
+									await MidiQOL.completeItemUse(damageItem, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
 								},
 							},
 							Cancel: { label: "Cancel" },

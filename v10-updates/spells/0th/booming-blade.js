@@ -31,29 +31,32 @@ try {
 						weaponCopy.effects.push({ name: "Booming Blade", icon: args[0].item.img, origin: args[0].item.uuid, transfer: false, disabled: false, isSuppressed: false, duration: { rounds: 1 }, flags: { dae: { specialDuration: ["turnStartSource"], transfer: false, stackable: "noneName" } }, changes: [{ key: "macro.execute", mode: 0, value: `BoomingBlade ${cantripDice}d8 ${args[0].workflow.defaultDamageType}`, priority: "20" }] });
 						const attackItem = await new CONFIG.Item.documentClass(weaponCopy, { parent: args[0].actor });
 						attackItem.system.prof = weapon.system.prof;
-						await MidiQOL.completeItemRoll(attackItem, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
+						await MidiQOL.completeItemRoll(attackItem, { versatile: args[0].workflow.pressedKeys.versatile, showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
 					},
 				},
 				Cancel: { label: "Cancel" },
 			},
 		}).render(true);
-	} else if (args[0] == "off" && !args[args.length - 1]["expiry-reason"]) {
+	} else if (args[0] == "off" && !args[args.length - 1]["expiry-reason"] && args[1] && args[2]) {
 		const lastArg = args[args.length - 1];
+		const tokenOrActor = await fromUuid(lastArg.actorUuid);
+        const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
 		const source = game.actors.get(lastArg.efData.origin.match(/Actor\.(.*?)\./)[1]) ?? canvas.tokens.placeables.find(t => t.actor && t.actor.id == lastArg.efData.origin.match(/Actor\.(.*?)\./)[1])?.actor;
-		if (!source) return;
 		const damageItemData = {
 			name: "Booming Blade",
 			img: args[args.length - 1].efData.icon,
 			type: "feat",
 			flags: { midiProperties: { magiceffect: true }, autoanimations: { isEnabled: false } },
 			system: {
-				activation: { type: "special", },
-				target: { type: "creature", },
+				activation: { type: "special" },
+				target: { value: 1, type: "creature", prompt: false },
 				actionType: "other",
+				consume: { type: null, target: null, amount: null, scale: false },
+				uses: { prompt: false },
 				damage: { parts: [[args[1], args[2]]] }
 			}
 		}
-		const damageItem = new CONFIG.Item.documentClass(damageItemData, { parent: source });
+		const damageItem = new CONFIG.Item.documentClass(damageItemData, { parent: source ?? actor });
 		await MidiQOL.completeItemUse(damageItem, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
 	}
 } catch (err) {console.error(`Booming Blade Macro - `, err)}
