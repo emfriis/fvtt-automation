@@ -1,12 +1,11 @@
 try {
     if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && args[0].item.type == "spell" && args[0].item.name == "Branding Smite") {
         const effectData = { 
-            changes: [{ key: "system.bonuses.mwak.damage", mode: 2, value: `2d6[${args[0].workflow.defaultDamageType}]`, priority: 20 }, { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "BrandingSmite, postActiveEffects", priority: 20 }], 
+            changes: [{ key: "system.bonuses.mwak.damage", mode: 2, value: `2d6[${args[0].workflow.defaultDamageType}]`, priority: 20 }, { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.7oQmTQpRKlsGLUf2, postActiveEffects", priority: 20 }], 
             disabled: false, 
             icon: "icons/magic/fire/dagger-rune-enchant-flame-orange.webp", 
             name: "Branding Smite Damage Bonus", 
-            duration: { seconds: 60 }, 
-            flags: { dae: { specialDuration: ["1Attack:mwak"] } }
+            duration: { seconds: 60 }
         };
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
         const conc = args[0].actor.effects.find(e => e.name == "Concentrating");
@@ -28,5 +27,7 @@ try {
         } else if (conc) {
             await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].actor.uuid, effects: [conc.id] });
         }
+        const sourceEffect = args[0].actor.effects.find(e => e.name == "Branding Smite Damage Bonus");
+        if (sourceEffect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].actor.uuid, effects: [sourceEffect.id] });
     }
 } catch (err) {console.error("Branding Smite Macro - ", err)}

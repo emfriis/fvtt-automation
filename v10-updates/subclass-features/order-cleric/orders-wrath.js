@@ -3,7 +3,7 @@ try {
         const effectData = {
             disabled: false,
             duration: { rounds: 1, seconds: 7 },
-            changes: [{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "OrdersWrath, isAttacked", priority: "20" }],
+            changes: [{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.boLeL2Q4CZvRZ69a, isAttacked", priority: "20" }],
             flags: { dae: { specialDuration: ["turnStartSource"] } },
             name: "Order's Wrath Damage Bonus",
             icon: "icons/magic/light/beam-deflect-path-yellow.webp"

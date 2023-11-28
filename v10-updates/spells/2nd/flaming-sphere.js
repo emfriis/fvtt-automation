@@ -31,7 +31,7 @@ try {
                 disabled: false, 
                 icon: "icons/magic/fire/orb-vortex.webp", 
                 name: "Flaming Sphere Damage",
-                flags: { ActiveAuras: { aura: "All", displayTemp: true, height: true, hidden: true, hostile: false, ignoreSelf: true, isAura: true, onlyOnce: false, radius: 5, wallsBlock: "true" }, dae: { stackable: "noneName" } }
+                flags: { ActiveAuras: { aura: "All", displayTemp: true, height: true, hidden: true, hostile: false, ignoreSelf: true, isAura: true, onlyOnce: false, radius: 5, wallsBlock: "true", customCheck: "MidiQOL.typeOrRace(actor.uuid)" }, dae: { stackable: "noneName" } }
             };
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: actor.uuid, effects: [effectData] });
         });

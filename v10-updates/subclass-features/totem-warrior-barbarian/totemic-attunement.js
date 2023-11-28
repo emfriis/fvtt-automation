@@ -12,7 +12,7 @@ try {
                             name: "Totemic Attunement: Bear",
                             icon: "icons/commodities/claws/claws-bear-brown-white.webp",
                             duration: { seconds: 60 },
-                            flags: { ActiveAuras: { aura: "Enemy", displayTemp: true, height: true, hidden: true, hostile: false, ignoreSelf: true, isAura: true, nameOverride: "Totemic Attunement: Bear Disadvantage", onlyOnce: false, radius: 5, wallsBlock: "true" } }
+                            flags: { ActiveAuras: { aura: "Enemy", displayTemp: true, height: true, hidden: true, hostile: false, ignoreSelf: true, isAura: true, nameOverride: "Totemic Attunement: Bear Disadvantage", onlyOnce: false, radius: 5, wallsBlock: "true", customCheck: "MidiQOL.typeOrRace(actor.uuid)" } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
                         const auraEffect = args[0].actor.effects.find(e => e.name == "Totemic Attunement: Bear");

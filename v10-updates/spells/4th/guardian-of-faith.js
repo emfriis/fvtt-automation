@@ -23,7 +23,7 @@ try {
                         save: { ability: "dex", dc: args[0].actor.system.attributes.spelldc, scaling: "flat" },
                         damage: { parts: [["20", damageType]] }
                     },
-                    flags: { midiProperties: { magiceffect: true },"midi-qol": { onUseMacroName: "[postActiveEffects]GuardianOfFaith", onUseMacroParts: { items: [{ macroName: "GuardianOfFaith", option: "postActiveEffects" }] } } }
+                    flags: { midiProperties: { magiceffect: true },"midi-qol": { onUseMacroName: "[postActiveEffects]Compendium.dnd-5e-core-compendium.macros.1wNxZB5N3zD60CCi", onUseMacroParts: { items: [{ macroName: "Compendium.dnd-5e-core-compendium.macros.1wNxZB5N3zD60CCi", option: "postActiveEffects" }] } } }
                 }
                 await actor.createEmbeddedDocuments("Item", [itemData]);
             });

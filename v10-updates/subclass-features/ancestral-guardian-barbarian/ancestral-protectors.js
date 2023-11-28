@@ -1,7 +1,7 @@
 try {
     if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].actor.effects.find(e => e.name == "Rage") && (!game.combat || game.combat?.current?.tokenId == args[0].tokenId) && (!game.combat || !args[0].actor.effects.find(e => e.name == "Used Ancestral Protectors" && !e.disabled))) {
         const effectData1 = {
-			changes: [{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "AncestralProtectors, postDamageRoll", priority: 20, }, { key: "flags.midi-qol.ancestralProtectors", mode: 5, value: `${args[0].actor.uuid}`, priority: 20, }, { key: "flags.midi-qol.disadvantage.attack.all", mode: 0, value: `targetActorUuid!="${args[0].actor.uuid}"`, priority: 20 }],
+			changes: [{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.CPR8CFZ85VFgpXhq, postDamageRoll", priority: 20, }, { key: "flags.midi-qol.ancestralProtectors", mode: 5, value: `${args[0].actor.uuid}`, priority: 20, }, { key: "flags.midi-qol.disadvantage.attack.all", mode: 0, value: `targetActorUuid!="${args[0].actor.uuid}"`, priority: 20 }],
 			disabled: false,
 			origin: args[0].item.uuid,
 			name: "Ancestral Protectors",

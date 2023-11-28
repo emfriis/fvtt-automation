@@ -43,8 +43,9 @@ try {
         const source = await fromUuid(args[0].actor.flags["midi-qol"].taleOfThePhantom);
         const sourceActor = source.actor ? source.actor : source;
         const sourceEffect = sourceActor.effects.find(e => e.name.toLowerCase().includes("tales from beyond: tale of the"));
-        console.error(targetEffect, sourceEffect)
         if (targetEffect && sourceEffect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: source.uuid, updates: [{ _id: sourceEffect.id, changes: sourceEffect.changes.concat([{ key: "flags.dae.deleteUuid", mode: 5, value: `${targetEffect.uuid}`, priority: 20 }]) }] });
+        const effect = args[0].actor.effects.find(e => e.name.toLowerCase().includes("spirit tale: tale of the phantom"));
+        if (effect) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].actor.uuid, effects: [effect.id] });
     } else if (args[0].tag == "OnUse" && args[0].macroPass == "preambleComplete" && !args[0].item.name.toLowerCase().includes("tales from beyond")) {
 		game.user.updateTokenTargets(args[0].targets.filter(t => t.disposition == -canvas.tokens.get(args[0].tokenId).document.disposition).map(t => t.id));
 	}
@@ -94,7 +95,7 @@ async function createTale (tale, die) {
                     duration: { seconds: 600 },
                     flags: { dae: { transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", onUseMacroParts: { items: [{ macroName: "Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", option: "postActiveEffects" }] } } }
             };
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -143,7 +144,7 @@ async function createTale (tale, die) {
                     transfer: false,
                     flags: { dae: { transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", onUseMacroParts: { items: [{ macroName: "Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", option: "postActiveEffects" }] } } }
             }
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -182,7 +183,7 @@ async function createTale (tale, die) {
                 },
                 effects: [{ 
                     changes: [
-                        { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "DamageOnAttacked, isAttacked", priority: "20" },
+                        { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.SyLA14RrLULIlmW6, isAttacked", priority: "20" },
                         { key: "flags.midi-qol.damageOnAttacked", mode: 2, value: `actionTypes=mwak|msak,isHit=true,damageRoll=1${die},damageType=force,killAnim=true;`, priority: "20" }
                     ],
                     disabled: false,
@@ -193,7 +194,7 @@ async function createTale (tale, die) {
                     duration: { seconds: 60 },
                     flags: { dae: { transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", onUseMacroParts: { items: [{ macroName: "Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", option: "postActiveEffects" }] } } }
             };
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -226,7 +227,7 @@ async function createTale (tale, die) {
                     transfer: false,
                     flags: { dae: { specialDuration: ["turnStartSource"], transfer: false, showIcon: true } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", onUseMacroParts: { items: [{ macroName: "Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", option: "postActiveEffects" }] } } }
             };
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -254,10 +255,10 @@ async function createTale (tale, die) {
                     icon: "icons/creatures/eyes/void-single-black-purple.webp",
                     name: "Spirit Tale: Tale of the Beguiler",
                     transfer: false,
-                    duration: { rounds: 1 },
-                    flags: { dae: { specialDuration: ["turnEnd"], transfer: false } }
+                    duration: { seconds: 7, rounds: 1 },
+                    flags: { dae: { specialDuration: ["turnEnd", "combatEnd"], transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } }, midiProperties: { magiceffect: true } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", onUseMacroParts: { items: [{ macroName: "Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", option: "postActiveEffects" }] } }, midiProperties: { magiceffect: true } }
             }
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -283,7 +284,7 @@ async function createTale (tale, die) {
                         { key: "system.bonuses.rwak.damage", mode: 2, value: `1${die}[necrotic]`, priority: "20" },
                         { key: "system.bonuses.msak.damage", mode: 2, value: `1${die}[necrotic]`, priority: "20" },
                         { key: "system.bonuses.rsak.damage", mode: 2, value: `1${die}[necrotic]`, priority: "20" },
-                        { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "TalesFromBeyond, postActiveEffects", priority: "20" },
+                        { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0, postActiveEffects", priority: "20" },
                         { key: "flags.midi-qol.taleOfThePhantom", mode: 5, value: args[0].actor.uuid, priority: "20" }
                     ],
                     disabled: false,
@@ -291,10 +292,10 @@ async function createTale (tale, die) {
                     icon: "icons/creatures/magical/humanoid-silhouette-glowing-pink.webp",
                     name: "Spirit Tale: Tale of the Phantom",
                     transfer: false,
-                    duration: { rounds: 1 },
-                    flags: { dae: { specialDuration: ["turnEnd", "1Attack"], transfer: false } }
+                    duration: { seconds: 7, rounds: 1 },
+                    flags: { dae: { specialDuration: ["turnEnd", "combatEnd"], transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", onUseMacroParts: { items: [{ macroName: "Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", option: "postActiveEffects" }] } } }
             };
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -322,7 +323,7 @@ async function createTale (tale, die) {
                     name: "Prone",
                     transfer: false
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[preambleComplete]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "preambleComplete" }] } }, midiProperties: { halfdam: true, magiceffect: true } }
+                flags: { "midi-qol": { onUseMacroName: "[preambleComplete]Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", onUseMacroParts: { items: [{ macroName: "Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", option: "preambleComplete" }] } }, midiProperties: { halfdam: true, magiceffect: true } }
             }
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
@@ -391,10 +392,10 @@ async function createTale (tale, die) {
                     icon: "icons/creatures/tentacles/tentacles-octopus-black-pink.webp",
                     name: "Spirit Tale: Tale of the Mind-Bender",                        
                     transfer: false,
-                    duration: { rounds: 1 },
-                    flags: { dae: { specialDuration: ["turnEnd"], transfer: false } }
+                    duration: { seconds: 7, rounds: 1 },
+                    flags: { dae: { specialDuration: ["turnEnd", "combatEnd"], transfer: false } }
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]TalesFromBeyond", onUseMacroParts: { items: [{ macroName: "TalesFromBeyond", option: "postActiveEffects" }] } }, midiProperties: { magiceffect: true } }
+                flags: { "midi-qol": { onUseMacroName: "[postActiveEffects]Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", onUseMacroParts: { items: [{ macroName: "Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", option: "postActiveEffects" }] } }, midiProperties: { magiceffect: true } }
             }
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;

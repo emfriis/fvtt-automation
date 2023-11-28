@@ -12,7 +12,7 @@ try {
                             name: "Totem Spirit: Wolf",
                             icon: "icons/commodities/claws/claw-canine-brown-grey.webp",
                             duration: { seconds: 60 },
-                            flags: { ActiveAuras: { aura: "Enemy", displayTemp: true, height: true, hidden: true, hostile: false, ignoreSelf: true, isAura: true, onlyOnce: false, radius: 5, wallsBlock: "true" } }
+                            flags: { ActiveAuras: { aura: "Enemy", displayTemp: true, height: true, hidden: true, hostile: false, ignoreSelf: true, isAura: true, onlyOnce: false, radius: 5, wallsBlock: "true", customCheck: "MidiQOL.typeOrRace(actor.uuid)" } }
                         }
                         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
                         const auraEffect = args[0].actor.effects.find(e => e.name == "Totem Spirit: Wolf");

@@ -26,7 +26,7 @@ try {
         const effectData = {
             name: "Absorb Elements",
             icon: "icons/magic/lightning/orb-ball-spiral-blue.webp",
-            changes: [{ key: "data.traits.dr.value", mode: 2, value: type.toLowerCase(), priority: 20 }, { key: "macro.execute", mode: 0, value: "AbsorbElements", priority: 20 }],
+            changes: [{ key: "data.traits.dr.value", mode: 2, value: type.toLowerCase(), priority: 20 }, { key: "macro.execute", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.QcHqoOMLVPiDGO4B", priority: 20 }],
             disabled: false,
             duration: { rounds: 1 },
             flags: { dae: { specialDuration: ["turnStartSource"] }, "midi-qol": { absorbElements: { type: type.toLowerCase(), level: lastArg.spellLevel } } }
