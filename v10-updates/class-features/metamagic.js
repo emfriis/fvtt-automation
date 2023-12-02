@@ -1,7 +1,7 @@
 try {
     if (args[0].item.type != "spell") return;
     const usesItem = args[0].actor.items.find(i => i.name == "Font of Magic" && i.system.uses.value);
-    if (args[0].macroPass == "preItemRoll" && usesItem.system.uses.value && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type)) {
+    if (args[0].macroPass == "preItemRoll" && usesItem.system.uses.value && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type) && !args[0].workflow.metamagic) {
         let metamagicContent = "";
         let carefulItem = args[0].actor.items.find(i => i.name == "Metamagic: Careful Spell");
         if (carefulItem && args[0].item.system.save?.dc && args[0].item.system.save?.ability) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="careful"><img src="${carefulItem.img}" style="border:0px; width: 50px; height:50px;">Careful Spell<br>(1 Sorcery Point)</label>`;
@@ -57,18 +57,23 @@ try {
             }).render(true);
         });
         let metamagic = await dialog;
-        if (!metamagic) return;
-        args[0].workflow.metamagic = true;
+        if (!metamagic) {
+            args[0].workflow.metamagic = "none";
+            return;
+        }
         if (metamagic == "quickened") {
             // quickened spell
             if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: args[0].actor.uuid });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+            args[0].workflow.metamagic = "quickened";
         } else if (metamagic == "subtle") {
             // subtle spell
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
-	    } else if (metamagic == "twinned") {
+            args[0].workflow.metamagic = "subtle";
+        } else if (metamagic == "twinned") {
             // twinned spell
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - Math.max(1, args[0].spellLevel)) });
+            args[0].workflow.metamagic = "twinned";
         }   if (metamagic == "careful") {
             // careful spell
             let carefulDialog =  new Promise(async (resolve) => {
@@ -86,9 +91,9 @@ try {
                 }).render(true);
             });
             let targets = await carefulDialog;
-		    if (!targets) return;
-		    if (targets.length > Math.max(1, args[0].actor.system.abilities.cha.mod)) return ui.notifications.warn(`Too many targets selected for Careful Spell (Maximum ${Math.max(1, args[0].actor.system.abilities.cha.mod)})`);
-	        let hook1 = Hooks.on("midi-qol.postCheckSaves", async workflowNext => {
+            if (!targets) return;
+            if (targets.length > Math.max(1, args[0].actor.system.abilities.cha.mod)) return ui.notifications.warn(`Too many targets selected for Careful Spell (Maximum ${Math.max(1, args[0].actor.system.abilities.cha.mod)})`);
+            let hook = Hooks.on("midi-qol.postCheckSaves", async workflowNext => {
                 if (workflowNext.uuid == args[0].uuid) {
                     for (let t = 0; t < targets.length; t++) {
                         if (workflowNext.failedSaves.has(targets[t]) && !workflowNext.saves.has(targets[t])) {
@@ -97,29 +102,23 @@ try {
                             Object.assign(workflowNext.saveDisplayData.find(d => d.target == targets[t]), { saveString: "succeeds", saveStyle: "color: green" });
                         }
                     }
-                    Hooks.off("midi-qol.postCheckSaves", hook1);
-                    Hooks.off("midi-qol.preItemRoll", hook2);
+                    Hooks.off("midi-qol.postCheckSaves", hook);
                 }
             });
-            let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+            Hooks.once("midi-qol.preItemRoll", async workflowNext => {
                 if (workflowNext.uuid == args[0].uuid) {
-                    Hooks.off("midi-qol.postCheckSaves", hook1);
-                    Hooks.off("midi-qol.preItemRoll", hook2);
+                    Hooks.off("midi-qol.postCheckSaves", hook);
                 }
             });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+            args[0].workflow.metamagic = "careful";
         } else if (metamagic == "distant") {
-            const effectData = {
-                changes: [{ key: "flags.midi-qol.distantSpell", mode: 0, value: 1, priority: 20, },],
-                disabled: false,
-                name: "Metamagic: Distant Spell",
-                flags: { dae: { specialDuration: ["turnEnd","turnStart"] } }
-            }
-            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
+            // distant spell
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+            args[0].workflow.metamagic = "distant";
         } else if (metamagic == "extended") {  
             // extended spell
-            let hook1 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
+            let hook = Hooks.on("midi-qol.RollComplete", async workflowNext => {
                 if (workflowNext.uuid == args[0].uuid) {
                     let effects = workflowNext.actor.effects.filter(e => e.origin == args[0].uuid);   
                     for (let e = 0; e < effects.length; e++) {
@@ -137,17 +136,15 @@ try {
                             }
                         }
                     }
-                    Hooks.off("midi-qol.RollComplete", hook1);
-                    Hooks.off("midi-qol.preItemRoll", hook2);
                 }
             });
-            let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
-                if (workflowNext.uuid == args[0].uuid) {
-                    Hooks.off("midi-qol.RollComplete", hook1);
-                    Hooks.off("midi-qol.preItemRoll", hook2);
+            Hooks.once("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.uuid == args[0].uuid && workflowNext.metamagic != "extended") {
+                    Hooks.off("midi-qol.RollComplete", hook);
                 }
             });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+            args[0].workflow.metamagic = "extended";
         } else if (metamagic == "heightened") {
             // heightened spell
             let heightenedDialog =  new Promise(async (resolve) => {
@@ -174,7 +171,8 @@ try {
             };
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targets[0].actor.uuid, effects: [effectData] });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 3) });
-	    } else if (metamagic == "transmuted") {
+            args[0].workflow.metamagic = "heightened";
+        } else if (metamagic == "transmuted") {
             // transmuted spell
             let options = ["Acid", "Cold", "Fire", "Lightning", "Poison", "Thunder"];
             const optionContent = options.map((o) => { return `<option value="${o}">${o}</option>` });
@@ -201,7 +199,7 @@ try {
             let type = await transmutedDialog;
             if (!type) return;
             args[0].workflow.newDefaultDamageType = type;
-            let hook1 = Hooks.on("midi-qol.preDamageRollComplete", async workflowNext => {
+            let hook = Hooks.on("midi-qol.preDamageRollComplete", async workflowNext => {
                 if (workflowNext.uuid == args[0].uuid && workflowNext.newDefaultDamageType) {
                     workflowNext.defaultDamageType = workflowNext.newDefaultDamageType;
                     let newDamageRoll = workflowNext.damageRoll;
@@ -212,16 +210,15 @@ try {
                         }
                     });
                     await args[0].workflow.setDamageRoll(newDamageRoll);
-                    Hooks.off("midi-qol.preDamageRollComplete", hook1);
                 }
             });
-            let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
-                if (workflowNext.uuid == args[0].uuid) {
-                    Hooks.off("midi-qol.preDamageRollComplete", hook1);
-                    Hooks.off("midi-qol.preItemRoll", hook2);
+            Hooks.once("midi-qol.preItemRoll", async workflowNext => {
+                if (workflowNext.uuid == args[0].uuid && workflowNext.metamagic != "transmuted") {
+                    Hooks.off("midi-qol.preDamageRollComplete", hook);
                 }
             });
             await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+            args[0].workflow.metamagic = "transmuted";
         }
     } else if (args[0].macroPass == "preCheckHits" && args[0].actor.items.find(i => i.name == "Metamagic: Seeking Spell") && usesItem.system.uses.value > 1 && ["msak","rsak"].includes(args[0].item.system.actionType) && args[0].attackRoll && args[0].targets[0].actor.system.attributes.ac.value > args[0].attackRoll.total) {        
         // seeking spell

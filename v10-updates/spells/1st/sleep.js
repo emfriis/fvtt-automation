@@ -8,12 +8,12 @@ try {
 		const immuneType = ["undead", "construct"].find(c => target.actor.system.details?.race?.includes(c) || target.actor.system.details?.type?.value?.includes(c));
 		const immuneCondition = target.actor.system.traits.ci.value.has("unconscious") || target.actor.system.traits.ci.value.has("charmed") || target.actor.system.traits.ci.custom.includes("Magical Sleep");
 		if (immuneType || immuneCondition) {
-			sleepTargets.push(`<div class="midi-qol-flex-container"><div>Resists</div><div class="midi-qol-target-npc midi-qol-target-name" id="${target.id}"> ${target.name}</div><div><img src="${target.img}" width="30" height="30" style="border:0px"></div></div>`);
+			sleepTargets.push(`<div class="midi-qol-flex-container"><div>Resists</div><div class="midi-qol-target-npc midi-qol-target-name" id="${target.id}"></div><div><img src="${target.img}" width="30" height="30" style="border:0px"></div></div>`);
 			continue;
 		}
 		if (sleepHp >= hp) {
 			sleepHp -= hp;
-			sleepTargets.push(`<div class="midi-qol-flex-container"><div>Slept</div><div class="midi-qol-target-npc midi-qol-target-name" id="${target.id}"> ${target.name}</div><div><img src="${target.img}" width="30" height="30" style="border:0px"></div></div>`);
+			sleepTargets.push(`<div class="midi-qol-flex-container"><div>Slept</div><div class="midi-qol-target-npc midi-qol-target-name" id="${target.id}"></div><div><img src="${target.img}" width="30" height="30" style="border:0px"></div></div>`);
 			const effectData = {
 				name: "Sleep",
 				icon: "icons/magic/light/explosion-star-small-pink.webp",
@@ -26,7 +26,7 @@ try {
 			await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.actor.uuid, effects: [effectData] });
 			continue;
 		} else {
-			sleepTarget.push(`<div class="midi-qol-flex-container"><div>misses</div><div class="midi-qol-target-npc midi-qol-target-name" id="${target.id}"> ${target.name}</div><div><img src="${target.img}" width="30" height="30" style="border:0px"></div></div>`);
+			sleepTarget.push(`<div class="midi-qol-flex-container"><div>misses</div><div class="midi-qol-target-npc midi-qol-target-name" id="${target.id}"></div><div><img src="${target.img}" width="30" height="30" style="border:0px"></div></div>`);
 		}
 	}
 	const chatMessage = game.messages.get(args[0].itemCardId);
