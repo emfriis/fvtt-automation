@@ -59,15 +59,12 @@ async function applyDamage(actor, target, damageRoll, damageType, itemName, item
         type: "feat",
         system: {
             activation: { type: "special" },
-            target: { value: 1, type: "creature", prompt: false },
+            target: { value: 1, type: "creature" },
             actionType: "other",
-            consume: { type: null, target: null, amount: null, scale: false },
-            uses: { prompt: false },
             damage: { parts: [[damageRoll, damageType]] }
         },
         flags: { autoanimations: { isEnabled: killAnim } }
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: actor });
-    await game.user.updateTokenTargets([target.id]);
-    await MidiQOL.completeItemUse(item, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [target.document.uuid] });
+    await MidiQOL.completeItemUse(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [target.document.uuid] });
 }

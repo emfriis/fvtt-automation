@@ -49,14 +49,12 @@ try {
 			flags: { midiProperties: { magiceffect: true }, autoanimations: { isEnabled: false } },
 			system: {
 				activation: { type: "special" },
-				target: { value: 1, type: "creature", prompt: false },
+				target: { value: 1, type: "creature" },
 				actionType: "other",
-				consume: { type: null, target: null, amount: null, scale: false },
-				uses: { prompt: false },
 				damage: { parts: [[args[1], args[2]]] }
 			}
 		}
 		const damageItem = new CONFIG.Item.documentClass(damageItemData, { parent: source ?? actor });
-		await MidiQOL.completeItemUse(damageItem, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
+		await MidiQOL.completeItemUse(damageItem, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
 	}
 } catch (err) {console.error(`Booming Blade Macro - `, err)}

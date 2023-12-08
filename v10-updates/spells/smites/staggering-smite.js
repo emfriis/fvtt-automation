@@ -35,7 +35,7 @@ try {
             }]
         }
         const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].actor });
-        await MidiQOL.completeItemRoll(item, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
+        await MidiQOL.completeItemRoll(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
         const conc = args[0].actor.effects.find(e => e.name == "Concentrating");
         const effect = args[0].targets[0].actor.effects.find(e => e.name == "Staggering Smite");
         if (conc && effect) {

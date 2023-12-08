@@ -1,0 +1,15 @@
+{
+    "id": "one-dnd-for-5e",
+    "title": "ONE D&D for 5e",
+    "description": "A module created to integrate elements unique to ONE D&D into the DnD5e system in Foundry Virtual Tabletop.",
+    "authors": [
+        {
+            "name": "Lachesis"
+        }
+    ],
+    "version": "1.0.0",
+    "compatibility": {
+        "minimum": "11",
+        "verified": "11"
+    }
+}

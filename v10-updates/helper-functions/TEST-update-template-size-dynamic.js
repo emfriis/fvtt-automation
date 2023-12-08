@@ -15,3 +15,5 @@ Hooks.on("preUpdateMeasuredTemplate", async (document, updates, options, id) => 
 		}
 	} catch (err) {console.error("preUpdateMeasuredTemplate Hook Macro - ", err)}
 });
+
+//TRY UPDATE EMBEEDED DOCUMENT FOR ANIMATION ID

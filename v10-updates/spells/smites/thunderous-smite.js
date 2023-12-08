@@ -24,7 +24,7 @@ try {
             }
         }
         const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].actor });
-        await MidiQOL.completeItemRoll(item, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
+        await MidiQOL.completeItemRoll(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
         const conc = args[0].actor.effects.find(e => e.name == "Concentrating");
         if (conc) await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].actor.uuid, effects: [conc.id] });
         const sourceEffect = args[0].actor.effects.find(e => e.name == "Thunderous Smite Damage Bonus");

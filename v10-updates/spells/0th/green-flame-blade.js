@@ -50,15 +50,13 @@ try {
 										flags: { midiProperties: { magiceffect: true }, autoanimations: { isEnabled: false } },
 										system: {
 											activation: { type: "special" },
-											target: { value: 1, type: "creature", prompt: false },
+											target: { value: 1, type: "creature" },
 											actionType: "other",
-											consume: { type: null, target: null, amount: null, scale: false },
-											uses: { prompt: false },
 											damage: { parts: [[`${cantripDice > 0 ? (cantripDice - 1) + "d8 + " + mod : mod}`, args[0].workflow.defaultDamageType]] }
 										}
 									}
 									const damageItem = new CONFIG.Item.documentClass(damageItemData, { parent: args[0].actor });
-									await MidiQOL.completeItemUse(damageItem, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
+									await MidiQOL.completeItemUse(damageItem, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
 								},
 							},
 							Cancel: { label: "Cancel" },

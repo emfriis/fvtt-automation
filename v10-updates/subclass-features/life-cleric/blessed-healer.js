@@ -6,15 +6,12 @@ try {
         type: "feat",
         system: {
             activation: { type: "special" },
-            target: { type: "self", prompt: false },
-            uses: { prompt: false },
-            range: { units: "self" },
+            target: { type: "self" },
             actionType: "healing",
-            consume: { type: null, target: null, amount: null, scale: false },
             damage: { parts: [[`${2 + args[0].spellLevel}`, "healing"]] }
         },
         flags: { autoanimations: { isEnabled: false } }
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].actor });
-    await MidiQOL.completeItemUse(item, { showFullCard: true, createWorkflow: true, configureDialog: false });
+    await MidiQOL.completeItemUse(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false });
 } catch (err) {console.error("Blessed Healer Macro - ", err)}

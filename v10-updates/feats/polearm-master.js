@@ -31,7 +31,7 @@ try {
                     const weaponCopy = await mergeObject(duplicate(weapon), { "_id": null, "system.damage.parts": parts, "system.damage.versatile": "" });
                     const attackItem = await new CONFIG.Item.documentClass(weaponCopy, { parent: args[0].actor });
                     attackItem.system.prof = weapon.system.prof;
-                    await MidiQOL.completeItemRoll(attackItem, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
+                    await MidiQOL.completeItemRoll(attackItem, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
                 },
             },
             Cancel: { label: "Cancel" },
