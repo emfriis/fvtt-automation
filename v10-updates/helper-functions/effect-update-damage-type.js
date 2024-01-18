@@ -1,6 +1,8 @@
 try {
     if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects" || !args[0].workflow.defaultDamageType || !args[0].targets?.length) return;
     const damageType = args[0].workflow.defaultDamageType.toLowerCase();
+    const types = types = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
+    if (!types.includes(damageType)) return;
     args[0].targets.forEach(async (t) => {
         const effects = t?.actor?.effects.filter(e => e.origin == args[0].item.uuid);
         if (!effects?.length) return;
@@ -9,7 +11,7 @@ try {
             let update = false;
             changes.forEach(async (c) => { 
                 let value = c.value;
-                ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"].forEach(async (d) => { value = value.replace(d , damageType); });
+                types.forEach(async (d) => { value = value.replace(d , damageType); });
                 if (value != c.value) {
                     c.value = value;
                     update = true;

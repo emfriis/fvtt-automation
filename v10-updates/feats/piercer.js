@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag == "OnUse" && args[0].macroPass == "postDamageRoll" && args[0].isCritical && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.faces && t.flavor.toLowerCase() == "piercing")) {
+    if (args[0].macroPass == "postDamageRoll" && args[0].hitTargets.length && args[0].isCritical && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.faces && t.flavor.toLowerCase() == "piercing")) {
         let faces = args[0].damageRoll.terms.find(t => t.faces && t.flavor == "Piercing").faces;
         let bonusRoll = await new Roll('0 + ' + `1d${faces}[piercing]`).evaluate({async: true});
         if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
@@ -9,7 +9,7 @@ try {
         args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `1d${faces}[piercing]`;
         args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
         await args[0].workflow.setDamageRoll(args[0].damageRoll);
-    } else if (args[0].tag == "DamageBonus" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.flavor.toLowerCase() == "piercing") && !(game.combat && args[0].actor.effects.find(e => e.name == "Used Piercer" && !e.disabled))) {
+    } else if (args[0].tag == "DamageBonus" && args[0].hitTargets.length && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].damageRoll.terms.find(t => t.flavor.toLowerCase() == "piercing") && !(game.combat && args[0].actor.effects.find(e => e.name == "Used Piercer" && !e.disabled))) {
         let terms = args[0].damageRoll.terms;
         let termsContent = "";
         for (let t = 0; t < terms.length; t++) {

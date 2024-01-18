@@ -31,7 +31,7 @@ try {
 					const attackItem = await new CONFIG.Item.documentClass(weaponCopy, { parent: args[0].actor });
 					attackItem.system.prof = weapon.system.prof;
 					const attackWorkflow = await MidiQOL.completeItemRoll(attackItem, { versatile: args[0].workflow.pressedKeys.versatile, showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
-					if (!attackWorkflow.targets.size) return;
+					if (!attackWorkflow.hitTargets.size) return;
 					new Dialog({
 						title: "Green Flame Blade: Additional Target",
 						content: `<p>Target another creature for the flames to leap to.</p>`,

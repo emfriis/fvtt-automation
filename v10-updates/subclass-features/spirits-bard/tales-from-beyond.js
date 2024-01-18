@@ -36,7 +36,7 @@ try {
                 } 
             });
         }
-    } else if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].targets.length) {
+    } else if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && args[0].hitTargets.length && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) && args[0].targets.length) {
         const effectData = { changes: [{ key: "macro.CE", mode: 0, value: "Frightened", priority: 20 }], disabled: false, icon: "icons/creatures/magical/humanoid-silhouette-glowing-pink.webp", name: "Tale of the Phantom", duration: { rounds: 1, turns: 1 }, flags: { dae: { specialDuration: ["turnEnd"] } } };
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
         const targetEffect = args[0].targets[0].actor.effects.find(e => e.name == "Tale of the Phantom");

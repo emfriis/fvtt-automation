@@ -28,5 +28,5 @@ try {
         flags: { midiProperties: { magiceffect: true }, autoanimations: { isEnabled: false } }
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: source ?? actor });
-    await MidiQOL.completeItemRoll(item, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
+    await MidiQOL.completeItemRoll(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
 } catch (err)  {console.error("Avenging Angel Macro - ", err)}

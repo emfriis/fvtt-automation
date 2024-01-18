@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag != "OnUse" || args[0].macroPass != "postDamageRoll" || !args[0].damageRoll || !["msak", "rsak", "save", "other"].includes(args[0].item.system.actionType)) return;
+    if (args[0].macroPass != "postDamageRoll" || !args[0].hitTargets.length || !args[0].damageRoll || !["msak", "rsak", "save", "other"].includes(args[0].item.system.actionType)) return;
     let isCantrip = args[0].item.type == "spell" && args[0].spellLevel == 0;
     let isWeapon = args[0].item.type == "weapon" && ["mwak", "rwak"].includes(args[0].item.system.actionType);
     if (!isCantrip && !isWeapon) return;

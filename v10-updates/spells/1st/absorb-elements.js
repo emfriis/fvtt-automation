@@ -1,6 +1,6 @@
 try {
     const lastArg = args[args.length - 1];
-    if (lastArg.tag == "OnUse" && lastArg.macroPass == "postActiveEffects") {
+    if (lastArg.macroPass == "postActiveEffects") {
         const options = ["Acid", "Cold", "Fire", "Lightning", "Thunder"];
         const optionContent = options.map((o) => { return `<option value="${o}">${o}</option>` });
         let dialog = new Promise((resolve,) => {
@@ -44,7 +44,7 @@ try {
             ],
             disabled: false,
             duration: { turns: 1 },
-            flags: { dae: { specialDuration: ["1Attack:mwak", "1Attack:msak"] } },
+            flags: { dae: { specialDuration: ["1Hit:mwak", "1Hit:msak"] } },
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: actor.uuid, effects: [effectData] });
     }

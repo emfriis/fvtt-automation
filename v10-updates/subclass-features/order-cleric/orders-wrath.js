@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && args[0].damageRoll && args[0].targets.length && args[0].item.type == "weapon" && ["mwak", "rwak"].includes(args[0].item.system.actionType) && (args[0].workflow.divineStrike || args[0].workflow.blessedStrikes)) {
+    if (args[0].macroPass == "postActiveEffects" && args[0].hitTargets.length && args[0].damageRoll && args[0].targets.length && args[0].item.type == "weapon" && ["mwak", "rwak"].includes(args[0].item.system.actionType) && (args[0].workflow.divineStrike || args[0].workflow.blessedStrikes)) {
         const effectData = {
             disabled: false,
             duration: { rounds: 1, seconds: 7 },
@@ -9,7 +9,7 @@ try {
             icon: "icons/magic/light/beam-deflect-path-yellow.webp"
         }
         await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effectData] });
-    } else if (args[0].tag == "TargetOnUse" && args[0].macroPass == "isAttacked" && args[0].targets.length && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
+    } else if (args[0].macroPass == "isAttacked" && args[0].hitTargets.length && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
         args[0].workflow.ordersWrath = true
         let hook1 = Hooks.on("midi-qol.preDamageRollComplete", async workflowNext => {
             if (workflowNext.uuid === args[0].uuid && args[0].workflow.ordersWrath && workflowNext.damageRoll && workflowNext.targets.size) {

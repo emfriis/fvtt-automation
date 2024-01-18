@@ -1,5 +1,5 @@
 try {
-	if (args[0].tag != "OnUse" || args[0].macroPass != "postActiveEffects" || !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) || !args[0].damageDetail.find(d => d.type == "slashing")) return;
+	if (args[0].macroPass != "postActiveEffects" || !args[0].hitTargets.length || !["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType) || !args[0].damageDetail.find(d => d.type == "slashing")) return;
     if (args[0].isCritical) {
         const effectData = {
             changes: [{ key: "flags.midi-qol.grants.advantage.attack.all", mode: 0, value: "1", priority: 20 }],

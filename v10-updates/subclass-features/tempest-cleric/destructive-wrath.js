@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag != "DamageBonus" || !args[0].damageRoll.terms.find(t => t.faces && ["lightning", "thunder"].includes(t.flavor.toLowerCase()))) return;
+    if (args[0].tag != "DamageBonus" || !args[0].hitTargets.length || !args[0].damageRoll.terms.find(t => t.faces && ["lightning", "thunder"].includes(t.flavor.toLowerCase()))) return;
     const usesItem = args[0].actor.items.find(i => i.name.toLowerCase().includes("channel divinity") && i.system.uses.value);
     if (!usesItem) return;
     let dialog = new Promise((resolve) => {
@@ -41,4 +41,23 @@ try {
 		await args[0].workflow.setDamageRoll(newDamageRoll);
 	});
     await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+    args[0].workflow.destructiveWrath = false;
+    if (args[0].item.system.actionType == "save" && ((args[0].item.flags?.midiProperties?.nodam || (!args[0].item.system.description.value?.toLowerCase()?.includes("half as much damage on a successful save") && !args[0].item.system.description.value?.toLowerCase()?.includes("on a successful save, the target takes half as much damage"))) || (args[0].spellLevel == 0 && !args[0].actor.flags["midi-qol"].potentCantrip))) {
+        let hook1 = Hooks.on("midi-qol.postCheckSaves", async workflowNext => {
+            if (workflowNext.uuid == args[0].uuid && args[0].workflow.destructiveWrath) {
+                if (workflowNext.failedSaves.size == 0) {
+                    await usesItem.update({ "system.uses.value": usesItem.system.uses.value + 1 });
+					args[0].workflow.destructiveWrath = false;
+                    Hooks.off("midi-qol.postCheckSaves", hook1);
+                    Hooks.off("midi-qol.preItemRoll", hook2);
+                }
+            }
+        });
+        let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
+            if (workflowNext.uuid == args[0].uuid) {
+                Hooks.off("midi-qol.postCheckSaves", hook1);
+                Hooks.off("midi-qol.preItemRoll", hook2);
+            }
+        });
+    }
 } catch (err) {console.error("Destructive Wrath Macro - ", err)}

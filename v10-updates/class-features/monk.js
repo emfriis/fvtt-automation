@@ -1,7 +1,7 @@
 //stunning strike
 try {
-    if (args[0].tag !== "OnUse" || args[0].macroPass !== "postDamageRoll" || args[0].item.system.actionType !== "mwak" || !args[0].targets.length) return;
-    const usesItem = args[0].actor.items.find(i => i.name === "Ki" && i.system.uses.value);
+    if (args[0].macroPass != "postDamageRoll" || !args[0].hitTargets.length || args[0].item.system.actionType != "mwak" || !args[0].targets.length) return;
+    const usesItem = args[0].actor.items.find(i => i.name == "Ki" && i.system.uses.value);
     const target = args[0].targets[0].actor;
     if (!usesItem || !target) return;
     let dialog = new Promise((resolve) => {
@@ -61,7 +61,7 @@ try {
 //ki: focused aim
 try {
     if (args[0].tag != "OnUse" || args[0].macroPass != "preCheckHits" || !args[0].attackRoll || args[0].isFumble || args[0].isCritical || !args[0].targets[0]?.actor || args[0].targets[0].actor.system.attributes.ac.value < args[0].attackRoll.total) return;
-    const usesItem = args[0].actor.items.find(i => i.name === "Ki" && i.system.uses.value);
+    const usesItem = args[0].actor.items.find(i => i.name == "Ki" && i.system.uses.value);
     if (!usesItem) return;
     let dialog = new Promise((resolve) => {
         new Dialog({

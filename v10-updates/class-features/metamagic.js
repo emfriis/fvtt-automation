@@ -265,7 +265,7 @@ try {
         args[0].attackRoll._total = args[0].attackRoll._evaluateTotal();
         await args[0].workflow.setAttackRoll(args[0].attackRoll);
         await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 2) });
-    } else if (args[0].tag == "DamageBonus" && args[0].actor.items.find(i => i.name == "Metamagic: Empowered Spell") && usesItem.system.uses.value && args[0].item.system.damage?.parts?.length && !["healing", "temphp", "", "midi-none"].includes(args[0].item.system.damage.parts[0][1]) && args[0].damageRoll) {
+    } else if (args[0].tag == "DamageBonus" && args[0].hitTargets.length && args[0].actor.items.find(i => i.name == "Metamagic: Empowered Spell") && usesItem.system.uses.value && args[0].item.system.damage?.parts?.length && !["healing", "temphp", "", "midi-none"].includes(args[0].item.system.damage.parts[0][1]) && args[0].damageRoll) {
         // empowered spell
         let terms = args[0].damageRoll.terms;
         let termsContent = "";

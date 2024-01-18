@@ -25,7 +25,7 @@ try {
         flags: { autoanimations: { isEnabled: false } }
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: lastArg.actor });
-    const workflow = await MidiQOL.completeItemRolUse(item, { showFullCard: true, createWorkflow: true, configureDialog: false });
+    const workflow = await MidiQOL.completeItemRolUse(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false });
 	if (workflow.failedSaves.size) return;
 	const effectData = {
         name: "Viral Aura Immunity",

@@ -34,7 +34,7 @@ try {
         console.error(args[0].workflow.token, args[0].workflow.tokenUuid)
         if (isHit) {
             let hook1 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
-                if (workflowNext.uuid === args[0].uuid) {
+                if (workflowNext.uuid === args[0].uuid && workflowNext.hitTargets.size) {
                     await applyDamage(args[0].options.actor, args[0].workflow.token, damageRoll, damageType, itemName, itemImg, killAnim);
                     Hooks.off("midi-qol.postActiveEffects", hook1);
                 }

@@ -3,7 +3,7 @@ try {
 	const die = args[0].actor.system.scale["battle-master"]["combat-superiority"];
 	const saveDC = 8 + args[0].actor.system.attributes.prof + (args[0].actor.system.abilities.dex.mod > args[0].actor.system.abilities.str.mod ? args[0].actor.system.abilities.dex.mod : args[0].actor.system.abilities.str.mod);
     if (!usesItem || !die) return;
-	if (args[0].tag == "OnUse" && args[0].macroPass == "preAttackRoll" && !args[0].workflow.combatSuperiority && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
+	if (args[0].macroPass == "preAttackRoll" && !args[0].workflow.combatSuperiority && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
 		let maneuverContent = "";
 		let braceItem = args[0].actor.items.find(i => i.name == "Maneuver: Brace");
         if (braceItem && ["mwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="brace"><img src="${braceItem.img}" style="border:0px; width: 50px; height:50px;">Brace</label>`;
@@ -60,7 +60,7 @@ try {
 		} else if (maneuver == "quickToss") {
 			if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: args[0].actor.uuid });
 		}
-	} else if (args[0].tag == "OnUse" && args[0].macroPass == "preCheckHits" && !args[0].isFumble && !args[0].isCritical && !args[0].workflow.combatSuperiority && ["mwak", "rwak"].includes(args[0].item.system.actionType)) {
+	} else if (args[0].macroPass == "preCheckHits" && !args[0].isFumble && !args[0].isCritical && !args[0].workflow.combatSuperiority && ["mwak", "rwak"].includes(args[0].item.system.actionType)) {
 		let maneuverContent = "";
 		let precisionAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Precision Attack");
         if (precisionAttackItem && ["mwak", "rwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="precisionAttack"><img src="${precisionAttackItem.img}" style="border:0px; width: 50px; height:50px;">Precision Attack</label>`;
@@ -115,7 +115,7 @@ try {
 			args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `1${die}`;
 			await args[0].workflow.setAttackRoll(args[0].attackRoll);
 		}
-    } else if (args[0].tag == "OnUse" && args[0].macroPass == "postDamageRoll" && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
+    } else if (args[0].macroPass == "postDamageRoll" && args[0].hitTargets.length && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
         if (args[0].workflow.combatSuperiority) {
 			if (["brace", "feintingAttack", "lungingAttack", "quickToss"].includes(args[0].workflow.combatSuperiority)) {
 				let diceMult = args[0].isCritical ? 2 : 1;
@@ -198,7 +198,7 @@ try {
 		args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}${die}`;
 		args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
 		await args[0].workflow.setDamageRoll(args[0].damageRoll);
-	} else if (args[0].tag == "OnUse" && args[0].macroPass == "postActiveEffects" && ["disarmingAttack", "distractingStrike", "goadingAttack", "menacingAttack", "pushingAttack", "sweepingAttack", "tripAttack"].includes(args[0].workflow.combatSuperiority)) {
+	} else if (args[0].macroPass == "postActiveEffects" && args[0].hitTargets.length && ["disarmingAttack", "distractingStrike", "goadingAttack", "menacingAttack", "pushingAttack", "sweepingAttack", "tripAttack"].includes(args[0].workflow.combatSuperiority)) {
 		const itemData = {
 			type: "feat",
 			flags: { autoanimations: { isEnabled: false }, "midi-qol": {} },
@@ -283,7 +283,7 @@ try {
                 itemData.flags["midi-qol"].effectActivation = true;
             }
 		    const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].actor });
-                await MidiQOL.completeItemRoll(item, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
+                await MidiQOL.completeItemRoll(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });
 		} else if (["sweepingAttack"].includes(args[0].workflow.combatSuperiority)) {
             if (args[0].workflow.combatSuperiority == "sweepingAttack") {
                 let sweepingDialog =  new Promise(async (resolve) => {
@@ -309,7 +309,7 @@ try {
                 itemData.system.actionType = "other";
                 itemData.system.damage.parts = [[`1${die}`, `${args[0].workflow.defaultDamageType.toLowerCase()}`]];
                 const item = new CONFIG.Item.documentClass(itemData, { parent: args[0].actor });
-                await MidiQOL.completeItemRoll(item, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [targets[0].document.uuid] });
+                await MidiQOL.completeItemRoll(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [targets[0].document.uuid] });
             }
 		}
 	}

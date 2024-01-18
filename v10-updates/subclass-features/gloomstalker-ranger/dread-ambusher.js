@@ -1,6 +1,6 @@
 try {
 	if (!game.combat || game.combat?.round != 1) return;
-	if (args[0].tag === "OnUse" && args[0].macroPass === "preAttackRoll" && !actor.effects.find(e => e.name == "Used Dread Ambusher")) {
+	if (args[0].macroPass == "preAttackRoll" && !actor.effects.find(e => e.name == "Used Dread Ambusher")) {
 		let useFeat = true;
 		let dialog = new Promise((resolve) => {
 			new Dialog({
@@ -32,7 +32,7 @@ try {
 		}
 		await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: actor.uuid, effects: [effectData] });
 		args[0].workflow.dreadAmbusher = true;
-	} else if (args[0].tag == "OnUse" && args[0].macroPass == "postDamageRoll" && args[0].damageRoll && args[0].workflow.dreadAmbusher) {
+	} else if (args[0].macroPass == "postDamageRoll" && args[0].hitTargets.length && args[0].damageRoll && args[0].workflow.dreadAmbusher) {
 		const diceMult = args[0].isCritical ? 2 : 1;
 		let bonusRoll = await new Roll('0 + ' + `${diceMult}d8`).evaluate({async: true});
 		for (let i = 1; i < bonusRoll.terms.length; i++) {
@@ -42,7 +42,7 @@ try {
 		if (game.dice3d) game.dice3d.showForRoll(bonusRoll);
 		args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
 		await args[0].workflow.setDamageRoll(args[0].damageRoll);
-	} else if (args[0] === "each") {
+	} else if (args[0] == "each") {
 		const effectData = {
 			name: "Dread Ambusher Movement Bonus",
 			icon: "icons/skills/ranged/bow-arrows-blue.webp",

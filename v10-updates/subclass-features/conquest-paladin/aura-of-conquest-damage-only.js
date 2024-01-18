@@ -15,13 +15,11 @@ try {
         flags: { midiProperties: { magiceffect: true }, autoanimations: { isEnabled: false } },
         system: {
             activation: { type: "special" },
-            target: { value: 1, type: "creature", prompt: false },
+            target: { value: 1, type: "creature" },
             actionType: "other",
-            consume: { type: null, target: null, amount: null, scale: false },
-            uses: { prompt: false },
             damage: { parts: [[`${damage}`, "psychic"]] }
         }
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: source ?? actor });
-    await MidiQOL.completeItemRoll(item, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
+    await MidiQOL.completeItemRoll(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [lastArg.tokenUuid] });
 } catch (err) {console.error("Aura of Conquest Macro - ", err)}
