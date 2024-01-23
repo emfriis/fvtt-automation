@@ -25,10 +25,10 @@ try {
                 label: "Ok",
                 callback: async () => {
                     const weapon = args[0].actor.items.find(i => i.id == $("input[type='radio'][name='weapon']:checked").val());
-                    const parts = weapon.system.damage.parts;
+                    const weaponCopy = await mergeObject(duplicate(weapon), { "_id": null, "system.damage.versatile": "" });
+					const parts = weaponCopy.system.damage.parts;
                     parts[0][0] = parts[0][0].replace(/d(6|8|10|12)/, "d4"); 
                     parts[0][1] = "bludgeoning";
-                    const weaponCopy = await mergeObject(duplicate(weapon), { "_id": null, "system.damage.parts": parts, "system.damage.versatile": "" });
                     const attackItem = await new CONFIG.Item.documentClass(weaponCopy, { parent: args[0].actor });
                     attackItem.system.prof = weapon.system.prof;
                     await MidiQOL.completeItemRoll(attackItem, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [args[0].targetUuids[0]] });

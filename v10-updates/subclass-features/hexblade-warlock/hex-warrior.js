@@ -3,7 +3,7 @@ try {
     const tokenOrActor = await fromUuid(lastArg.actorUuid);
 	const actor = tokenOrActor.actor ? tokenOrActor.actor : tokenOrActor;
     if (args[0] === "on") {
-        const equipped = actor.items.filter(i => i.type === "weapon" && !i.system.properties.two && actor.system.traits.weaponProf.value.has(i.system.baseItem));
+        const equipped = actor.items.filter(i => i.type === "weapon" && !i.system.properties.two && (actor.system.traits.weaponProf.value.has(i.system.baseItem) || (actor.system.traits.weaponProf.value.has("sim") && i.system.weaponType.toLowerCase().includes("simple")) || (actor.system.traits.weaponProf.value.has("mar") && i.system.weaponType.toLowerCase().includes("martial"))));
         if (equipped.length == 1) {
             const weapon = equipped[0];
             if (weapon.flags["midi-qol"].tempSystem) await weapon.setFlag("midi-qol", "tempSystem", weapon.flags["midi-qol"].tempSystem.concat([{ source: "hexWeapon", id: lastArg.efData._id, system: { ability: "cha" } }]));

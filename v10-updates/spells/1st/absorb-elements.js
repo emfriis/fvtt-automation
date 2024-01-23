@@ -1,7 +1,9 @@
+// reaction=="isDamaged"&&workflow.damageDetail.find(d=>["acid","cold","fire","lightning","poison"].includes(d.type.toLowerCase()))
+
 try {
     const lastArg = args[args.length - 1];
     if (lastArg.macroPass == "postActiveEffects") {
-        const options = ["Acid", "Cold", "Fire", "Lightning", "Thunder"];
+        const options = ["Acid", "Cold", "Fire", "Lightning", "Thunder"].filter(o => !lastArg.workflowOptions.damageDetail || lastArg.workflowOptions.damageDetail.map(d=>d.type.toLowerCase()).includes(o.toLowerCase()));
         const optionContent = options.map((o) => { return `<option value="${o}">${o}</option>` });
         let dialog = new Promise((resolve,) => {
             new Dialog({
