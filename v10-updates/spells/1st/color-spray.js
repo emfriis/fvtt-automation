@@ -17,7 +17,7 @@ try {
 			colorSprayTargets.push(`<div class="midi-qol-flex-container"><div>Slept</div><div class="midi-qol-target-npc midi-qol-target-name" id="${target.id}"></div><div><img src="${target.img}" width="30" height="30" style="border:0px"></div></div>`);
 			const effectData = {
 				name: "Color Spray",
-				icon: "icons/magic/air/fog-gas-smoke-dense-pink.webp",
+				icon: "icons/magic/air/fog-gas-smoke-dense-blue.webp",
 				disabled: false,
 				origin: args[0].uuid,
                 duration: { seconds: 7 },

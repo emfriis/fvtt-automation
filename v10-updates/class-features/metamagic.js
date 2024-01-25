@@ -1,6 +1,7 @@
 try {
     if (args[0].item.type != "spell") return;
     const usesItem = args[0].actor.items.find(i => i.name == "Font of Magic" && i.system.uses.value);
+    let consume = true;
     if (args[0].macroPass == "preItemRoll" && usesItem.system.uses.value && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type) && !args[0].workflow.metamagic) {
         let metamagicContent = "";
         let carefulItem = args[0].actor.items.find(i => i.name == "Metamagic: Careful Spell");
@@ -31,6 +32,10 @@ try {
             <form class="metamagic">
                 <div class="form-group" id="metamagics">${metamagicContent}</div>
                 <div><p>(${usesItem.system.uses.value} Sorcery Point${usesItem.system.uses.value > 1 ? "s" : ""} Remaining)</p></div>
+                <div class="form-group">
+                    <label class="checkbox">
+                    <input id="consume" type="checkbox" name="consumeCheckbox" checked/><b>Consume Sorcery Point(s)?</b></label>
+                </div>
             </form>
         `;
         let dialog = new Promise(async (resolve) => {
@@ -42,6 +47,7 @@ try {
                         label: "Confirm",
                         callback: async () => {
                             let metamagic = $("input[type='radio'][name='metamagic']:checked").val();
+                            consume = $("#consume").is(":checked");
                             resolve(metamagic);
                         },
                     },
@@ -64,15 +70,15 @@ try {
         if (metamagic == "quickened") {
             // quickened spell
             if (game.combat) await game.dfreds.effectInterface.addEffect({ effectName: "Bonus Action", uuid: args[0].actor.uuid });
-            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
             args[0].workflow.metamagic = "quickened";
         } else if (metamagic == "subtle") {
             // subtle spell
-            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
             args[0].workflow.metamagic = "subtle";
         } else if (metamagic == "twinned") {
             // twinned spell
-            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - Math.max(1, args[0].spellLevel)) });
+            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - Math.max(1, args[0].spellLevel)) });
             args[0].workflow.metamagic = "twinned";
         }   if (metamagic == "careful") {
             // careful spell
@@ -110,11 +116,11 @@ try {
                     Hooks.off("midi-qol.postCheckSaves", hook);
                 }
             });
-            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
             args[0].workflow.metamagic = "careful";
         } else if (metamagic == "distant") {
             // distant spell
-            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
             args[0].workflow.metamagic = "distant";
         } else if (metamagic == "extended") {  
             // extended spell
@@ -143,7 +149,7 @@ try {
                     Hooks.off("midi-qol.RollComplete", hook);
                 }
             });
-            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
             args[0].workflow.metamagic = "extended";
         } else if (metamagic == "heightened") {
             // heightened spell
@@ -170,7 +176,7 @@ try {
                 icon: heightenedItem.img
             };
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: targets[0].actor.uuid, effects: [effectData] });
-            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 3) });
+            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 3) });
             args[0].workflow.metamagic = "heightened";
         } else if (metamagic == "transmuted") {
             // transmuted spell
@@ -217,7 +223,7 @@ try {
                     Hooks.off("midi-qol.preDamageRollComplete", hook);
                 }
             });
-            await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+            if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
             args[0].workflow.metamagic = "transmuted";
         }
     } else if (args[0].macroPass == "preCheckHits" && args[0].actor.items.find(i => i.name == "Metamagic: Seeking Spell") && usesItem.system.uses.value > 1 && ["msak","rsak"].includes(args[0].item.system.actionType) && args[0].attackRoll && args[0].targets[0].actor.system.attributes.ac.value > args[0].attackRoll.total) {        
@@ -225,11 +231,23 @@ try {
         let seekingDialog = await new Promise((resolve) => {
             new Dialog({
                 title: "Metamagic: Seeking Spell",
-                content: `<div><p>Spend 2 Sorcery Points to reroll the attack roll?</p><p>(${usesItem.system.uses.value} Sorcery Point${usesItem.system.uses.value > 1 ? "s" : ""} Remaining)</p></div>`,
+                content: `
+                <div>
+                    <p>Spend 2 Sorcery Points to reroll the attack roll?</p>
+                    <p>(${usesItem.system.uses.value} Sorcery Point${usesItem.system.uses.value > 1 ? "s" : ""} Remaining)</p>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox">
+                    <input id="consume" type="checkbox" name="consumeCheckbox" checked/><b>Consume Sorcery Point(s)?</b></label>
+                </div>
+                `,
                 buttons: {
                     Confirm: {
                         label: "Confirm",
-                        callback: async () => {resolve(true)},
+                        callback: async () => {
+                            consume = $("#consume").is(":checked");
+                            resolve(true)
+                        },
                     },
                     Cancel: {
                         label: "Cancel",
@@ -264,7 +282,7 @@ try {
         }
         args[0].attackRoll._total = args[0].attackRoll._evaluateTotal();
         await args[0].workflow.setAttackRoll(args[0].attackRoll);
-        await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 2) });
+        if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 2) });
     } else if (args[0].tag == "DamageBonus" && args[0].hitTargets.length && args[0].actor.items.find(i => i.name == "Metamagic: Empowered Spell") && usesItem.system.uses.value && args[0].item.system.damage?.parts?.length && !["healing", "temphp", "", "midi-none"].includes(args[0].item.system.damage.parts[0][1]) && args[0].damageRoll) {
         // empowered spell
         let terms = args[0].damageRoll.terms;
@@ -297,6 +315,10 @@ try {
             <div class="form-group" id="dice-group">${termsContent}</div>
             <div><p>(${usesItem.system.uses.value} Sorcery Points Remaining)</p></div>
         </form>
+        <div class="form-group">
+            <label class="checkbox">
+            <input id="consume" type="checkbox" name="consumeCheckbox" checked/><b>Consume Sorcery Point(s)?</b></label>
+        </div>
         <script>
             var limit = ${Math.max(1, args[0].actor.system.abilities.cha.mod)};
             $("input[type='checkbox'][name='die']").change(function() {
@@ -320,6 +342,7 @@ try {
                                 let rollData = checked[c].value.split(",");
                                 rerolls.push({ result: rollData[0], faces: rollData[1], index: rollData[2] }); 
                             } 
+                            consume = $("#consume").is(":checked");
                             resolve(rerolls);
                         },
                     },
@@ -347,7 +370,7 @@ try {
             }
         });
         await args[0].workflow.setDamageRoll(newDamageRoll);
-        await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+        if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
     } else if (args[0].tag == "TargetOnUse" && args[0].macroPass == "preTargetSave" && args[0].workflow.saveDetails && args[0].options.actor.flags["midi-qol"]?.heightenedSpell?.includes(args[0].uuid)) {
         args[0].workflow.saveDetails.disadvantage = true;
         await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].options.actor.uuid, effects: [args[0].options.actor.effects.find(e => e.name == "Heightened Spell Save Disadvantage").id] });

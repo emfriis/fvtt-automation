@@ -16,9 +16,9 @@ try {
             name: "Wrathful Smite",
             img: "icons/magic/fire/dagger-rune-enchant-flame-teal-purple.webp",
             type: "feat",
-            flags: { midiProperties: { magiceffect: true }, "midi-qol": { effectActivation: true } },
+            flags: { midiProperties: { magiceffect: true }, "midi-qol": { effectCondition: "!target.traits.ci.value.has('frightened')" } },
             system: {
-                activation: { type: "special", condition: "!target.traits.ci.value.has('frightened')" },
+                activation: { type: "special" },
                 target: { value: 1, type: "creature" },
                 actionType: "save",
                 save: { ability: "wis", dc: `${args[0].actor.system.attributes.spelldc}`, scaling: "flat" },
