@@ -99,7 +99,7 @@ try {
             let targets = await carefulDialog;
             if (!targets) return;
             if (targets.length > Math.max(1, args[0].actor.system.abilities.cha.mod)) return ui.notifications.warn(`Too many targets selected for Careful Spell (Maximum ${Math.max(1, args[0].actor.system.abilities.cha.mod)})`);
-            let hook = Hooks.on("midi-qol.postCheckSaves", async workflowNext => {
+            let hook1 = Hooks.on("midi-qol.postCheckSaves", async workflowNext => {
                 if (workflowNext.uuid == args[0].uuid) {
                     for (let t = 0; t < targets.length; t++) {
                         if (workflowNext.failedSaves.has(targets[t]) && !workflowNext.saves.has(targets[t])) {
@@ -108,12 +108,13 @@ try {
                             Object.assign(workflowNext.saveDisplayData.find(d => d.target == targets[t]), { saveString: "succeeds", saveStyle: "color: green" });
                         }
                     }
-                    Hooks.off("midi-qol.postCheckSaves", hook);
+                    Hooks.off("midi-qol.postCheckSaves", hook1);
                 }
             });
-            Hooks.once("midi-qol.preItemRoll", async workflowNext => {
+            let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
                 if (workflowNext.uuid == args[0].uuid) {
-                    Hooks.off("midi-qol.postCheckSaves", hook);
+                    Hooks.off("midi-qol.postCheckSaves", hook1);
+                    Hooks.off("midi-qol.preItemRoll", hook2);
                 }
             });
             if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
@@ -124,7 +125,7 @@ try {
             args[0].workflow.metamagic = "distant";
         } else if (metamagic == "extended") {  
             // extended spell
-            let hook = Hooks.on("midi-qol.RollComplete", async workflowNext => {
+            let hook1 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
                 if (workflowNext.uuid == args[0].uuid) {
                     let effects = workflowNext.actor.effects.filter(e => e.origin == args[0].uuid);   
                     for (let e = 0; e < effects.length; e++) {
@@ -144,9 +145,10 @@ try {
                     }
                 }
             });
-            Hooks.once("midi-qol.preItemRoll", async workflowNext => {
+            let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
                 if (workflowNext.uuid == args[0].uuid && workflowNext.metamagic != "extended") {
-                    Hooks.off("midi-qol.RollComplete", hook);
+                    Hooks.off("midi-qol.postCheckSaves", hook1);
+                    Hooks.off("midi-qol.RollComplete", hook2);
                 }
             });
             if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
@@ -205,7 +207,7 @@ try {
             let type = await transmutedDialog;
             if (!type) return;
             args[0].workflow.newDefaultDamageType = type;
-            let hook = Hooks.on("midi-qol.preDamageRollComplete", async workflowNext => {
+            let hook1 = Hooks.on("midi-qol.preDamageRollComplete", async workflowNext => {
                 if (workflowNext.uuid == args[0].uuid && workflowNext.newDefaultDamageType) {
                     workflowNext.defaultDamageType = workflowNext.newDefaultDamageType;
                     let newDamageRoll = workflowNext.damageRoll;
@@ -218,9 +220,10 @@ try {
                     await args[0].workflow.setDamageRoll(newDamageRoll);
                 }
             });
-            Hooks.once("midi-qol.preItemRoll", async workflowNext => {
+            let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
                 if (workflowNext.uuid == args[0].uuid && workflowNext.metamagic != "transmuted") {
-                    Hooks.off("midi-qol.preDamageRollComplete", hook);
+                    Hooks.off("midi-qol.preDamageRollComplete", hook1);
+                    Hooks.off("midi-qol.preItemRoll", hook2);
                 }
             });
             if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });

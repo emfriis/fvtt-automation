@@ -11,7 +11,7 @@ try {
             `;
             let typeDialog = await new Promise((resolve) => {
                 new Dialog({
-                    title: "Choose Damage Type",
+                    title: `${args[0].item.name}: Choose Damage Type`,
                     content: content,
                     buttons: {
                         Confirm: {
