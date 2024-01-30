@@ -267,21 +267,20 @@ try {
         if (game.dice3d) game.dice3d.showForRoll(reroll);
         let highRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && !prev.rerolled && prev.result > current.result ? prev : current);
         let lowRoll = args[0].attackRoll.terms[0].results.reduce((prev, current) => prev && !prev.rerolled && prev.result < current.result ? prev : current);
-        if ((!args[0].attackRoll.hasAdvantage && !args[0].attackRoll.hasDisadvantage) || (args[0].attackRoll.hasAdvantage && args[0].attackRoll.hasDisadvantage) || (args[0].attackRoll.hasAdvantage && reroll.total > highRoll.result)) {
-            Object.assign(highRoll, { discarded: true, rerolled: false, active: false });
-            Object.assign(lowRoll, { discarded: false, rerolled: true, active: false });
-            args[0].attackRoll.terms[0].results.push({ result: reroll.total, discarded: false, rerolled: false, active: true, hidden: true });
-        } else if (args[0].attackRoll.hasDisadvantage && reroll.total > highRoll.result) {
-            Object.assign(lowRoll, { discarded: false, rerolled: true, active: false });
-            Object.assign(highRoll, { discarded: false, rerolled: false, active: true });
-            args[0].attackRoll.terms[0].results.push({ result: reroll.total, discarded: true, rerolled: false, active: false, hidden: true });
-        } else if (args[0].attackRoll.hasDisadvantage && reroll.total < highRoll.result) {
-            Object.assign(lowRoll, { discarded: false, rerolled: true, active: false });
-            Object.assign(highRoll, { discarded: true, rerolled: false, active: false });
-            args[0].attackRoll.terms[0].results.push({ result: reroll.total, discarded: false, rerolled: false, active: true, hidden: true });
-        } else {
-            Object.assign(lowRoll, { discarded: false, discarded: falase, rerolled: true, active: false });
-            args[0].attackRoll.terms[0].results.push({ result: reroll.total, disacrded: true, rerolled: false, active: false, hidden: true });
+        if ((!args[0].attackRoll.hasAdvantage && !args[0].attackRoll.hasDisadvantage) || (args[0].attackRoll.hasAdvantage && args[0].attackRoll.hasDisadvantage) || (args[0].attackRoll.hasAdvantage && reroll.total > highRoll.result)) { // normal roll or attack has advantage and reroll is higher than the previous high roll
+            Object.assign(highRoll, { discarded: true, rerolled: false, active: false }); // discard previous high roll
+            Object.assign(lowRoll, { discarded: false, rerolled: true, active: false }); // remove previous low roll
+            args[0].attackRoll.terms[0].results.push({ result: reroll.total, discarded: false, rerolled: false, active: true, hidden: true }); // assign reroll as new high roll
+        } else if (args[0].attackRoll.hasDisadvantage && reroll.total > highRoll.result) { // attack has disadvantage and reroll is higher than previous high roll
+            Object.assign(highRoll, { discarded: false, rerolled: false, active: true }); // assign previous high roll as new low roll
+            Object.assign(lowRoll, { discarded: false, rerolled: true, active: false }); // remove previous low roll
+            args[0].attackRoll.terms[0].results.push({ result: reroll.total, discarded: true, rerolled: false, active: false, hidden: true }); // assign reroll as new high roll
+        } else if (args[0].attackRoll.hasDisadvantage && reroll.total < highRoll.result ) { // attack has disadvantage and reroll is lower than previous high roll
+            Object.assign(lowRoll, { discarded: false, rerolled: true, active: false });  // remove previous low roll
+            args[0].attackRoll.terms[0].results.push({ result: reroll.total, discarded: false, rerolled: false, active: true, hidden: true }); // assign reroll as new low roll
+        } else { // attack has advantage and reroll is lower than previous high roll
+            Object.assign(lowRoll, { discarded: false, rerolled: true, active: false }); // remove previous low roll
+            args[0].attackRoll.terms[0].results.push({ result: reroll.total, disacrded: true, rerolled: false, active: false, hidden: true }); // assign reroll as new low roll
         }
         args[0].attackRoll._total = args[0].attackRoll._evaluateTotal();
         await args[0].workflow.setAttackRoll(args[0].attackRoll);
