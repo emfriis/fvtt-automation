@@ -115,7 +115,7 @@ try {
 			args[0].attackRoll._formula = args[0].attackRoll._formula + ' + ' + `1${die}`;
 			await args[0].workflow.setAttackRoll(args[0].attackRoll);
 		}
-    } else if (args[0].macroPass == "postDamageRoll" && args[0].hitTargets.length && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
+    } else if (args[0].macroPass == "postDamageRoll" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
         if (args[0].workflow.combatSuperiority) {
 			if (["brace", "feintingAttack", "lungingAttack", "quickToss"].includes(args[0].workflow.combatSuperiority)) {
 				let diceMult = args[0].isCritical ? 2 : 1;
@@ -198,7 +198,7 @@ try {
 		args[0].damageRoll._formula = args[0].damageRoll._formula + ' + ' + `${diceMult}${die}`;
 		args[0].damageRoll._total = args[0].damageRoll.total + bonusRoll.total;
 		await args[0].workflow.setDamageRoll(args[0].damageRoll);
-	} else if (args[0].macroPass == "postActiveEffects" && args[0].hitTargets.length && ["disarmingAttack", "distractingStrike", "goadingAttack", "menacingAttack", "pushingAttack", "sweepingAttack", "tripAttack"].includes(args[0].workflow.combatSuperiority)) {
+	} else if (args[0].macroPass == "postActiveEffects" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["disarmingAttack", "distractingStrike", "goadingAttack", "menacingAttack", "pushingAttack", "sweepingAttack", "tripAttack"].includes(args[0].workflow.combatSuperiority)) {
 		const itemData = {
 			type: "feat",
 			flags: { autoanimations: { isEnabled: false }, "midi-qol": {} },

@@ -11,7 +11,7 @@ try {
         const conc = args[0].actor.effects.find(e => e.name == "Concentrating");
         const effect = args[0].actor.effects.find(e => e.name == "Banishing Smite Damage Bonus");
         if (conc && effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: args[0].actor.uuid, updates: [{ _id: conc.id, changes: conc.changes.concat([{ key: `flags.dae.deleteUuid`, mode: 5, value: effect.uuid, priority: 20 }]) }] });
-    } else if (args[0].macroPass == "postActiveEffects" && args[0].item.system.actionType == "mwak" && args[0].hitTargets.length && args[0].damageRoll) {
+    } else if (args[0].macroPass == "postActiveEffects" && args[0].item.system.actionType == "mwak" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageRoll) {
         const effectData = { 
             changes: [{ key: "ATL.elevation", mode: 5, value: -9999, priority: 99 }, { key: "ATL.hidden", mode: 5, value: true, priority: 99 }], 
             disabled: args[0].targets[0].actor.system.attributes.hp.value > 50 ? true : false, 

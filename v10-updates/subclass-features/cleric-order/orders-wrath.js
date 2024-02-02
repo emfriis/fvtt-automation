@@ -1,5 +1,5 @@
 try {
-    if (args[0].macroPass == "postActiveEffects" && args[0].hitTargets.length && args[0].damageRoll && args[0].targets.length && args[0].item.type == "weapon" && ["mwak", "rwak"].includes(args[0].item.system.actionType) && (args[0].workflow.divineStrike || args[0].workflow.blessedStrikes)) {
+    if (args[0].macroPass == "postActiveEffects" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageRoll && args[0].targets.length && args[0].item.type == "weapon" && ["mwak", "rwak"].includes(args[0].item.system.actionType) && (args[0].workflow.divineStrike || args[0].workflow.blessedStrikes)) {
         const effectData = {
             disabled: false,
             duration: { rounds: 1, seconds: 7 },

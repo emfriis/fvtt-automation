@@ -1,5 +1,5 @@
 try {
-	if (args[0].macroPass == "postActiveEffects" && args[0].hitTargets.length && ["mwak", "rwak"].includes(args[0].item.system.actionType)) {
+	if (args[0].macroPass == "postActiveEffects" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && ["mwak", "rwak"].includes(args[0].item.system.actionType)) {
 		const effectData = {
 			changes: [{ key: "flags.midi-qol.onUseMacroName", mode: 0, value: "EldritchStrike, preTargetSave", priority: 20, }, { key: "flags.midi-qol.eldritchStrike", mode: 2, value: args[0].actor.uuid, priority: 20, }],
 			disabled: false,

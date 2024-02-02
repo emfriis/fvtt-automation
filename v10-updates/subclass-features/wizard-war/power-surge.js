@@ -1,15 +1,5 @@
 try {
-    const usesItem = actor.items.find(i => i.name === "Power Surge" && i.system.uses);
-    if (usesItem) await usesItem.update({ "system.uses.value": 1 });
-} catch (err)  {console.error("Power Surge Macro - ", err)}
-
-try {
-    const usesItem = actor.items.find(i => i.name === "Power Surge" && i.system.uses.value == 0);
-    if (usesItem) await usesItem.update({ "system.uses.value": 1 });
-} catch (err)  {console.error("Power Surge Macro - ", err)}
-
-try {
-    if (args[0].tag != "OnUse" || args[0].macroPass != "postDamageRoll" || !args[0].damageRoll || args[0].item.type != "spell" || ["", "midi-none", "temphp"].find(d => args[0].item.system.damage.parts[0][1] == d) || !(args[0].item.flags?.["tidy5e-sheet"]?.parentClass.toLowerCase().includes("wizard") || args[0].item.system.chatFlavor.toLowerCase().includes("wizard") || (!args[0].item.flags?.["tidy5e-sheet"]?.parentClass && !args[0].item.system.chatFlavor && ["prepared", "always"].includes(args[0].item.system.preparation.mode)))) return;
+    if (args[0].tag != "OnUse" || args[0].macroPass != "postDamageRoll" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !args[0].damageRoll || args[0].item.type != "spell" || ["", "midi-none", "temphp"].find(d => args[0].item.system.damage.parts[0][1] == d) || !(args[0].item.flags?.["tidy5e-sheet"]?.parentClass?.toLowerCase()?.includes("wizard") || args[0].item.system?.chatFlavor?.toLowerCase()?.includes("wizard") || (!args[0].item.flags?.["tidy5e-sheet"]?.parentClass && !args[0].item.system?.chatFlavor && ["prepared", "always"].includes(args[0].item.system?.preparation?.mode)))) return;
     const usesItem = actor.items.find(i => i.name == "Power Surge" && i.system.uses.value);
     const level = actor.classes.wizard.system.levels;
     if (!usesItem || !level) return;

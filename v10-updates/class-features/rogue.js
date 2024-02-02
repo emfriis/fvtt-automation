@@ -5,7 +5,7 @@ try {
 
 //sneak attack
 try {
-    if (args[0].macroPass != "postDamageRoll" || !args[0].hitTargets.length || !args[0].damageRoll || !["mwak", "rwak"].includes(args[0].item.system.actionType) || args[0].disadvantage || (args[0].item.system.actionType == "mwak" && !args[0].item.system.properties?.fin) || (game.combat && args[0].actor.effects.find(e => e.name == "Used Sneak Attack" && !e.disabled)) || !(args[0].advantage || canvas.tokens.placeables.find(t => t.actor && MidiQOL.typeOrRace(t.actor) && t !== args[0].workflow.token && t !== args[0].targets[0] && t?.document?.disposition == args[0].workflow.token?.document?.disposition && !MidiQOL.checkIncapacitated(t.actor) && MidiQOL.computeDistance(t, args[0].targets[0], false) < 10))) return;
+    if (args[0].macroPass != "postDamageRoll" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !args[0].damageRoll || !["mwak", "rwak"].includes(args[0].item.system.actionType) || args[0].disadvantage || (args[0].item.system.actionType == "mwak" && !args[0].item.system.properties?.fin) || (game.combat && args[0].actor.effects.find(e => e.name == "Used Sneak Attack" && !e.disabled)) || !(args[0].advantage || canvas.tokens.placeables.find(t => t.actor && MidiQOL.typeOrRace(t.actor) && t !== args[0].workflow.token && t !== args[0].targets[0] && t?.document?.disposition == args[0].workflow.token?.document?.disposition && !MidiQOL.checkIncapacitated(t.actor) && MidiQOL.computeDistance(t, args[0].targets[0], false) < 10))) return;
     let useFeat = true;
     if (game.combat) {
         let dialog = new Promise((resolve) => {

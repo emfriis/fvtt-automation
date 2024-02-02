@@ -11,7 +11,7 @@ try {
         const conc = args[0].actor.effects.find(e => e.name == "Concentrating");
         const effect = args[0].actor.effects.find(e => e.name == "Ensnaring Strike");
         if (conc && effect) await MidiQOL.socket().executeAsGM("updateEffects", { actorUuid: args[0].actor.uuid, updates: [{ _id: conc.id, changes: conc.changes.concat([{ key: `flags.dae.deleteUuid`, mode: 5, value: effect.uuid, priority: 20 }]) }] });
-    } else if (args[0].macroPass == "postActiveEffects" && ["mwak", "rwak"].includes(args[0].item.system.actionType) && args[0].hitTargets.length && args[0].damageRoll) {
+    } else if (args[0].macroPass == "postActiveEffects" && ["mwak", "rwak"].includes(args[0].item.system.actionType) && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].damageRoll) {
         const itemData = {
             name: "Ensnaring Strike",
             img: "icons/magic/nature/vines-thorned-curled-glow-teal.webp",

@@ -18,7 +18,7 @@ try {
                     </style>
                     <div style="display: flex; flex-direction: row; align-items: center; text-align: center; justify-content: center;">
                         <p>Targeting: </p>
-                        <img src="${target.texture.src}" style="border: 0px; width 50px; height: 50px;">
+                        <img src="${target.texture.src ?? target.document.texture.src}" style="border: 0px; width 50px; height: 50px;">
                     </div>
                     <form class="weaponOrArmor">
                     <div class="form-group" id="weaponOrArmors">

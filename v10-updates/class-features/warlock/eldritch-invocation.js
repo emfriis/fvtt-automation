@@ -47,7 +47,7 @@ try {
 
 //eldritch smite
 try {
-    if (args[0].macroPass != "postDamageRoll" || !args[0].hitTargets.length || !args[0].damageRoll || !args[0].item.name.includes("(Pact Weapon)") || args[0].actor.system.spells.pact.value < 1 || args[0].actor.effects.find(e => e.name == "Used Eldritch Smite")) return;
+    if (args[0].macroPass != "postDamageRoll" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !args[0].damageRoll || !args[0].item.name.includes("(Pact Weapon)") || args[0].actor.system.spells.pact.value < 1 || args[0].actor.effects.find(e => e.name == "Used Eldritch Smite")) return;
     let slot = await new Promise((resolve) => {
         new Dialog({
             title: "Eldritch Smite",

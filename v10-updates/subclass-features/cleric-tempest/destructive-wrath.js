@@ -1,5 +1,5 @@
 try {
-    if (args[0].tag != "DamageBonus" || !args[0].hitTargets.length || !args[0].damageRoll.terms.find(t => t.faces && ["lightning", "thunder"].includes(t.flavor.toLowerCase()))) return;
+    if (args[0].tag != "DamageBonus" || (!args[0].hitTargets.length && MidiQOL.configSettings().autoRollDamage == "always") || !args[0].damageRoll.terms.find(t => t.faces && ["lightning", "thunder"].includes(t.flavor.toLowerCase()))) return;
     const usesItem = args[0].actor.items.find(i => i.name.toLowerCase().includes("channel divinity") && i.system.uses.value);
     if (!usesItem) return;
     let dialog = new Promise((resolve) => {
