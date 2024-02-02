@@ -8,6 +8,14 @@ try {
     let roll = await new Roll('1d20').evaluate({async: true});
     if (game.dice3d) game.dice3d.showForRoll(roll);
     if (roll.total >= dc) {
+        const effectData = {
+            changes: [{ key: "flags.midi-qol.grants.attack.fail.all", mode: 0, value: "1", priority: 20 }],
+            disabled: false,
+            duration: { seconds: 1, turns: 1 },
+            flags: { dae: { specialDuration: ["combatEnd", "isAttacked"] } },
+            name: "Mirror Image Protection",
+        };
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
         if (workflow.attackRoll.total >= ac) {
             ChatMessage.create({ content: `The attack strikes a Mirror Image (${images - 1} Image(s) Remaining).` });
             let effect = args[0].targets[0].actor.effects.find(e => e.name == "Mirror Image");
@@ -20,13 +28,6 @@ try {
             } else {
                 await MidiQOL.socket().executeAsGM("removeEffects", { actorUuid: args[0].targets[0].actor.uuid, effects: [effect.id] });
             }
-            args[0].workflow.targets = new Set();
-            let hook = Hooks.on("midi-qol.AttackRollComplete", async (workflowNext) => {
-                if (workflowNext.uuid == workflow.uuid) {
-                    workflow.hitTargets = new Set();
-                    Hooks.off("midi-qol.AttackRollComplete", hook);
-                }
-            });
         } else {
             ChatMessage.create({ content: `The attack misses a Mirror Image (${images} Image(s) Remaining).` });
         }

@@ -26,7 +26,7 @@ try {
                 icon: args[0].item.img,
                 name: args[0].item.name,
                 origin: args[0].item.uuid,
-                changes: [{ key: "macro.execute", mode: 0, value: "SummonHostile", priority: "20" }],
+                changes: [{ key: "macro.execute", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.J9uaF0zVZfGUnBwO", priority: "20" }],
                 flags: { "midi-qol": { summonIds: summons.tokenIds } }
             }
             await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });

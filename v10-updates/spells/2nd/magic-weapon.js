@@ -6,18 +6,7 @@ try {
         const bonus = args[0].spellLevel > 5 ? 3 : args[0].spellLevel > 3 ? 2 : 1;
         args[0].targets.forEach(async target => {
             const equipped = target.actor.items.filter(i => i.type == "weapon" && i.system.equipped && !i.system.properties.mgc && ["simple","martial"].find(t => i.system.weaponType.toLowerCase().includes(t)));
-            if (equipped.length == 1) {
-                const effectData = {
-                    name: "Magic Weapon",
-                    icon: "icons/magic/fire/dagger-rune-enchant-flame-blue.webp",
-                    changes: [{ key: "macro.execute", mode: 0, value: `MagicWeapon ${equipped[0].id} ${bonus}`, priority: 20 }],
-                    duration: { seconds: 3600 },
-                    origin: args[0].uuid,
-                    disabled: false,
-                    isSuppressed: false
-                }
-                await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: target.uuid, effects: [effectData] });
-            } else {
+            if (equipped.length) {
                 let weaponContent = "";
                 equipped.forEach((weapon) => { weaponContent += `<label class="radio-label"><input type="radio" name="weapon" value="${weapon.id}"><img src="${weapon.img}" style="border:0px; width: 50px; height:50px;">${weapon.name}</label>`; });
                 const content = `
@@ -48,7 +37,7 @@ try {
                                 const effectData = {
                                     name: "Magic Weapon",
                                     icon: "icons/magic/fire/dagger-rune-enchant-flame-blue.webp",
-                                    changes: [{ key: "macro.execute", mode: 0, value: `MagicWeapon ${$("input[type='radio'][name='weapon']:checked").val()} ${bonus}`, priority: 20 }],
+                                    changes: [{ key: "macro.execute", mode: 0, value: `Compendium.dnd-5e-core-compendium.macros.yQg2XQYvXN1JsVHU ${$("input[type='radio'][name='weapon']:checked").val()} ${bonus}`, priority: 20 }],
                                     duration: { seconds: 3600 },
                                     origin: args[0].uuid,
                                     disabled: false,
@@ -76,7 +65,6 @@ try {
             name: weapon.name + " (Magic Weapon)",
             system: { attackBonus: weapon.system.attackBonus + "+" + bonus, properties: { mgc: true }, "damage.parts": weapon.system.damage.parts.concat([[bonus, ""]]), "damage.versatile": weapon.system.damage.versatile + "+" + bonus }
         });
-        console.error("on", weapon, lastArg)
     } else if (args[0] === "off") { 
         let weapon = actor.items.find(i => i.flags["midi-qol"].magicWeapon == lastArg.efData._id);
         if (!weapon) weapon = game.actors.contents.find(a => a.items.find(i => i.flags["midi-qol"].magicWeapon === lastArg.efData._id)).items.find(i => i.flags["midi-qol"].magicWeapon === lastArg.efData._id);

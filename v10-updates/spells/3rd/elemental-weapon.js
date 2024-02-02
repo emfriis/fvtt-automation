@@ -43,7 +43,7 @@ try {
                                 const effectData = {
                                     name: "Elemental Weapon",
                                     icon: "icons/magic/fire/dagger-rune-enchant-flame-strong-teal.webp",
-                                    changes: [{ key: "macro.execute", mode: 0, value: `ElementalWeapon ${$("input[type='radio'][name='weapon']:checked").val()} ${bonus} ${$("select[name=types]")[0].value}`, priority: 20 }],
+                                    changes: [{ key: "macro.execute", mode: 0, value: `Compendium.dnd-5e-core-compendium.spells.F2KDAxXEDWGAR2xP ${$("input[type='radio'][name='weapon']:checked").val()} ${bonus} ${$("select[name=types]")[0].value}`, priority: 20 }],
                                     duration: { seconds: 3600 },
                                     origin: args[0].uuid,
                                     disabled: false,
@@ -72,7 +72,6 @@ try {
             name: weapon.name + " (Elemental Weapon)",
             system: { attackBonus: weapon.system.attackBonus + "+" + bonus, properties: { mgc: true }, "damage.parts": weapon.system.damage.parts.concat([[bonus, ""],[`${bonus}d4`, type]]), "damage.versatile": weapon.system.damage.versatile + "+" + bonus + "+" + `${bonus}d4[${type}]` }
         });
-        console.error("on", weapon, lastArg)
     } else if (args[0] === "off") { 
         let weapon = actor.items.find(i => i.flags["midi-qol"].elementalWeapon == lastArg.efData._id);
         if (!weapon) weapon = game.actors.contents.find(a => a.items.find(i => i.flags["midi-qol"].elementalWeapon === lastArg.efData._id)).items.find(i => i.flags["midi-qol"].elementalWeapon === lastArg.efData._id);
