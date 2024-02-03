@@ -3,15 +3,68 @@ try {
 	const die = args[0].actor.system.scale["battle-master"]["combat-superiority"];
 	const saveDC = 8 + args[0].actor.system.attributes.prof + (args[0].actor.system.abilities.dex.mod > args[0].actor.system.abilities.str.mod ? args[0].actor.system.abilities.dex.mod : args[0].actor.system.abilities.str.mod);
     if (!usesItem || !die) return;
-	if (args[0].macroPass == "preAttackRoll" && !args[0].workflow.combatSuperiority && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
+	if (args[0].macroPass == "prTargeting" && !args[0].workflow.combatSuperiority && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
+		let maneuverContent = "";
+		let lungingAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Lunging Attack");
+        if (lungingAttackItem && ["mwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="lungingAttack"><img src="${lungingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Lunging Attack</label>`;
+		let content = `
+            <style>
+            .maneuver .form-group {display: flex; flex-wrap: wrap; width: 100%; align-items: flex-start;}
+            .maneuver .radio-label { display: flex; flex-direction: column; align-items: center; text-align: center; justify-items: center; flex: 1 0 25%; line-height: normal;}
+            .maneuver .radio-label input {display: none;}
+            .maneuver img {border: 0px; width: 50px; height: 50px; flex: 0 0 50px; cursor: pointer;}
+            .maneuver [type=radio]:checked + img {outline: 2px solid #f00;}
+            </style>
+            <form class="maneuver">
+                <div class="form-group" id="maneuvers">${maneuverContent}</div>
+                <div><p>(${usesItem.system.uses.value} Superiority Di${usesItem.system.uses.value > 1 ? "e" : "ce"} Remaining)</p></div>
+            </form>
+        `;
+        let dialog = new Promise(async (resolve) => {
+            new Dialog({
+                title: "Combat Superiority",
+                content,
+                buttons: {
+                    Confirm: {
+                        label: "Confirm",
+                        callback: async () => {
+                            let maneuver = $("input[type='radio'][name='maneuver']:checked").val();
+                            resolve(maneuver);
+                        },
+                    },
+                    Cancel: {
+                        label: "Cancel",
+                        callback: async () => {
+                            resolve(false);
+                        },
+                    },
+                },
+                default: "Cancel",
+                close: async () => { resolve(false) },
+            }).render(true);
+        });
+        let maneuver = await dialog;
+        if (!maneuver) return;
+		args[0].workflow.combatSuperiority = maneuver;
+		await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
+		if (maneuver == "lungingAttack") {
+			const effectData = {
+                changes: [{ key: `flags.midi-qol.range.${args[0].item.system.actionType}`, mode: 2, value: "+5", priority: 20 }],
+                disabled: false,
+                name: "Lunging Attack",
+                icon: "icons/weapons/polearms/spear-hooked-spike.webp",
+                duration: { seconds: 1 },
+                flags: { dae: { specialDuration: ["endCombat", "1Attack", "1Hit"] } }
+            };
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
+		} 
+	} if (args[0].macroPass == "preAttackRoll" && !args[0].workflow.combatSuperiority && ["mwak", "rwak", "msak", "rsak"].includes(args[0].item.system.actionType)) {
 		let maneuverContent = "";
 		let braceItem = args[0].actor.items.find(i => i.name == "Maneuver: Brace");
         if (braceItem && ["mwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="brace"><img src="${braceItem.img}" style="border:0px; width: 50px; height:50px;">Brace</label>`;
         let feintingAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Feinting Attack");
         if (feintingAttackItem && ["mwak", "rwak"].includes(args[0].item.system.actionType) && !args[0].actor.effects.find(e => e.name == "Bonus Action")) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="feintingAttack"><img src="${feintingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Feinting Attack</label>`;
-        let lungingAttackItem = args[0].actor.items.find(i => i.name == "Maneuver: Lunging Attack");
-        if (lungingAttackItem && ["mwak"].includes(args[0].item.system.actionType)) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="lungingAttack"><img src="${lungingAttackItem.img}" style="border:0px; width: 50px; height:50px;">Lunging Attack</label>`;
-		let quickTossItem = args[0].actor.items.find(i => i.name == "Maneuver: Quick Toss");
+        let quickTossItem = args[0].actor.items.find(i => i.name == "Maneuver: Quick Toss");
         if (quickTossItem && ["mwak", "rwak"].includes(args[0].item.system.actionType) && args[0].item.system.properties.thr && !args[0].actor.effects.find(e => e.name == "Bonus Action")) maneuverContent += `<label class="radio-label"><br><input type="radio" name="maneuver" value="quickToss"><img src="${quickTossItem.img}" style="border:0px; width: 50px; height:50px;">Quick Toss</label>`;
 		let content = `
             <style>

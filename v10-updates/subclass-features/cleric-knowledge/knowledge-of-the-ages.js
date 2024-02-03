@@ -41,7 +41,7 @@ try {
             { name: "Viol", value: "system.tools.viol.prof", prof: args[0].actor.system.tools.viol?.prof },
             { name: "Weaver's Tools", value: "system.tools.weaver.prof", prof: args[0].actor.system.tools.weaver?.prof },
             { name: "Woodcarver's Tools", value: "system.tools.woodcarver.prof", prof: args[0].actor.system.tools.woodcarver?.prof }
-        ]).filter(p => !p.prof);
+        ]).filter(p => !p.prof || p.prof == 3);
         const optionContent = options.map((o) => { return `<option value="${o.value}">${o.name}</option>` });
         let dialog = new Promise((resolve,) => {
             new Dialog({
@@ -66,7 +66,7 @@ try {
         const effectData = {
             name: "Channel Divinity: Knowledge of the Ages",
             icon: "icons/tools/navigation/compass-plain-blue.webp",
-            changes: [{ key: prof, mode: 4, value: "1", priority: 20 }],
+            changes: [{ key: prof, mode: 0, value: "1", priority: 20 }],
             disabled: false,
             duration: { seconds: 600 }
         }

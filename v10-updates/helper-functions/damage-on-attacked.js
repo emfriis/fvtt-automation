@@ -2,6 +2,8 @@
 // itemArgs format - comma separated 
 // actionTypes - breakline separated i.e., actionTypes=mwak|msak WHICH ACTION TYPES TRIGGER DAMAGE
 // isHit - i.e., isHit=true DOES ATTACK NEED TO DEAL DAMAGE TO TRIGGER DAMAGE
+// isMagic - i.e., isMagic=true IS ATTACK FROM A MAGIC EFFECT
+// isSpell - i.e., isSpell=true IS ATTACK FROM A SPELL
 // range - i.e., range=5 WHAT RANGE DOES ATTACK NEED TO BE IN TO TRIGGER DAMAGE
 // damageRoll - rollable string i.e., damageRoll=3d6 HOW MUCH DAMAGE
 // damageType - damage type i.e., damageType=fire WHAT TYPE OF DAMAGE 
@@ -18,6 +20,10 @@ try {
         const actionTypes = actionTypesValue ? actionTypesValue[0]?.split("|") : ["mwak", "rwak", "msak", "rsak"];
         const isHitValue = damageItem.find(i => i?.includes("isHit="))?.replace("isHit=","");
         const isHit = !isHitValue || isHitValue == "false" ? false : true;
+        const isMagicValue = damageItem.find(i => i?.includes("isMagic="))?.replace("isMagic=","");
+        const isMagic = !isMagicValue || isMagicValue == "false" ? false : true;
+        const isSpellValue = damageItem.find(i => i?.includes("isSpell="))?.replace("isSpell=","");
+        const isSpell = !isSpellValue || isSpellValue == "false" ? false : true;
         const rangeValue = damageItem.find(i => i?.includes("range="))?.replace("range=","");
         const range = !rangeValue ? 9999 : isNaN(rangeValue) ? undefined : +rangeValue;
         const damageRoll = damageItem.find(i => i?.includes("damageRoll="))?.replace("damageRoll=","")?.replace(/@([^-+*^\/()@]+)(?=[-+*^\/()]|$)/g, i => i.replace("@","").split(".").reduce((val, prop) => { return val ? val[prop] : undefined }, args[0]));
@@ -35,7 +41,7 @@ try {
         if (isHit) {
             let hook1 = Hooks.on("midi-qol.RollComplete", async workflowNext => {
                 if (workflowNext.uuid === args[0].uuid && workflowNext.hitTargets.size) {
-                    await applyDamage(args[0].options.actor, args[0].workflow.token, damageRoll, damageType, itemName, itemImg, killAnim);
+                    await applyDamage(args[0].options.actor, args[0].workflow.token, damageRoll, damageType, isMagic, isSpell, itemName, itemImg, killAnim);
                     Hooks.off("midi-qol.postActiveEffects", hook1);
                 }
             });
@@ -46,24 +52,25 @@ try {
                 }
             });
         } else {
-            await applyDamage(args[0].options.actor, args[0].workflow.token, damageRoll, damageType, itemName, itemImg, killAnim);
+            await applyDamage(args[0].options.actor, args[0].workflow.token, damageRoll, damageType, isMagic, isSpell, itemName, itemImg, killAnim);
         }
         args[0].workflow.damageOnAttacked = args[0].workflow.damageOnAttacked ? args[0].workflow.damageOnAttacked?.concat([args[0].options.actor.uuid]) : [args[0].options.actor.uuid];
     });
 } catch (err) {console.error("Damage On Attacked Macro - ", err)}
 
-async function applyDamage(actor, target, damageRoll, damageType, itemName, itemImg, killAnim) {
+async function applyDamage(actor, target, damageRoll, damageType, isMagic, isSpell, itemName, itemImg, killAnim) {
     const itemData = {
         name: itemName,
         img: itemImg,
-        type: "feat",
+        type: isSpell ? "spell" : "feat",
         system: {
+            level: 0,
             activation: { type: "special" },
             target: { value: 1, type: "creature" },
             actionType: "other",
             damage: { parts: [[damageRoll, damageType]] }
         },
-        flags: { autoanimations: { isEnabled: killAnim } }
+        flags: { autoanimations: { isEnabled: killAnim }, midiProperties: { magicdam: isMagic, magiceffect: isMagic } }
     }
     const item = new CONFIG.Item.documentClass(itemData, { parent: actor });
     await MidiQOL.completeItemUse(item, {}, { showFullCard: true, createWorkflow: true, configureDialog: false, targetUuids: [target.document.uuid] });

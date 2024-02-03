@@ -2,7 +2,7 @@ try {
     if (args[0].item.type != "spell") return;
     const usesItem = args[0].actor.items.find(i => i.name == "Font of Magic" && i.system.uses.value);
     let consume = true;
-    if (args[0].macroPass == "preItemRoll" && usesItem.system.uses.value && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type) && !args[0].workflow.metamagic) {
+    if (args[0].macroPass == "preTargeting" && usesItem.system.uses.value && ["action", "bonus", "reaction", "reactiondamage", "reactionmanual"].includes(args[0].item.system.activation.type) && !args[0].workflow.metamagic) {
         let metamagicContent = "";
         let carefulItem = args[0].actor.items.find(i => i.name == "Metamagic: Careful Spell");
         if (carefulItem && args[0].item.system.save?.dc && args[0].item.system.save?.ability) metamagicContent += `<label class="radio-label"><br><input type="radio" name="metamagic" value="careful"><img src="${carefulItem.img}" style="border:0px; width: 50px; height:50px;">Careful Spell<br>(1 Sorcery Point)</label>`;
@@ -80,7 +80,7 @@ try {
             // twinned spell
             if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - Math.max(1, args[0].spellLevel)) });
             args[0].workflow.metamagic = "twinned";
-        }   if (metamagic == "careful") {
+        } else if (metamagic == "careful") {
             // careful spell
             let carefulDialog =  new Promise(async (resolve) => {
                 new Dialog({
@@ -109,6 +109,7 @@ try {
                         }
                     }
                     Hooks.off("midi-qol.postCheckSaves", hook1);
+                    Hooks.off("midi-qol.preItemRoll", hook2);
                 }
             });
             let hook2 = Hooks.on("midi-qol.preItemRoll", async workflowNext => {
@@ -121,6 +122,15 @@ try {
             args[0].workflow.metamagic = "careful";
         } else if (metamagic == "distant") {
             // distant spell
+            const effectData = {
+                changes: [{ key: `flags.midi-qol.range.${args[0].item.system.actionType}`, mode: 2, value: `${args[0].item.system.range.units == "touch" ? 25 : args[0].item.system.range.value}`, priority: 20 }],
+                disabled: false,
+                name: "Distant Spell",
+                icon: "icons/skills/targeting/target-strike-triple-blue.webp",
+                duration: { seconds: 1 },
+                flags: { dae: { specialDuration: ["endCombat", "1Spell"] } }
+            };
+            await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
             if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
             args[0].workflow.metamagic = "distant";
         } else if (metamagic == "extended") {  
@@ -229,6 +239,16 @@ try {
             if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 1) });
             args[0].workflow.metamagic = "transmuted";
         }
+    } else if (args[0].macroPass == "preTargeting" && args[0].workflow.metamagic == "distant") {
+        const effectData = {
+            changes: [{ key: `flags.midi-qol.range.${args[0].item.system.actionType}`, mode: 2, value: `${args[0].item.system.range.units == "touch" ? 25 : args[0].item.system.range.value}`, priority: 20 }],
+            disabled: false,
+            name: "Distant Spell",
+            icon: "icons/skills/targeting/target-strike-triple-blue.webp",
+            duration: { seconds: 1 },
+            flags: { dae: { specialDuration: ["endCombat", "1Spell"] } }
+        };
+        await MidiQOL.socket().executeAsGM("createEffects", { actorUuid: args[0].actor.uuid, effects: [effectData] });
     } else if (args[0].macroPass == "preCheckHits" && args[0].actor.items.find(i => i.name == "Metamagic: Seeking Spell") && usesItem.system.uses.value > 1 && ["msak","rsak"].includes(args[0].item.system.actionType) && args[0].attackRoll && args[0].targets[0].actor.system.attributes.ac.value > args[0].attackRoll.total) {        
         // seeking spell
         let seekingDialog = await new Promise((resolve) => {
@@ -285,7 +305,7 @@ try {
         args[0].attackRoll._total = args[0].attackRoll._evaluateTotal();
         await args[0].workflow.setAttackRoll(args[0].attackRoll);
         if (consume) await usesItem.update({ "system.uses.value": Math.max(0, usesItem.system.uses.value - 2) });
-    } else if (args[0].tag == "DamageBonus" && args[0].hitTargets.length && args[0].actor.items.find(i => i.name == "Metamagic: Empowered Spell") && usesItem.system.uses.value && args[0].item.system.damage?.parts?.length && !["healing", "temphp", "", "midi-none"].includes(args[0].item.system.damage.parts[0][1]) && args[0].damageRoll) {
+    } else if (args[0].tag == "DamageBonus" && (args[0].hitTargets.length || MidiQOL.configSettings().autoRollDamage != "always") && args[0].actor.items.find(i => i.name == "Metamagic: Empowered Spell") && usesItem.system.uses.value && args[0].item.system.damage?.parts?.length && !["healing", "temphp", "", "midi-none"].includes(args[0].item.system.damage.parts[0][1]) && args[0].damageRoll) {
         // empowered spell
         let terms = args[0].damageRoll.terms;
         let termsContent = "";

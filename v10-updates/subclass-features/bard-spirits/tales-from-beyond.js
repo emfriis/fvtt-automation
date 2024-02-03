@@ -184,7 +184,7 @@ async function createTale (tale, die) {
                 effects: [{ 
                     changes: [
                         { key: "flags.midi-qol.onUseMacroName", mode: 0, value: "Compendium.dnd-5e-core-compendium.macros.SyLA14RrLULIlmW6, isAttacked", priority: "20" },
-                        { key: "flags.midi-qol.damageOnAttacked", mode: 2, value: `actionTypes=mwak|msak,isHit=true,damageRoll=1${die},damageType=force,killAnim=true;`, priority: "20" }
+                        { key: "flags.midi-qol.damageOnAttacked", mode: 2, value: `actionTypes=mwak|msak,isHit=true,damageRoll=1${die},damageType=force,killAnim=true,isSpell=true;`, priority: "20" }
                     ],
                     disabled: false,
                     isSuppressed: false,
@@ -323,7 +323,7 @@ async function createTale (tale, die) {
                     name: "Prone",
                     transfer: false
                 }],
-                flags: { "midi-qol": { onUseMacroName: "[preambleComplete]Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", onUseMacroParts: { items: [{ macroName: "Compendium.dnd-5e-core-compendium.macros.PR3PBCsF2zlWd2i0", option: "preambleComplete" }] } }, midiProperties: { halfdam: true, magiceffect: true } }
+                flags: { "midi-qol": { AoETargetType: "notAlly" }, midiProperties: { halfdam: true, magiceffect: true } }
             }
             await args[0].actor.createEmbeddedDocuments("Item", [itemData]);
             break;
