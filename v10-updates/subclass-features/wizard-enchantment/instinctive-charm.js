@@ -1,3 +1,5 @@
+//reaction=="isAttacked"&&!traits.ci.value.has("charmed")&&MidiQOL.computeDistance(canvas.tokens.get(targetId),canvas.tokens.get(tokenId),false)<=30&&MidiQOL.canSee(canvas.tokens.get(targetId),canvas.tokens.get(tokenId))&&!target.flags["midi-qol"]?.instinctiveCharm?.includes(actorUuid)&&canvas.tokens.placeables.find(t=> t.actor&&MidiQOL.typeOrRace(t.actor)&&t.id!=targetId&&t.id!=tokenId&&MidiQOL.canSense(canvas.tokens.get(tokenId),t)&&(MidiQOL.computeDistance(canvas.tokens.get(tokenId),t,false)<=item.range.long??item.range.value))
+
 try {
     if (args[0].macroPass != "postActiveEffects") return;
     if (args[0].failedSaves.length) {
