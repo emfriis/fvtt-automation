@@ -40,7 +40,7 @@ MidiQOL.computeDistance(workflow.token,[...workflow.targets][0],false)>Math.max(
 //-------frightened flags.midi-qol.disadvantage.attack.all
 //workflow.actor.flags["midi-qol"].frightened.split("Actor.").find(f => MidiQOL.canSense(workflow.token, canvas.tokens.placeables.find(p => p.actor && p.actor.id == f))) // USING FRIGHTENED FLAG
 //workflow.actor.effects.find(e=>e.label=="Frightened"&&MidiQOL.canSense(workflow.token,canvas.tokens.placeables.find(t=>t.actor&&t.actor.id==e.origin.match(/Actor\.(.*?)\./)[1])))
-effects.find(e=>e.name=="Frightened"&&MidiQOL.canSense(canvas.tokens.get(tokenId),canvas.tokens.placeables.find(t=>t.actor&&(t.actor.id==e.origin.match(/Actor\.(.*?)\./)[1]||t.actor.flags.dnd5e.originalActor==e.origin.match(/Actor\.(.*?)\./)[1]))))
+effects.find(e=>e.name=="Frightened"&&MidiQOL.canSense(canvas.tokens.get(tokenId),canvas.tokens.placeables.find(t=>t.actor&&(t.actor.id==e.origin.match(/Actor\.(.*?)\./)[1]))))
 
 //------mortal bulwark flags.midi-qol.advantage.attack.all
 ["aberration","celestial","elemental","fey","fiend"].find(t=>MidiQOL.typeOrRace(targetActorUuid)?.toLowerCase().includes(t))

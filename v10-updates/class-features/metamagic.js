@@ -145,9 +145,9 @@ try {
                     });
                 }
             });
-            let hook2 = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+            let hook2 = Hooks.on("midi-qol.preTargeting", async (workflowNext) => {
                 if (workflowNext.item.uuid == args[0].item.uuid && workflowNext.metamagic != "extended") {
-                    Hooks.off("midi-qol.createActiveEffect", hook1);
+                    Hooks.off("createActiveEffect", hook1);
                     Hooks.off("midi-qol.preTargeting", hook2);
                 }
             });
@@ -232,10 +232,10 @@ try {
                     });
                 }
             });
-            let hook3 = Hooks.on("midi-qol.preTargeting", async workflowNext => {
+            let hook3 = Hooks.on("midi-qol.preTargeting", async (workflowNext) => {
                 if (workflowNext.item.uuid == args[0].item.uuid && workflowNext.metamagic != "extended") {
                     Hooks.off("midi-qol.preDamageRollComplete", hook1);
-                    Hooks.off("midi-qol.createActiveEffect", hook2);
+                    Hooks.off("createActiveEffect", hook2);
                     Hooks.off("midi-qol.preTargeting", hook3);
                 }
             });
